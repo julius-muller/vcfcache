@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  vepstash:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ${VEP_CACHE_DIR}:/opt/vep/.vep:ro
+      - ${REFERENCE_DIR}:/reference:ro
+      - ${DATA_DIR}:/data
+      - ${CACHE_DIR}:/cache
+    environment:
+      - VEP_CACHE_DIR=/opt/vep/.vep
+      - REFERENCE_PATH=/reference
+    command: ["tail", "-f", "/dev/null"]  # keeps container running
+
+volumes:
+  cache:
+    driver: local

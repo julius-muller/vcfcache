@@ -1,0 +1,21 @@
+# pyproject.toml
+[project]
+name = "vepstash"
+version = "0.1.0"
+description = "Cache-based VEP annotation accelerator"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.0",
+    "pyyaml>=6.0",
+    "pysam>=0.21.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+vepstash = "src.main:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
