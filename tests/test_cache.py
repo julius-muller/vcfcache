@@ -178,7 +178,7 @@ def test_annotation(setup_test_env):
     annotations_dir = db_path / "annotations"
 
     # Copy the real workflow files
-    real_workflow = Path("/home/j380r/projects/vepstash/workflow")
+    real_workflow = Path(__file__).parent.parent / "workflow"
     shutil.copytree(real_workflow, WORKFLOW_DIR, dirs_exist_ok=True)
 
     # Run annotation
