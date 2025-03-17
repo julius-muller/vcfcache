@@ -295,7 +295,7 @@ process CaptureToolVersions {
     echo "bcftools version:" > ${sample_name}_final.tool_version.log
     bcftools --version >> ${sample_name}_final.tool_version.log
     echo "vep version:" >> ${sample_name}_final.tool_version.log
-    ${params.apptainer_path} exec -B ${params.bind_path} ${params.vep_container} vep 2>&1 | grep "ensembl-.*" >> ${sample_name}_final.tool_version.log
+    ${params.apptainer_path} exec -B ${params.apptainer_bind} ${params.vep_container} vep 2>&1 | grep "ensembl-.*" >> ${sample_name}_final.tool_version.log
     echo "echtvar version:" >> ${sample_name}_final.tool_version.log
     ${params.echtvar_path} --version >> ${sample_name}_final.tool_version.log
     """
