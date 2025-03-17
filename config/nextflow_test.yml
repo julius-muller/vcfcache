@@ -2,7 +2,7 @@
 chr_add: 'tests/data/chr_add.txt'
 reference: 'tests/data/reference.fa'
 vep_cache: 'tests/data/vep_cache'
-apptainer_path: null
-apptainer_bind: null
-vep_container: null
-echtvar_path: null
+apptainer_path: '/usr/bin/apptainer'
+apptainer_bind: '/mnt/data:/mnt/data'
+vep_container: '/mnt/data/apps/ensembl-vep/113/vep.sif'
+echtvar_path: '/mnt/data/apps/echtvar/echtvar'
