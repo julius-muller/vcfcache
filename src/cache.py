@@ -21,18 +21,66 @@ Date: 16-03-2025
 
 import tarfile
 import tempfile
-from datetime import datetime
 import json
-import os
 import sys
 import subprocess
 import argparse
-from pathlib import Path
 from datetime import datetime
 import shutil
-from pathlib import Path
 from typing import Dict, List, Tuple, Optional
+import yaml
+import os
+from pathlib import Path
 
+def load_nextflow_config(test_mode=False):
+    """Load Nextflow configuration from YAML files."""
+    # Get project root directory (assuming this file is in project_root/tests or project_root)
+    project_root = Path(__file__).parent.parent
+
+    # Determine which config file to use
+    config_file = 'nextflow_test.yml' if test_mode else 'nextflow.yml'
+    config_path = project_root / 'config' / config_file
+
+    # Load and return the configuration
+    with open(config_path) as f:
+        return yaml.safe_load(f)
+
+def run_nextflow_pipeline(input_file, output_dir, test_mode=False):
+    """Run Nextflow pipeline with the appropriate configuration."""
+    project_root = Path(__file__).parent.parent
+    workflow_path = project_root / 'workflow' / 'main.nf'
+    config_file = 'nextflow_test.yml' if test_mode else 'nextflow.yml'
+
+    # Construct the Nextflow command
+    cmd = [
+        'nextflow',
+        'run',
+        str(workflow_path),
+        f'--params-file',
+        str(project_root / 'config' / config_file),
+        '--input', str(input_file),
+        '--output', str(output_dir)
+    ]
+
+    # Add test profile if in test mode
+    if test_mode:
+        cmd.append('-profile test')
+
+    # Execute the command
+    return os.system(' '.join(cmd))
+
+
+# Example usage in test_cache.py:
+def test_pipeline():
+    config = load_nextflow_config(test_mode=True)
+    assert config['chr_add'] == 'tests/data/chr_add.txt'
+
+    result = run_nextflow_pipeline(
+        input_file='tests/data/input.vcf',
+        output_dir='tests/data/output',
+        test_mode=True
+    )
+    assert result == 0
 
 def create_annotation_archive(run_dir: Path) -> Path:
     """Create a single archive file from annotation run directory"""
@@ -508,5 +556,14 @@ def main() -> None:
         log_script_command(info_file)
         annotate_mode(args)
 
-if __name__ == "__main__":
-    main()
+
+# Example usage in cache.py:
+if __name__ == '__main__':
+    config = load_nextflow_config()
+    result = run_nextflow_pipeline(
+        input_file='/path/to/input.vcf',
+        output_dir='/path/to/output'
+    )
+    if result != 0:
+        print("Pipeline execution failed")
+

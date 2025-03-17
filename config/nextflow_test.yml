@@ -1,0 +1,8 @@
+# Only override what's needed for testing
+chr_add: 'tests/data/chr_add.txt'
+reference: 'tests/data/reference.fa'
+vep_cache: 'tests/data/vep_cache'
+apptainer_path: null
+apptainer_bind: null
+vep_container: null
+echtvar_path: null
