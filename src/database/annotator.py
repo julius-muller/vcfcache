@@ -44,15 +44,18 @@ class DatabaseAnnotator(VEPDatabase):
         if not self.variants_bcf.exists():
             raise FileNotFoundError("Database BCF file does not exist.")
 
-        # Create workflow directory in database if it doesn't exist
-        db_workflow_dir = self.db_path / "workflow"
+        # Create workflow directory in database base directory (not inside test_db)
+        db_workflow_dir = Path(self.db_path).parent / "workflow"
         db_workflow_dir.mkdir(exist_ok=True)
 
         # Copy workflow files to database
-        shutil.copy2(self.workflow_path, db_workflow_dir / "main.nf")
-        shutil.copy2(self.workflow_config_path, db_workflow_dir / "nextflow.config")
+        workflow_dir = Path(self.workflow_dir)
+        shutil.copy2(workflow_dir / "main.nf", db_workflow_dir / "main.nf")
+        shutil.copy2(workflow_dir / "nextflow.config", db_workflow_dir / "nextflow.config")
         if self.params_file:
             shutil.copy2(self.params_file, db_workflow_dir / self.params_file.name)
+
+        # Rest of the method remains the same...
 
         # Store blueprint snapshot and workflow files
         shutil.copy2(self.info_file, self.run_dir / "blueprint.snapshot")

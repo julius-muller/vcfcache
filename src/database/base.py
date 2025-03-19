@@ -85,15 +85,17 @@ class NextflowWorkflow:
             log_message(run_dir / "annotation.info", f"Warning: Failed to generate workflow DAG: {e}", level="WARN")
 
 
+
     def run(self, input_file: Path, output_dir: Path, db_mode: bool = False, **kwargs) -> subprocess.CompletedProcess:
         """Run Nextflow pipeline with the appropriate configuration.
 
-        Args:
-            input_file: Path to input BCF/VCF file
-            output_dir: Path to output directory
-            db_mode: Whether to run in database mode
-            **kwargs: Additional arguments to pass to the workflow
-        """
+            Args:
+                input_file: Path to input BCF/VCF file
+                output_dir: Path to output directory
+                db_mode: Whether to run in database mode
+                **kwargs: Additional arguments to pass to the workflow
+            """
+
         if not self.workflow_path.is_file():
             raise FileNotFoundError(f"Required workflow file not found: {self.workflow_path}")
 
@@ -110,14 +112,14 @@ class NextflowWorkflow:
         if self.params_file:
             cmd.extend(["-params-file", str(self.params_file)])
 
-        # Add any additional arguments
+        # Add any additional arguments, filtering out empty ones
         for key, value in kwargs.items():
             if key == "nextflow_args" and value:
-                if value[0] == '--':
-                    cmd.extend(value[1:])
-                else:
-                    cmd.extend(value)
-            else:
+                # Filter out empty or None values
+                args = [arg for arg in value if arg and arg != '[]']
+                if args:
+                    cmd.extend(args)
+            elif value:  # Only add if value is not empty
                 cmd.extend([f"--{key}", str(value)])
 
         # Print command
@@ -138,3 +140,4 @@ class NextflowWorkflow:
             print("\nSTDERR:", file=sys.stderr)
             print(e.stderr, file=sys.stderr)
             raise
+
