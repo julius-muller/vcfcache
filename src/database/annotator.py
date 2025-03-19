@@ -171,13 +171,14 @@ class VCFAnnotator(VEPDatabase):
     """Handles annotation of user VCF files using the database"""
 
     def __init__(self, db_path: Path, input_vcf: Path, output_dir: Path, workflow_dir: Optional[Path] = None,
-                 threads: int = 4):
+                 params_file: Optional[Path] = None, threads: int = 4):
         super().__init__(db_path)
         self.input_vcf = Path(input_vcf)
         self.output_dir = Path(output_dir)
         self.workflow_dir = workflow_dir or self.db_path / "workflow"
+        self.params_file = params_file
         self.threads = max(int(threads), 1)
-        self._nf_workflow = NextflowWorkflow(self.workflow_dir)
+        self._nf_workflow = NextflowWorkflow(self.workflow_dir, params_file=self.params_file)
         self.run_dir = self._create_run_dir(workflow_hash=self._nf_workflow.workflow_hash)
 
     @staticmethod

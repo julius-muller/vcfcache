@@ -35,24 +35,28 @@ class NextflowWorkflow:
         self.workflow_path = self.workflow_dir / f"{filename}.nf"
         if not self.workflow_path.exists():
             raise FileNotFoundError(f"Workflow file not found: {self.workflow_path}")
+
         self.workflow_config_path = self.workflow_dir / "nextflow.config"
         if not self.workflow_config_path.exists():
             raise FileNotFoundError(f"Nextflow config file not found: {self.workflow_config_path}")
-        self.params_file = Path(params_file)
+
+        # Handle optional params_file
+        self.params_file = Path(params_file) if params_file else None
         if self.params_file and not self.params_file.exists():
             raise FileNotFoundError(f"Parameters file not found: {self.params_file}")
+
         self.workflow_hash = self.get_workflow_hash(self.workflow_dir)
         self.config = self.load_nextflow_config()
         self.run_dir = self.workflow_dir / "run"
         self.run_dir.mkdir(parents=True, exist_ok=True)
 
-
     def load_nextflow_config(self, test_mode=False):
         """Load Nextflow configuration from YAML files."""
-
-        # Load and return the configuration
-        with open(self.params_file) as f:
-            return yaml.safe_load(f)
+        # Only load if params_file exists
+        if self.params_file:
+            with open(self.params_file) as f:
+                return yaml.safe_load(f)
+        return {}  # Return empty dict if no params file
 
     def get_workflow_hash(self, workflow_dir: Path) -> str:
         """Get combined hash of workflow files"""

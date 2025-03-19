@@ -62,8 +62,8 @@ def main() -> None:
     vcf_parser.add_argument("-d", "--db", required=True, help="Path to the database directory")
     vcf_parser.add_argument("-i", "--vcf", dest="i", required=True, help="Input VCF file to annotate")
     vcf_parser.add_argument("-o", "--output", required=True, help="Output directory")
+    vcf_parser.add_argument("-p", "--params", help="Optional parameters file for nextflow workflow")
     vcf_parser.add_argument("-t", "--threads", type=int, default=4, help="Number of threads")
-    # vcf_parser.add_argument("--no-parquet", action="store_true", help="Skip Parquet conversion")
 
     args = parser.parse_args()
 
@@ -101,6 +101,7 @@ def main() -> None:
                 db_path=args.db,
                 input_vcf=args.i,
                 output_dir=args.output,
+                params_file=args.params,
                 threads=args.threads
             )
             annotator.annotate()
