@@ -1,0 +1,151 @@
+
+import subprocess
+import sys
+from typing import Tuple, Optional, Dict
+from pathlib import Path
+
+import pysam
+
+
+def ensure_indexed(file_path: Path) -> None:
+    """Ensure input file has an index file (CSI or TBI)"""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    csi_index = Path(str(file_path) + ".csi")
+    tbi_index = Path(str(file_path) + ".tbi")
+
+    if not (csi_index.exists() or tbi_index.exists()):
+        raise RuntimeError(
+            f"No index found for {file_path}. Use bcftools index for BCF/compressed VCF "
+            "or tabix for compressed VCF files."
+        )
+
+
+def check_duplicate_md5(info_file: Path, new_md5: str) -> bool:
+    """Check if a file with the same MD5 was already added"""
+    try:
+        with open(info_file, "r") as f:
+            for line in f:
+                if "Input file MD5:" in line and new_md5 in line:
+                    return True
+    except FileNotFoundError:
+        return False
+    return False
+
+
+def get_bcf_stats(bcf_path: Path) -> Dict[str, str]:
+    """Get statistics from BCF file using bcftools stats"""
+    try:
+        result = subprocess.run(
+            ["bcftools", "stats", bcf_path],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        stats = {}
+        for line in result.stdout.splitlines():
+            if line.startswith("SN"):
+                parts = line.split("\t")
+                if len(parts) >= 4:
+                    key = parts[2].strip(":")
+                    value = parts[3]
+                    stats[key] = value
+        return stats
+    except subprocess.CalledProcessError as e:
+        return {"error": f"Failed to get statistics: {e}"}
+
+
+def validate_bcf_header(bcf_path: Path, norm: bool = True) -> Tuple[bool, Optional[str]]:
+    """
+    Validate BCF header for required normalization command and contig format.
+    Returns tuple (is_valid, error_message).
+    """
+    try:
+        header = subprocess.run(
+            ["bcftools", "view", "-h", bcf_path],
+            check=True,
+            capture_output=True,
+            text=True
+        ).stdout
+
+        if norm:
+            # Check normalization command
+            norm_lines = [line for line in header.splitlines()
+                         if line.startswith("##bcftools_normCommand")]
+
+            if not norm_lines:
+                return False, "Missing bcftools_normCommand in header"
+
+            norm_cmd = norm_lines[0]
+            required_options = ["norm", "-c x", "-m-"]
+            missing_options = [opt for opt in required_options if opt not in norm_cmd]
+
+            if missing_options:
+                return False, f"Missing required normalization options: {', '.join(missing_options)}"
+
+        # Check contig format
+        contig_lines = [line for line in header.splitlines()
+                       if line.startswith("##contig=")]
+
+        if not contig_lines:
+            return False, "No contig lines found in header"
+
+        invalid_contigs = [line for line in contig_lines
+                          if not line.startswith("##contig=<ID=chr")]
+
+        if invalid_contigs:
+            example = invalid_contigs[0] if invalid_contigs else ""
+            return False, f"Invalid contig format (should start with 'chr'): {example}"
+
+        return True, None
+
+    except subprocess.CalledProcessError as e:
+        return False, f"Error reading BCF header: {e}"
+
+
+
+def check_bcftools_installed() -> None:
+    try:
+        subprocess.run(["bcftools", "--version"], check=True, capture_output=True)
+    except FileNotFoundError:
+        sys.exit("Error: bcftools is not installed or not in PATH.")
+
+
+
+
+def compute_md5(file_path: Path) -> str:
+    try:
+        result = subprocess.run(
+            ["md5sum", file_path],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        return result.stdout.split()[0]  # The MD5 hash is the first word in the output
+    except subprocess.CalledProcessError as e:
+        sys.exit(f"Error computing MD5 checksum: {e}")
+
+def validate_vcf_format(vcf_path: Path) -> tuple[bool, str | None]:
+    """
+    Validate VCF format fields to ensure required FORMAT fields are present.
+
+    Args:
+        vcf_path (Path): Path to the VCF file.
+
+    Returns:
+        tuple: (is_valid, error_message). If valid, error_message is None.
+    """
+    try:
+        vcf = pysam.VariantFile(str(vcf_path))
+        required_formats = {"AD", "DP", "GT"}
+        available_formats = set(vcf.header.formats.keys())
+
+        missing_formats = required_formats - available_formats
+        if missing_formats:
+            return False, f"Missing required FORMAT fields: {', '.join(missing_formats)}"
+
+        return True, None
+    except Exception as e:
+        return False, f"Error reading VCF file: {e}"

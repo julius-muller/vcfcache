@@ -184,7 +184,7 @@ process VEPAnnotate {
         (
             echo "Starting chromosome \$chr"
             bcftools view -r \$chr ${input_bcf} | \
-            apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/113/vep.sif vep \
+            ${params.container_engine} exec ${params.container_bind} ${params.vep_container} vep \
                 -a GRCh37 \
                 --cache \
                 --offline \
@@ -295,7 +295,7 @@ process CaptureToolVersions {
     echo "bcftools version:" > ${sample_name}_final.tool_version.log
     bcftools --version >> ${sample_name}_final.tool_version.log
     echo "vep version:" >> ${sample_name}_final.tool_version.log
-    ${params.apptainer_path} exec -B ${params.apptainer_bind} ${params.vep_container} vep 2>&1 | grep "ensembl-.*" >> ${sample_name}_final.tool_version.log
+    ${params.container_engine} exec ${params.container_bind} ${params.vep_container} vep 2>&1 | grep "ensembl-.*" >> ${sample_name}_final.tool_version.log
     echo "echtvar version:" >> ${sample_name}_final.tool_version.log
     ${params.echtvar_path} --version >> ${sample_name}_final.tool_version.log
     """
