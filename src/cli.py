@@ -60,7 +60,7 @@ def main() -> None:
     # Main functionality, apply to user vcf
     vcf_parser = subparsers.add_parser("annotate", help="Annotate a VCF file using the database")
     vcf_parser.add_argument("-d", "--db", required=True, help="Path to the database directory")
-    vcf_parser.add_argument("-i", "--vcf", required=True, help="Input VCF file to annotate")
+    vcf_parser.add_argument("-i", "--vcf", dest="i", required=True, help="Input VCF file to annotate")
     vcf_parser.add_argument("-o", "--output", required=True, help="Output directory")
     vcf_parser.add_argument("-t", "--threads", type=int, default=4, help="Number of threads")
     # vcf_parser.add_argument("--no-parquet", action="store_true", help="Skip Parquet conversion")
