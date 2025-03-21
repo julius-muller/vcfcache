@@ -2,17 +2,39 @@ from pathlib import Path
 import subprocess
 from datetime import datetime
 from .base import VEPDatabase
+from ..utils.logging import setup_logging
 from ..utils.validation import compute_md5
 
 
 class DatabaseInitializer(VEPDatabase):
     """Handles database initialization"""
-    def __init__(self, name: str, input_file: Path, fasta_ref: Path, output_dir: Path, threads: int):
-        self.output_dir = Path(output_dir)
-        super().__init__(self.output_dir / name)
-        self.input_file = Path(input_file)
+    def __init__(self, name: str, input_file: Path, fasta_ref: Path, output_dir: Path = Path("."),
+                 threads: int = 4, verbosity: int = 0):
+        """Initialize the database creator.
+
+        Args:
+            name: Name of the database
+            input_file: Path to input VCF/BCF file
+            fasta_ref: Path to reference FASTA file
+            output_dir: Output directory (default: current)
+            threads: Number of threads to use (default: 4)
+            verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+        """
+        super().__init__(output_dir / name)
+        self.name = name
+        self.input_file = Path(input_file) if input_file else None
         self.fasta_ref = Path(fasta_ref)
+        self.output_dir = Path(output_dir)
         self.threads = max(int(threads), 1)
+
+        # Use setup_logging instead of manual verbosity mapping
+        log_file = self.db_path / "init.log"
+        self.logger = setup_logging(
+            verbosity=verbosity,
+            log_file=log_file
+        )
+
+        # Log initialization parameters
         self.logger.info(f"Initializing database: {name}")
         self.logger.debug(f"Input file: {input_file}")
         self.logger.debug(f"Reference: {fasta_ref}")

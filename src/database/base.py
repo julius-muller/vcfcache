@@ -9,6 +9,10 @@ from src.utils.validation import ensure_indexed, validate_bcf_header
 from src.utils.logging import setup_logger
 
 class VEPDatabase:
+    TRANSCRIPT_KEYS = [
+        'SYMBOL', 'Feature', 'Consequence', 'HGVS_OFFSET', 'HGVSc', 'HGVSp',
+        'IMPACT', 'DISTANCE', 'PICK', 'VARIANT_CLASS'
+    ]
     """Base class for VEP database operations"""
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
@@ -34,6 +38,32 @@ class VEPDatabase:
         if not result[0]:
             self.logger.error(f"BCF header validation failed: {result[1]}")
         return result
+
+    def parse_vep_info(self, vep_data: list) -> list:
+        """Parses VEP INFO field and expands transcript consequences."""
+
+        def convert_vepstr(value):
+            if value is None or value == "":
+                return None
+            try:
+                if isinstance(value, str) and ("." in value or "e" in value or "E" in value):
+                    return float(value)
+                return int(value)
+            except ValueError:
+                return value
+
+        expanded_data = []
+        for tn, transcript in enumerate(vep_data):
+            expanded_data.append({})
+            for entry in self.TRANSCRIPT_KEYS:
+                if entry not in vep_data[tn]:
+                    raise ValueError(f"Did not find key={entry} in CSQ INFO tag")
+                if entry == "PICK":
+                    expanded_data[tn][entry] = vep_data[tn][entry] == "1"
+                else:
+                    expanded_data[tn][entry] = convert_vepstr(vep_data[tn][entry])
+
+        return expanded_data
 
 class NextflowWorkflow:
     """Base class for Nextflow workflow operations"""

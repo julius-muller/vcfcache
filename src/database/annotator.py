@@ -4,7 +4,7 @@ import sys
 import tarfile
 import tempfile
 import time
-from src.utils.logging import setup_logger
+from src.utils.logging import setup_logging
 from typing import List, Optional, Dict
 from ..utils.validation import compute_md5
 from pathlib import Path
@@ -19,12 +19,7 @@ import pysam
 from .base import VEPDatabase, NextflowWorkflow
 from ..utils.validation import validate_vcf_format, get_bcf_stats
 
-# Add at the top of annotator.py
 INFO_FIELDS = ['GT', 'DP', 'AF', "gnomadg_af", "gnomade_af", "gnomadg_ac", "gnomade_ac", 'clinvar_clnsig', "deeprvat_score"]
-TRANSCRIPT_KEYS = [
-    'SYMBOL', 'Feature', 'Consequence', 'HGVS_OFFSET', 'HGVSc', 'HGVSp',
-    'IMPACT', 'DISTANCE', 'PICK', 'VARIANT_CLASS'
-]
 BASES = {"A", "C", "G", "T"}
 
 def wavg(f1: float | None, f2: float | None, n1: int, n2: int) -> float | None:
@@ -41,53 +36,40 @@ def wavg(f1: float | None, f2: float | None, n1: int, n2: int) -> float | None:
     elif f2 is None:
         return f1
 
-def parse_vep_info(vep_data: list) -> list:
-    """Parses VEP INFO field and expands transcript consequences."""
-    def convert_vepstr(value):
-        if value is None or value == "":
-            return None
-        try:
-            if isinstance(value, str) and ("." in value or "e" in value or "E" in value):
-                return float(value)
-            return int(value)
-        except ValueError:
-            return value
-
-    expanded_data = []
-    for tn, transcript in enumerate(vep_data):
-        expanded_data.append({})
-        for entry in TRANSCRIPT_KEYS:
-            if entry not in vep_data[tn]:
-                raise ValueError(f"Did not find key={entry} in CSQ INFO tag")
-            if entry == "PICK":
-                expanded_data[tn][entry] = vep_data[tn][entry] == "1"
-            else:
-                expanded_data[tn][entry] = convert_vepstr(vep_data[tn][entry])
-
-    return expanded_data
-
-
 class DatabaseAnnotator(VEPDatabase):
     """Handles database annotation workflows"""
-    def __init__(self, db_path: Path, workflow_dir: Path, params_file: Optional[Path], nextflow_args: List[str]):
-        super().__init__(db_path)
+    def __init__(self, db_path: Path, workflow_dir: Path, params_file: Optional[Path],
+                 nextflow_args: List[str], verbosity: int = 0):
+        """Initialize database annotator.
 
+        Args:
+            db_path: Path to the database
+            workflow_dir: Directory containing workflow files
+            params_file: Optional parameters file
+            nextflow_args: Additional Nextflow arguments
+            verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+        """
+        super().__init__(db_path)
         self._nf_workflow = NextflowWorkflow(workflow_dir, params_file=params_file)
-        # raise ValueError('here!!')
         self.workflow_dir = self._nf_workflow.workflow_dir
         self.workflow_path = self._nf_workflow.workflow_path
         self.workflow_config_path = self._nf_workflow.workflow_config_path
         self.params_file = self._nf_workflow.params_file
         self.nextflow_args = nextflow_args
-        self.run_dir = self._create_run_dir(db_dir=self.db_path , workflow_hash=self._nf_workflow.workflow_hash)
-        self.run_info = self.run_dir / "annotation.info"
+        self.run_dir = self._create_run_dir(workflow_hash=self._nf_workflow.workflow_hash)
 
-        # Set up logging
+        # Setup logging with verbosity
         log_file = self.run_dir / "annotation.log"
-        self.logger = setup_logger(log_file)
+        self.logger = setup_logging(
+            verbosity=verbosity,
+            log_file=log_file
+        )
+
+        # Log initialization parameters
         self.logger.info("Initializing database annotation")
-        self.logger.debug(f"Workflow dir: {workflow_dir}")
-        self.logger.debug(f"Params file: {params_file}")
+        self.logger.debug(f"Workflow directory: {workflow_dir}")
+        self.logger.debug(f"Parameters file: {params_file}")
+        self.logger.debug(f"Nextflow arguments: {nextflow_args}")
 
     def annotate(self) -> None:
         """Run annotation workflow on database"""
@@ -240,7 +222,18 @@ class VCFAnnotator(VEPDatabase):
     """Handles annotation of user VCF files using the database"""
 
     def __init__(self, db_path: Path, input_vcf: Path, output_dir: Path, workflow_dir: Optional[Path] = None,
-                 params_file: Optional[Path] = None, threads: int = 4):
+                 params_file: Optional[Path] = None, threads: int = 4, verbosity: int = 0):
+        """Initialize VCF annotator.
+
+        Args:
+            db_path: Path to the database
+            input_vcf: Path to input VCF file
+            output_dir: Output directory
+            workflow_dir: Optional workflow directory (default: db_path/workflow)
+            params_file: Optional parameters file
+            threads: Number of threads to use (default: 4)
+            verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+        """
         super().__init__(db_path)
         self.input_vcf = Path(input_vcf)
         self.output_dir = Path(output_dir)
@@ -250,12 +243,20 @@ class VCFAnnotator(VEPDatabase):
         self._nf_workflow = NextflowWorkflow(self.workflow_dir, params_file=self.params_file)
         self.run_dir = self._create_run_dir(workflow_hash=self._nf_workflow.workflow_hash)
 
-        # Set up logging
+        # Setup logging with verbosity
         log_file = self.run_dir / "annotation.log"
-        self.logger = setup_logger(log_file)
-        self.logger.info(f"Initializing VCF annotation for {input_vcf}")
+        self.logger = setup_logging(
+            verbosity=verbosity,
+            log_file=log_file
+        )
+
+        # Log initialization parameters
+        self.logger.info("Initializing VCF annotation")
+        self.logger.debug(f"Input VCF: {input_vcf}")
         self.logger.debug(f"Output directory: {output_dir}")
-        self.logger.debug(f"Using {threads} threads")
+        self.logger.debug(f"Workflow directory: {workflow_dir}")
+        self.logger.debug(f"Parameters file: {params_file}")
+        self.logger.debug(f"Threads: {threads}")
 
     def _process_region(self, args: tuple) -> pd.DataFrame:
         """Process a single genomic region from BCF file."""

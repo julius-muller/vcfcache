@@ -4,6 +4,19 @@ from pathlib import Path
 from typing import Optional
 
 
+def setup_logging(verbosity: int, log_file: Path) -> logging.Logger:
+    """Setup logging with verbosity levels"""
+    log_levels = {
+        0: logging.WARNING,  # Default
+        1: logging.INFO,  # -v
+        2: logging.DEBUG  # -vv
+    }
+    level = log_levels.get(min(verbosity, 2), logging.DEBUG)
+
+    logger = setup_logger(log_file, level)
+    logger.debug(f"Log level set to: {logging.getLevelName(level)}")
+    return logger
+
 def setup_logger(
     log_file: Path,
     level: int = logging.INFO,
@@ -49,15 +62,19 @@ def setup_logger(
     return logger
 
 
-def log_command(logger: logging.Logger) -> None:
+def log_command(logger: logging.Logger, info:bool = False) -> None:
     """
     Log the command used to execute the script.
 
     Args:
-        logger: Logger instance to use
+        :param logger: Logger instance to use
+        :param info:
     """
     command = f"python3 {sys.argv[0]} {' '.join(sys.argv[1:])}"
-    logger.info("Script command: %s", command)
+    if info:
+        logger.info("Script command: %s", command)
+    else:
+        logger.debug("Script command: %s", command)
 
 
 # Example usage

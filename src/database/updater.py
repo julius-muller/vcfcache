@@ -3,15 +3,25 @@ import subprocess
 import os
 from datetime import datetime
 from .base import VEPDatabase
+from ..utils.logging import setup_logging
 from ..utils.validation import compute_md5, get_bcf_stats, check_duplicate_md5
 
 class DatabaseUpdater(VEPDatabase):
     """Handles adding new variants to database"""
-    def __init__(self, db_path: Path, input_file: Path, fasta_ref: Path, threads: int):
+    def __init__(self, db_path: Path, input_file: Path, fasta_ref: Path, threads: int, verbosity: int = 0):
         super().__init__(db_path)
         self.input_file = Path(input_file)
         self.fasta_ref = Path(fasta_ref)
         self.threads = max(int(threads), 1)
+
+        # Setup logging with verbosity
+        log_file = self.db_path / "update.log"
+        self.logger = setup_logging(
+            verbosity=verbosity,
+            log_file=log_file
+        )
+
+        # Log initialization parameters
         self.logger.info("Initializing database update")
         self.logger.debug(f"Input file: {input_file}")
         self.logger.debug(f"Reference: {fasta_ref}")

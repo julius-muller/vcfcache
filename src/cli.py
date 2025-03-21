@@ -21,24 +21,20 @@ Date: 16-03-2025
 
 import argparse
 from pathlib import Path
-from src.utils.logging import setup_logger, log_command
-
+from src.utils.logging import setup_logging, log_command
 from src.database.initializer import DatabaseInitializer
 from src.database.updater import DatabaseUpdater
 from src.database.annotator import DatabaseAnnotator, VCFAnnotator
 from src.utils.validation import check_bcftools_installed
 
+
 def main() -> None:
 
-    # Setup logging
-    log_file = Path("vepstash.log")
-    logger = setup_logger(log_file)
-    log_command(logger)
-
-    check_bcftools_installed()
     parser = argparse.ArgumentParser(
         description="Speed up VEP annotation by using pre-cached common variants"
     )
+    parser.add_argument("-v", "--verbose", action="count", default=0, help="Increase verbosity (can be used multiple times, e.g. -vv)")
+
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # init command
@@ -73,6 +69,12 @@ def main() -> None:
     vcf_parser.add_argument("-t", "--threads", type=int, default=4, help="Number of threads")
 
     args = parser.parse_args()
+    # Setup logging with verbosity
+    log_file = Path("vepstash.log")
+    logger = setup_logging(args.verbose, log_file)
+    log_command(logger)
+
+    check_bcftools_installed()
 
     try:
         if args.command == "stash-init":
@@ -83,7 +85,8 @@ def main() -> None:
                 input_file=args.i,
                 fasta_ref=args.fasta,
                 output_dir=args.output,
-                threads=args.t
+                threads=args.t,
+                verbosity=args.verbose
             )
             initializer.initialize()
 
@@ -93,7 +96,8 @@ def main() -> None:
                 db_path=args.db,
                 input_file=args.i,
                 fasta_ref=args.fasta,
-                threads=args.t
+                threads=args.t,
+                verbosity=args.verbose
             )
             updater.add()
 
@@ -104,7 +108,8 @@ def main() -> None:
                 db_path=args.db,
                 workflow_dir=args.workflow,
                 params_file=args.params,
-                nextflow_args=args.nextflow_args
+                nextflow_args=args.nextflow_args,
+                verbosity=args.verbose
             )
             annotator.annotate()
 
@@ -116,7 +121,8 @@ def main() -> None:
                 input_vcf=args.i,
                 output_dir=args.output,
                 params_file=args.params,
-                threads=args.threads
+                threads=args.threads,
+                verbosity=args.verbose
             )
             annotator.annotate()
 
