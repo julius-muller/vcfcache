@@ -37,7 +37,7 @@ def main() -> None:
 
     check_bcftools_installed()
     parser = argparse.ArgumentParser(
-        description="Speed up VEP annotation by using pre-cached common variants with consistent settings"
+        description="Speed up VEP annotation by using pre-cached common variants"
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
