@@ -485,7 +485,7 @@ class VCFAnnotator(VEPDatabase):
             self.logger.error("Annotation failed", exc_info=True)
             raise
 
-        self.nx_workflow.cleanup_work_dir()
+        #self.nx_workflow.cleanup_work_dir()
 
 
     def _convert_to_parquet(self, bcf_path: Path, threads:int) -> Path:
