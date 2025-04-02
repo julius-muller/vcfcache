@@ -73,6 +73,8 @@ def main() -> None:
     vcf_parser.add_argument("--uncached", action="store_true", help="Do not use the database (makes only sense for benchmarking)")
     vcf_parser.add_argument("-f", "--force", dest="force", action="store_true",
                              help="Force overwrite of existing annotation directory", default=False)
+    vcf_parser.add_argument("-p", "--parquet", dest="parquet", action="store_true",
+                             help="Convert the final bcf file to parquet format optimized for duck.db access", default=False)
 
     args = parser.parse_args()
     # Setup logging with verbosity
@@ -129,7 +131,7 @@ def main() -> None:
                 force=args.force
             )
 
-            annotator.annotate(uncached=args.uncached)
+            annotator.annotate(uncached=args.uncached, convert_parquet = args.parquet)
 
     except Exception as e:
         logger.error(f"Error during execution: {e}", exc_info=True)

@@ -249,9 +249,9 @@ def get_echtvar_version_from_cmd(echtvar_cmd):
 def generate_test_command(
         vepstash_path="~/projects/vepstash/vepstash.py",
         vcf_path="~/projects/vepstash/tests/data/nodata/crayz_db.bcf",
-        output_dir="/home/j380r/tmp/test/test_out",
-        config_path="/home/j380r/projects/vepstash/tests/config/nextflow_test.config",
-        annotation_config = "/home/j380r/projects/vepstash/tests/config/annotation_test.config",
+        output_dir="~/tmp/test/test_out",
+        config_path="~/projects/vepstash/tests/config/nextflow_test.config",
+        annotation_config = "~/projects/vepstash/tests/config/annotation_test.config",
         add_vcf_path="~/projects/vepstash/tests/data/nodata/crayz_db2.bcf",
         annotate_name="testor",
         force=True
@@ -320,9 +320,7 @@ alias stx="{full_cmd}"
 # ~/projects/vepstash/vepstash.py annotate --a ~/tmp/test/test_out/nftest/annotations/testor --vcf ~/projects/vepstash/tests/data/nodata/sample4.bcf --output ~/tmp/test/aout --test -f
 
 # as one:
-# alias stx="~/projects/vepstash/vepstash.py stash-init --name nftest --vcf ~/projects/vepstash/tests/data/nodata/crayz_db.bcf --output test_out -f ; ~/projects/vepstash/vepstash.py stash-add --db test_out/nftest -i ~/projects/vepstash/tests/data/nodata/crayz_db2.bcf --test ; ~/projects/vepstash/vepstash.py stash-annotate --name testor --db test_out/nftest --test "
-
-# ~/projects/vepstash/vepstash.py annotate --a ~/tmp/test/test_out/annotations/testor --vcf ~/projects/vepstash/tests/data/nodata/sample1.vcf --output ~/tmp/test/aout -f
-
+# alias stx="~/projects/vepstash/vepstash.py stash-init --vcf ~/projects/vepstash/tests/data/nodata/crayz_db.bcf --output /home/j380r/tmp/test/test_out -c /home/j380r/projects/vepstash/tests/config/nextflow_test.config -f ; ~/projects/vepstash/vepstash.py stash-add --db /home/j380r/tmp/test/test_out -i ~/projects/vepstash/tests/data/nodata/crayz_db2.bcf ; ~/projects/vepstash/vepstash.py stash-annotate --name testor -a ~/tmp/test/test_out/annotations/testor --db /home/j380r/tmp/test/test_out -f"
+# ~/projects/vepstash/vepstash.py annotate -a ~/tmp/test/test_out/annotations/testor --vcf ~/projects/vepstash/tests/data/nodata/sample4.bcf --output ~/tmp/test/aout -f -p -vv
 
 

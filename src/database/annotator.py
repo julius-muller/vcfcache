@@ -1,12 +1,9 @@
-import json
-import re
+
 import shutil
 import sys
 import time
-
 from src.database.base import VEPDatabase, NextflowWorkflow
 from src.database.outputs import AnnotatedStashOutput, AnnotatedUserOutput
-
 from pathlib import Path
 import subprocess
 from datetime import datetime
@@ -15,26 +12,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pysam
-
 from src.utils.logging import setup_logging
-
-INFO_FIELDS = ['GT', 'DP', 'AF', "gnomadg_af", "gnomade_af", "gnomadg_ac", "gnomade_ac", 'clinvar_clnsig', "deeprvat_score"]
-BASES = {"A", "C", "G", "T"}
-
-def wavg(f1: float | None, f2: float | None, n1: int, n2: int) -> float | None:
-    """Weighted average for Allele Frequencies."""
-    total_weight = n1 + n2
-    if total_weight == 0:
-        return None
-    if f1 is not None and f2 is not None:
-        return (f1 * n1 + f2 * n2) / total_weight
-    elif f1 is None and f2 is None:
-        return None
-    elif f1 is None:
-        return f2
-    elif f2 is None:
-        return f1
-
 
 class DatabaseAnnotator(VEPDatabase):
     """Handles database annotation workflows"""
@@ -140,6 +118,10 @@ class DatabaseAnnotator(VEPDatabase):
 class VCFAnnotator(VEPDatabase):
     """Handles annotation of user VCF files using the database"""
 
+    INFO_FIELDS = ['GT', 'DP', 'AF', "gnomadg_af", "gnomade_af", "gnomadg_ac", "gnomade_ac", 'clinvar_clnsig',
+                   "deeprvat_score"]
+    BASES = {"A", "C", "G", "T"}
+
     def __init__(self, input_vcf: Path | str, annotation_db: Path | str, output_dir: Path | str,
                  config_file: Path | str = None, verbosity: int = 0, force: bool = False):
         """Initialize database annotator.
@@ -177,7 +159,7 @@ class VCFAnnotator(VEPDatabase):
 
         self.annotation_wfl_path = self.output_annotations.workflow_dir
         self._copy_workflow_srcfiles(source=self.workflow_dir, destination=self.annotation_wfl_path, skip_config=True)
-        self.output_vcf = Path(self.output_dir / (self.vcf_name + f'_{self.annotation_name}_vst' + fext))
+        self.output_vcf = Path(self.output_dir / f'{self.vcf_name}_vst{fext}')
 
         # now also import the mandatory annotation file, that cannot be provided by the user at this stage
         self.anno_config_file = self.annotation_db_path / 'annotation.config'
@@ -327,34 +309,33 @@ class VCFAnnotator(VEPDatabase):
                     pos = record.pos
                     ref = record.ref
                     alt = record.alts[0]  # Assuming single ALT
-                    if not all([x in BASES for x in alt]):
+                    if not all([x in self.BASES for x in alt]):
                         continue
-
-                    # Extract FORMAT fields
-                    if len(record.samples) == 0:
-                        self.logger.warning(f"No samples found at {record.chrom}:{pos}")
-                        continue
-
-                    sample = record.samples[0]
-                    ad = sample.get('AD', None)
-                    dp = sample.get('DP', None)
-
-                    # Calculate AF
-                    af = None
-                    if ad and len(ad) >= 2:
-                        ref_depth = ad[0]
-                        alt_depth = ad[1]
-                        af = alt_depth / (ref_depth + alt_depth) if (ref_depth + alt_depth) > 0 else None
 
                     # Process INFO fields
-                    info = {key: None for key in INFO_FIELDS}
-                    info |= {key: record.info.get(key, None) for key in INFO_FIELDS if key in record.info}
-                    info |= {
-                        'GT': sample.get('GT', None),
-                        'AD': ad[1] if ad and len(ad) > 1 else None,
-                        'DP': dp,
-                        'AF': af
-                    }
+                    info = {key: None for key in self.INFO_FIELDS}
+                    info |= {key: record.info.get(key, None) for key in self.INFO_FIELDS if key in record.info}
+
+                    # Extract FORMAT fields
+                    if len(record.samples):
+
+                        sample = record.samples[0]
+                        ad = sample.get('AD', None)
+                        dp = sample.get('DP', None)
+
+                        # Calculate AF
+                        af = None
+                        if ad and len(ad) >= 2:
+                            ref_depth = ad[0]
+                            alt_depth = ad[1]
+                            af = alt_depth / (ref_depth + alt_depth) if (ref_depth + alt_depth) > 0 else None
+
+                        info |= {
+                            'GT': sample.get('GT', None),
+                            'AD': ad[1] if ad and len(ad) > 1 else None,
+                            'DP': dp,
+                            'AF': af
+                        }
 
                     # Process clinvar and gnomad fields
                     self._process_variant_annotations(info)
@@ -410,7 +391,7 @@ class VCFAnnotator(VEPDatabase):
         gnomadg_af = float(info["gnomadg_af"]) if info.get("gnomadg_af", None) else None
         gnomade_af = float(info["gnomade_af"]) if info.get("gnomade_af", None) else None
 
-        info["gnomad_af"] = wavg(gnomadg_af, gnomade_af, gnomadg_ac, gnomade_ac)
+        info["gnomad_af"] = self.wavg(gnomadg_af, gnomade_af, gnomadg_ac, gnomade_ac)
 
         # Remove individual gnomad fields
         for field in gnomad_fields:
@@ -418,17 +399,18 @@ class VCFAnnotator(VEPDatabase):
 
 
 
-    def annotate(self, uncached: bool = False, convert_parquet: bool = True) -> None:
+    def annotate(self, uncached: bool = False, convert_parquet: bool = False) -> None:
         """Run annotation workflow on input VCF file.
 
         Args:
             convert_parquet: Whether to convert output to Parquet format
+            unchached: Whether to run the workflow in uncached mode
 
         Returns:
             Path to output file (BCF or Parquet)
-            self = VCFAnnotator(input_vcf="/home/j380r/projects/vepstash/tests/data/nodata/sample1.bcf",
-             annotation_db = "~/tmp/test/test_out/nftest/annotations/testor",
-                 output_dir = "~/tmp/test/",force=True, uncached= False)
+            self = VCFAnnotator(input_vcf="~/projects/vepstash/tests/data/nodata/sample4.bcf",
+             annotation_db = "~/tmp/test/test_out/annotations/testor", output_dir="~/tmp/test/aout" ,force=True)
+
         """
         start_time = time.time()
         self.logger.info("Starting VCF annotation")
@@ -451,6 +433,11 @@ class VCFAnnotator(VEPDatabase):
         except Exception as e:
             self.logger.error("Annotation failed", exc_info=True)
             raise
+
+        if convert_parquet:
+            # This should be implemented in nextflow in the long run to leverage resource management
+            threads = self.nx_workflow.nf_config_content['params'].get('vep_max_forks',1) * self.nx_workflow.nf_config_content['params'].get('vep_max_chr_parallel', 1)
+            self._convert_to_parquet(self.output_vcf, threads=threads)
 
         self.nx_workflow.cleanup_work_dir()
 
@@ -492,4 +479,17 @@ class VCFAnnotator(VEPDatabase):
         self.logger.info("Parquet conversion completed")
         return output_file
 
-
+    @staticmethod
+    def wavg(f1: float | None, f2: float | None, n1: int, n2: int) -> float | None:
+        """Weighted average for Allele Frequencies."""
+        total_weight = n1 + n2
+        if total_weight == 0:
+            return None
+        if f1 is not None and f2 is not None:
+            return (f1 * n1 + f2 * n2) / total_weight
+        elif f1 is None and f2 is None:
+            return None
+        elif f1 is None:
+            return f2
+        elif f2 is None:
+            return f1
