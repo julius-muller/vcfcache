@@ -30,7 +30,6 @@ process VEPAnnotate {
 			done
 
 			(
-				echo "Starting chromosome \$chr"
 				bcftools view -r \$chr ${input_bcf} | \
 				${params.vep_cmd} \
 					${vep_opts} \
@@ -99,7 +98,6 @@ process EchtvarAnnotateChr {
 	# Split by chromosome first
 	mkdir -p split_chr
 	for chr in \$(bcftools index -s ${subset_bcf} | cut -f1); do
-		echo "Processing chromosome \$chr"
 		bcftools view ${subset_bcf} \$chr -Ob -o split_chr/\${chr}.bcf --threads 1 --write-index
 	done
 
