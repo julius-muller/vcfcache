@@ -1,5 +1,4 @@
 process VEPAnnotate {
-		scratch false
 		debug true
 
 		input:
@@ -61,7 +60,6 @@ process VEPAnnotate {
 }
 
 process EchtvarAnnotate {
-	scratch true
     debug true
 
 	input:
@@ -83,7 +81,7 @@ process EchtvarAnnotate {
 }
 
 process EchtvarAnnotateChr {
-	scratch true
+    debug true
 
 	input:
 	path subset_bcf
