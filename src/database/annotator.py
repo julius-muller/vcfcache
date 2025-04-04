@@ -8,9 +8,6 @@ from pathlib import Path
 import subprocess
 from datetime import datetime
 from multiprocessing import Pool
-import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 import pysam
 from src.utils.logging import setup_logging
 
@@ -287,86 +284,94 @@ class VCFAnnotator(VEPDatabase):
         return sample_name, extension
 
 
-    def _process_region(self, args: tuple) -> pd.DataFrame:
+    def _process_region(self, args: tuple) -> "pd.DataFrame":
         """Process a single genomic region from BCF file."""
-        bcf_path, region = args
-        self.logger.debug(f"Processing region: {region}")
-
-        vcf = pysam.VariantFile(str(bcf_path))
-        records = []
-        variant_count = 0
-        excluded_count = 0
-
         try:
-            for record in vcf.fetch(region=region):
-                variant_count += 1
-                try:
-                    # Extract basic variant fields
-                    chrom = record.chrom
-                    if chrom[:3] != 'chr':
+            import pandas as pd
+
+            bcf_path, region = args
+            self.logger.debug(f"Processing region: {region}")
+
+            vcf = pysam.VariantFile(str(bcf_path))
+            records = []
+            variant_count = 0
+            excluded_count = 0
+
+            try:
+                for record in vcf.fetch(region=region):
+                    variant_count += 1
+                    try:
+                        # Extract basic variant fields
+                        chrom = record.chrom
+                        if chrom[:3] != 'chr':
+                            continue
+
+                        pos = record.pos
+                        ref = record.ref
+                        alt = record.alts[0]  # Assuming single ALT
+                        if not all([x in self.BASES for x in alt]):
+                            continue
+
+                        # Process INFO fields
+                        info = {key: None for key in self.INFO_FIELDS}
+                        info |= {key: record.info.get(key, None) for key in self.INFO_FIELDS if key in record.info}
+
+                        # Extract FORMAT fields
+                        if len(record.samples):
+
+                            sample = record.samples[0]
+                            ad = sample.get('AD', None)
+                            dp = sample.get('DP', None)
+
+                            # Calculate AF
+                            af = None
+                            if ad and len(ad) >= 2:
+                                ref_depth = ad[0]
+                                alt_depth = ad[1]
+                                af = alt_depth / (ref_depth + alt_depth) if (ref_depth + alt_depth) > 0 else None
+
+                            info |= {
+                                'GT': sample.get('GT', None),
+                                'AD': ad[1] if ad and len(ad) > 1 else None,
+                                'DP': dp,
+                                'AF': af
+                            }
+
+                        # Process clinvar and gnomad fields
+                        self._process_variant_annotations(info)
+
+                        # Process VEP annotations
+                        vep_csqs = [dict(zip(vcf.header.info['CSQ'].description.split(' ')[-1].split('|'),
+                                           x.split("|"))) for x in record.info["CSQ"]]
+                        expanded_transcripts = self.parse_vep_info(vep_csqs)
+
+                        for transcript in expanded_transcripts:
+                            row = {
+                                "CHROM": chrom,
+                                "POS": pos,
+                                "REF": ref,
+                                "ALT": alt,
+                                **info,
+                                **transcript
+                            }
+                            records.append(row)
+
+                    except Exception as e:
+                        excluded_count += 1
+                        self.logger.error(f"Error processing variant at {record.chrom}:{record.pos}: {e}")
                         continue
 
-                    pos = record.pos
-                    ref = record.ref
-                    alt = record.alts[0]  # Assuming single ALT
-                    if not all([x in self.BASES for x in alt]):
-                        continue
+                self.logger.debug(f"Processed {variant_count} variants, excluded {excluded_count} in {region}")
+                return pd.DataFrame(records)
 
-                    # Process INFO fields
-                    info = {key: None for key in self.INFO_FIELDS}
-                    info |= {key: record.info.get(key, None) for key in self.INFO_FIELDS if key in record.info}
-
-                    # Extract FORMAT fields
-                    if len(record.samples):
-
-                        sample = record.samples[0]
-                        ad = sample.get('AD', None)
-                        dp = sample.get('DP', None)
-
-                        # Calculate AF
-                        af = None
-                        if ad and len(ad) >= 2:
-                            ref_depth = ad[0]
-                            alt_depth = ad[1]
-                            af = alt_depth / (ref_depth + alt_depth) if (ref_depth + alt_depth) > 0 else None
-
-                        info |= {
-                            'GT': sample.get('GT', None),
-                            'AD': ad[1] if ad and len(ad) > 1 else None,
-                            'DP': dp,
-                            'AF': af
-                        }
-
-                    # Process clinvar and gnomad fields
-                    self._process_variant_annotations(info)
-
-                    # Process VEP annotations
-                    vep_csqs = [dict(zip(vcf.header.info['CSQ'].description.split(' ')[-1].split('|'),
-                                       x.split("|"))) for x in record.info["CSQ"]]
-                    expanded_transcripts = self.parse_vep_info(vep_csqs)
-
-                    for transcript in expanded_transcripts:
-                        row = {
-                            "CHROM": chrom,
-                            "POS": pos,
-                            "REF": ref,
-                            "ALT": alt,
-                            **info,
-                            **transcript
-                        }
-                        records.append(row)
-
-                except Exception as e:
-                    excluded_count += 1
-                    self.logger.error(f"Error processing variant at {record.chrom}:{record.pos}: {e}")
-                    continue
-
-            self.logger.debug(f"Processed {variant_count} variants, excluded {excluded_count} in {region}")
-            return pd.DataFrame(records)
-
-        except Exception as e:
-            self.logger.error(f"Error processing region {region}: {e}")
-            raise
+            except Exception as e:
+                self.logger.error(f"Error processing region {region}: {e}")
+                raise
+        except ImportError:
+            raise ImportError(
+                "This feature requires pandas and pyarrow. "
+                "Install with 'pip install pandas pyarrow'"
+            )
 
     def _process_variant_annotations(self, info: dict) -> None:
         """Process clinvar and gnomad annotations."""
@@ -444,40 +449,51 @@ class VCFAnnotator(VEPDatabase):
 
     def _convert_to_parquet(self, bcf_path: Path, threads:int) -> Path:
         """Convert annotated BCF to optimized Parquet format"""
-        vcf = pysam.VariantFile(str(bcf_path))
-        regions = list(vcf.header.contigs.keys())
-        args_list = [(str(bcf_path), region) for region in regions]
+        try:
+            import pandas as pd
+            import pyarrow as pa
+            import pyarrow.parquet as pq
 
-        self.logger.info(f"Converting BCF to Parquet: {bcf_path}")
-        self.logger.debug(f"Processing {len(regions)} regions using {threads} threads")
+            vcf = pysam.VariantFile(str(bcf_path))
+            regions = list(vcf.header.contigs.keys())
+            args_list = [(str(bcf_path), region) for region in regions]
 
-        with Pool(threads) as pool:
-            dataframes = pool.map(self._process_region, args_list)
+            self.logger.info(f"Converting BCF to Parquet: {bcf_path}")
+            self.logger.debug(f"Processing {len(regions)} regions using {threads} threads")
 
-        # Filter and combine dataframes
-        dataframes = [df for df in dataframes if not df.empty]
-        if not dataframes:
-            self.logger.error("No valid variants found in annotated file")
-            raise ValueError("No valid variants found in annotated file")
+            with Pool(threads) as pool:
+                dataframes = pool.map(self._process_region, args_list)
 
-        combined_df = pd.concat(dataframes, ignore_index=True)
-        output_file = self.output_dir / f"{self.input_vcf.stem}.parquet"
-        self.logger.info(f"Writing Parquet file: {output_file}")
-        self.logger.debug(f"Total variants: {len(combined_df)}")
+            # Filter and combine dataframes
+            dataframes = [df for df in dataframes if not df.empty]
+            if not dataframes:
+                self.logger.error("No valid variants found in annotated file")
+                raise ValueError("No valid variants found in annotated file")
 
-        # Write optimized parquet
-        table = pa.Table.from_pandas(combined_df)
-        pq.write_table(
-            table,
-            output_file,
-            compression="snappy",
-            use_dictionary=True,
-            row_group_size=100000,
-            data_page_size=65536,
-            write_statistics=True
-        )
-        self.logger.info("Parquet conversion completed")
-        return output_file
+            combined_df = pd.concat(dataframes, ignore_index=True)
+            output_file = self.output_dir / f"{self.input_vcf.stem}.parquet"
+            self.logger.info(f"Writing Parquet file: {output_file}")
+            self.logger.debug(f"Total variants: {len(combined_df)}")
+
+            # Write optimized parquet
+            table = pa.Table.from_pandas(combined_df)
+            pq.write_table(
+                table,
+                output_file,
+                compression="snappy",
+                use_dictionary=True,
+                row_group_size=100000,
+                data_page_size=65536,
+                write_statistics=True
+            )
+            self.logger.info("Parquet conversion completed")
+            return output_file
+
+        except ImportError:
+            raise ImportError(
+                "Converting to Parquet requires additional dependencies. "
+                "Please install them with: pip install pandas pyarrow"
+            )
 
     @staticmethod
     def wavg(f1: float | None, f2: float | None, n1: int, n2: int) -> float | None:

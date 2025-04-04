@@ -1,10 +1,11 @@
-# Core dependencies
-pandas~=2.2.0  # Required for data processing
-pyarrow~=18.0.0  # Used for efficient data storage
-pysam~=0.22.0  # For BAM/VCF file handling
+pysam~=0.22.0  # For VCF file handling
 
 # Development dependencies
 pytest~=8.3.0  # For running tests
 
 # Build dependencies
 setuptools~=75.0.0  # For package installation
+
+# Only required for the --parquet feature...
+pandas~=2.2.0  # Required for data processing
+pyarrow~=18.0.0  # Used for efficient data storage

@@ -486,10 +486,15 @@ class NextflowWorkflow:
         env['NXF_VER'] = self.NXF_VERSION
         env['NXF_DISABLE_CHECK_LATEST'] = '1'
         env['NXF_OFFLINE'] = 'true'
+        if 'VEPSTASH_ROOT' not in env:
+            raise RuntimeError("VEPSTASH_ROOT environment variable is not set")
+        # Set up the Nextflow executable
+        nxf_exe = ['java', '-jar', str(Path(env[
+               'VEPSTASH_ROOT']) / f'workflow/.nextflow/framework/{self.NXF_VERSION}/nextflow-{self.NXF_VERSION}-one.jar')]
+        # this could also use the executable in PATH with nxf_exe = ['nextflow']
 
-        # export NXF_OFFLINE='true'
         # Clean Nextflow metadata
-        subprocess.run(['nextflow', 'clean', '-f'], check=False, cwd=self.output_dir)
+        subprocess.run(nxf_exe + ['clean', '-f'], check=False, cwd=self.output_dir)
 
         # Global options (applied before the command)
         global_opts = [
@@ -538,7 +543,7 @@ class NextflowWorkflow:
             run_opts.extend(nextflow_args)
 
         # Assemble the final command list:
-        cmd = ["nextflow"] + global_opts + ["run"] + run_opts
+        cmd = nfx_exe + global_opts + ["run"] + run_opts
 
         self.logger.debug(f"Running command: {' '.join(map(str, cmd))}")
 
