@@ -18,9 +18,9 @@ process MergeAndSort {
     script:
     """
     # Merge and ensure single sample
-    bcftools merge ${annotated_bcf} ${vep_bcf} --threads ${task.cpus} | \
-    bcftools view -s mgm_WGS_32 -Ob -o "${sample_name}_norm_final.bcf" --threads ${task.cpus}
-    bcftools index "${sample_name}_norm_final.bcf" --threads ${task.cpus}
+    ${params.bcftools_cmd} merge ${annotated_bcf} ${vep_bcf} --threads ${task.cpus} | \
+    ${params.bcftools_cmd} view -s mgm_WGS_32 -Ob -o "${sample_name}_norm_final.bcf" --threads ${task.cpus}
+    ${params.bcftools_cmd} index "${sample_name}_norm_final.bcf" --threads ${task.cpus}
     """
 }
 

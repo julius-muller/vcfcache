@@ -11,8 +11,8 @@ process CaptureToolVersions {
 
     script:
     """
-	echo "bcftools version:" > ${sample_name}_final.tool_version.log
-    bcftools --version >> ${sample_name}_final.tool_version.log
+	echo "${params.bcftools_cmd} version:" > ${sample_name}_final.tool_version.log
+    ${params.bcftools_cmd} --version >> ${sample_name}_final.tool_version.log
     echo "vep version:" >> ${sample_name}_final.tool_version.log
     ${params.vep_cmd} --help 2>&1 | grep "ensembl-.*" >> ${sample_name}_final.tool_version.log
     echo "echtvar version:" >> ${sample_name}_final.tool_version.log
@@ -47,7 +47,7 @@ process ValidateInputs {
     [ -f "${chr_add}" ] || { echo "Chr add file not found: ${chr_add}"; exit 1; }
 
     # Basic file format checks
-    bcftools view -h "${vcf}" >/dev/null || { echo "Invalid VCF/BCF format"; exit 1; }
+    ${params.bcftools_cmd} view -h "${vcf}" >/dev/null || { echo "Invalid VCF/BCF format"; exit 1; }
     """
 }
 

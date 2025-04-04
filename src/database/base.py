@@ -96,7 +96,7 @@ class NextflowWorkflow:
 
         # 1. Check required parameters
         required_params = [
-            'chr_add', 'reference', 'echtvar_cmd','echtvar_cmd_version',
+            'chr_add', 'reference', 'echtvar_cmd','echtvar_cmd_version', 'bcftools_cmd',
             'echtvar_gnomad_genome', 'echtvar_gnomad_exome', 'echtvar_clinvar',
             'vep_cmd','vep_cmd_version', 'vep_cache', 'vep_max_chr_parallel', 'vep_max_forks', 'vep_buffer'
         ]
@@ -479,12 +479,13 @@ class NextflowWorkflow:
 
         # Create temporary work directory
         self._create_work_dir(self.output_dir)
-        os.environ["NXF_HOME"] = str(self.nxf_home)
-        os.environ['NXF_WORK'] = str(self.work_dir)
-        os.environ['NXF_TEMP'] = str(temp)
-        os.environ['NXF_VER'] = self.NXF_VERSION
-        os.environ['NXF_DISABLE_CHECK_LATEST'] = '1'
-        os.environ['NXF_OFFLINE'] = 'true'
+        env = os.environ.copy()
+        env["NXF_HOME"] = str(self.nxf_home)
+        env['NXF_WORK'] = str(self.work_dir)
+        env['NXF_TEMP'] = str(temp)
+        env['NXF_VER'] = self.NXF_VERSION
+        env['NXF_DISABLE_CHECK_LATEST'] = '1'
+        env['NXF_OFFLINE'] = 'true'
 
         # export NXF_OFFLINE='true'
         # Clean Nextflow metadata

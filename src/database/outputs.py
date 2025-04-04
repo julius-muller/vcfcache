@@ -20,7 +20,7 @@ class BaseOutput(ABC):
     def __init__(self, root_dir: str):
         self.root_dir = Path(root_dir).expanduser().resolve()
         # define the base directory of the module
-        self.module_src_dir = Path(os.getenv('VEPSTASH_HOME', Path('.').resolve())) if '__file__' not in globals() else Path(__file__).parent.parent.parent
+        self.module_src_dir = Path(os.getenv('VEPSTASH_ROOT', Path('.').resolve())) if '__file__' not in globals() else Path(__file__).parent.parent.parent
 
     @abstractmethod
     def required_paths(self) -> dir:

@@ -13,7 +13,7 @@ process PerformIntersection {
     //  shared could be: -w 1 -n =2 and then followed by -w 1 -n =1
     script:
     """
-    bcftools isec $norm_bcf $db_bcf --threads ${task.cpus} -p out -O b
+    ${params.bcftools_cmd} isec $norm_bcf $db_bcf --threads ${task.cpus} -p out -O b
 
     """
 }
@@ -31,7 +31,7 @@ process AnnotateIntersection {
 
     script:
     """
-    bcftools annotate -a ${isec_dir}/0003.bcf \
+    ${params.bcftools_cmd} annotate -a ${isec_dir}/0003.bcf \
       -c INFO/CSQ,INFO/gnomadg_ac,INFO/gnomadg_an,INFO/gnomadg_af,INFO/gnomadg_filter,INFO/gnomade_ac,INFO/gnomade_an,INFO/gnomade_af,INFO/gnomade_filter,INFO/clinvar_clnsig,INFO/clinvar_clnrevstat,INFO/clinvar_clndn \
       -o ${sample_name}_norm_vep.bcf ${isec_dir}/0000.bcf -O b --threads ${task.cpus} --write-index
     """
@@ -53,7 +53,7 @@ process SubsetIntersection {
 
     script:
     """
-    bcftools isec $norm_bcf $db_bcf -n=1 -w1 --threads ${task.cpus} -o ${sample_name}_norm_sub.bcf --write-index -O b
+    ${params.bcftools_cmd} isec $norm_bcf $db_bcf -n=1 -w1 --threads ${task.cpus} -o ${sample_name}_norm_sub.bcf --write-index -O b
     """
 }
 

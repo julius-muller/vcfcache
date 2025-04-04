@@ -1,5 +1,4 @@
 process VEPAnnotate {
-		scratch false
 		debug true
 
 		input:
@@ -20,7 +19,7 @@ process VEPAnnotate {
 
 		# Get list of chromosomes
 		mkdir -p chr_tmp
-		chromosomes=(\$(bcftools index -s ${input_bcf} | cut -f1))
+		chromosomes=(\$(${params.bcftools_cmd} index -s ${input_bcf} | cut -f1))
 
 		# Process each chromosome in parallel
 		echo "Processing \${#chromosomes[@]} chromosomes..."
@@ -30,7 +29,8 @@ process VEPAnnotate {
 			done
 
 			(
-				bcftools view -r \$chr ${input_bcf} | \
+				echo "Starting chromosome \$chr"
+				${params.bcftools_cmd} view -r \$chr ${input_bcf} | \
 				${params.vep_cmd} \
 					${vep_opts} \
 					--format vcf \
@@ -44,7 +44,7 @@ process VEPAnnotate {
 					--no_stats \
 					-i stdin \
 					-o stdout | \
-				bcftools view -Ob -o chr_tmp/\${chr}_vep.bcf --write-index
+				${params.bcftools_cmd} view -Ob -o chr_tmp/\${chr}_vep.bcf --write-index
 
 			) &
 		done
@@ -55,12 +55,12 @@ process VEPAnnotate {
 
 		# Merge chromosome results
 		echo "Merging chromosomes..."
-		bcftools concat chr_tmp/*_vep.bcf -Ob -o ${sample_name}_vep.bcf --write-index --threads ${task.cpus}
+		${params.bcftools_cmd} concat chr_tmp/*_vep.bcf -Ob -o ${sample_name}_vep.bcf --write-index --threads ${task.cpus}
 		"""
 }
 
 process EchtvarAnnotate {
-	scratch true
+    debug true
 
 	input:
 	path subset_bcf
@@ -76,13 +76,12 @@ process EchtvarAnnotate {
 				 -e ${params.echtvar_gnomad_exome} \
 				 -e ${params.echtvar_clinvar} \
 				 $subset_bcf ${sample_name}_norm_sub_ev.bcf
-	bcftools index ${sample_name}_norm_sub_ev.bcf --threads ${task.cpus}
+	${params.bcftools_cmd} index ${sample_name}_norm_sub_ev.bcf --threads ${task.cpus}
 	"""
 }
 
 process EchtvarAnnotateChr {
-	scratch true
-	memory '10 GB'
+    debug true
 
 	input:
 	path subset_bcf
@@ -97,8 +96,9 @@ process EchtvarAnnotateChr {
 	"""
 	# Split by chromosome first
 	mkdir -p split_chr
-	for chr in \$(bcftools index -s ${subset_bcf} | cut -f1); do
-		bcftools view ${subset_bcf} \$chr -Ob -o split_chr/\${chr}.bcf --threads 1 --write-index
+	for chr in \$(${params.bcftools_cmd} index -s ${subset_bcf} | cut -f1); do
+		echo "Processing chromosome \$chr"
+		${params.bcftools_cmd} view ${subset_bcf} \$chr -Ob -o split_chr/\${chr}.bcf --threads 1 --write-index
 	done
 
 	# Process each chromosome
@@ -114,7 +114,7 @@ process EchtvarAnnotateChr {
 	done
 
 	# Merge results
-	bcftools concat split_chr/*_ev.bcf -Ob -o ${sample_name}_norm_sub_ev.bcf --write-index --threads ${task.cpus}
+	${params.bcftools_cmd} concat split_chr/*_ev.bcf -Ob -o ${sample_name}_norm_sub_ev.bcf --write-index --threads ${task.cpus}
 	"""
 }
 

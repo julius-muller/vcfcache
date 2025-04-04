@@ -18,7 +18,7 @@ process AnnotateFromDB {
 
     script:
     """
-    bcftools annotate -a ${db_bcf} ${input_bcf} -c INFO -o ${sample_name}_isecvst.bcf -Ob --threads ${task.cpus} -W
+    ${params.bcftools_cmd} annotate -a ${db_bcf} ${input_bcf} -c INFO -o ${sample_name}_isecvst.bcf -Ob --threads ${task.cpus} -W
     """
 }
 
@@ -36,7 +36,7 @@ process FilterMissingAnnotations {
 
     script:
     """
-    bcftools filter -i 'INFO/CSQ==""' -Ob -o ${sample_name}_isecvst_miss.bcf ${annotated_bcf} --threads ${task.cpus} -W
+    ${params.bcftools_cmd} filter -i 'INFO/CSQ==""' -Ob -o ${sample_name}_isecvst_miss.bcf ${annotated_bcf} --threads ${task.cpus} -W
     """
 }
 
@@ -56,7 +56,7 @@ process MergeAnnotations {
 
     script:
     """
-    bcftools annotate -a ${newly_annotated_bcf} ${original_annotated_bcf} -c INFO -o ${sample_name}_vst.bcf -Ob --threads ${task.cpus} -W
+    ${params.bcftools_cmd} annotate -a ${newly_annotated_bcf} ${original_annotated_bcf} -c INFO -o ${sample_name}_vst.bcf -Ob --threads ${task.cpus} -W
     """
 }
 

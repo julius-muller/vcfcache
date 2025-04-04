@@ -11,8 +11,8 @@ process MergeVariants {
 
     script:
     """
-    # Merge variants using bcftools concat
-    bcftools concat \
+    # Merge variants
+    ${params.bcftools_cmd} concat \
         --allow-overlaps \
         --rm-dup all \
         -Ob \
