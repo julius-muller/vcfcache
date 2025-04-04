@@ -311,43 +311,61 @@ def compare_binary_files(file1, file2):
     return True
 
 def compare_sources_info(file1, file2):
-    """Special comparison for sources.info files which contain paths and dynamic names."""
-    try:
-        with open(file1, 'r', encoding='utf-8') as f1, open(file2, 'r', encoding='utf-8') as f2:
-            # Parse JSON content
-            data1 = json.loads(f1.read())
-            data2 = json.loads(f2.read())
+    """
+    Compare the contents of two sources.info files, ignoring timestamps and normalizing paths.
 
-        # Ignore name differences - the test creates temporary directories with random names
-        # while the reference data has a fixed name
-        if "name" in data1 and "name" in data2:
-            # Either replace with a fixed value or delete for comparison
-            data1["name"] = "IGNORED_NAME"
-            data2["name"] = "IGNORED_NAME"
+    Args:
+        file1: Path to the first file
+        file2: Path to the second file
 
-        # Normalize timestamps
-        if "created" in data1:
-            data1["created"] = "NORMALIZED_TIMESTAMP"
-        if "created" in data2:
-            data2["created"] = "NORMALIZED_TIMESTAMP"
+    Returns:
+        bool: True if the files are equivalent (ignoring timestamps and exact paths), False otherwise
+        str: Description of differences if any, otherwise None
+    """
+    with open(file1, "r") as f1, open(file2, "r") as f2:
+        data1 = json.load(f1)
+        data2 = json.load(f2)
 
-        # Normalize timestamps in input_files
-        if "input_files" in data1:
-            for file_info in data1["input_files"]:
-                if "added" in file_info:
-                    file_info["added"] = "NORMALIZED_TIMESTAMP"
+    # Ignore timestamps
+    if "created" in data1:
+        data1["created"] = "TIMESTAMP_IGNORED"
+    if "created" in data2:
+        data2["created"] = "TIMESTAMP_IGNORED"
 
-        if "input_files" in data2:
-            for file_info in data2["input_files"]:
-                if "added" in file_info:
-                    file_info["added"] = "NORMALIZED_TIMESTAMP"
+    # Normalize input file paths by removing the absolute path
+    if "input_files" in data1:
+        for file_info in data1["input_files"]:
+            if "path" in file_info:
+                # Keep only the filename part
+                file_info["path"] = os.path.basename(file_info["path"])
+            if "added" in file_info:
+                file_info["added"] = "TIMESTAMP_IGNORED"
 
-        # Compare the normalized structures
-        return data1 == data2
+    if "input_files" in data2:
+        for file_info in data2["input_files"]:
+            if "path" in file_info:
+                # Keep only the filename part
+                file_info["path"] = os.path.basename(file_info["path"])
+            if "added" in file_info:
+                file_info["added"] = "TIMESTAMP_IGNORED"
 
-    except Exception as e:
-        print(f"Error comparing sources.info files: {e}")
-        return False
+    # Also normalize the name field which will be different per test run
+    if "name" in data1:
+        data1["name"] = "NAME_IGNORED"
+    if "name" in data2:
+        data2["name"] = "NAME_IGNORED"
+
+    # Check if the structures are now equal
+    are_equal = data1 == data2
+
+    if not are_equal:
+        # Format the data for display
+        diff_str = f"Differences in {os.path.basename(file1)}:\n"
+        diff_str += f"Test file:\n{json.dumps(data1, indent=2)}...\n"
+        diff_str += f"Reference file:\n{json.dumps(data2, indent=2)}...\n"
+        return False, diff_str
+
+    return True, None
 
 
 
