@@ -13,5 +13,6 @@ setup(
         "pandas",
         "pyarrow",
         "pysam",
+        "pytest"
     ],
 )
