@@ -15,9 +15,13 @@ class DatabaseAnnotator(VCFDatabase):
     """Handles database annotation workflows"""
 
     def __init__(self, annotation_name: str, db_path: Path | str, anno_config_file: Path | str,
-                 config_file: Path | str = None, verbosity: int = 0, force: bool = False):
+                 params_file: Path | str = None, config_file: Path | str = None, verbosity: int = 0,
+                 force: bool = False, debug: bool = False):
         """Initialize database annotator.
-    
+
+        self = DatabaseAnnotator(annotation_name="testor", anno_config_file=Path('~/projects/vcfstash/tests/config/annotation.config'),
+         db_path=Path('~/tmp/vcfstash/test_stash'),force=True)
+
         Args:
             db_path: Path to the database
             workflow_dir: Optional workflow directory (defaults to <db_path>/workflow)
@@ -25,7 +29,7 @@ class DatabaseAnnotator(VCFDatabase):
             verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
         """
 
-        super().__init__(db_path, verbosity)
+        super().__init__(db_path, verbosity, debug)
 
         self.stashed_annotations = AnnotatedStashOutput(str(self.stash_dir / annotation_name))
         self.stashed_annotations.validate_label(annotation_name)
@@ -34,12 +38,10 @@ class DatabaseAnnotator(VCFDatabase):
         self._setup_annotation_stash(force)
         self.output_dir = self.stashed_annotations.annotation_dir
 
-        self.config_file = self.output_dir / 'annotation_nextflow.config'
+        self.config_file = None
         if config_file:
+            self.config_file = self.output_dir / 'process.config'
             shutil.copyfile(config_file.expanduser().resolve(), self.config_file)
-        else:
-            self.logger.debug("No config file provided, using default config file")
-            shutil.copyfile(self.workflow_dir / "init_nextflow.config", self.config_file)
 
         self.info_snapshot_file = self.output_dir / "blueprint_snapshot.info"
 
@@ -47,6 +49,17 @@ class DatabaseAnnotator(VCFDatabase):
         self.anno_config_file = self.output_dir / 'annotation.config'
         if anno_config_file != self.anno_config_file:
             shutil.copyfile(anno_config_file.expanduser().resolve() , self.anno_config_file)
+
+
+        self.params_file = self.blueprint_dir / f'annotation.yaml'
+        if params_file:
+            shutil.copyfile(params_file.expanduser().resolve(), self.params_file)
+        else:
+            wfi = self.workflow_dir / "init.yaml"
+            assert wfi.exists(), f"Workflow init params file not found: {wfi}"
+            shutil.copyfile(wfi, self.params_file)
+            assert self.params_file.exists(), f"Workflow params file not found: {self.params_file}"
+
 
         # Initialize NextflowWorkflow
         self.nx_workflow = NextflowWorkflow(
@@ -56,6 +69,7 @@ class DatabaseAnnotator(VCFDatabase):
             workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file,
             anno_config_file=self.anno_config_file,
+            params_file=self.params_file,
             verbosity=self.verbosity
         )
 
@@ -75,8 +89,9 @@ class DatabaseAnnotator(VCFDatabase):
                     raise FileExistsError(
                         f"Output directory already exists: {self.stashed_annotations.annotation_dir}\nIf intended, use --force to overwrite.")
             else:
-                raise FileNotFoundError(
-                    f"Output directory must not exist if --force is not set and a valid stash directory: {self.stashed_annotations.annotation_dir}")
+                if not force:
+                    raise FileNotFoundError(
+                        f"Output directory must not exist if --force is not set and a valid stash directory: {self.stashed_annotations.annotation_dir}")
 
         print(f"Creating stash structure: {self.stashed_annotations.annotation_dir}")
         self.stashed_annotations.create_structure()
@@ -98,7 +113,8 @@ class DatabaseAnnotator(VCFDatabase):
                 dag=extra_files,
                 report=extra_files
             )
-            self.nx_workflow.cleanup_work_dir()
+            if not self.debug:
+                self.nx_workflow.cleanup_work_dir()
 
             duration = datetime.now() - start_time
             self.logger.info(f"Annotation to {self.output_dir} completed in {duration.total_seconds():.2f} seconds")
@@ -120,13 +136,18 @@ class VCFAnnotator(VCFDatabase):
     BASES = {"A", "C", "G", "T"}
 
     def __init__(self, input_vcf: Path | str, annotation_db: Path | str, output_dir: Path | str,
-                 config_file: Path | str = None, verbosity: int = 0, force: bool = False):
+                 config_file: Path | str = None, params_file: Path | str = None, verbosity: int = 0,
+                 force: bool = False, debug: bool = False):
         """Initialize database annotator.
 
         Args:
-            db_path: Path to the database
-            workflow_dir: Optional workflow directory (defaults to <db_path>/workflow)
-            params_file: Optional parameters file
+            input_vcf: Path to the input VCF file
+            annotation_db: Path to the annotation database
+            output_dir: Path to the output directory
+            config_file: Optional configuration file with process configurations for resoureces.
+            params_file: Optional parameters file defaults to <db_path>/workflow/init.yaml
+            force: Whether to overwrite existing output directory
+            debug: Whether to enable debug mode
             verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
         """
 
@@ -141,7 +162,7 @@ class VCFAnnotator(VCFDatabase):
             raise FileNotFoundError(f"Annotation database annotation_db not valid: {self.stashed_annotations.annotation_dir}")
         self.annotation_db_path = self.stashed_annotations.annotation_dir
         self.annotation_name = self.stashed_annotations.name
-        super().__init__(self.stashed_annotations.stash_output.root_dir, verbosity)
+        super().__init__(self.stashed_annotations.stash_output.root_dir, verbosity, debug)
 
 
         self.output_annotations = AnnotatedUserOutput(str(output_dir))
@@ -155,7 +176,8 @@ class VCFAnnotator(VCFDatabase):
         )
 
         self.annotation_wfl_path = self.output_annotations.workflow_dir
-        self._copy_workflow_srcfiles(source=self.workflow_dir, destination=self.annotation_wfl_path, skip_config=True)
+        self.annotation_wfl_path.mkdir(parents=True, exist_ok=True)
+
         self.output_vcf = Path(self.output_dir / f'{self.vcf_name}_vst{fext}')
 
         # now also import the mandatory annotation file, that cannot be provided by the user at this stage
@@ -163,12 +185,22 @@ class VCFAnnotator(VCFDatabase):
         if not self.anno_config_file.exists():
             raise FileNotFoundError(f"Annotation config file not found: {self.anno_config_file}")
 
-        self.config_file = Path(config_file).expanduser().resolve() if config_file else self.annotation_db_path / 'annotation_nextflow.config'
-        if not self.config_file.exists():
-            raise FileNotFoundError(f"Config file not found: {self.config_file}")
+        self.config_file = Path(config_file).expanduser().resolve() if config_file else self.annotation_db_path / 'process.config'
+        if not self.config_file or not self.config_file.exists():
+            self.config_file = None
+        else:
+            shutil.copyfile(self.config_file, self.annotation_wfl_path / self.config_file.name)
+            self.config_file = self.annotation_wfl_path / self.config_file
 
-        shutil.copyfile(self.config_file, self.annotation_wfl_path / self.config_file.name)
-        self.config_file = self.annotation_wfl_path / self.config_file
+        self.params_file = self.annotation_wfl_path / f'annotation.yaml'
+        if params_file:
+            shutil.copyfile(params_file.expanduser().resolve(), self.params_file)
+        else:
+            wfi = self.blueprint_dir / "annotation.yaml"
+            assert wfi.exists(), f"Workflow annotation params file not found: {wfi}, required if no yaml provided!"
+            shutil.copyfile(wfi, self.params_file)
+        assert self.params_file.exists(), f"Workflow params file not found: {self.params_file}"
+
 
         self.stash_file = self.annotation_db_path / "vcfstash_annotated.bcf"
         if not self.stash_file.exists():
@@ -182,14 +214,10 @@ class VCFAnnotator(VCFDatabase):
             workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file,
             anno_config_file=self.anno_config_file,
+            params_file=self.params_file,
             verbosity=self.verbosity
         )
 
-        # Extract vep_options from annotation config
-        self.nx_workflow.nf_config_content['params']['vep_options'] = self.nx_workflow.nfa_config_content['params']['vep_options']
-
-        self._validate_db_vs_input()
-        
         # Log initialization parameters
         self.logger.info(f"Initializing annotation of {self.input_vcf.name}")
         self.logger.debug(f"Cache file: {self.stash_file}")
@@ -214,40 +242,7 @@ class VCFAnnotator(VCFDatabase):
         self.output_annotations.create_structure()
 
 
-    def _validate_db_vs_input(self) -> None:
-        """
-        Validates that the database BCF file is compatible with the input VCF file.
-        Raises an error if the database BCF file is not indexed or does not match the input VCF file.
 
-                    self = VCFAnnotator(input_vcf="~/projects/vcfstash/tests/data/nodata/sample1.vcf",
-             annotation_db = "~/tmp/test/test_out/nftest/stash/testor",
-                 output_dir = "~/tmp/test/aout",force=True, uncached= False, verbosity=10,
-                 config_file="/home/j380r/projects/vcfstash/tests/config/nextflow_test.config"
-                 )
-
-
-
-        """
-        # Check if the database BCF file is indexed
-        if not self.stash_file.exists():
-            raise FileNotFoundError(f"Database BCF file not found: {self.stash_file}")
-
-        params_config = self.nx_workflow.nf_config_content['params']
-        params_aconf = self.nx_workflow.nfa_config_content['params']
-        for key in params_aconf:
-            if key == 'vep_options':
-                continue
-            if key not in params_config:
-                self.logger.warning(f"Key '{key}' not found in annotation config file.")
-                raise ValueError(f"Key '{key}' not found in annotation config file.")
-            if params_aconf[key] != params_config[key]:
-                self.logger.warning(f"Key '{key}' does not match between config files.")
-                raise ValueError(f"Key '{key}' does not match between config files.")
-
-        self.logger.info(f"Database BCF file is valid: {self.stash_file}")
-
-
-    
     def _validate_and_extract_sample_name(self) -> tuple[str, str]:
         """
         Validates the input VCF file has an acceptable extension
@@ -441,13 +436,14 @@ class VCFAnnotator(VCFDatabase):
 
         if convert_parquet:
             # This should be implemented in nextflow in the long run to leverage resource management
-            threads = self.nx_workflow.nf_config_content['params'].get('vep_max_forks',1) * self.nx_workflow.nf_config_content['params'].get('vep_max_chr_parallel', 1)
-            self._convert_to_parquet(self.output_vcf, threads=threads)
+            #threads = self.nx_workflow.nf_config_content['params'].get('vep_max_forks',1) * self.nx_workflow.nf_config_content['params'].get('vep_max_chr_parallel', 1)
+            self._convert_to_parquet(self.output_vcf)# , threads=threads)
 
-        self.nx_workflow.cleanup_work_dir()
+        if not self.debug:
+            self.nx_workflow.cleanup_work_dir()
 
 
-    def _convert_to_parquet(self, bcf_path: Path, threads:int) -> Path:
+    def _convert_to_parquet(self, bcf_path: Path, threads:int = 2) -> Path:
         """Convert annotated BCF to optimized Parquet format"""
         try:
             import pandas as pd

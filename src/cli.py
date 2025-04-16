@@ -39,8 +39,11 @@ def main() -> None:
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument("-v", "--verbose", action="count", default=0,
                               help="Increase verbosity (can be used multiple times, e.g. -vv)")
+    parent_parser.add_argument("--debug", action="store_true", default=False, help="Debug mode, keeping intermediate files such as the nextflow work directory")
+    parent_parser.add_argument("-y", "--yaml", dest="params",
+                              required=False, help="Path to a nextflow yaml containing environment variables related to paths and resources")
     parent_parser.add_argument("-c", "--config", dest="config",
-                              required=False, help="Path to a nextflow config containing environment variables")
+                              required=False, help="Path to an optional nextflow config containing only a process definition")
 
     subparsers = parser.add_subparsers(
         dest="command",
@@ -60,6 +63,7 @@ def main() -> None:
     add_parser = subparsers.add_parser("stash-add", help="Add new VCF to the blueprint", parents=[parent_parser])
     add_parser.add_argument("-d", "--db", required=True, help="Path to the existing database directory")
     add_parser.add_argument("-i", "--vcf", dest="i", help="Path to the VCF file to be added")
+
 
     # annotate command
     annotate_parser = subparsers.add_parser("stash-annotate", help="Run annotation workflow on blueprint and instantiate a stash", parents=[parent_parser])
@@ -96,9 +100,11 @@ def main() -> None:
             initializer = DatabaseInitializer(
                 input_file=Path(args.i) if args.i else None,
                 config_file=Path(args.config) if args.config else None,
+                params_file=Path(args.params),
                 output_dir=Path(args.output),
                 verbosity=args.verbose,
-                force=args.force
+                force=args.force,
+                debug=args.debug
             )
             initializer.initialize()
 
@@ -108,7 +114,9 @@ def main() -> None:
                 db_path=args.db,
                 input_file=args.i,
                 config_file=Path(args.config) if args.config else None,
-                verbosity=args.verbose
+                params_file=Path(args.params) if args.params else None,
+                verbosity=args.verbose,
+                debug=args.debug
             )
             updater.add()
 
@@ -119,9 +127,11 @@ def main() -> None:
                 annotation_name = args.name,
                 db_path=args.db,
                 config_file=Path(args.config) if args.config else None,
-                anno_config_file=Path(args.anno_config) if args.anno_config else None,
+                anno_config_file=Path(args.anno_config),
+                params_file=Path(args.params) if args.params else None,
                 verbosity=args.verbose,
-                force = args.force
+                force = args.force,
+                debug=args.debug
             )
             annotator.annotate()
 
@@ -132,9 +142,11 @@ def main() -> None:
                 annotation_db=args.a,
                 input_vcf=args.i,
                 config_file=Path(args.config) if args.config else None,
+                params_file=Path(args.params) if args.params else None,
                 output_dir=args.output,
                 verbosity=args.verbose,
-                force=args.force
+                force=args.force,
+                debug=args.debug
             )
 
             annotator.annotate(uncached=args.uncached, convert_parquet = args.parquet)

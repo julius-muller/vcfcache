@@ -422,7 +422,7 @@ def test_key_files_content_matches(test_output_dir):
     # List of important files to check
     key_files = [
         "blueprint/sources.info",
-        "workflow/init_nextflow.config",
+        "workflow/init.yaml",
         "workflow/main.nf"
     ]
 

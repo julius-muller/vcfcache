@@ -31,10 +31,7 @@ echo "Starting annotation with:
 ### CUSTOM ANNOTATION PROCESS --->
 
 $bcftools_cmd view $input_bcf | \
-docker run --user "$(id -u)":"$(id -g)" -i \
-  -v /home/j380r/references/ensembl-vcf/113/cachedir:/home/j380r/references/ensembl-vcf/113/cachedir \
-  -v /mnt/data/resources/reference/ucsc/:/mnt/data/resources/reference/ucsc/ \
-  --rm ensemblorg/ensembl-vcf:release_113.0 vep \
+ \
   -a GRCh38 \
   --transcript_version \
   --total_length \

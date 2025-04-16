@@ -2,20 +2,21 @@
 """
 update_reference_data.py - Script to update reference data for tests
 """
-import argparse
-import os
+
 import re
+import sys
+from pathlib import Path
+import os
 import shutil
 import subprocess
-import sys
 import tempfile
 import uuid
-from pathlib import Path
 
 TEST_ROOT = os.path.dirname(os.path.abspath(__file__))
 VCFSTASH_CMD = os.path.join(os.path.dirname(TEST_ROOT), "vcfstash.py")
 TEST_DATA_DIR = os.path.join(TEST_ROOT, "data", "nodata")
 TEST_CONFIG = os.path.join(TEST_ROOT, "config", "nextflow_test.config")
+TEST_PARAMS = os.path.join(TEST_ROOT, "config", "user_params.yaml")
 TEST_VCF = os.path.join(TEST_DATA_DIR, "crayz_db.bcf")
 EXPECTED_OUTPUT_DIR = os.path.join(TEST_ROOT, "data", "expected_output")
 TEST_ANNO_CONFIG = os.path.join(os.path.dirname(__file__), "config", "annotation.config")
@@ -34,27 +35,14 @@ def update_reference_data(force=True):
     print(f"Creating stash in temporary directory: {temp_dir}")
 
     try:
-        # Create the required directory structure manually
-        # Main directories
-        os.makedirs(os.path.join(temp_dir, "blueprint"), exist_ok=True)
-        os.makedirs(os.path.join(temp_dir, "workflow"), exist_ok=True)
-        os.makedirs(os.path.join(temp_dir, "stash"), exist_ok=True)
-
-        # Additional subdirectories based on error messages
-        os.makedirs(os.path.join(temp_dir, "workflow", "modules"), exist_ok=True)
-        os.makedirs(os.path.join(temp_dir, "workflow", "bin"), exist_ok=True)
-        os.makedirs(os.path.join(temp_dir, "workflow", "conf"), exist_ok=True)
-
-        # Touch empty files to create minimal structure
-        open(os.path.join(temp_dir, "blueprint", "metadata.json"), 'w').close()
 
         # Run stash-init with the --force flag
         init_cmd = [
-            "/home/j380r/projects/vcfstash/vcfstash.py",
+            VCFSTASH_CMD,
             "stash-init",
-            "-i", "/home/j380r/projects/vcfstash/tests/data/nodata/crayz_db.bcf",
+            "-i", TEST_VCF,
             "-o", temp_dir,
-            "-c", "/home/j380r/projects/vcfstash/tests/config/nextflow_test.config",
+            "-y", TEST_PARAMS,
             "--force"
         ]
         print(f"Running command: {' '.join(init_cmd)}")
@@ -105,7 +93,7 @@ def update_reference_data(force=True):
 def update_stash_add_reference_data(force=True):
     """Update the reference data for stash-add function."""
     # Define path constants
-    EXPECTED_OUTPUT_DIR = "/home/j380r/projects/vcfstash/tests/data/expected_output"
+
     REFERENCE_DIR = os.path.join(EXPECTED_OUTPUT_DIR, "stash_add_annotate_result")
 
     print(f"=== Updating reference data for stash-add ===")
@@ -144,11 +132,10 @@ def update_stash_add_reference_data(force=True):
 
         # Run stash-add
         add_cmd = [
-            "/home/j380r/projects/vcfstash/vcfstash.py",
+            VCFSTASH_CMD,
             "stash-add",
             "--db", temp_dir,
-            "-i", test_vcf2,
-            "-c", "/home/j380r/projects/vcfstash/tests/config/nextflow_test.config"
+            "-i", test_vcf2
         ]
 
         print(f"Running command: {' '.join(add_cmd)}")
@@ -290,11 +277,6 @@ def update_annotation_reference_data(force=False):
     Update the reference data for testing the annotation functionality.
     This creates a reference database with annotations that can be used in tests.
     """
-    import os
-    import shutil
-    import subprocess
-    import tempfile
-    import uuid
 
     # Reference annotation name
     annotation_name = "test_annotation"
@@ -481,7 +463,6 @@ def update_annotate_input(force: bool = False) -> None:
         "-i", str(test_input),
         "-a", str(test_cache),
         "-o", cached_dir,
-        "-c", TEST_CONFIG,
         "-f"
     ]
     subprocess.run(cmd, check=True)
@@ -492,7 +473,6 @@ def update_annotate_input(force: bool = False) -> None:
         "-i", str(test_input),
         "-a", str(test_cache),
         "-o", uncached_dir,
-        "-c", TEST_CONFIG,
         "--uncached",
         "-f"
     ]

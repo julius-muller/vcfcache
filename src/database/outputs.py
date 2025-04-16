@@ -160,7 +160,7 @@ class AnnotatedStashOutput(BaseOutput):
         """
         return {# we don't really need blueprint at this stage anymore
             "annotation": self.annotation_dir,
-            "initial_config": self.stash_output.workflow_dir / 'init_nextflow.config'
+            "initial_config": self.stash_output.workflow_dir / 'init.yaml'
         }
 
     def create_structure(self) -> None:
@@ -205,8 +205,7 @@ class AnnotatedUserOutput(BaseOutput):
         Returns a dictionary with the required paths for the stash output structure.
         """
         required_paths = {
-            "workflow": self.workflow_dir,
-            "workflow_modules": self.workflow_dir / "modules"
+            "workflow": self.workflow_dir
         }
         # for path in self.workflow_src_dir.rglob("*"):  # Recursively find all files and dirs
         #     if not path.name.endswith(".config"):  # Exclude .config files

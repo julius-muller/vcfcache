@@ -21,6 +21,7 @@ process RenameAndNormalizeVCF {
     def info_option = remove_info ? "-x INFO" : "-x INFO/CSQ"
 
     """
+
     # First, convert to BCF and index to ensure proper format
     ${params.bcftools_cmd} view ${gt_option} -Ou ${vcf_file} --threads ${(task.cpus).intdiv(3)} |
     ${params.bcftools_cmd} annotate ${info_option} --rename-chrs ${chr_add_file} --threads ${(task.cpus).intdiv(3)} -Ou |

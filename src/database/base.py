@@ -5,20 +5,34 @@ import shutil
 import subprocess
 from logging import Logger
 from pathlib import Path
-from typing import Tuple, List, Optional, Dict, Any
+from typing import Tuple, List, Optional
+import yaml
 
 from src.database.outputs import StashOutput
-from src.utils.validation import validate_bcf_header, get_vep_version_from_cmd
+from src.utils.validation import validate_bcf_header
 from src.utils.logging import setup_logging
 
 
 class NextflowWorkflow:
-
     NXF_VERSION = "24.10.5"
 
+    REQUIRED_PARAMS = {  # these are the minimal yaml parameters required to run the workflow
+        'bcftools_cmd': Path,
+        'bcftools_cmd_version': str,
+        'bcftools_sort_memory': str,
+        'annotation_tool_cmd': str,
+        'tool_version_command': str,
+        'tool_version_regex': str,
+        'reference': Path,
+        'reference_md5sum': str,
+        'chr_add': Path,
+        'temp_dir': Path
+    }
+
     """ Base class for Nextflow workflow operations for a single input file """
+
     def __init__(self, workflow: Path, input_file: Path, output_dir: Path, name: str,
-                 config_file: Path, anno_config_file: Optional[Path] = None,
+                 config_file: Path = None, anno_config_file: Optional[Path] = None,
                  params_file: Optional[Path] = None, verbosity: int = 0):
 
         self.workflow_file = Path(workflow).expanduser()
@@ -42,12 +56,14 @@ class NextflowWorkflow:
 
         self.logger.info(f"Initializing Nextflow workflow in: {self.workflow_dir}")
 
-        self.nf_config = Path(config_file).expanduser().resolve()
-        if not self.nf_config.exists():
-            self.logger.error(f"Nextflow config file not found: {self.nf_config}")
-            raise FileNotFoundError(f"Nextflow config file not found: {self.nf_config}")
-        self.nf_config_content = self.read_groovy_config(self.nf_config)
-        self.validate_env_config()
+        self.nf_config = self.nf_config_content = None
+        if config_file:
+            self.nf_config = Path(config_file).expanduser().resolve()
+            if not self.nf_config.exists():
+                self.logger.error(f"Nextflow config file not found: {self.nf_config}")
+                raise FileNotFoundError(f"Nextflow config file not found: {self.nf_config}")
+            self.nf_config_content = self.read_groovy_config(self.nf_config)
+            self.validate_env_config()
 
         self.nfa_config = self.nfa_config_content = None
         if anno_config_file:
@@ -58,7 +74,15 @@ class NextflowWorkflow:
             self.nfa_config_content = self.read_groovy_config(self.nfa_config)
             self.validate_annotation_config()
 
-        # Handle optional params_file
+        self.params_file = self.params_file_content = None
+        if params_file:
+            self.params_file = Path(params_file).expanduser().resolve()
+            if not self.params_file.exists():
+                self.logger.error(f"Config yaml file not found: {self.params_file}")
+                raise FileNotFoundError(f"Config yaml file not found: {self.params_file}")
+            self.params_file_content = yaml.safe_load(self.params_file.read_text())
+            self.validate_params_config()
+
         self.params_file = Path(params_file).expanduser() if params_file else None
         if self.params_file and not self.params_file.exists():
             self.logger.error(f"Parameters file not found: {self.params_file}")
@@ -68,6 +92,31 @@ class NextflowWorkflow:
         self._setup_nextflow_skeleton()
 
 
+    def validate_params_config(self):
+        # Load and validate YAML parameters
+        try:
+
+            # Check for missing parameters
+            missing_params = set(self.REQUIRED_PARAMS.keys()) - set(self.params_file_content.keys())
+            if missing_params:
+                raise ValueError(f"Missing required parameters in YAML: {', '.join(missing_params)}")
+
+            # Validate parameter types and paths
+            for param, param_type in self.REQUIRED_PARAMS.items():
+                value = self.params_file_content[param]
+                if param_type == Path:
+                    path = Path(str(value)).expanduser()
+                    if not path.exists():
+                        raise FileNotFoundError(f"Path not found for {param}: {path}")
+                elif not isinstance(value, param_type):
+                    raise TypeError(f"Parameter {param} must be of type {param_type.__name__}")
+
+            self.logger.debug("YAML parameter validation successful")
+
+        except yaml.YAMLError as e:
+            raise ValueError(f"Error parsing YAML file: {e}")
+        except Exception as e:
+            raise ValueError(f"Error validating YAML parameters: {e}")
 
     def validate_env_config(self):
         """
@@ -85,19 +134,19 @@ class NextflowWorkflow:
 
         # Check if config_content exists
         if not hasattr(self, 'nf_config_content') or not self.nf_config_content:
-            raise ValueError("No configuration content loaded.")
+            raise ValueError(f"No configuration for {self.nf_config} content loaded:\n{self.nf_config_content}")
 
         # Extract params section
         config_params = self.nf_config_content.get('params', {})
-        if not config_params:
-            err_msg = "No 'params' section found in Nextflow config file."
+        if config_params:
+            err_msg = f"This config file {self.nf_config} should only contain a process section: {config_params}"
             self.logger.error(err_msg)
             raise ValueError(err_msg)
 
         # 1. Check required parameters
         required_params = [
             'bcftools_cmd', 'bcftools_cmd_version', 'chr_add',
-            'annotation_tool_cmd','tool_version_command','tool_version_regex'
+            'annotation_tool_cmd', 'tool_version_command', 'tool_version_regex'
         ]
 
         missing_params = [param for param in required_params if param not in config_params]
@@ -119,13 +168,11 @@ class NextflowWorkflow:
                         self.logger.warning(warn_msg)
                         warnings.append(warn_msg)
 
-
         # Print summary of validation
         if warnings:
             self.logger.warning(f"Configuration validation found {len(warnings)} warning(s).")
 
         self.logger.info("Main configuration validation completed successfully.")
-
 
     def validate_annotation_config(self):
         """
@@ -139,11 +186,10 @@ class NextflowWorkflow:
         Raises:
             ValueError: If critical configuration issues are found
         """
-        warnings = []
 
         # Check if anno_config_content exists
         if not hasattr(self, 'nfa_config_content') or not self.nfa_config_content:
-            raise ValueError("No annotation configuration content loaded.")
+            raise ValueError(f"No annotation configuration content loaded:\n{self.nfa_config_content}")
 
         # Extract params section
         anno_params = self.nfa_config_content.get('params', {})
@@ -153,34 +199,20 @@ class NextflowWorkflow:
             raise ValueError(err_msg)
 
         # 1. Check required MD5 parameters
-        md5_params = [
-            'reference_md5sum'
+        required_params = [
+            'reference_md5sum',
+            'must_contain_info_tags',
+            'annotation_cmd',
+            'required_tool_version'
         ]
 
-        missing_md5_params = [param for param in md5_params if param not in anno_params]
-        if missing_md5_params:
-            err_msg = f"Missing MD5 checksums in annotation config: {', '.join(missing_md5_params)}"
+        missing_params = [param for param in required_params if param not in anno_params]
+        if missing_params:
+            err_msg = f"Missing parameters in annotation config: {', '.join(missing_params)}"
             self.logger.error(err_msg)
             raise ValueError(err_msg)
 
-        # 2. Check version parameters
-        version_params = ['vep_cmd_version']
-        missing_version_params = [param for param in version_params if param not in anno_params]
-        if missing_version_params:
-            err_msg = f"Missing version parameters in annotation config: {', '.join(missing_version_params)}"
-            self.logger.error(err_msg)
-            raise ValueError(err_msg)
-
-        # 3. Check VCF options
-        if 'vep_options' not in anno_params:
-            raise ValueError("VCF options not found in annotation config.")
-
-        # Print summary of validation
-        if warnings:
-            self.logger.warning(f"Annotation config validation found {len(warnings)} warning(s).")
-
-        self.logger.info("Annotation configuration validation completed successfully.")
-
+        self.logger.debug("Annotation configuration validation completed successfully.")
 
     def read_groovy_config(self, config_path: Path | str) -> dict:
         """
@@ -374,7 +406,6 @@ class NextflowWorkflow:
 
         self.logger.debug(f"Nextflow skeleton setup completed in {self.nxf_home}")
 
-
     def _get_temp_files(self) -> List[Path]:
         """Get list of temporary work directories"""
         if not self.work_dir:
@@ -405,7 +436,6 @@ class NextflowWorkflow:
                     self.logger.warning(f"- {path}")
             self.logger.warning("You may want to remove these files manually")
 
-
     def store_workflow_dag(self, run_dir: Path, cmd: List[str]) -> None:
         """Generate and store workflow DAG visualization"""
         try:
@@ -422,8 +452,7 @@ class NextflowWorkflow:
         except subprocess.CalledProcessError as e:
             self.logger.warning(f"Failed to generate workflow DAG: {e}")
 
-
-    def _create_work_dir(self, parent:Path, dirname:str = 'work') -> None:
+    def _create_work_dir(self, parent: Path, dirname: str = 'work') -> None:
         """Create a temporary work directory for Nextflow"""
         self.work_dir = parent / dirname
         if not self.work_dir.exists():
@@ -432,8 +461,9 @@ class NextflowWorkflow:
         else:
             self.logger.warning(f"Work directory already exists: {self.work_dir}")
 
-    def run(self, db_mode: str, nextflow_args: List[str] = None, trace:bool = False, db_bcf: Path = None,
-            dag:bool = False, timeline:bool = False, report:bool = False, temp: Path = '/tmp') -> subprocess.CompletedProcess:
+    def run(self, db_mode: str, nextflow_args: List[str] = None, trace: bool = False, db_bcf: Path = None,
+            dag: bool = False, timeline: bool = False, report: bool = False,
+            temp: Path = '/tmp') -> subprocess.CompletedProcess:
 
         """Run the Nextflow workflow."""
 
@@ -450,7 +480,7 @@ class NextflowWorkflow:
             raise RuntimeError("VCFSTASH_ROOT environment variable is not set")
         # Set up the Nextflow executable
         nxf_exe = ['java', '-jar', str(Path(env[
-               'VCFSTASH_ROOT']) / f'workflow/.nextflow/framework/{self.NXF_VERSION}/nextflow-{self.NXF_VERSION}-one.jar')]
+                                                'VCFSTASH_ROOT']) / f'workflow/.nextflow/framework/{self.NXF_VERSION}/nextflow-{self.NXF_VERSION}-one.jar')]
         # this could also use the executable in PATH with nxf_exe = ['nextflow']
 
         # Clean Nextflow metadata
@@ -458,14 +488,12 @@ class NextflowWorkflow:
 
         # Global options (applied before the command)
         global_opts = [
-            "-log", str(self.output_dir / ".nextflow.log"),
-            "-c", str(self.nf_config)          # todo: try '-bg' / evaluate '-c' vs '-C'
+            "-log", str(self.output_dir / ".nextflow.log")  # todo: try '-bg' / evaluate '-c' vs '-C'
         ]
 
         if self.nfa_config:
             global_opts.append("-c")
             global_opts.append(str(self.nfa_config))
-
 
         # Run-specific options (applied after the "run" command)
         run_opts = [
@@ -509,7 +537,7 @@ class NextflowWorkflow:
 
         try:
             # Run without capturing output to show live progress
-            result = subprocess.run(cmd, check=True, cwd=self.output_dir, env = os.environ.copy())
+            result = subprocess.run(cmd, check=True, cwd=self.output_dir, env=os.environ.copy())
             return result
         except subprocess.CalledProcessError as e:
             self.warn_temp_files()
@@ -523,25 +551,26 @@ class VCFDatabase:
         'IMPACT', 'DISTANCE', 'PICK', 'VARIANT_CLASS'
     ]
     """Base class for VCF database operations"""
-    def __init__(self, db_path: Path, verbosity: int):
 
+    def __init__(self, db_path: Path, verbosity: int, debug: bool):
+        self.debug = debug
         self.stashed_output = StashOutput(str(db_path))
         self.stash_path = self.stashed_output.root_dir
         self.stash_name = self.stash_path.name
         self.blueprint_dir = self.stash_path / "blueprint"
         self.workflow_dir = self.stash_path / "workflow"
         self.stash_dir = self.stash_path / "stash"
-        self.workflow_dir_src =  self.stashed_output.workflow_src_dir
+        self.workflow_dir_src = self.stashed_output.workflow_src_dir
         self.blueprint_bcf = self.blueprint_dir / "vcfstash.bcf"
 
         self.info_file = self.blueprint_dir / "sources.info"
-        self.verbosity = verbosity
+        self.verbosity = verbosity if not debug else 2
 
         if self.info_file.exists():
             with open(self.info_file) as f:
                 self.db_info = json.load(f)
         else:
-            self.db_info = {'input_files':[]}
+            self.db_info = {'input_files': []}
         self.logger = None
 
     def connect_loggers(self, logger_name: str = "vcfdb") -> Logger:
@@ -552,11 +581,12 @@ class VCFDatabase:
             log_file=log_file
         )
 
-    def setup_config(self, config_file: Path | str , config_name: str) -> Path:
+
+
+    def setup_config(self, config_file: Path | str, config_name: str) -> Path:
         config_file = config_file.expanduser().resolve()
         shutil.copyfile(config_file, self.workflow_dir / config_name)
         return self.workflow_dir / config_name
-
 
     def ensure_indexed(self, file_path: Path) -> None:
         """Ensure input file has an index file (CSI or TBI)"""
@@ -583,7 +613,9 @@ class VCFDatabase:
         return result
 
     def parse_vcf_info(self, vcf_data: list) -> list:
-        """Parses VCF INFO field and expands transcript consequences."""
+        """
+        Parses VCF INFO field and expands transcript consequences.
+        """
 
         def convert_vcfstr(value):
             if value is None or value == "":
@@ -628,7 +660,7 @@ class VCFDatabase:
 
             # Copy entire directory structure except *.config files
             if skip_config:
-                shutil.copytree(source, destination, ignore= shutil.ignore_patterns('*.config'), dirs_exist_ok=True)
+                shutil.copytree(source, destination, ignore=shutil.ignore_patterns('*.config'), dirs_exist_ok=True)
             else:
                 shutil.copytree(source, destination, dirs_exist_ok=True)
 
@@ -638,7 +670,3 @@ class VCFDatabase:
 
         except Exception as e:
             raise RuntimeError(f"Error copying workflow files: {str(e)}")
-
-
-
-

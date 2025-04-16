@@ -15,11 +15,6 @@ def validateParams() {
         error "Invalid db_mode value: ${params.db_mode}. Must be one of: ${validModes.join(', ')}"
     }
 
-        // When in annotation mode, set db_bcf to input if not provided
-    if (params.db_mode.startsWith('stash-annotate') && params.input) {
-        params.db_bcf = params.input
-    }
-
     // Required params
     def required = ['output']
 
@@ -89,13 +84,15 @@ workflow {
 			vcf_index
 		)
 
-        // Publish annotated database
-        ANNOTATE.out.vcf_bcf.subscribe { bcf ->
+		// Publish annotated database
+
+        ANNOTATE.out.annotated_bcf.subscribe { bcf ->
             file(bcf).copyTo("${outputDir}/vcfstash_annotated.bcf")
         }
-        ANNOTATE.out.vcf_bcf_index.subscribe { idx ->
+        ANNOTATE.out.annotated_bcf_index.subscribe { idx ->
             file(idx).copyTo("${outputDir}/vcfstash_annotated.bcf.csi")
         }
+
     } else { // in all other modes were gonna have some sort of input that requires normalization
         vcf = file(params.input)
         vcf_index = file("${params.input}.csi")
@@ -157,10 +154,10 @@ workflow {
 			)
 
             // Publish annotated database
-            ANNOTATE.out.vcf_bcf.subscribe { bcf ->
+            ANNOTATE.out.annotated_bcf.subscribe { bcf ->
                 file(bcf).copyTo("${outputDir}/${sampleName}_vst.bcf")
             }
-            ANNOTATE.out.vcf_bcf_index.subscribe { idx ->
+            ANNOTATE.out.annotated_bcf_index.subscribe { idx ->
                 file(idx).copyTo("${outputDir}/${sampleName}_vst.bcf.csi")
             }
 
@@ -195,8 +192,8 @@ workflow {
             MergeAnnotations(
                 AnnotateFromDB.out.annotated_bcf,
                 AnnotateFromDB.out.annotated_bcf_index,
-                ANNOTATE.out.vcf_bcf,
-                ANNOTATE.out.vcf_bcf_index,
+                ANNOTATE.out.annotated_bcf,
+                ANNOTATE.out.annotated_bcf_index,
                 sampleName
             )
 
@@ -228,8 +225,8 @@ workflow {
 			MERGE_VARIANTS(
 				INTERSECT.out.annotated_bcf,
 				INTERSECT.out.annotated_bcf_index,
-				ANNOTATE.out.vcf_bcf,
-				ANNOTATE.out.vcf_bcf_index
+				ANNOTATE.out.annotated_bcf,
+				ANNOTATE.out.annotated_bcf_index
 			)
 
 				// Publish final merged BCF

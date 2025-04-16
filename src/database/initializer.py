@@ -2,6 +2,7 @@ import json
 import shutil
 from pathlib import Path
 from datetime import datetime
+
 from src.database.base import VCFDatabase, NextflowWorkflow
 from src.database.outputs import StashOutput
 from src.utils.validation import compute_md5
@@ -9,8 +10,10 @@ from src.utils.validation import compute_md5
 
 class DatabaseInitializer(VCFDatabase):
     """Handles database initialization"""
-    def __init__(self, input_file: Path | str, config_file: Path | str, output_dir: Path | str = Path("."),
-                 verbosity: int = 0, force: bool = False) -> None:
+
+
+    def __init__(self, input_file: Path | str, params_file: Path | str, config_file: Path | str = None,
+                 output_dir: Path | str = Path("."), verbosity: int = 0, force: bool = False, debug: bool = False) -> None:
         """Initialize the database creator.
 
         Args:
@@ -23,7 +26,7 @@ class DatabaseInitializer(VCFDatabase):
         """
 
         # Initialize the parent class
-        super().__init__(output_dir,  verbosity)
+        super().__init__(output_dir,  verbosity, debug)
         self._setup_stash(force=force)
         self.logger = self.connect_loggers()
 
@@ -32,8 +35,14 @@ class DatabaseInitializer(VCFDatabase):
 
         self._copy_workflow_srcfiles(source=self.workflow_dir_src, destination=self.workflow_dir, skip_config=True)
 
-        self.config_file = self.workflow_dir / 'init_nextflow.config'
-        shutil.copyfile(config_file.expanduser().resolve(), self.config_file)
+        self.config_file = None
+        if config_file:
+            self.config_file = self.workflow_dir / 'init.config'
+            shutil.copyfile(config_file.expanduser().resolve(), self.config_file)
+
+
+        self.config_yaml = self.workflow_dir / 'init.yaml'
+        shutil.copyfile(params_file.expanduser().resolve(), self.config_yaml)
 
         # Initialize NextflowWorkflow
         self.logger.info("Initializing Nextflow workflow...")
@@ -43,8 +52,11 @@ class DatabaseInitializer(VCFDatabase):
             name='init',
             workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file,
+            params_file=params_file,
             verbosity=self.verbosity
         )
+
+        self._validate_inputs()
 
         # Log initialization parameters
         self.logger.info(f"Initializing database: {self.stash_name}")
@@ -89,13 +101,11 @@ class DatabaseInitializer(VCFDatabase):
             self.logger.error(f"Output database already exists: {self.blueprint_bcf}")
             raise FileExistsError("Output database already exists.")
 
-        self.logger.info("Starting database initialization")
-        self._validate_inputs()
         self._create_database()
-        self.logger.info("Database initialization completed successfully")
+
 
     def _validate_inputs(self) -> None:
-        """Validate input files and directories"""
+        """Validate input files, directories, and YAML parameters"""
         self.logger.debug("Validating inputs")
 
         # Check if output database already exists
@@ -118,8 +128,7 @@ class DatabaseInitializer(VCFDatabase):
         """Create and initialize the database"""
         self.logger.info("Creating database from normalized and annotated variants...")
 
-
-        self.logger.info(f"Workflow files copied to: {self.workflow_dir}")
+        self.stashed_output.validate_structure()
 
         try:
             db_info = {
@@ -171,7 +180,8 @@ class DatabaseInitializer(VCFDatabase):
             self.logger.info(f"- Input MD5: {input_md5}")
             self.logger.info(f"- Processing time: {duration.total_seconds():.2f}s")
 
-            self.nx_workflow.cleanup_work_dir()
+            if not self.debug:
+                self.nx_workflow.cleanup_work_dir()
 
         except Exception as e:
             self.logger.error(f"Error during database creation: {e}")

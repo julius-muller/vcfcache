@@ -193,7 +193,7 @@ def test_stash_annotate(fresh_output_dir):
     # Verify expected annotation files exist
     expected_files = [
         "annotation.config",  # Annotation config file
-        "annotation_nextflow.config",  # Nextflow config
+        "annotation.yaml",  # Environment config
         "blueprint_snapshot.info",  # Blueprint snapshot
         f"{annotation_name}_flowchart.html",  # Nextflow flowchart
         f"{annotation_name}_report.html",  # Nextflow report

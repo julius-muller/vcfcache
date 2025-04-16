@@ -147,63 +147,18 @@ def validate_vcf_format(vcf_path: Path) -> tuple[bool, str | None]:
         return False, f"Error reading VCF file: {e}"
 
 
-
-def get_vep_version_from_cmd(vep_cmd):
-    """
-    Executes the VCF command and extracts the version number from its output.
-
-    Args:
-        vep_cmd (str): The VCF command to execute.
-
-    Returns:
-        str: The VCF version number (e.g., "113.0").
-
-    Raises:
-        ValueError: If version cannot be extracted from output or command fails.
-
-        vep_cmd ="docker run --user \\$(id -u):\\$(id -g) -i -v ${vep_cache}:${vep_cache} -v ${refdir}:${refdir} --rm ensemblorg/ensembl-vcf:release_113.0 vep"
-    """
-    try:
-        shell_cmd = vep_cmd.replace("\\$(", "$(").replace("\\${", "${")
-
-        # Add --help flag to trigger version display without requiring inputs
-        cmd = f"{shell_cmd} --help"
-        # print(cmd)
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-
-        if result.returncode != 0:
-            error_msg = f"VCF command failed with exit code {result.returncode}: {result.stderr.strip()}"
-            raise ValueError(error_msg)
-
-        # Parse the output to find the version
-        output = result.stdout
-
-        # Look for the ensembl-vcf version line
-        version_match = re.search(r"ensembl-vcf\s*:\s*(\d+\.\d+(?:\.\d+)?)", output)
-        if not version_match:
-            # Alternative pattern for older versions or different formats
-            version_match = re.search(r"VCF version (\d+\.\d+(?:\.\d+)?)", output)
-
-        if version_match:
-            version = version_match.group(1)
-            return version
-        else:
-            error_msg = "Could not determine VCF version from command output."
-            raise ValueError(error_msg)
-
-    except Exception as e:
-        error_msg = f"Error determining VCF version: {str(e)}"
-        raise ValueError(error_msg)
-
-
 def generate_test_command(
         vcfstash_path="~/projects/vcfstash/vcfstash.py",
         vcf_path="~/projects/vcfstash/tests/data/nodata/crayz_db.bcf",
-        output_dir="~/tmp/test/test_out",
+        output_dir="~/tmp/vcfstash/test_stash",
         config_path="~/projects/vcfstash/tests/config/nextflow_test.config",
-        annotation_config = "~/projects/vcfstash/tests/config/annotation_test.config",
+        yaml_path="~/projects/vcfstash/tests/config/user_params.yaml",
+        annotation_config = "~/projects/vcfstash/tests/config/annotation.config",
         add_vcf_path="~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf",
+        input_vcf_path="~/projects/vcfstash/tests/data/nodata/sample4.bcf",
         annotate_name="testor",
+        annotation_db="~/tmp/vcfstash/test_stash/stash/testor",
+        annotation_output="~/tmp/vcfstash/aout",
         force=True
 ):
     """
@@ -212,12 +167,12 @@ def generate_test_command(
     Returns:
         str: A copy-pastable command string with proper formatting
     """
-    #
+
     cmd_init = (
         f"{vcfstash_path} stash-init "
         f"--vcf {vcf_path} "
         f"--output {output_dir} "
-        f"-c {config_path} "
+        f"-y {yaml_path} "
         f"{'-f' if force else ''} "
     ).strip()
 
@@ -230,13 +185,21 @@ def generate_test_command(
     cmd_annotate = (
         f"{vcfstash_path} stash-annotate "
         f"--name {annotate_name} "
-        f"-a {annotation_config}"
+        f"-a {annotation_config} "
         f"--db {output_dir} "
         f"{'-f' if force else ''} "
     ).strip()
 
+    cmd_annotatevcf = (
+        f"{vcfstash_path} annotate "
+        f"-a {annotation_db} "
+        f"--vcf {input_vcf_path} "
+        f"{'-f' if force else ''} "
+        f"--output {annotation_output} "
+    ).strip()
+
     # Combine commands
-    full_cmd = f"{cmd_init} ; {cmd_add} ; {cmd_annotate}"
+    full_cmd = f"{cmd_init} ; {cmd_add} ; {cmd_annotate} ; {cmd_annotatevcf}"
 
     # Also create a nicely formatted display version for easier reading
     formatted_cmds = f"""
@@ -246,8 +209,11 @@ def generate_test_command(
 # ADD
 {cmd_add}
 
-# ANNOTATE
+# STASH ANNOTATE
 {cmd_annotate}
+
+# ANNOTATE VCF
+{cmd_annotatevcf}
 
 # COMBINED COMMAND (for copy-paste)
 alias stx="{full_cmd}"
@@ -264,18 +230,18 @@ alias stx="{full_cmd}"
 # ~/projects/vcfstash/vcfstash.py stash-add --db ~/projects/vcfstash/tests/data/test_out/nftest -i ~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf --test -vv
 # ~/projects/vcfstash/vcfstash.py stash-annotate --name testor --db ~/projects/vcfstash/tests/data/test_out/nftest --test -vv -f
 # ... or locally
-# ~/projects/vcfstash/vcfstash.py stash-init --name nftest --vcf ~/projects/vcfstash/tests/data/nodata/crayz_db.bcf --output test_out --test -f -vv
-# ~/projects/vcfstash/vcfstash.py stash-add --db test_out/nftest -i ~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf --test -vv
+# ~/projects/vcfstash/vcfstash.py stash-init --vcf ~/projects/vcfstash/tests/data/nodata/crayz_db.bcf --output ~/tmp/vcfstash/test_stash -c ~/projects/vcfstash/tests/config/env_test.config -f
+# ~/projects/vcfstash/vcfstash.py stash-add --db /home/j380r/tmp/test/test_out -i ~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf
 # ~/projects/vcfstash/vcfstash.py stash-annotate --name testor --db test_out/nftest --test -vv -f
 # ~/projects/vcfstash/vcfstash.py annotate --a ~/tmp/test/test_out/nftest/stash/testor --vcf ~/projects/vcfstash/tests/data/nodata/sample4.bcf --output ~/tmp/test/aout --test -f
 
 # as one:
-cmd = """alias stx="~/projects/vcfstash/vcfstash.py stash-init --vcf ~/projects/vcfstash/tests/data/nodata/crayz_db.bcf --output /home/j380r/tmp/test/test_out -c /home/j380r/projects/vcfstash/tests/config/nextflow_test.config -f ; 
-~/projects/vcfstash/vcfstash.py stash-add --db /home/j380r/tmp/test/test_out -i ~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf ; 
-~/projects/vcfstash/vcfstash.py stash-annotate --name testor -a /home/j380r/projects/vcfstash/tests/config/annotation.config --db /home/j380r/tmp/test/test_out -f;
-~/projects/vcfstash/vcfstash.py annotate -a ~/tmp/test/test_out/stash/testor --vcf ~/projects/vcfstash/tests/data/nodata/sample4.bcf
---output ~/tmp/test/aout -f -p -vv"
+cmd = """alias stx="~/projects/vcfstash/vcfstash.py stash-init --vcf ~/projects/vcfstash/tests/data/nodata/crayz_db.bcf --output ~/tmp/vcfstash/test_stash -y ~/projects/vcfstash/tests/config/user_params.yaml -f;
+~/projects/vcfstash/vcfstash.py stash-add --db ~/tmp/vcfstash/test_stash/ -i ~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf ; 
+~/projects/vcfstash/vcfstash.py stash-annotate --name testor -a ~/projects/vcfstash/tests/config/annotation.config --db ~/tmp/vcfstash/test_stash -f;
+~/projects/vcfstash/vcfstash.py annotate -a ~/tmp/vcfstash/test_stash/stash/testor --vcf ~/projects/vcfstash/tests/data/nodata/sample4.bcf --output ~/tmp/vcfstash/aout -f
 """
+
 
 
 # on gvpre

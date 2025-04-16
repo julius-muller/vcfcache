@@ -9,17 +9,25 @@ from src.utils.validation import compute_md5, get_bcf_stats, check_duplicate_md5
 class DatabaseUpdater(VCFDatabase):
     """Handles adding new variants to database"""
     def __init__(self, db_path: Path | str, input_file: Path | str, config_file: Path | str = None,
-                 verbosity: int = 0):
-        super().__init__(Path(db_path), verbosity)
+                 params_file: Path | str = None, verbosity: int = 0, debug: bool = False):
+        super().__init__(Path(db_path), verbosity, debug)
         self.stashed_output.validate_structure()
         self.logger = self.connect_loggers()
         self.input_file = Path(input_file).expanduser().resolve()
         self.input_md5 = compute_md5(self.input_file) # might take too long to do here
         if config_file:
-            self.config_file = self.blueprint_dir / f'add_{self.input_md5}_nextflow.config'
+            self.config_file = self.blueprint_dir / f'add_{self.input_md5}.config'
             shutil.copyfile(config_file.expanduser().resolve(), self.config_file)
         else:
-            self.config_file = self.workflow_dir / "init_nextflow.config"
+            wfini = self.workflow_dir / "init.config"
+            self.config_file = wfini if wfini.exists() else None
+
+        if params_file:
+            self.params_file = self.blueprint_dir / f'add_{self.input_md5}.yaml'
+            shutil.copyfile(params_file.expanduser().resolve(), self.params_file)
+        else:
+            wfini = self.workflow_dir / "init.yaml"
+            self.params_file = wfini if wfini.exists() else None
 
         # Initialize NextflowWorkflow
         self.nx_workflow = NextflowWorkflow(
@@ -28,6 +36,7 @@ class DatabaseUpdater(VCFDatabase):
             name=f'add_{self.input_md5}',
             workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file,
+            params_file=self.params_file,
             verbosity=self.verbosity
         )
 
@@ -135,7 +144,8 @@ class DatabaseUpdater(VCFDatabase):
                 prefix = "+" if diff > 0 else ""
                 self.logger.info(f"  {key}: {prefix}{diff:d} ({pre_stats[key]} -> {post_stats[key]})")
             self.logger.info(f"- Processing time: {duration.total_seconds():.2f}s")
-            self.nx_workflow.cleanup_work_dir()
+            if not self.debug:
+                self.nx_workflow.cleanup_work_dir()
 
         except subprocess.CalledProcessError as e:
             self.logger.error(f"Failed to merge variants: {e}")
