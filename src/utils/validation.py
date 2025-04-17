@@ -148,17 +148,17 @@ def validate_vcf_format(vcf_path: Path) -> tuple[bool, str | None]:
 
 
 def generate_test_command(
-        vcfstash_path="~/projects/vcfstash/vcfstash.py",
-        vcf_path="~/projects/vcfstash/tests/data/nodata/crayz_db.bcf",
-        output_dir="~/tmp/vcfstash/test_stash",
-        config_path="~/projects/vcfstash/tests/config/env_test.config",
-        yaml_path="~/projects/vcfstash/tests/config/user_params.yaml",
-        annotation_config = "~/projects/vcfstash/tests/config/annotation.config",
-        add_vcf_path="~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf",
-        input_vcf_path="~/projects/vcfstash/tests/data/nodata/sample4.bcf",
+        vcfstash_path="${VCFSTASH_ROOT}/vcfstash.py",
+        vcf_path="${VCFSTASH_ROOT}/tests/data/nodata/crayz_db.bcf",
+        output_dir="/tmp/vcfstash/test_stash",
+        config_path="${VCFSTASH_ROOT}/tests/config/nextflow_test.config",
+        yaml_path="${VCFSTASH_ROOT}/tests/config/user_params.yaml",
+        annotation_config = "${VCFSTASH_ROOT}/tests/config/annotation.config",
+        add_vcf_path="${VCFSTASH_ROOT}/tests/data/nodata/crayz_db2.bcf",
+        input_vcf_path="${VCFSTASH_ROOT}/tests/data/nodata/sample4.bcf",
         annotate_name="testor",
-        annotation_db="~/tmp/vcfstash/test_stash/stash/testor",
-        annotation_output="~/tmp/vcfstash/aout",
+        annotation_db="/tmp/vcfstash/test_stash/stash/testor",
+        annotation_output="/tmp/vcfstash/aout",
         force=True
 ):
     """

@@ -12,8 +12,7 @@ from pathlib import Path
 TEST_ROOT = os.path.dirname(os.path.abspath(__file__))
 VCFSTASH_CMD = os.path.join(os.path.dirname(TEST_ROOT), "vcfstash.py")
 TEST_DATA_DIR = os.path.join(TEST_ROOT, "data", "nodata")
-TEST_CONFIG = os.path.join(TEST_ROOT, "config", "env_test.config")
-TEST_PARAMS = os.path.join(TEST_ROOT, "config", "user_params.yaml")
+TEST_CONFIG = os.path.join(TEST_ROOT, "config", "nextflow_test.config")
 TEST_VCF = os.path.join(TEST_DATA_DIR, "crayz_db.bcf")
 EXPECTED_OUTPUT_DIR = os.path.join(TEST_ROOT, "data", "expected_output", "stash_init_result")
 
@@ -45,7 +44,7 @@ def compute_md5(filename):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-def run_stash_init(input_vcf, output_dir, config_file, force=False, params_file=TEST_PARAMS):
+def run_stash_init(input_vcf, output_dir, config_file, force=False):
     """Run the stash-init command and return the process result."""
     # Make sure the directory doesn't exist (clean start)
     if os.path.exists(output_dir):
@@ -56,8 +55,7 @@ def run_stash_init(input_vcf, output_dir, config_file, force=False, params_file=
         "stash-init",
         "--vcf", input_vcf,
         "--output", output_dir,
-        "-c", config_file,
-        "-y", params_file
+        "-c", config_file
     ]
     if force:
         cmd.append("-f")
@@ -186,8 +184,13 @@ def is_valid_bcf(bcf_file):
     try:
         # Use bcftools to check if the BCF file is valid
         # We just check that bcftools can read the header
+        bcftools_path = os.path.join(os.environ.get('VCFSTASH_ROOT', ''), 'tools', 'bcftools')
+        if not os.path.exists(bcftools_path):
+            # Fall back to system bcftools if the project-specific one doesn't exist
+            bcftools_path = 'bcftools'
+
         result = subprocess.run(
-            ['bcftools', 'view', '-h', bcf_file],
+            [bcftools_path, 'view', '-h', bcf_file],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False
@@ -483,13 +486,19 @@ def test_bcf_file_matches_reference(test_output_dir):
     test_bcf = os.path.join(output_dir, "variants.bcf")
     ref_bcf = os.path.join(EXPECTED_OUTPUT_DIR, "variants.bcf")
 
+    # Get bcftools path
+    bcftools_path = os.path.join(os.environ.get('VCFSTASH_ROOT', ''), 'tools', 'bcftools')
+    if not os.path.exists(bcftools_path):
+        # Fall back to system bcftools if the project-specific one doesn't exist
+        bcftools_path = 'bcftools'
+
     # Convert BCF to readable text
     test_vcf_text = subprocess.run(
-        ["bcftools", "view", test_bcf],
+        [bcftools_path, "view", test_bcf],
         stdout=subprocess.PIPE, text=True
     ).stdout
     ref_vcf_text = subprocess.run(
-        ["bcftools", "view", ref_bcf],
+        [bcftools_path, "view", ref_bcf],
         stdout=subprocess.PIPE, text=True
     ).stdout
 
