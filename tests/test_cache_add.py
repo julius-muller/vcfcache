@@ -36,28 +36,53 @@ def test_stash_init_and_add(fresh_output_dir):
     # Verify the directory doesn't exist yet
     print(f"Output directory exists before test: {os.path.exists(fresh_output_dir)}")
 
-    # Run stash-init with a fresh directory
-    init_cmd = [
-        VCFSTASH_CMD,
-        "stash-init",
-        "-i", TEST_VCF,
-        "-o", fresh_output_dir,
-        "-y", TEST_PARAMS,
-        "-f"
-    ]
+    # Get the VCFSTASH_ROOT environment variable
+    vcfstash_root = os.environ.get('VCFSTASH_ROOT')
+    if not vcfstash_root:
+        raise ValueError("VCFSTASH_ROOT environment variable is not set")
 
-    print(f"Running init command: {' '.join(init_cmd)}")
-    init_result = subprocess.run(
-        init_cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        check=False
-    )
+    # Create a temporary params file with the correct paths
+    temp_params_file = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as temp_file:
+            temp_params_file = temp_file.name
 
-    # Check if initialization succeeded
-    assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
-    print(f"Init succeeded with output: {init_result.stdout}")
+            # Read the original params file
+            with open(TEST_PARAMS, 'r') as f:
+                params_content = f.read()
+
+            # Replace ${VCFSTASH_ROOT} with the actual value
+            params_content = params_content.replace('${VCFSTASH_ROOT}', vcfstash_root)
+
+            # Write the modified content to the temporary file
+            temp_file.write(params_content)
+
+        # Run stash-init with a fresh directory
+        init_cmd = [
+            VCFSTASH_CMD,
+            "stash-init",
+            "-i", TEST_VCF,
+            "-o", fresh_output_dir,
+            "-y", temp_params_file,
+            "-f"
+        ]
+
+        print(f"Running init command: {' '.join(init_cmd)}")
+        init_result = subprocess.run(
+            init_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False
+        )
+
+        # Check if initialization succeeded
+        assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
+        print(f"Init succeeded with output: {init_result.stdout}")
+    finally:
+        # Clean up the temporary file
+        if temp_params_file and os.path.exists(temp_params_file):
+            os.unlink(temp_params_file)
 
     # Verify the directory was created with correct structure
     assert os.path.exists(fresh_output_dir), "Output directory was not created"
@@ -82,22 +107,42 @@ def test_stash_init_and_add(fresh_output_dir):
         f"Input file in sources.info ({sources_data['input_files'][0]['path']}) doesn't match test file ({TEST_VCF})"
 
     # Test stash-add by adding the same file again (reusing the same test file for simplicity)
-    add_cmd = [
-        VCFSTASH_CMD,
-        "stash-add",
-        "--db", fresh_output_dir,
-        "-i", TEST_VCF,
-        "-y", TEST_PARAMS
-    ]
+    # Create another temporary params file for stash-add
+    temp_params_file = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as temp_file:
+            temp_params_file = temp_file.name
 
-    print(f"Running add command: {' '.join(add_cmd)}")
-    add_result = subprocess.run(
-        add_cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        check=False
-    )
+            # Read the original params file
+            with open(TEST_PARAMS, 'r') as f:
+                params_content = f.read()
+
+            # Replace ${VCFSTASH_ROOT} with the actual value
+            params_content = params_content.replace('${VCFSTASH_ROOT}', vcfstash_root)
+
+            # Write the modified content to the temporary file
+            temp_file.write(params_content)
+
+        add_cmd = [
+            VCFSTASH_CMD,
+            "stash-add",
+            "--db", fresh_output_dir,
+            "-i", TEST_VCF,
+            "-y", temp_params_file
+        ]
+
+        print(f"Running add command: {' '.join(add_cmd)}")
+        add_result = subprocess.run(
+            add_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False
+        )
+    finally:
+        # Clean up the temporary file
+        if temp_params_file and os.path.exists(temp_params_file):
+            os.unlink(temp_params_file)
 
     # Check if add succeeded
     assert add_result.returncode == 0, f"stash-add failed: {add_result.stderr}"

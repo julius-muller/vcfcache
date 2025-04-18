@@ -105,6 +105,9 @@ class NextflowWorkflow:
             for param, param_type in self.REQUIRED_PARAMS.items():
                 value = self.params_file_content[param]
                 if param_type == Path:
+                    # Skip validation for paths with environment variables
+                    if str(value).startswith('${'):
+                        continue
                     path = Path(str(value)).expanduser()
                     if not path.exists():
                         raise FileNotFoundError(f"Path not found for {param}: {path}")

@@ -49,30 +49,52 @@ def run_stash_init(input_vcf, output_dir, config_file=None, force=False):
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
 
-    # Path to the params file
-    params_file = os.path.join(TEST_ROOT, "config", "test_params.yaml")
+    # Get the VCFSTASH_ROOT environment variable
+    vcfstash_root = os.environ.get('VCFSTASH_ROOT')
+    if not vcfstash_root:
+        raise ValueError("VCFSTASH_ROOT environment variable is not set")
 
-    cmd = [
-        VCFSTASH_CMD,
-        "stash-init",
-        "--vcf", input_vcf,
-        "--output", output_dir,
-        "-y", params_file
-    ]
+    # Create a temporary params file with the correct paths
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as temp_file:
+        temp_params_file = temp_file.name
 
-    # We no longer use config_file as per requirements
-    # Only process section is allowed in configs, and they're optional
+        # Read the original params file
+        original_params_file = os.path.join(TEST_ROOT, "config", "test_params.yaml")
+        with open(original_params_file, 'r') as f:
+            params_content = f.read()
 
-    if force:
-        cmd.append("-f")
+        # Replace ${VCFSTASH_ROOT} with the actual value
+        params_content = params_content.replace('${VCFSTASH_ROOT}', vcfstash_root)
 
-    result = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    return result
+        # Write the modified content to the temporary file
+        temp_file.write(params_content)
+
+    try:
+        cmd = [
+            VCFSTASH_CMD,
+            "stash-init",
+            "--vcf", input_vcf,
+            "--output", output_dir,
+            "-y", temp_params_file
+        ]
+
+        # We no longer use config_file as per requirements
+        # Only process section is allowed in configs, and they're optional
+
+        if force:
+            cmd.append("-f")
+
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        return result
+    finally:
+        # Clean up the temporary file
+        if os.path.exists(temp_params_file):
+            os.unlink(temp_params_file)
 
 def compare_directories_ignore_timestamps(dir1, dir2):
     """Compare two directories, ignoring timestamp differences and dynamic directories."""
