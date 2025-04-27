@@ -181,11 +181,78 @@ process {
 
 This configuration is optional - VCFstash will work with default settings, but customizing resources can improve performance for your specific environment.
 
+
+# Cache Structure
+
+The VCFstash cache is organized in a structured directory hierarchy that maintains both the normalized variants and their annotations. Understanding this structure can help you manage and troubleshoot your caches.
+
+## Directory Structure
+
+```
+cache_directory/
+├── blueprint/                  # Contains normalized variants
+│   ├── vcfstash.bcf            # Normalized variants from input VCF files
+│   ├── vcfstash.bcf.csi        # Index for the normalized variants
+│   ├── sources.info            # Information about input VCF files
+│   └── ...                     # Nextflow reports and logs
+│
+├── stash/                      # Contains annotated variants
+│   ├── annotation.yaml         # Configuration for annotation tools
+│   └── [annotation_name]/      # Named annotation directory (e.g., "vep_gnomad")
+│       ├── annotation.config   # Locked annotation configuration
+│       ├── blueprint_snapshot.info  # Blueprint info at annotation time
+│       ├── vcfstash_annotated.bcf   # Annotated variants
+│       ├── vcfstash_annotated.bcf.csi  # Index for annotated variants
+│       └── ...                 # Nextflow reports and logs
+│
+├── workflow/                   # Contains Nextflow workflow files
+│   ├── init.yaml               # Initial configuration
+│   ├── main.nf                 # Nextflow workflow file
+│   ├── modules/                # Nextflow modules
+│   └── ...                     # Workflow logs
+│
+└── vcfdb.log                   # Log file for cache operations
+```
+
+## Key Files Explained
+
+### Blueprint Files
+
+- **vcfstash.bcf**: The core normalized variant database containing all variants from input VCF files. This file is created during `stash-init` and updated during `stash-add`.
+- **sources.info**: JSON file tracking all input VCF files that have been added to the cache, including their MD5 checksums and timestamps.
+
+### Stash Files
+
+- **annotation.yaml**: Contains configuration for annotation tools, including paths, commands, and resource settings.
+- **annotation.config**: The locked annotation configuration that defines exactly how variants are annotated. This file is frozen after `stash-annotate` to ensure consistency.
+- **blueprint_snapshot.info**: Records the state of the blueprint at the time of annotation, ensuring traceability.
+- **vcfstash_annotated.bcf**: The annotated variant database that serves as the cache for future annotations.
+
+### Workflow Files
+
+- **init.yaml**: Initial configuration used by the Nextflow workflow.
+- **main.nf**: The Nextflow workflow that orchestrates the normalization and annotation processes.
+
+## Cache Lifecycle
+
+1. **Initialization** (`stash-init`): Creates the blueprint directory and normalizes input variants
+2. **Addition** (`stash-add`): Updates the blueprint with additional variants
+3. **Annotation** (`stash-annotate`): Creates a named annotation in the stash directory
+4. **Usage** (`annotate`): Uses the annotated cache to speed up annotation of new samples
+
+Understanding this structure helps when:
+- Troubleshooting annotation issues
+- Managing multiple annotation versions
+- Sharing caches between environments
+- Backing up or archiving caches
+
+The cache is designed to be portable - you can copy an entire cache directory to another location or system and use it there, as long as the paths in your `params.yaml` file are updated accordingly.
+
 ## 💡 Performance Tips
 
 - **Start with quality data**: Use a large, comprehensive variant database (like gnomAD) for initialization
 - **Keep cache size manageable**: Using only common alleles (e.g., 10% allele frequency or higher) provides excellent performance while avoiding huge caches
-- **Benefit from scale**: For large cohorts, the speedup increases with each additional sample - the more you use it, the more time you save
+- **Benefit from scale**: For large cohorts, the speedup increases with each additional sample added to the cache 
 - **Optimize I/O**: Consider using SSD storage for the cache directory to maximize performance
 - **Parallelize wisely**: Adjust CPU and memory settings in the Nextflow configuration based on your available resources
 
