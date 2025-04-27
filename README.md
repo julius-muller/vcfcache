@@ -114,17 +114,17 @@ The example above shows a typical pattern: read from \${INPUT_BCF}, pipe through
 #### Step 2: Create params.yaml
 
 ```yaml
-# params.yaml - Configurable values
+# params.yaml - Configurable values (edit these!)
 
 # Tool paths
 annotation_tool_cmd: "vep"
 bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
 
-# Reference data (edit these!)
+# Reference data
 reference: "/path/to/reference.fasta"
-reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
+reference_md5sum: "optional..."
 
-# Resources (edit these!)
+# Resources
 vep_cache: "/path/to/vep_cache"
 vep_buffer: 500000
 vep_forks: 4
