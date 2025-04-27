@@ -197,12 +197,12 @@ cache_directory/
 │   └── ...                     # Nextflow reports and logs
 │
 ├── stash/                      # Contains annotated variants
-│   ├── annotation.yaml         # Configuration for annotation tools
 │   └── [annotation_name]/      # Named annotation directory (e.g., "vep_gnomad")
 │       ├── annotation.config   # Locked annotation configuration
 │       ├── blueprint_snapshot.info  # Blueprint info at annotation time
 │       ├── vcfstash_annotated.bcf   # Annotated variants
 │       ├── vcfstash_annotated.bcf.csi  # Index for annotated variants
+│       ├── annotation.yaml         # Configuration for annotation tools
 │       └── ...                 # Nextflow reports and logs
 │
 ├── workflow/                   # Contains Nextflow workflow files
