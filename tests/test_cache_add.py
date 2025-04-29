@@ -1,16 +1,19 @@
 import os
 import json
+import sys
 import pytest
 import tempfile
 import subprocess
 import uuid
+from pathlib import Path
+from src.utils.paths import get_vcfstash_root, get_resource_path
 
 # Define constants
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
-TEST_VCF = os.path.join(TEST_DATA_DIR, "nodata", "crayz_db.bcf")
-TEST_PARAMS = os.path.join(os.path.dirname(__file__), "config", "test_params.yaml")
-VCFSTASH_CMD = os.path.join(os.path.dirname(os.path.dirname(__file__)), "vcfstash.py")
-
+TEST_ROOT = Path(__file__).parent
+TEST_DATA_DIR = TEST_ROOT / "data"
+TEST_VCF = TEST_DATA_DIR / "nodata" / "crayz_db.bcf"
+TEST_PARAMS = TEST_ROOT / "config" / "test_params.yaml"
+VCFSTASH_CMD = get_vcfstash_root() / "vcfstash.py"
 
 @pytest.fixture
 def fresh_output_dir():
@@ -36,10 +39,8 @@ def test_stash_init_and_add(fresh_output_dir):
     # Verify the directory doesn't exist yet
     print(f"Output directory exists before test: {os.path.exists(fresh_output_dir)}")
 
-    # Get the VCFSTASH_ROOT environment variable
-    vcfstash_root = os.environ.get('VCFSTASH_ROOT')
-    if not vcfstash_root:
-        raise ValueError("VCFSTASH_ROOT environment variable is not set")
+    # Get the VCFSTASH_ROOT directory
+    vcfstash_root = str(get_vcfstash_root())
 
     # Create a temporary params file with the correct paths
     temp_params_file = None
@@ -59,9 +60,10 @@ def test_stash_init_and_add(fresh_output_dir):
 
         # Run stash-init with a fresh directory
         init_cmd = [
-            VCFSTASH_CMD,
+            sys.executable,  # Use the current Python interpreter
+            str(VCFSTASH_CMD),
             "stash-init",
-            "-i", TEST_VCF,
+            "-i", str(TEST_VCF),
             "-o", fresh_output_dir,
             "-y", temp_params_file,
             "-f"
@@ -124,10 +126,11 @@ def test_stash_init_and_add(fresh_output_dir):
             temp_file.write(params_content)
 
         add_cmd = [
-            VCFSTASH_CMD,
+            sys.executable,  # Use the current Python interpreter
+            str(VCFSTASH_CMD),
             "stash-add",
             "--db", fresh_output_dir,
-            "-i", TEST_VCF,
+            "-i", str(TEST_VCF),
             "-y", temp_params_file
         ]
 
@@ -165,12 +168,12 @@ def test_stash_init_and_add(fresh_output_dir):
         assert os.path.exists(os.path.join(blueprint_dir, file)), f"Expected file {file} not found"
 
     # Verify BCF contains variants (this is just a basic check)
-    bcftools_path = os.path.join(os.environ.get('VCFSTASH_ROOT', ''), 'tools', 'bcftools')
-    if not os.path.exists(bcftools_path):
+    bcftools_path = get_resource_path('tools/bcftools')
+    if not bcftools_path.exists():
         # Fall back to system bcftools if the project-specific one doesn't exist
         bcftools_path = 'bcftools'
 
-    bcf_stats_cmd = [bcftools_path, "stats", bcf_file]
+    bcf_stats_cmd = [str(bcftools_path), "stats", bcf_file]
     try:
         bcf_stats = subprocess.run(
             bcf_stats_cmd,

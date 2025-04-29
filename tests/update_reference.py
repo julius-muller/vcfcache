@@ -11,21 +11,16 @@ import shutil
 import subprocess
 import tempfile
 import uuid
+from src.utils.paths import get_vcfstash_root, get_resource_path
 
 # Use Path for better path handling
 TEST_ROOT = Path(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_ROOT = TEST_ROOT.parent
-VCFSTASH_CMD = str(PROJECT_ROOT / "vcfstash.py")
-TEST_DATA_DIR = str(TEST_ROOT / "data" / "nodata")
-TEST_PARAMS = str(TEST_ROOT / "config" / "user_params.yaml")
-TEST_VCF = str(Path(TEST_DATA_DIR) / "crayz_db.bcf")
-EXPECTED_OUTPUT_DIR = str(TEST_ROOT / "data" / "expected_output")
-TEST_ANNO_CONFIG = str(TEST_ROOT / "config" / "annotation.config")
-
-# Set VCFSTASH_ROOT environment variable if not already set
-if 'VCFSTASH_ROOT' not in os.environ:
-    os.environ['VCFSTASH_ROOT'] = str(PROJECT_ROOT)
-    print(f"Set VCFSTASH_ROOT to {PROJECT_ROOT}")
+VCFSTASH_CMD = get_vcfstash_root() / "vcfstash.py"
+TEST_DATA_DIR = TEST_ROOT / "data" / "nodata"
+TEST_PARAMS = TEST_ROOT / "config" / "user_params.yaml"
+TEST_VCF = TEST_DATA_DIR / "crayz_db.bcf"
+EXPECTED_OUTPUT_DIR = TEST_ROOT / "data" / "expected_output"
+TEST_ANNO_CONFIG = TEST_ROOT / "config" / "annotation.config"
 
 # Set Nextflow-specific environment variables
 os.environ['NXF_VER'] = '24.10.5'
@@ -45,9 +40,15 @@ def normalize_bcf_timestamps(bcf_file):
     # Create a temporary VCF file
     temp_vcf = bcf_file + ".temp.vcf"
 
+    # Get bcftools path
+    bcftools_path = get_resource_path('tools/bcftools')
+    if not bcftools_path.exists():
+        # Fall back to system bcftools if the project-specific one doesn't exist
+        bcftools_path = 'bcftools'
+
     # Convert BCF to VCF
     result = subprocess.run(
-        ["bcftools", "view", bcf_file, "-o", temp_vcf],
+        [str(bcftools_path), "view", bcf_file, "-o", temp_vcf],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
 
@@ -76,7 +77,7 @@ def normalize_bcf_timestamps(bcf_file):
 
     # Convert back to BCF
     result = subprocess.run(
-        ["bcftools", "view", "-O", "b", "-o", bcf_file, temp_vcf],
+        [str(bcftools_path), "view", "-O", "b", "-o", bcf_file, temp_vcf],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
 
@@ -136,7 +137,7 @@ def update_golden_reference_dataset(force=True):
     print("=== Updating golden reference dataset ===")
 
     # Use subdirectories in the expected output directory
-    stash_dir = os.path.join(EXPECTED_OUTPUT_DIR, "stash_result")
+    stash_dir = os.path.join(EXPECTED_OUTPUT_DIR, "stash_init_result")
     annotate_dir = os.path.join(EXPECTED_OUTPUT_DIR, "annotate_result")
 
     # Ensure the directories don't exist
@@ -152,10 +153,8 @@ def update_golden_reference_dataset(force=True):
     # Create a temporary params file with the correct paths
     temp_params_file = None
     try:
-        # Get the VCFSTASH_ROOT environment variable
-        vcfstash_root = os.environ.get('VCFSTASH_ROOT')
-        if not vcfstash_root:
-            raise ValueError("VCFSTASH_ROOT environment variable is not set")
+        # Get the VCFSTASH_ROOT directory
+        vcfstash_root = str(get_vcfstash_root())
 
         # Create a temporary params file with the correct paths
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as temp_file:

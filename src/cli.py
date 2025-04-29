@@ -22,6 +22,7 @@ Date: 16-03-2025
 import argparse
 import sys
 from pathlib import Path
+from src.utils.paths import get_vcfstash_root  # This will set VCFSTASH_ROOT
 from src.utils.logging import setup_logging, log_command
 from src.database.initializer import DatabaseInitializer
 from src.database.updater import DatabaseUpdater
@@ -159,4 +160,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

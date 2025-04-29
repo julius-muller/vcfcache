@@ -7,16 +7,19 @@ from pathlib import Path
 import subprocess
 import shutil
 import tempfile
+from src.utils.paths import get_vcfstash_root, get_resource_path
 
 # Constants
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
-TEST_VCF = os.path.join(TEST_DATA_DIR, "nodata", "crayz_db.bcf")
-TEST_ANNO_CONFIG = os.path.join(os.path.dirname(__file__), "config", "annotation.config")
-TEST_PARAMS = os.path.join(os.path.dirname(__file__), "config", "user_params.yaml")
-TEST_MOCK_PARAMS = os.path.join(os.path.dirname(__file__), "config", "test_params.yaml")
-TEST_MOCK_ANNO_CONFIG = os.path.join(os.path.dirname(__file__), "config", "test_annotation.config")
-VCFSTASH_CMD = os.path.join(os.path.dirname(os.path.dirname(__file__)), "vcfstash.py")
-EXPECTED_OUTPUT_DIR = os.path.join(TEST_DATA_DIR, "expected_output")
+TEST_ROOT = Path(__file__).parent
+TEST_DATA_DIR = TEST_ROOT / "data"
+TEST_VCF = TEST_DATA_DIR / "nodata" / "crayz_db.bcf"
+TEST_ANNO_CONFIG = TEST_ROOT / "config" / "annotation.config"
+TEST_PARAMS = TEST_ROOT / "config" / "user_params.yaml"
+TEST_MOCK_PARAMS = TEST_ROOT / "config" / "test_params.yaml"
+TEST_MOCK_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.config"
+VCFSTASH_CMD = get_vcfstash_root() / "vcfstash.py"
+EXPECTED_OUTPUT_DIR = TEST_DATA_DIR / "expected_output"
+
 
 def run_annotation(bcftools_path, input_file, output_file, header_file, tag_value):
     """Run annotation on input file and save to output file."""
@@ -27,7 +30,7 @@ def run_annotation(bcftools_path, input_file, output_file, header_file, tag_valu
 
         # Convert the input BCF to VCF
         view_cmd = [
-            bcftools_path,
+            str(bcftools_path),
             "view",
             str(input_file),
             "-o", str(temp_vcf)
@@ -68,7 +71,7 @@ def run_annotation(bcftools_path, input_file, output_file, header_file, tag_valu
 
         # Convert back to BCF
         convert_cmd = [
-            bcftools_path,
+            str(bcftools_path),
             "view",
             "-O", "b",
             "-o", str(output_file),
@@ -77,7 +80,7 @@ def run_annotation(bcftools_path, input_file, output_file, header_file, tag_valu
         subprocess.run(convert_cmd, check=True, capture_output=True)
 
         # Create index for the output file
-        index_cmd = [bcftools_path, "index", str(output_file)]
+        index_cmd = [str(bcftools_path), "index", str(output_file)]
         subprocess.run(index_cmd, check=True, capture_output=True)
 
         return True
@@ -106,8 +109,8 @@ def test_cached_vs_uncached_annotation():
         uncached_dir.mkdir()
 
         # Get bcftools path
-        bcftools_path = os.path.join(os.environ.get('VCFSTASH_ROOT', ''), 'tools', 'bcftools')
-        if not os.path.exists(bcftools_path):
+        bcftools_path = get_resource_path('tools/bcftools')
+        if not bcftools_path.exists():
             # Fall back to system bcftools if the project-specific one doesn't exist
             bcftools_path = 'bcftools'
 
@@ -195,8 +198,8 @@ def test_annotate_command(use_cache):
         output_file = output_dir / "sample4_vst.bcf"
 
         # Get bcftools path
-        bcftools_path = os.path.join(os.environ.get('VCFSTASH_ROOT', ''), 'tools', 'bcftools')
-        if not os.path.exists(bcftools_path):
+        bcftools_path = get_resource_path('tools/bcftools')
+        if not bcftools_path.exists():
             # Fall back to system bcftools if the project-specific one doesn't exist
             bcftools_path = 'bcftools'
 
@@ -383,8 +386,8 @@ def test_annotate_command_with_mock_annotation():
         output_dir.mkdir()
 
         # Get bcftools path
-        bcftools_path = os.path.join(os.environ.get('VCFSTASH_ROOT', ''), 'tools', 'bcftools')
-        if not os.path.exists(bcftools_path):
+        bcftools_path = get_resource_path('tools/bcftools')
+        if not bcftools_path.exists():
             # Fall back to system bcftools if the project-specific one doesn't exist
             bcftools_path = 'bcftools'
 

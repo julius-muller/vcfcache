@@ -19,13 +19,25 @@ ones. **Save more than 70% of your annotation time** with minimal changes to you
 
 ## 🛠️ Quick Setup
 
+VCFstash uses [uv](https://github.com/astral-sh/uv) for fast, reliable package management and flit as the build backend.
+
 ```bash
-# Clone and install
+# Clone the repository
 git clone https://github.com/julius-muller/vcfstash.git
 cd vcfstash
-python3 -m venv .venv
+
+# Install uv if you don't have it already following https://docs.astral.sh/uv/getting-started/installation/
+
+# Create a virtual environment and install vcfstash
+uv venv
 source .venv/bin/activate
-pip install -r requirements.txt
+uv pip install -e .
+
+# With Parquet support (optional)
+uv pip install -e ".[parquet]"
+
+# With development dependencies (for running tests)
+uv pip install -e ".[dev]"
 ```
 
 That's it! VCFstash includes all required tools (bcftools, Nextflow) in the repository.
@@ -261,6 +273,9 @@ The cache is designed to be portable - you can copy an entire cache directory to
 VCFstash includes comprehensive tests to ensure reliability and correctness:
 
 ```bash
+# Install development dependencies
+pip install ".[dev]"
+
 # Run all tests
 python -m pytest
 
@@ -279,5 +294,3 @@ This creates reference outputs that serve as the gold standard for tests, helpin
 ## License
 
 VCFstash is available under the MIT License - see the LICENSE file for details.
-
-
