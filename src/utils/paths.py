@@ -14,8 +14,8 @@ def get_project_root():
     """Get the project root directory regardless of how the package is installed."""
     try:
         # When installed as a package
-        with resources.path("src", "__init__.py") as path:
-            return path.parent.parent
+        path = resources.files("src") / "__init__.py"
+        return path.parent.parent
     except (ImportError, ModuleNotFoundError):
         # When running from source
         return Path(__file__).parent.parent.parent

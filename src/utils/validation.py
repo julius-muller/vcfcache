@@ -1,5 +1,7 @@
 import re
 import sys
+import os
+import yaml
 from typing import Tuple, Optional, Dict
 from pathlib import Path
 import subprocess
@@ -90,6 +92,74 @@ def check_bcftools_installed() -> None:
         subprocess.run(["bcftools", "--version"], check=True, capture_output=True)
     except FileNotFoundError:
         sys.exit("Error: bcftools is not installed or not in PATH.")
+
+
+def check_vep_installed(yaml_path: Path) -> Tuple[bool, Optional[str]]:
+    """
+    Check if VEP is installed and properly configured.
+
+    Args:
+        yaml_path: Path to the YAML file containing VEP configuration
+
+    Returns:
+        Tuple of (is_installed, error_message)
+    """
+    try:
+        # First check if Docker is installed
+        docker_result = subprocess.run(
+            ["docker", "--version"],
+            capture_output=True,
+            text=True
+        )
+        if docker_result.returncode != 0:
+            return False, "Docker is not installed or not in PATH."
+
+        # Load the YAML file to get the VEP configuration
+        with open(yaml_path, 'r') as f:
+            config = yaml.safe_load(f)
+
+        # Check if annotation_tool_cmd is defined
+        if 'annotation_tool_cmd' not in config:
+            return False, "annotation_tool_cmd not defined in YAML file."
+
+        # Check if the command contains 'vep'
+        if 'vep' not in config['annotation_tool_cmd']:
+            return False, "VEP not found in annotation_tool_cmd."
+
+        # Check if vep_cache is defined and exists
+        if 'vep_cache' in config:
+            vep_cache = config['vep_cache']
+            # Replace environment variables in the path
+            vep_cache = os.path.expandvars(vep_cache)
+            if not os.path.exists(vep_cache):
+                return False, f"VEP cache directory not found: {vep_cache}"
+
+        return True, None
+    except Exception as e:
+        return False, f"Error checking VEP installation: {e}"
+
+
+def check_reference_output_exists() -> Tuple[bool, Optional[str]]:
+    """
+    Check if the expected output directories from update_reference.py exist.
+
+    Returns:
+        Tuple of (exists, error_message)
+    """
+    from src.utils.paths import get_vcfstash_root
+
+    # Define the expected output directories
+    stash_dir = get_vcfstash_root() / "tests" / "data" / "expected_output" / "stash_result"
+    annotate_dir = get_vcfstash_root() / "tests" / "data" / "expected_output" / "annotate_result"
+
+    # Check if both directories exist
+    if not stash_dir.exists():
+        return False, f"Stash directory not found: {stash_dir}"
+
+    if not annotate_dir.exists():
+        return False, f"Annotate directory not found: {annotate_dir}"
+
+    return True, None
 
 
 

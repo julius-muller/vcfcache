@@ -289,13 +289,29 @@ python -m pytest
 python -m pytest -xvs tests/test_validation.py
 ```
 
+### Test Requirements
+
+**Important**: Tests require VEP to be installed and properly configured in `tests/config/user_params.yaml`. The tests will automatically check if VEP is available and properly configured, and will be skipped if it's not.
+
+To configure VEP for testing:
+1. Ensure VEP is installed (either locally or via Docker)
+2. Edit `tests/config/user_params.yaml` to point to your VEP installation and cache
+3. Make sure the paths in the configuration file are correct for your system
+
+### Creating Reference Data
+
 To validate your own setup or create new test references:
 
 ```bash
 python tests/update_reference.py --golden
 ```
 
-This creates reference outputs that serve as the gold standard for tests, helping you verify your installation and configuration are working correctly.
+This creates reference outputs in `tests/data/expected_output/` that serve as the gold standard for tests, helping you verify your installation and configuration are working correctly. The reference data includes:
+
+- `stash_result/`: Output from the stash-init and stash-add commands
+- `annotate_result/`: Output from the annotate command
+
+Tests will compare against these reference files without running vcfstash.py directly.
 
 ## License
 
