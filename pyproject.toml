@@ -1,6 +1,6 @@
 # pyproject.toml
 [build-system]
-requires = ["hatchling>=1.0.0"]
+requires = ["hatchling>=1.0.0", "editables>=0.3"]
 build-backend = "hatchling.build"
 
 [project]

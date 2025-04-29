@@ -31,6 +31,11 @@ cd vcfstash
 # Create a virtual environment and install vcfstash
 uv venv
 source .venv/bin/activate
+
+# Install build dependencies first
+uv pip install hatchling editables
+
+# Install vcfstash in editable mode
 uv pip install -e .
 
 # With Parquet support (optional)
@@ -38,6 +43,7 @@ uv pip install -e ".[parquet]"
 
 # With development dependencies (for running tests)
 uv pip install -e ".[dev]"
+
 ```
 
 That's it! VCFstash includes all required tools (bcftools, Nextflow) in the repository.
