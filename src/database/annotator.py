@@ -336,6 +336,7 @@ class VCFAnnotator(VCFDatabase):
                         self._process_variant_annotations(info)
 
                         # Process VCF annotations
+                        # TODO: currently does not work for any Tag apart from CSQ, need to pull from .config via ${params.must_contain_info_tag}
                         vcf_csqs = [dict(zip(vcf.header.info['CSQ'].description.split(' ')[-1].split('|'),
                                            x.split("|"))) for x in record.info["CSQ"]]
                         expanded_transcripts = self.parse_vcf_info(vcf_csqs)

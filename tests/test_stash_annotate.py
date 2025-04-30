@@ -148,15 +148,72 @@ def run_stash_annotate(db_dir, name, force=False):
             os.unlink(temp_params_file)
 
 
-def test_stash_annotate_workflow(test_output_dir):
-    """Test the stash-annotate workflow."""
-    # Skip this test for now as it requires a working Nextflow workflow
-    pytest.skip("Skipping stash-annotate test as it requires a working Nextflow workflow. "
-                "The annotate functionality is tested directly in test_annotate.py.")
-
 
 def test_stash_annotate_with_add(test_output_dir):
     """Test the stash-annotate workflow with stash-add."""
-    # Skip this test for now as it requires a working Nextflow workflow
-    pytest.skip("Skipping stash-annotate test as it requires a working Nextflow workflow. "
-                "The annotate functionality with stash-add is tested directly in test_annotate.py.")
+    print("\n=== Testing stash-annotate workflow with stash-add ===")
+
+    # Step 1: Run stash-init
+    print("Running stash-init...")
+    init_result = run_stash_init(TEST_VCF, test_output_dir, force=True)
+    assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
+
+    # Step 2: Run stash-add
+    print("Running stash-add...")
+    add_result = run_stash_add(test_output_dir, TEST_VCF2)
+    assert add_result.returncode == 0, f"stash-add failed: {add_result.stderr}"
+
+    # Print information about the workflow directory and files
+    workflow_dir = os.path.join(test_output_dir, "workflow")
+    print(f"Workflow directory exists: {os.path.exists(workflow_dir)}")
+    if os.path.exists(workflow_dir):
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+
+    # Step 3: Run stash-annotate
+    print("Running stash-annotate...")
+    annotate_name = "test_annotation"
+    annotate_result = run_stash_annotate(test_output_dir, annotate_name, force=True)
+    if annotate_result.returncode != 0:
+        print(f"Command output: {annotate_result.stdout}")
+        print(f"Command error: {annotate_result.stderr}")
+        print(f"Working directory contents: {os.listdir(test_output_dir)}")
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+    assert annotate_result.returncode == 0, f"stash-annotate failed: {annotate_result.stderr}"
+
+    # Get bcftools path for verification
+    bcftools_path = get_resource_path('tools/bcftools')
+    if not bcftools_path.exists():
+        # Fall back to system bcftools if the project-specific one doesn't exist
+        bcftools_path = 'bcftools'
+
+    # Step 4: Verify the annotation directory was created
+    stash_dir = os.path.join(test_output_dir, "stash")
+    annotation_dir = os.path.join(stash_dir, annotate_name)
+    assert os.path.exists(annotation_dir), f"Annotation directory not found: {annotation_dir}"
+    print(f"Annotation directory created: {annotation_dir}")
+
+    # Step 5: Verify the annotated BCF file was created
+    annotated_file = os.path.join(annotation_dir, "vcfstash_annotated.bcf")
+    assert os.path.exists(annotated_file), f"Annotated BCF file not found: {annotated_file}"
+    print(f"Annotated BCF file created: {annotated_file}")
+
+    # Step 6: Verify the annotation.config file was copied
+    config_file = os.path.join(annotation_dir, "annotation.config")
+    assert os.path.exists(config_file), f"Annotation config file not found: {config_file}"
+    print(f"Annotation config file created: {config_file}")
+
+    # Step 7: Verify the blueprint_snapshot.info file was created
+    snapshot_file = os.path.join(annotation_dir, "blueprint_snapshot.info")
+    assert os.path.exists(snapshot_file), f"Blueprint snapshot file not found: {snapshot_file}"
+    print(f"Blueprint snapshot file created: {snapshot_file}")
+
+    # Step 8: Verify the annotated BCF file has the MOCK_ANNO tag
+    view_result = subprocess.run(
+        [str(bcftools_path), "view", "-h", annotated_file],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+    assert view_result.returncode == 0, f"Failed to view annotated file: {view_result.stderr}"
+    assert "MOCK_ANNO" in view_result.stdout, "MOCK_ANNO tag not found in the header"
+    print("MOCK_ANNO tag found in header")
+
+    print("Successfully tested stash-annotate workflow with stash-add")

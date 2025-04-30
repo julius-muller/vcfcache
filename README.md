@@ -117,7 +117,7 @@ params {
         | ${params.bcftools_cmd} view -o \${OUTPUT_BCF} -Ob --write-index
     """
 
-    must_contain_info_tags = [ 'CSQ' ]
+    must_contain_info_tag = 'CSQ'
 }
 ```
 
@@ -289,29 +289,43 @@ python -m pytest
 python -m pytest -xvs tests/test_validation.py
 ```
 
-### Test Requirements
+### Test Structure
 
-**Important**: Tests require VEP to be installed and properly configured in `tests/config/user_params.yaml`. The tests will automatically check if VEP is available and properly configured, and will be skipped if it's not.
+The test suite is organized into several modules:
 
-To configure VEP for testing:
-1. Ensure VEP is installed (either locally or via Docker)
-2. Edit `tests/config/user_params.yaml` to point to your VEP installation and cache
-3. Make sure the paths in the configuration file are correct for your system
+- `test_validation.py`: Tests basic utility functions like MD5 calculation
+- `test_cache_init.py`: Tests the stash-init and stash-add commands
+- `test_stash_annotate.py`: Tests the stash-annotate command
+- `test_annotate.py`: Tests the annotate command and full workflow
 
-### Creating Reference Data
+Each test prints information about which part of the code is being tested, making it easier to understand test coverage.
 
-To validate your own setup or create new test references:
+### Test Implementation
+
+The tests are designed to run on any system after installation of the package, without requiring external annotation tools. They use:
+
+- `tests/config/test_params.yaml`: Configuration for the test annotation tool (bcftools)
+- `tests/config/test_annotation.config`: Configuration for the test annotation command
+- `tests/config/mock_annotation_header.txt`: Mock header for annotations
+
+The tests create temporary directories for output and clean up after themselves. They use bcftools (included in the package) to simulate annotations, making the tests portable and reliable.
+
+### Running Tests
+
+To run the tests:
 
 ```bash
-python tests/update_reference.py --golden
+# Run all tests
+python -m pytest
+
+# Run a specific test file
+python -m pytest tests/test_annotate.py
+
+# Run a specific test with increased verbosity
+python -m pytest -xvs tests/test_annotate.py::test_annotate_workflow
 ```
 
-This creates reference outputs in `tests/data/expected_output/` that serve as the gold standard for tests, helping you verify your installation and configuration are working correctly. The reference data includes:
-
-- `stash_result/`: Output from the stash-init and stash-add commands
-- `annotate_result/`: Output from the annotate command
-
-Tests will compare against these reference files without running vcfstash.py directly.
+All tests should pass on any system where the package is installed, without requiring any external tools or configuration.
 
 ## License
 

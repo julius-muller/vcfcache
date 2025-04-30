@@ -204,7 +204,7 @@ class NextflowWorkflow:
         # 1. Check required MD5 parameters
         required_params = [
             'reference_md5sum',
-            'must_contain_info_tags',
+            'must_contain_info_tag',
             'annotation_cmd',
             'required_tool_version'
         ]

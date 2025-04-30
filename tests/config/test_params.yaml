@@ -1,6 +1,6 @@
 # Tool paths and commands
-annotation_tool_cmd: "${params.bcftools_cmd}"
-tool_version_command: "${params.bcftools_cmd} --version"
+annotation_tool_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
+tool_version_command: "--version"
 tool_version_regex: "grep -oP \"bcftools \\K\\d+\\.\\d+\""
 
 # bcftools

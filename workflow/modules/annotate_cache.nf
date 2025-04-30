@@ -34,7 +34,7 @@ process FilterMissingAnnotations {
 
     script:
     """
-    ${params.bcftools_cmd} filter -i 'INFO/CSQ==""' -Ob -o ${sample_name}_isecvst_miss.bcf ${annotated_bcf} --threads ${task.cpus} -W
+    ${params.bcftools_cmd} filter -i 'INFO/'${params.must_contain_info_tag}'==""' -Ob -o ${sample_name}_isecvst_miss.bcf ${annotated_bcf} --threads ${task.cpus} -W
     """
 }
 

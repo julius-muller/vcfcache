@@ -32,7 +32,7 @@ process AnnotateIntersection {
     script:
     """
     ${params.bcftools_cmd} annotate -a ${isec_dir}/0003.bcf \
-      -c INFO/CSQ,INFO/gnomadg_ac,INFO/gnomadg_an,INFO/gnomadg_af,INFO/gnomadg_filter,INFO/gnomade_ac,INFO/gnomade_an,INFO/gnomade_af,INFO/gnomade_filter,INFO/clinvar_clnsig,INFO/clinvar_clnrevstat,INFO/clinvar_clndn \
+      -c INFO/${params.must_contain_info_tag},INFO/gnomadg_ac,INFO/gnomadg_an,INFO/gnomadg_af,INFO/gnomadg_filter,INFO/gnomade_ac,INFO/gnomade_an,INFO/gnomade_af,INFO/gnomade_filter,INFO/clinvar_clnsig,INFO/clinvar_clnrevstat,INFO/clinvar_clndn \
       -o ${sample_name}_norm_vcf.bcf ${isec_dir}/0000.bcf -O b --threads ${task.cpus} --write-index
     """
 }

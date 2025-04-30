@@ -134,7 +134,7 @@ def run_stash_annotate(db_dir, name, force=False):
 
         if force:
             cmd.append("-f")
-
+        #print(f"RRRRRRRRRRRRRRRunning stash-annotate with commands: {cmd}")
         result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
@@ -142,6 +142,9 @@ def run_stash_annotate(db_dir, name, force=False):
             text=True
         )
         return result
+    except Exception as e:
+        print(f"Error running stash-annotate: {e}\nRuuning commands: {cmd}")
+        raise e
     finally:
         # Clean up the temporary file
         if os.path.exists(temp_params_file):
@@ -180,9 +183,11 @@ def run_annotate(annotation_db, input_vcf, output_dir, force=False):
             os.unlink(temp_params_file)
 
 
-def test_direct_bcftools_view(test_output_dir):
-    """Test that bcftools view can read the sample BCF file."""
-    # Get bcftools path
+def test_sample_file_validity(test_output_dir):
+    """Test that the sample BCF file is valid."""
+    print("\n=== Testing sample file validity ===")
+
+    # Get bcftools path for verification
     bcftools_path = get_resource_path('tools/bcftools')
     if not bcftools_path.exists():
         # Fall back to system bcftools if the project-specific one doesn't exist
@@ -190,6 +195,7 @@ def test_direct_bcftools_view(test_output_dir):
 
     # Check if the sample BCF file exists
     assert TEST_SAMPLE.exists(), f"Sample BCF file not found: {TEST_SAMPLE}"
+    print(f"Sample file exists: {TEST_SAMPLE}")
 
     # Check if the sample BCF file is valid
     view_result = subprocess.run(
@@ -197,6 +203,7 @@ def test_direct_bcftools_view(test_output_dir):
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     assert view_result.returncode == 0, f"Sample BCF file is not valid: {view_result.stderr}"
+    print("Sample file has valid header")
 
     # Check if the sample BCF file has variants
     stats_result = subprocess.run(
@@ -206,312 +213,104 @@ def test_direct_bcftools_view(test_output_dir):
     assert stats_result.returncode == 0, f"Failed to get stats for sample BCF file: {stats_result.stderr}"
     assert "number of records:" in stats_result.stdout, "Sample BCF file has no variants"
 
+    # Extract the number of records
+    num_records = 0
+    for line in stats_result.stdout.splitlines():
+        if "number of records:" in line:
+            num_records = int(line.split(":")[-1].strip())
+            break
 
-def test_direct_bcftools_annotation():
-    """Test that bcftools annotate can add a mock annotation to a VCF file."""
-    # Get bcftools path
-    bcftools_path = get_resource_path('tools/bcftools')
-    if not bcftools_path.exists():
-        # Fall back to system bcftools if the project-specific one doesn't exist
-        bcftools_path = 'bcftools'
-
-    # Create a temporary directory for output
-    with tempfile.TemporaryDirectory() as temp_dir:
-        output_dir = Path(temp_dir)
-        output_file = output_dir / "annotated.bcf"
-
-        # Create a simple annotation file with just the INFO tag definition
-        annotation_file = output_dir / "annotation.txt"
-        with open(annotation_file, 'w') as f:
-            f.write('##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description="Mock annotation for testing purposes">\n')
-
-        # Run bcftools annotate to add the header and annotations
-        annotate_cmd = [
-            str(bcftools_path),
-            "annotate",
-            "--header-lines", str(annotation_file),
-            "-I", "+INFO/MOCK_ANNO=\"Test annotation value\"",
-            "-o", str(output_file),
-            "-O", "b",
-            str(TEST_SAMPLE)
-        ]
-
-        try:
-            # Run the annotate command
-            result = subprocess.run(
-                annotate_cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-
-            # Check that output file exists
-            assert output_file.exists(), f"Output file not created: {output_file}"
-
-            # Check that file has content
-            file_size = output_file.stat().st_size
-            assert file_size > 0, f"Output file is empty: {output_file}"
-
-            # Check if the MOCK_ANNO tag is present in the header
-            header_cmd = [str(bcftools_path), "view", "-h", str(output_file)]
-            header_result = subprocess.run(header_cmd, capture_output=True, text=True, check=True)
-            assert "MOCK_ANNO" in header_result.stdout, "MOCK_ANNO tag not found in the header"
-
-            # Check if the MOCK_ANNO tag is present in the variants
-            variants_cmd = [str(bcftools_path), "view", str(output_file)]
-            variants_result = subprocess.run(variants_cmd, capture_output=True, text=True, check=True)
-            assert "MOCK_ANNO=" in variants_result.stdout, "MOCK_ANNO tag not found in the variants"
-
-            print("Successfully added mock annotation to VCF file using bcftools annotate")
-
-        except subprocess.CalledProcessError as e:
-            pytest.fail(f"bcftools annotate command failed with exit code {e.returncode}:\n{e.stderr}")
+    print(f"Sample file has {num_records} variants")
+    print("Successfully verified sample file validity")
 
 
 def test_annotate_workflow(test_output_dir):
-    """Test the annotate workflow using a simulated stash-annotate step."""
+    """Test the annotate workflow using stash-annotate and annotate commands."""
+    print("\n=== Testing annotate workflow ===")
+
     # Step 1: Run stash-init
+    print("Running stash-init...")
     init_result = run_stash_init(TEST_VCF, test_output_dir, force=True)
     assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
 
-    # Get bcftools path
+    # Print information about the workflow directory and files
+    workflow_dir = Path(test_output_dir) / "workflow"
+    print(f"Workflow directory exists: {workflow_dir.exists()}")
+    if workflow_dir.exists():
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+
+    # Ensure workflow directory has required files
+    workflow_files = {
+        'main.nf': workflow_dir / 'main.nf',
+        'modules/annotate.nf': workflow_dir / 'modules' / 'annotate.nf',
+        'init.yaml': workflow_dir / 'init.yaml'
+    }
+
+    # Verify all required files exist
+    for name, path in workflow_files.items():
+        assert path.exists(), f"Required workflow file missing: {name}"
+        print(f"Found required file: {name}")
+
+    # Step 2: Run stash-annotate with correct pathing
+    print("Running stash-annotate...")
+    annotate_name = "test_annotation"
+    annotate_result = run_stash_annotate(test_output_dir, annotate_name, force=True)
+    if annotate_result.returncode != 0:
+        print(f"Command output: {annotate_result.stdout}")
+        # print(f"Command error: {annotate_result.stderr}")
+        print(f"Blueprint directory contents: {os.listdir(Path(test_output_dir) / 'blueprint')}")
+    assert annotate_result.returncode == 0, f"stash-annotate failed: {annotate_result.stderr}"
+
+    # Get bcftools path for verification
     bcftools_path = get_resource_path('tools/bcftools')
     if not bcftools_path.exists():
         # Fall back to system bcftools if the project-specific one doesn't exist
         bcftools_path = 'bcftools'
 
-    # Step 2: Simulate stash-annotate by creating a mock annotation directory
+    # Step 3: Verify the annotation directory was created
     stash_dir = os.path.join(test_output_dir, "stash")
-    os.makedirs(stash_dir, exist_ok=True)
-
-    annotate_name = "test_annotation"
     annotation_dir = os.path.join(stash_dir, annotate_name)
-    os.makedirs(annotation_dir, exist_ok=True)
-
-    # Copy the test_annotation.config to the annotation directory
-    shutil.copy2(TEST_ANNO_CONFIG, os.path.join(annotation_dir, "annotation.config"))
-
-    # Create a mock annotated BCF file
-    annotated_file = os.path.join(annotation_dir, "vcfstash_annotated.bcf")
-
-    # Create a mock header file with the MOCK_ANNO tag
-    mock_header_file = TEST_ROOT / "config" / "mock_annotation_header.txt"
-
-    # Copy the blueprint BCF file to the annotation directory
-    blueprint_file = os.path.join(test_output_dir, "blueprint", "vcfstash.bcf")
-
-    # Run bcftools to create a mock annotated file
-    annotate_cmd = [
-        str(bcftools_path),
-        "annotate",
-        "--header-lines", str(mock_header_file),
-        "-I", "+INFO/MOCK_ANNO=\"Test annotation value\"",
-        "-o", str(annotated_file),
-        "-O", "b",
-        str(blueprint_file)
-    ]
-
-    subprocess.run(annotate_cmd, check=True, capture_output=True)
-
-    # Create index for the annotated file
-    index_cmd = [str(bcftools_path), "index", str(annotated_file)]
-    subprocess.run(index_cmd, check=True, capture_output=True)
-
-    # Create a mock blueprint_snapshot.info file
-    snapshot_file = os.path.join(annotation_dir, "blueprint_snapshot.info")
-    with open(os.path.join(test_output_dir, "blueprint", "sources.info"), 'r') as f:
-        sources_data = json.load(f)
-
-    with open(snapshot_file, 'w') as f:
-        json.dump(sources_data, f)
-
-    # Create a mock annotation.yaml file
-    annotation_yaml = os.path.join(annotation_dir, "annotation.yaml")
-    with open(TEST_PARAMS, 'r') as f:
-        params_content = f.read()
-
-    # Replace ${VCFSTASH_ROOT} with the actual value
-    vcfstash_root = str(get_vcfstash_root())
-    params_content = params_content.replace('${VCFSTASH_ROOT}', vcfstash_root)
-
-    with open(annotation_yaml, 'w') as f:
-        f.write(params_content)
-
-    # Step 3: Create output directory for annotate
-    output_dir = os.path.join(test_output_dir, "annotate_output")
-
-    # Step 4: Run annotate
-    # Instead of using run_annotate, we'll directly use bcftools to annotate the sample file
-    output_file = os.path.join(output_dir, os.path.basename(TEST_SAMPLE))
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Run bcftools to annotate the sample file
-    annotate_cmd = [
-        str(bcftools_path),
-        "annotate",
-        "--header-lines", str(mock_header_file),
-        "-I", "+INFO/MOCK_ANNO=\"Test annotation value\"",
-        "-o", str(output_file),
-        "-O", "b",
-        str(TEST_SAMPLE)
-    ]
-
-    subprocess.run(annotate_cmd, check=True, capture_output=True)
-
-    # Create index for the output file
-    index_cmd = [str(bcftools_path), "index", str(output_file)]
-    subprocess.run(index_cmd, check=True, capture_output=True)
-
-    # Check if the output directory exists
-    assert os.path.exists(output_dir), f"Output directory not found: {output_dir}"
-
-    # Check if the annotated BCF file exists
-    assert os.path.exists(output_file), f"Output file not found: {output_file}"
-
-    # Check if the annotated BCF file is valid
-    view_result = subprocess.run(
-        [str(bcftools_path), "view", "-h", output_file],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
-    assert view_result.returncode == 0, f"Output file is not valid: {view_result.stderr}"
-
-    # Check if the MOCK_ANNO tag is present in the header
-    assert "MOCK_ANNO" in view_result.stdout, "MOCK_ANNO tag not found in the header"
-
-    # Check if the annotated BCF file has variants
-    stats_result = subprocess.run(
-        [str(bcftools_path), "stats", output_file],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
-    assert stats_result.returncode == 0, f"Failed to get stats for output file: {stats_result.stderr}"
-    assert "number of records:" in stats_result.stdout, "Output file has no variants"
-
-    # Check if the MOCK_ANNO tag is present in the variants
-    variants_result = subprocess.run(
-        [str(bcftools_path), "view", output_file],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
-    assert variants_result.returncode == 0, f"Failed to view output file: {variants_result.stderr}"
-    assert "MOCK_ANNO=" in variants_result.stdout, "MOCK_ANNO tag not found in the variants"
-
-    print("Successfully simulated the annotate workflow")
-
-
-def test_annotate_with_add(test_output_dir):
-    """Test the annotate workflow with stash-add using a simulated stash-annotate step."""
-    # Step 1: Run stash-init
-    init_result = run_stash_init(TEST_VCF, test_output_dir, force=True)
-    assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
-
-    # Step 2: Run stash-add
-    add_result = run_stash_add(test_output_dir, TEST_VCF2)
-    assert add_result.returncode == 0, f"stash-add failed: {add_result.stderr}"
-
-    # Get bcftools path
-    bcftools_path = get_resource_path('tools/bcftools')
-    if not bcftools_path.exists():
-        # Fall back to system bcftools if the project-specific one doesn't exist
-        bcftools_path = 'bcftools'
-
-    # Step 3: Simulate stash-annotate by creating a mock annotation directory
-    stash_dir = os.path.join(test_output_dir, "stash")
-    os.makedirs(stash_dir, exist_ok=True)
-
-    annotate_name = "test_annotation"
-    annotation_dir = os.path.join(stash_dir, annotate_name)
-    os.makedirs(annotation_dir, exist_ok=True)
-
-    # Copy the test_annotation.config to the annotation directory
-    shutil.copy2(TEST_ANNO_CONFIG, os.path.join(annotation_dir, "annotation.config"))
-
-    # Create a mock annotated BCF file
-    annotated_file = os.path.join(annotation_dir, "vcfstash_annotated.bcf")
-
-    # Create a mock header file with the MOCK_ANNO tag
-    mock_header_file = TEST_ROOT / "config" / "mock_annotation_header.txt"
-
-    # Copy the blueprint BCF file to the annotation directory
-    blueprint_file = os.path.join(test_output_dir, "blueprint", "vcfstash.bcf")
-
-    # Run bcftools to create a mock annotated file
-    annotate_cmd = [
-        str(bcftools_path),
-        "annotate",
-        "--header-lines", str(mock_header_file),
-        "-I", "+INFO/MOCK_ANNO=\"Test annotation value\"",
-        "-o", str(annotated_file),
-        "-O", "b",
-        str(blueprint_file)
-    ]
-
-    subprocess.run(annotate_cmd, check=True, capture_output=True)
-
-    # Create index for the annotated file
-    index_cmd = [str(bcftools_path), "index", str(annotated_file)]
-    subprocess.run(index_cmd, check=True, capture_output=True)
-
-    # Create a mock blueprint_snapshot.info file
-    snapshot_file = os.path.join(annotation_dir, "blueprint_snapshot.info")
-    with open(os.path.join(test_output_dir, "blueprint", "sources.info"), 'r') as f:
-        sources_data = json.load(f)
-
-    with open(snapshot_file, 'w') as f:
-        json.dump(sources_data, f)
-
-    # Create a mock annotation.yaml file
-    annotation_yaml = os.path.join(annotation_dir, "annotation.yaml")
-    with open(TEST_PARAMS, 'r') as f:
-        params_content = f.read()
-
-    # Replace ${VCFSTASH_ROOT} with the actual value
-    vcfstash_root = str(get_vcfstash_root())
-    params_content = params_content.replace('${VCFSTASH_ROOT}', vcfstash_root)
-
-    with open(annotation_yaml, 'w') as f:
-        f.write(params_content)
+    assert os.path.exists(annotation_dir), f"Annotation directory not found: {annotation_dir}"
+    print(f"Annotation directory created: {annotation_dir}")
 
     # Step 4: Create output directory for annotate
     output_dir = os.path.join(test_output_dir, "annotate_output")
 
     # Step 5: Run annotate
-    # Instead of using run_annotate, we'll directly use bcftools to annotate the sample file
-    output_file = os.path.join(output_dir, os.path.basename(TEST_SAMPLE))
-    os.makedirs(output_dir, exist_ok=True)
+    print("Running annotate...")
+    annotate_result = run_annotate(annotation_dir, TEST_SAMPLE, output_dir, force=True)
+    if annotate_result.returncode != 0:
+        print(f"Command output: {annotate_result.stdout}")
+        print(f"Command error: {annotate_result.stderr}")
+        print(f"Working directory contents: {os.listdir(test_output_dir)}")
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+    assert annotate_result.returncode == 0, f"annotate failed: {annotate_result.stderr}"
 
-    # Run bcftools to annotate the sample file
-    annotate_cmd = [
-        str(bcftools_path),
-        "annotate",
-        "--header-lines", str(mock_header_file),
-        "-I", "+INFO/MOCK_ANNO=\"Test annotation value\"",
-        "-o", str(output_file),
-        "-O", "b",
-        str(TEST_SAMPLE)
-    ]
-
-    subprocess.run(annotate_cmd, check=True, capture_output=True)
-
-    # Create index for the output file
-    index_cmd = [str(bcftools_path), "index", str(output_file)]
-    subprocess.run(index_cmd, check=True, capture_output=True)
-
-    # Check if the output directory exists
+    # Step 6: Verify the output directory exists
     assert os.path.exists(output_dir), f"Output directory not found: {output_dir}"
+    print(f"Output directory created: {output_dir}")
 
-    # Check if the annotated BCF file exists
-    assert os.path.exists(output_file), f"Output file not found: {output_file}"
+    # Step 7: Verify the output file exists
+    output_file = os.path.join(output_dir, os.path.splitext(os.path.basename(str(TEST_SAMPLE)))[0] + "_vst.bcf")
+    if not os.path.exists(output_file):
+        print(
+            f"Files in output_dir ({output_dir}): {os.listdir(output_dir) if os.path.exists(output_dir) else 'Directory does not exist'}")
+        raise FileNotFoundError(f"Output file not found: {output_file}")
+    print(f"Output file created: {output_file}")
 
-    # Check if the annotated BCF file is valid
+    # Step 8: Verify the output file is valid
     view_result = subprocess.run(
         [str(bcftools_path), "view", "-h", output_file],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     assert view_result.returncode == 0, f"Output file is not valid: {view_result.stderr}"
+    print("Output file has valid header")
 
-    # Check if the MOCK_ANNO tag is present in the header
+    # Step 9: Verify the MOCK_ANNO tag is present in the header
     assert "MOCK_ANNO" in view_result.stdout, "MOCK_ANNO tag not found in the header"
+    print("MOCK_ANNO tag found in header")
 
-    # Check if the annotated BCF file has variants
+    # Step 10: Verify the output file has variants
     stats_result = subprocess.run(
         [str(bcftools_path), "stats", output_file],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
@@ -519,66 +318,121 @@ def test_annotate_with_add(test_output_dir):
     assert stats_result.returncode == 0, f"Failed to get stats for output file: {stats_result.stderr}"
     assert "number of records:" in stats_result.stdout, "Output file has no variants"
 
-    # Check if the MOCK_ANNO tag is present in the variants
+    # Extract the number of records
+    num_records = 0
+    for line in stats_result.stdout.splitlines():
+        if "number of records:" in line:
+            num_records = int(line.split(":")[-1].strip())
+            break
+
+    print(f"Output file has {num_records} variants")
+
+    # Step 11: Verify the MOCK_ANNO tag is present in the variants
     variants_result = subprocess.run(
         [str(bcftools_path), "view", output_file],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     assert variants_result.returncode == 0, f"Failed to view output file: {variants_result.stderr}"
-    assert "MOCK_ANNO=" in variants_result.stdout, "MOCK_ANNO tag not found in the variants"
+    if "MOCK_ANNO=" not in variants_result.stdout:
+        # Print all INFO tags present in the output
+        import re
+        tags = set()
+        for line in variants_result.stdout.splitlines():
+            if not line.startswith("#"):
+                fields = line.split("\t")
+                if len(fields) > 7:
+                    info_field = fields[7]
+                    for entry in info_field.split(";"):
+                        tag = entry.split("=")[0]
+                        tags.add(tag)
+        print(f"Existing INFO tags in variants: {sorted(tags)}")
+        assert False, "MOCK_ANNO tag not found in the variants"
+    print("MOCK_ANNO tag found in variants")
 
-    print("Successfully simulated the annotate workflow with stash-add")
+    print("Successfully tested annotate workflow")
 
 
-def test_direct_annotation_workflow(test_output_dir):
-    """Test the annotation workflow directly using bcftools."""
-    # Get bcftools path
+def test_annotate_with_add(test_output_dir):
+    """Test the annotate workflow with stash-add using stash-annotate and annotate commands."""
+    print("\n=== Testing annotate workflow with stash-add ===")
+
+    # Step 1: Run stash-init
+    print("Running stash-init...")
+    init_result = run_stash_init(TEST_VCF, test_output_dir, force=True)
+    assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
+
+    # Step 2: Run stash-add
+    print("Running stash-add...")
+    add_result = run_stash_add(test_output_dir, TEST_VCF2)
+    assert add_result.returncode == 0, f"stash-add failed: {add_result.stderr}"
+
+    # Print information about the workflow directory and files
+    workflow_dir = os.path.join(test_output_dir, "workflow")
+    print(f"Workflow directory exists: {os.path.exists(workflow_dir)}")
+    if os.path.exists(workflow_dir):
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+
+    # Step 3: Run stash-annotate
+    print("Running stash-annotate...")
+    annotate_name = "test_annotation"
+    annotate_result = run_stash_annotate(test_output_dir, annotate_name, force=True)
+    if annotate_result.returncode != 0:
+        print(f"Command output: {annotate_result.stdout}")
+        print(f"Command error: {annotate_result.stderr}")
+        print(f"Working directory contents: {os.listdir(test_output_dir)}")
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+    assert annotate_result.returncode == 0, f"stash-annotate failed: {annotate_result.stderr}"
+
+    # Get bcftools path for verification
     bcftools_path = get_resource_path('tools/bcftools')
     if not bcftools_path.exists():
         # Fall back to system bcftools if the project-specific one doesn't exist
         bcftools_path = 'bcftools'
 
-    # Create output directory
-    output_dir = os.path.join(test_output_dir, "direct_annotation")
-    os.makedirs(output_dir, exist_ok=True)
+    # Step 4: Verify the annotation directory was created
+    stash_dir = os.path.join(test_output_dir, "stash")
+    annotation_dir = os.path.join(stash_dir, annotate_name)
+    assert os.path.exists(annotation_dir), f"Annotation directory not found: {annotation_dir}"
+    print(f"Annotation directory created: {annotation_dir}")
 
-    # Create a mock header file with the MOCK_ANNO tag
-    mock_header_file = TEST_ROOT / "config" / "mock_annotation_header.txt"
+    # Step 5: Create output directory for annotate
+    output_dir = os.path.join(test_output_dir, "annotate_output")
 
-    # Define output file
-    output_file = os.path.join(output_dir, os.path.basename(TEST_SAMPLE))
+    # Step 6: Run annotate
+    print("Running annotate...")
+    annotate_result = run_annotate(annotation_dir, TEST_SAMPLE, output_dir, force=True)
+    if annotate_result.returncode != 0:
+        print(f"Command output: {annotate_result.stdout}")
+        print(f"Command error: {annotate_result.stderr}")
+        print(f"Working directory contents: {os.listdir(test_output_dir)}")
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+    assert annotate_result.returncode == 0, f"annotate failed: {annotate_result.stderr}"
 
-    # Run bcftools to annotate the sample file
-    annotate_cmd = [
-        str(bcftools_path),
-        "annotate",
-        "--header-lines", str(mock_header_file),
-        "-I", "+INFO/MOCK_ANNO=\"Test annotation value\"",
-        "-o", str(output_file),
-        "-O", "b",
-        str(TEST_SAMPLE)
-    ]
+    # Step 7: Verify the output directory exists
+    assert os.path.exists(output_dir), f"Output directory not found: {output_dir}"
+    print(f"Output directory created: {output_dir}")
 
-    subprocess.run(annotate_cmd, check=True, capture_output=True)
+    # Step 8: Verify the output file exists
+    output_file = os.path.join(output_dir, os.path.splitext(os.path.basename(str(TEST_SAMPLE)))[0] + "_vst.bcf")
+    if not os.path.exists(output_file):
+        print(
+            f"Files in output_dir ({output_dir}): {os.listdir(output_dir) if os.path.exists(output_dir) else 'Directory does not exist'}")
+        raise FileNotFoundError(f"Output file not found: {output_file}")
+    print(f"Output file created: {output_file}")
 
-    # Create index for the output file
-    index_cmd = [str(bcftools_path), "index", str(output_file)]
-    subprocess.run(index_cmd, check=True, capture_output=True)
-
-    # Check if the output file exists
-    assert os.path.exists(output_file), f"Output file not found: {output_file}"
-
-    # Check if the output file is valid
+    # Step 9: Verify the output file is valid
     view_result = subprocess.run(
         [str(bcftools_path), "view", "-h", output_file],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     assert view_result.returncode == 0, f"Output file is not valid: {view_result.stderr}"
+    print("Output file has valid header")
 
-    # Check if the MOCK_ANNO tag is present in the header
+    # Step 10: Verify the MOCK_ANNO tag is present in the header
     assert "MOCK_ANNO" in view_result.stdout, "MOCK_ANNO tag not found in the header"
+    print("MOCK_ANNO tag found in header")
 
-    # Check if the output file has variants
+    # Step 11: Verify the output file has variants
     stats_result = subprocess.run(
         [str(bcftools_path), "stats", output_file],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
@@ -586,12 +440,131 @@ def test_direct_annotation_workflow(test_output_dir):
     assert stats_result.returncode == 0, f"Failed to get stats for output file: {stats_result.stderr}"
     assert "number of records:" in stats_result.stdout, "Output file has no variants"
 
-    # Check if the MOCK_ANNO tag is present in the variants
+    # Extract the number of records
+    num_records = 0
+    for line in stats_result.stdout.splitlines():
+        if "number of records:" in line:
+            num_records = int(line.split(":")[-1].strip())
+            break
+
+    print(f"Output file has {num_records} variants")
+
+    # Step 12: Verify the MOCK_ANNO tag is present in the variants
     variants_result = subprocess.run(
         [str(bcftools_path), "view", output_file],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     assert variants_result.returncode == 0, f"Failed to view output file: {variants_result.stderr}"
     assert "MOCK_ANNO=" in variants_result.stdout, "MOCK_ANNO tag not found in the variants"
+    print("MOCK_ANNO tag found in variants")
 
-    print("Successfully annotated VCF file using bcftools annotate")
+    print("Successfully tested annotate workflow with stash-add")
+
+
+def test_full_annotation_workflow(test_output_dir):
+    """Test the full annotation workflow from stash-init to annotate."""
+    print("\n=== Testing full annotation workflow ===")
+
+    # Step 1: Run stash-init
+    print("Running stash-init...")
+    init_result = run_stash_init(TEST_VCF, test_output_dir, force=True)
+    assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
+
+    # Step 2: Run stash-add
+    print("Running stash-add...")
+    add_result = run_stash_add(test_output_dir, TEST_VCF2)
+    assert add_result.returncode == 0, f"stash-add failed: {add_result.stderr}"
+
+    # Print information about the workflow directory and files
+    workflow_dir = os.path.join(test_output_dir, "workflow")
+    print(f"Workflow directory exists: {os.path.exists(workflow_dir)}")
+    if os.path.exists(workflow_dir):
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+
+    # Step 3: Run stash-annotate
+    print("Running stash-annotate...")
+    annotate_name = "test_annotation"
+    annotate_result = run_stash_annotate(test_output_dir, annotate_name, force=True)
+    if annotate_result.returncode != 0:
+        print(f"Command output: {annotate_result.stdout}")
+        print(f"Command error: {annotate_result.stderr}")
+        print(f"Working directory contents: {os.listdir(test_output_dir)}")
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+    assert annotate_result.returncode == 0, f"stash-annotate failed: {annotate_result.stderr}"
+
+    # Get bcftools path for verification
+    bcftools_path = get_resource_path('tools/bcftools')
+    if not bcftools_path.exists():
+        # Fall back to system bcftools if the project-specific one doesn't exist
+        bcftools_path = 'bcftools'
+
+    # Step 4: Verify the annotation directory was created
+    stash_dir = os.path.join(test_output_dir, "stash")
+    annotation_dir = os.path.join(stash_dir, annotate_name)
+    assert os.path.exists(annotation_dir), f"Annotation directory not found: {annotation_dir}"
+    print(f"Annotation directory created: {annotation_dir}")
+
+    # Step 5: Create output directory for annotate
+    output_dir = os.path.join(test_output_dir, "full_workflow_output")
+
+    # Step 6: Run annotate
+    print("Running annotate...")
+    annotate_result = run_annotate(annotation_dir, TEST_SAMPLE, output_dir, force=True)
+    if annotate_result.returncode != 0:
+        print(f"Command output: {annotate_result.stdout}")
+        print(f"Command error: {annotate_result.stderr}")
+        print(f"Working directory contents: {os.listdir(test_output_dir)}")
+        print(f"Workflow directory contents: {os.listdir(workflow_dir)}")
+    assert annotate_result.returncode == 0, f"annotate failed: {annotate_result.stderr}"
+
+    # Step 7: Verify the output directory exists
+    assert os.path.exists(output_dir), f"Output directory not found: {output_dir}"
+    print(f"Output directory created: {output_dir}")
+
+    # Step 8: Verify the output file exists
+    output_file = os.path.join(output_dir, os.path.splitext(os.path.basename(str(TEST_SAMPLE)))[0] + "_vst.bcf")
+    if not os.path.exists(output_file):
+        print(
+            f"Files in output_dir ({output_dir}): {os.listdir(output_dir) if os.path.exists(output_dir) else 'Directory does not exist'}")
+        raise FileNotFoundError(f"Output file not found: {output_file}")
+    print(f"Output file created: {output_file}")
+
+    # Step 9: Verify the output file is valid
+    view_result = subprocess.run(
+        [str(bcftools_path), "view", "-h", output_file],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+    assert view_result.returncode == 0, f"Output file is not valid: {view_result.stderr}"
+    print("Output file has valid header")
+
+    # Step 10: Verify the MOCK_ANNO tag is present in the header
+    assert "MOCK_ANNO" in view_result.stdout, "MOCK_ANNO tag not found in the header"
+    print("MOCK_ANNO tag found in header")
+
+    # Step 11: Verify the output file has variants
+    stats_result = subprocess.run(
+        [str(bcftools_path), "stats", output_file],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+    assert stats_result.returncode == 0, f"Failed to get stats for output file: {stats_result.stderr}"
+    assert "number of records:" in stats_result.stdout, "Output file has no variants"
+
+    # Extract the number of records
+    num_records = 0
+    for line in stats_result.stdout.splitlines():
+        if "number of records:" in line:
+            num_records = int(line.split(":")[-1].strip())
+            break
+
+    print(f"Output file has {num_records} variants")
+
+    # Step 12: Verify the MOCK_ANNO tag is present in the variants
+    variants_result = subprocess.run(
+        [str(bcftools_path), "view", output_file],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+    assert variants_result.returncode == 0, f"Failed to view output file: {variants_result.stderr}"
+    assert "MOCK_ANNO=" in variants_result.stdout, "MOCK_ANNO tag not found in the variants"
+    print("MOCK_ANNO tag found in variants")
+
+    print("Successfully tested full annotation workflow")
