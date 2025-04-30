@@ -1,5 +1,5 @@
 # Tool paths and commands
-annotation_tool_cmd: "${params.bcftools_cmd} annotate --header-lines ${VCFSTASH_ROOT}/tests/config/mock_annotation_header.txt -I +INFO/MYTAG=\"foo\""
+annotation_tool_cmd: "${params.bcftools_cmd}"
 tool_version_command: "${params.bcftools_cmd} --version"
 tool_version_regex: "grep -oP \"bcftools \\K\\d+\\.\\d+\""
 
@@ -16,5 +16,3 @@ reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
 chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
 temp_dir: "/tmp"
 
-# Mock annotation parameters
-mock_annotation_info: "MOCK_ANNO"
