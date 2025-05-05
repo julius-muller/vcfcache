@@ -83,6 +83,9 @@ VCFstash works with **any annotation tool** by wrapping your existing command. J
 1. **annotation.config**: Your command structure (fixed) which will be applied to cache *and* input vcf files
 2. **params.yaml**: Configurable values (paths, resources)
 
+![Example conversion](resources/cmd_ref.png)
+
+
 ### Example: From VEP command to VCFstash
 
 #### Original command:
@@ -93,7 +96,7 @@ VCFstash works with **any annotation tool** by wrapping your existing command. J
    --buffer_size 500000 \
    --fork 4 \
    --cache \
-   --dir_cache /path/to/vep_cache \
+   --dir_cache /path/to/vep_cache/113/cachedir \
    --fasta /path/to/reference.fasta \
    -i sample.vcf \
    -o annotated.vcf \
