@@ -105,10 +105,10 @@ VCFstash works with **any annotation tool** by wrapping your existing command. J
 
 As a first step, the original annotation command needs to be adapted to the VCFstash format and copied to the .config file.
 
-Convention here is the following:
+Conventions here are:
 1. The annotation tool command should be replaced by ${params.annotation_tool_cmd} and the actual command should be listed in the params.yaml file.
-2. The input filename has to be replaced with the variable \${INPUT_BCF}
-3. The output filename hat to be replaced with the variable \${OUTPUT_BCF}
+2. The input filename has to be replaced with the variable \\${INPUT_BCF}
+3. The output filename hat to be replaced with the variable \\${OUTPUT_BCF}
 
 ```bash
    ${params.annotation_tool_cmd} \
