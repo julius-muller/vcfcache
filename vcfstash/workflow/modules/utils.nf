@@ -36,11 +36,11 @@ process ValidateInputs {
     """
     # Check if files exist
 	vcf_base=\$(echo "${vcf_index}" | sed 's/\\.csi\$//')
-	if [ ! -f "\${vcf_index}" ] && [ ! -f "\${vcf_base}.tbi" ]; then
-		echo "No valid index found for VCF file: \${vcf_base}"
+	if [ ! -f "${vcf_index}" ] && [ ! -f "${vcf_base}.tbi" ]; then
+		echo "No valid index found for VCF file: ${vcf_base}"
 		echo "Please create an index using either:"
-		echo "  bcftools index \${vcf} (for .csi)"
-		echo "  tabix -p vcf \${vcf} (for .tbi)"
+		echo "  bcftools index ${vcf} (for .csi)"
+		echo "  tabix -p vcf ${vcf} (for .tbi)"
 		exit 1
 	fi
 
