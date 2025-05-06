@@ -1,5 +1,5 @@
 # Tool paths and commands
-annotation_tool_cmd: "docker run --user $(id -u):$(id -g) -i -v /home/j380r/references/ensembl-vep/113/cachedir:/home/j380r/references/ensembl-vep/113/cachedir -v ${VCFSTASH_ROOT}/tests/data/references:${VCFSTASH_ROOT}/tests/data/references --rm ensemblorg/ensembl-vep:release_113.0 vep"
+annotation_tool_cmd: "docker run --user $(id -u):$(id -g) -i -v /mnt/data:/mnt/data --rm ensemblorg/ensembl-vep:release_113.0 vep"
 tool_version_command: ""
 tool_version_regex: "grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
 
@@ -8,7 +8,7 @@ bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
 bcftools_cmd_version: '1.20'
 
 # Reference data required for the normalization step
-reference: "${VCFSTASH_ROOT}/tests/data/references/reference.fasta"
+reference: "/mnt/data/resources/reference/ucsc/hg19_canonical.fa.gz"
 reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
 
 # Required resources
@@ -16,6 +16,6 @@ chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
 temp_dir: "/tmp"
 
 # * OPTIONAL RESOURCES *
-vep_cache: "/home/j380r/references/ensembl-vep/113/cachedir"
-vep_buffer: 500000
-vep_forks: 2
+vep_cache: "/mnt/data/apps/ensembl-vep/113/cachedir"
+vep_buffer: 5000000
+vep_forks: 8

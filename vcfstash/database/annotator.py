@@ -196,7 +196,7 @@ class VCFAnnotator(VCFDatabase):
         if params_file:
             shutil.copyfile(params_file.expanduser().resolve(), self.params_file)
         else:
-            wfi = self.blueprint_dir / "annotation.yaml"
+            wfi = self.annotation_db_path / "annotation.yaml"
             assert wfi.exists(), f"Workflow annotation params file not found: {wfi}, required if no yaml provided!"
             shutil.copyfile(wfi, self.params_file)
         assert self.params_file.exists(), f"Workflow params file not found: {self.params_file}"
