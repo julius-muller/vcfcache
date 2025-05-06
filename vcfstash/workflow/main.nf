@@ -1,7 +1,6 @@
 nextflow.enable.dsl = 2
 
 include { NORMALIZE } from './modules/normalize'
-include { INTERSECT } from './modules/intersect'
 include { ANNOTATE } from './modules/annotate'
 include { AnnotateFromDB; FilterMissingAnnotations; MergeAnnotations } from './modules/annotate_cache'
 include { MERGE } from './modules/merge'
@@ -204,37 +203,6 @@ workflow {
                 file(idx).copyTo("${outputDir}/${sampleName}_vst.bcf.csi")
             }
 
-		} else if (params.db_mode == 'annotate-isec') {
-			// annotate: DEPRECATED isec based mode SAMPLE_ANALYSIS_WORKFLOW - Sample comparison against database
-			db_bcf = file(params.db_bcf)
-			db_bcf_index = file("${params.db_bcf}.csi")
-			INTERSECT(
-				NORMALIZE.out.norm_bcf,
-				NORMALIZE.out.norm_bcf_index,
-				db_bcf,
-				db_bcf_index,
-				sampleName
-			)
-
-			ANNOTATE(
-				INTERSECT.out.subset_bcf,
-				INTERSECT.out.subset_bcf_index
-			)
-
-			MERGE_VARIANTS(
-				INTERSECT.out.annotated_bcf,
-				INTERSECT.out.annotated_bcf_index,
-				ANNOTATE.out.annotated_bcf,
-				ANNOTATE.out.annotated_bcf_index
-			)
-
-				// Publish final merged BCF
-				MERGE_VARIANTS.out.merged_bcf.subscribe { bcf ->
-					file(bcf).copyTo("${outputDir}/${sampleName}_vst.bcf")
-				}
-				MERGE_VARIANTS.out.merged_bcf_index.subscribe { idx ->
-					file(idx).copyTo("${outputDir}/${sampleName}_vst.bcf.csi")
-				}
 		}
 	}
 }

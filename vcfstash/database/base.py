@@ -505,7 +505,7 @@ class NextflowWorkflow:
         ]
 
         if self.nfa_config:
-            global_opts.append("-c")
+            global_opts.append("-C")
             global_opts.append(str(self.nfa_config))
 
         # Run-specific options (applied after the "run" command)
