@@ -455,7 +455,7 @@ class NextflowWorkflow:
         except subprocess.CalledProcessError as e:
             self.logger.warning(f"Failed to generate workflow DAG: {e}")
 
-    def _expand_and_write_params(self) -> str:
+    def _expand_and_write_params(self, no_conf:bool) -> str:
         """Expand env vars in params YAML and write to a temp file."""
         with open(self.params_file) as f:
             content = f.read()
@@ -463,7 +463,7 @@ class NextflowWorkflow:
         params_dict = yaml.safe_load(expanded)
 
         # Always set must_contain_info_tag if missing to default value
-        if "must_contain_info_tag" not in params_dict:
+        if no_conf and "must_contain_info_tag" not in params_dict:
             params_dict["must_contain_info_tag"] = ""
 
         tmp = tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False)
@@ -529,7 +529,7 @@ class NextflowWorkflow:
         # Add params file if specified
         params_tfile = None
         if self.params_file:
-            params_tfile = self._expand_and_write_params()
+            params_tfile = self._expand_and_write_params(no_conf = self.nfa_config is None)
             run_opts.extend(["-params-file", params_tfile])
 
         if db_bcf:
