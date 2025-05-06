@@ -507,8 +507,7 @@ class NextflowWorkflow:
             "--db_mode", db_mode,
             "-w", str(self.work_dir),
             "-name", f"vcfstash_{self.name}",
-            "-ansi-log", "true",  # enable colored output
-            f"-E"
+            "-ansi-log", "true"  # enable colored output
         ]
 
         # Add params file if specified
