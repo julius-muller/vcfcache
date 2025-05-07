@@ -1,6 +1,6 @@
 process RenameAndNormalizeVCF {
     scratch = true
-    debug = true
+    debug = false
 
     input:
     path chr_add_file
