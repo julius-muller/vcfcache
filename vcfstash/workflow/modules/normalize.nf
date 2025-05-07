@@ -1,6 +1,6 @@
 process RenameAndNormalizeVCF {
-    scratch = true
-    debug = false
+    scratch = false
+    debug = true
 
     input:
     path chr_add_file
@@ -30,36 +30,8 @@ process RenameAndNormalizeVCF {
 
 
 	"""
-    # First check that the reference genome and VCF are compatible
-    # This is much safer than waiting for a segfault in bcftools norm
-    echo "Validating reference compatibility with VCF..." | tee ${sample_name}_norm.log
 
-    # Get a sample variant from input VCF for testing
-    FIRST_VAR=\$(${params.bcftools_cmd} view -H ${vcf_file} | head -n 1)
-    if [ -z "\$FIRST_VAR" ]; then
-        echo "Error: Input VCF appears to be empty" | tee -a ${sample_name}_norm.log
-        exit 1
-    fi
-
-    # Extract chromosome, position and reference allele
-    CHROM=\$(echo "\$FIRST_VAR" | cut -f 1)
-    POS=\$(echo "\$FIRST_VAR" | cut -f 2)
-    REF=\$(echo "\$FIRST_VAR" | cut -f 4)
-
-    echo "Testing variant: \$CHROM:\$POS \$REF" | tee -a ${sample_name}_norm.log
-
-    # Check if reference matches at this position
-    REF_BASE=\$(${params.bcftools_cmd} consensus -f ${reference_genome} -r "\$CHROM:\$POS-\$POS" ${vcf_file} 2>/dev/null | grep -v ">" | tr -d '\n')
-
-    if [ "\$REF_BASE" != "\$REF" ]; then
-        echo "ERROR: Reference genome mismatch detected!" | tee -a ${sample_name}_norm.log
-        echo "VCF reference allele at \$CHROM:\$POS is \$REF, but reference genome has \$REF_BASE" | tee -a ${sample_name}_norm.log
-        echo "This indicates that the provided reference genome does not match the VCF file" | tee -a ${sample_name}_norm.log
-        echo "This would cause a segmentation fault in bcftools norm" | tee -a ${sample_name}_norm.log
-        exit 1
-    fi
-
-    echo "Reference validation passed. Proceeding with normalization..." | tee -a ${sample_name}_norm.log
+    echo "Proceeding with normalization..." | tee ${sample_name}_norm.log
 
     # Now perform the normalization with more confidence
     ${params.bcftools_cmd} view ${gt_option} -Ou ${vcf_file} --threads ${(task.cpus).intdiv(3)} |
