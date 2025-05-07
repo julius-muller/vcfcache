@@ -28,16 +28,36 @@ process RenameAndNormalizeVCF {
 		"-x INFO/${params.must_contain_info_tag}"
 	)
 
-    """
-	{
-    # First, convert to BCF and index to ensure proper format
-    ${params.bcftools_cmd} view ${gt_option} -Ou ${vcf_file} --threads ${(task.cpus).intdiv(3)} |
-    ${params.bcftools_cmd} annotate ${info_option} --rename-chrs ${chr_add_file} --threads ${(task.cpus).intdiv(3)} -Ou |
-    ${params.bcftools_cmd} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]\$"' --threads ${(task.cpus).intdiv(3)} -Ou | \\
-    ${sort_command} \\
-    ${params.bcftools_cmd} norm -m- -c x -f ${reference_genome} -o ${sample_name}_norm.bcf -Ob --threads ${(task.cpus).intdiv(3)} --write-index
-    } 2>&1 | tee normalization_output.log
-    """
+	"""
+	set -eEuo pipefail
+
+	handle_error() {
+		exitcode=\$?
+		echo "[ERROR] VCF normalization failed with exit code \$exitcode" >&2
+		if [[ \$exitcode -eq 139 ]]; then
+			echo "[ERROR] Likely cause: segmentation fault (e.g., due to reference mismatch)" >&2
+		fi
+		exit \$exitcode
+	}
+	trap 'handle_error' ERR
+
+	(
+		${params.bcftools_cmd} view ${gt_option} -Ou ${vcf_file} --threads ${(task.cpus).intdiv(3)} |
+		${params.bcftools_cmd} annotate ${info_option} --rename-chrs ${chr_add_file} --threads ${(task.cpus).intdiv(3)} -Ou |
+		${params.bcftools_cmd} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]\$"' --threads ${(task.cpus).intdiv(3)} -Ou | \\
+		${sort_command} \\
+		${params.bcftools_cmd} norm -m- -c x -f ${reference_genome} -o ${sample_name}_norm.bcf -Ob --threads ${(task.cpus).intdiv(3)} --write-index
+	) 2>&1 | tee normalization_output.log
+	norm_exit=\${PIPESTATUS[-1]}  # bash arrays: last is bcftools norm
+	if [[ \$norm_exit -eq 139 ]]; then
+		echo "[FATAL] Segmentation fault in bcftools norm (reference mismatch?): exit code \$norm_exit" >> normalization_output.log
+		exit 139
+	elif [[ \$norm_exit -ne 0 ]]; then
+		echo "[FATAL] bcftools norm failed with exit code \$norm_exit" >> normalization_output.log
+		exit \$norm_exit
+	fi
+	"""
+
 }
 
 workflow NORMALIZE {
