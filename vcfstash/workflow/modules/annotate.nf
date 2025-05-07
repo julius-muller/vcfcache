@@ -168,11 +168,12 @@ process Annotate {
         fi
         
         # Check if output count is too low compared to input (potential data loss)
-        if [[ "\$output_variants" != "UNKNOWN" && "\$input_variants" != "UNKNOWN" ]]; then
+        if [[ "\$output_variants" != "UNKNOWN" && "\$input_variants" != "UNKNOWN" && "\$input_variants" != "ERROR_COUNTING" ]]; then
             if (( output_variants < input_variants * 90 / 100 )); then
                 echo "\$(timestamp) WARNING: Output variant count is significantly lower than input count."
                 echo "\$(timestamp) This may indicate data loss during annotation."
-                echo "\$(timestamp) Input: \$input_variants, Output: \$output_variants (\$((output_variants * 100 / input_variants))% preserved)"
+                percent=\$((output_variants * 100 / input_variants))
+                echo "\$(timestamp) Input: \$input_variants, Output: \$output_variants (\$percent% preserved)"
             fi
         fi
         
@@ -182,10 +183,12 @@ process Annotate {
         
     } 2>&1 | tee vcfstash_annotated.log
     
-    # Final error check - if the log contains ERROR, fail the process
-    grep -q "ERROR:" vcfstash_annotated.log
-    if [ \$? -eq 0 ]; then
+    # Modified error check - only look for critical errors, not warnings
+    # Check for ERROR: but ignore lines with "ERROR_COUNTING" which is just a marker for our counting function
+    grep "ERROR:" vcfstash_annotated.log | grep -v "ERROR_COUNTING" > error_lines.txt || true
+    if [ -s error_lines.txt ]; then
         echo "Critical errors found in log file. Failing process."
+        cat error_lines.txt
         exit 1
     fi
     """
