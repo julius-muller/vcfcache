@@ -39,7 +39,7 @@ process ValidateInputs {
       test -e "${vcf}" || { echo "VCF file not found: ${vcf}"; exit 1; }
       test -e "${vcf_index}" || { echo "VCF index file not found: ${vcf_index}"; exit 1; }
       test -e "${reference}" || { echo "Reference file not found: ${reference}"; exit 1; }
-      test -e "${reference_index}" || { echo "Reference index file not found: ${reference_index}"; exit 1; }
+      test -e "${reference_index}" || { echo "Reference index not found: ${reference_index}"; exit 1; }
       test -e "${chr_add}" || { echo "Chr add file not found: ${chr_add}"; exit 1; }
 
       # Basic header check
@@ -138,18 +138,18 @@ process ValidateInputs {
       
       while read -r variant_line; do
           # Parse VCF fields
-          CHROM=$(echo "$variant_line" | cut -f1)
-          POS=$(echo "$variant_line" | cut -f2)
-          REF_ALLELE=$(echo "$variant_line" | cut -f4)
+          CHROM=\$(echo "\$variant_line" | cut -f1)
+          POS=\$(echo "\$variant_line" | cut -f2)
+          REF_ALLELE=\$(echo "\$variant_line" | cut -f4)
           
           # Skip if the REF allele is not a simple nucleotide sequence
-          if [[ ! $REF_ALLELE =~ ^[ACGTN]+$ ]]; then
-              echo "Skipping variant with non-standard REF allele: $REF_ALLELE"
+          if [[ ! \$REF_ALLELE =~ ^[ACGTN]+\$ ]]; then
+              echo "Skipping variant with non-standard REF allele: \$REF_ALLELE"
               continue
           fi
           
           # Adjust chromosome name if needed
-          QUERY_CHROM="$CHROM"
+          QUERY_CHROM="\$CHROM"
           if [ \$NEEDS_CHR_REMOVAL -eq 1 ]; then
               QUERY_CHROM=\${CHROM#"chr"}
           elif [ \$NEEDS_CHR_PREFIX -eq 1 ]; then
@@ -157,31 +157,31 @@ process ValidateInputs {
           fi
           
           # Use samtools to extract the reference sequence at this position
-          REF_BASE=$(samtools faidx ${reference} $QUERY_CHROM:$POS-$(($POS + ${#REF_ALLELE} - 1)) | grep -v ">" | tr -d '\\n')
+          REF_BASE=\$(samtools faidx ${reference} \$QUERY_CHROM:\$POS-\$((\$POS + \${#REF_ALLELE} - 1)) | grep -v ">" | tr -d '\\n')
           
-          echo "Checking variant $CHROM:$POS (querying as $QUERY_CHROM)"
-          echo "  VCF REF allele: $REF_ALLELE"
-          echo "  Genome sequence: $REF_BASE"
+          echo "Checking variant \$CHROM:\$POS (querying as \$QUERY_CHROM)"
+          echo "  VCF REF allele: \$REF_ALLELE"
+          echo "  Genome sequence: \$REF_BASE"
           
           # Compare the sequences
-          if [[ "$REF_ALLELE" != "$REF_BASE" ]]; then
-              echo "WARNING: Reference mismatch at $CHROM:$POS (querying as $QUERY_CHROM:$POS)"
-              echo "  VCF REF allele: $REF_ALLELE"
-              echo "  Reference genome: $REF_BASE"
-              REF_MISMATCHES=$((REF_MISMATCHES + 1))
+          if [[ "\$REF_ALLELE" != "\$REF_BASE" ]]; then
+              echo "WARNING: Reference mismatch at \$CHROM:\$POS (querying as \$QUERY_CHROM:\$POS)"
+              echo "  VCF REF allele: \$REF_ALLELE"
+              echo "  Reference genome: \$REF_BASE"
+              REF_MISMATCHES=\$((REF_MISMATCHES + 1))
           fi
           
-          TOTAL_CHECKED=$((TOTAL_CHECKED + 1))
+          TOTAL_CHECKED=\$((TOTAL_CHECKED + 1))
       done < sample_variants.txt
       
       # Report the results
-      if [ $REF_MISMATCHES -gt 0 ]; then
-          MISMATCH_PERCENT=$((REF_MISMATCHES * 100 / TOTAL_CHECKED))
-          echo "WARNING: Found $REF_MISMATCHES reference allele mismatches out of $TOTAL_CHECKED variants checked ($MISMATCH_PERCENT%)."
+      if [ \$REF_MISMATCHES -gt 0 ]; then
+          MISMATCH_PERCENT=\$((REF_MISMATCHES * 100 / TOTAL_CHECKED))
+          echo "WARNING: Found \$REF_MISMATCHES reference allele mismatches out of \$TOTAL_CHECKED variants checked (\$MISMATCH_PERCENT%)."
           echo "This suggests the VCF may have been created with a different reference genome version."
           
-          if [ $REF_MISMATCHES -gt 2 ]; then
-              echo "ERROR: Too many reference allele mismatches detected ($REF_MISMATCHES out of $TOTAL_CHECKED)."
+          if [ \$REF_MISMATCHES -gt 2 ]; then
+              echo "ERROR: Too many reference allele mismatches detected (\$REF_MISMATCHES out of \$TOTAL_CHECKED)."
               echo "The VCF file appears to use a different reference genome than the one provided."
               echo "Normalization is likely to fail. Please check your reference genome."
               exit 1
