@@ -95,6 +95,9 @@ workflow {
         ANNOTATE.out.annotated_bcf_index.subscribe { idx ->
             file(idx).copyTo("${outputDir}/vcfstash_annotated.bcf.csi")
         }
+		ANNOTATE.out.annotated_bcf_log.subscribe { log ->
+			file(log).copyTo("${outputDir}/vcfstash_annotated.bcf.log")
+		}
 
     } else { // in all other modes were gonna have some sort of input that requires normalization
         vcf = file(params.input)
