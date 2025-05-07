@@ -41,7 +41,7 @@ process RenameAndNormalizeVCF {
     ${params.bcftools_cmd} norm -m- -c x -f ${reference_genome} -o ${sample_name}_norm.bcf -Ob --threads ${(task.cpus).intdiv(3)} --write-index 2>&1 | tee -a ${sample_name}_norm.log
 
     # Check if normalization was successful
-    if [ ! -f "${sample_name}_norm.bcf" ]; then
+    if [ ! -f "${sample_name}_norm.bcf" ] || [ ! -f "${sample_name}_norm.bcf.csi" ]; then
         echo "ERROR: Normalization failed! Output file not created." | tee -a ${sample_name}_norm.log
         exit 1
     fi
