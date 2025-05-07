@@ -5,10 +5,11 @@ import shutil
 import subprocess
 from logging import Logger
 from pathlib import Path
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Dict, Set
 import yaml
 import importlib.resources
 import tempfile
+import pysam
 from vcfstash.database.outputs import StashOutput
 from vcfstash.utils.validation import validate_bcf_header
 from vcfstash.utils.logging import setup_logging
@@ -663,6 +664,117 @@ class VCFDatabase:
                     expanded_data[tn][entry] = convert_vcfstr(vcf_data[tn][entry])
 
         return expanded_data
+
+    def validate_vcf_reference(self, vcf_path: Path, ref_fasta: Path, variants_to_check: int = 3) -> Tuple[bool, Optional[str]]:
+        """
+        Validates a VCF/BCF file against a reference genome.
+
+        This method performs two checks:
+        1. Verifies that all contigs in the VCF/BCF header or index are found in the reference FASTA index
+        2. Checks a configurable number of variants from different chromosomes to ensure their reference 
+           alleles match the reference genome
+
+        Args:
+            vcf_path (Path): Path to the VCF/BCF file to validate
+            ref_fasta (Path): Path to the reference genome FASTA file
+            variants_to_check (int, optional): Number of variants to check. Defaults to 3.
+
+        Returns:
+            Tuple[bool, Optional[str]]: A tuple containing:
+                - bool: True if validation passed, False otherwise
+                - Optional[str]: Error message if validation failed, None otherwise
+        """
+        self.logger.debug(f"Validating VCF/BCF file against reference: {vcf_path}")
+
+        # Check if files exist
+        if not vcf_path.exists():
+            return False, f"VCF/BCF file not found: {vcf_path}"
+
+        if not ref_fasta.exists():
+            return False, f"Reference genome not found: {ref_fasta}"
+
+        # Check for index files
+        vcf_index_csi = Path(str(vcf_path) + ".csi")
+        vcf_index_tbi = Path(str(vcf_path) + ".tbi")
+        ref_index = Path(str(ref_fasta) + ".fai")
+
+        if not (vcf_index_csi.exists() or vcf_index_tbi.exists()):
+            return False, f"VCF/BCF index not found for {vcf_path}. Use bcftools index or tabix."
+
+        if not ref_index.exists():
+            return False, f"Reference index not found for {ref_fasta}. Use samtools faidx."
+
+        try:
+            # Load reference contigs from .fai
+            ref_contigs = set()
+            with open(ref_index, 'r') as f:
+                for line in f:
+                    contig = line.split('\t')[0]
+                    ref_contigs.add(contig)
+
+            self.logger.debug(f"Found {len(ref_contigs)} contigs in reference index")
+
+            # Get VCF/BCF contigs
+            vcf_contigs = set()
+            vcf = pysam.VariantFile(str(vcf_path))
+
+            for contig in vcf.header.contigs:
+                vcf_contigs.add(contig)
+
+            self.logger.debug(f"Found {len(vcf_contigs)} contigs in VCF/BCF header")
+
+            # Check if all VCF contigs are in reference
+            missing_contigs = vcf_contigs - ref_contigs
+            if missing_contigs:
+                return False, f"Contigs in VCF not found in reference: {', '.join(missing_contigs)}"
+
+            # Check reference alleles for a subset of variants
+            checked_variants = 0
+            checked_chroms = set()
+            mismatches = []
+
+            # Open reference FASTA
+            ref_fasta_file = pysam.FastaFile(str(ref_fasta))
+
+            # Iterate through variants
+            for variant in vcf.fetch():
+                # Skip if we've already checked this chromosome
+                if variant.chrom in checked_chroms:
+                    continue
+
+                # Add chromosome to checked set
+                checked_chroms.add(variant.chrom)
+
+                # Get reference sequence
+                try:
+                    ref_seq = ref_fasta_file.fetch(variant.chrom, variant.pos - 1, variant.pos - 1 + len(variant.ref))
+
+                    # Compare reference allele
+                    if variant.ref.upper() != ref_seq.upper():
+                        mismatches.append(f"{variant.chrom}:{variant.pos} (VCF: {variant.ref}, FASTA: {ref_seq})")
+
+                    checked_variants += 1
+
+                    # Stop if we've checked enough variants
+                    if checked_variants >= variants_to_check:
+                        break
+
+                except Exception as e:
+                    self.logger.warning(f"Error checking variant at {variant.chrom}:{variant.pos}: {e}")
+
+            # Check if we found any variants to check
+            if checked_variants == 0:
+                return False, "Could not find any variants to check reference alleles"
+
+            # Report mismatches
+            if mismatches:
+                return False, f"Reference allele mismatches found: {', '.join(mismatches)}"
+
+            self.logger.info(f"Successfully validated {checked_variants} variants against reference")
+            return True, None
+
+        except Exception as e:
+            return False, f"Error validating VCF against reference: {e}"
 
     @staticmethod
     def _copy_workflow_srcfiles(source: Path, destination: Path, skip_config: bool = False) -> None:

@@ -1,5 +1,7 @@
 import json
 import shutil
+import os
+import yaml
 from pathlib import Path
 from datetime import datetime
 
@@ -42,7 +44,7 @@ class DatabaseInitializer(VCFDatabase):
 
 
         self.config_yaml = self.workflow_dir / 'init.yaml'
-        shutil.copyfile(params_file.expanduser().resolve(), self.config_yaml)
+        shutil.copyfile(Path(params_file).expanduser().resolve(), self.config_yaml)
 
         # Initialize NextflowWorkflow
         self.logger.info("Initializing Nextflow workflow...")
@@ -57,6 +59,40 @@ class DatabaseInitializer(VCFDatabase):
         )
 
         self._validate_inputs()
+
+        # Validate VCF reference
+        try:
+            # Load YAML file to get reference path
+            params_yaml = yaml.safe_load(Path(params_file).expanduser().resolve().read_text())
+
+            # Get reference path from YAML
+            reference_path_str = params_yaml.get('reference')
+            if not reference_path_str:
+                self.logger.error("Reference path not found in YAML file")
+                raise ValueError("Reference path not found in YAML file")
+
+            # Expand environment variables in reference path
+            if "${VCFSTASH_ROOT}" in reference_path_str:
+                vcfstash_root = os.environ.get("VCFSTASH_ROOT")
+                if not vcfstash_root:
+                    self.logger.error("VCFSTASH_ROOT environment variable not set")
+                    raise ValueError("VCFSTASH_ROOT environment variable not set")
+                reference_path_str = reference_path_str.replace("${VCFSTASH_ROOT}", vcfstash_root)
+
+            reference_path = Path(reference_path_str).expanduser().resolve()
+
+            # Validate VCF reference
+            self.logger.info(f"Validating VCF reference: {reference_path}")
+            valid, error_msg = self.validate_vcf_reference(self.input_file, reference_path)
+
+            if not valid:
+                self.logger.error(f"VCF reference validation failed: {error_msg}")
+                raise ValueError(f"VCF reference validation failed: {error_msg}")
+
+            self.logger.info("VCF reference validation successful")
+        except Exception as e:
+            self.logger.error(f"Error during VCF reference validation: {e}")
+            raise RuntimeError(f"Error during VCF reference validation: {e}")
 
         # Log initialization parameters
         self.logger.info(f"Initializing database: {self.stash_name}")
@@ -186,4 +222,3 @@ class DatabaseInitializer(VCFDatabase):
         except Exception as e:
             self.logger.error(f"Error during database creation: {e}")
             raise RuntimeError(f"Error during database creation: {e}")
-

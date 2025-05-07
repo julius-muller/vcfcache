@@ -23,12 +23,6 @@ process CaptureToolVersions {
 process ValidateInputs {
 	stageInMode 'symlink'
 
-	// Increase resources to improve performance
-	memory '4 GB'
-
-	// Add debug option to see more details
-	debug true
-
 	input:
 	path vcf
 	path vcf_index  // Explicitly passing the index file
@@ -38,7 +32,6 @@ process ValidateInputs {
 
 	output:
 	val true, emit: validated
-	path "validation_results.log", emit: validation_log
 
 	script:
 	"""
@@ -49,52 +42,8 @@ process ValidateInputs {
 	test -e "${reference_index}" || { echo "Reference index file not found: ${reference_index}"; exit 1; }
 	test -e "${chr_add}" || { echo "Chr add file not found: ${chr_add}"; exit 1; }
 
-	# File diagnostics - check if they're symlinks and show sizes
-	echo "File access diagnostics:" > file_diagnostics.log
-	echo "VCF: \$(ls -la ${vcf})" >> file_diagnostics.log
-	echo "VCF index: \$(ls -la ${vcf_index})" >> file_diagnostics.log
-	echo "Reference: \$(ls -la ${reference})" >> file_diagnostics.log
-	echo "Reference index: \$(ls -la ${reference_index})" >> file_diagnostics.log
-	echo "Chr add: \$(ls -la ${chr_add})" >> file_diagnostics.log
-
-	# Check file system type and mount points
-	echo "File system info:" >> file_diagnostics.log
-	df -h . >> file_diagnostics.log
-
-	# Basic header check
-	${params.bcftools_cmd} view -h "${vcf}" | head -n 1 >/dev/null || { echo "Invalid VCF/BCF format"; exit 1; }
-
-    # Use the validate_vcf_ref.sh script for all validation checks
-    cp \$VCFSTASH_ROOT/tools/validate_vcf_ref.sh ./
-    chmod +x validate_vcf_ref.sh
-
-    # Add performance optimization for reference access
-    # Create a local copy of the reference index for faster access
-    echo "Creating optimized local copies of critical files..." >> file_diagnostics.log
-    time cp ${reference_index} ./reference.fai
-
-    # Run the validation script with required parameters and pass local reference index
-    TIMEFORMAT='Validation run time: %3Rs'
-    time ./validate_vcf_ref.sh "${vcf}" "${reference}" "${chr_add}" > validation_results.log 2>&1
-
-    # Append diagnostics to validation log
-    cat file_diagnostics.log >> validation_results.log
-
-    # Check the exit code of the validation script
-    VALIDATION_EXIT_CODE=\$?
-
-    if [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
-        echo "Validation failed with exit code \$VALIDATION_EXIT_CODE" >> validation_results.log
-        cat validation_results.log
-        exit \$VALIDATION_EXIT_CODE
-    fi
-
-    echo "All validation checks passed successfully" >> validation_results.log
-
-
       """
   }
-
 
 
 workflow UTILS {
@@ -122,5 +71,4 @@ workflow UTILS {
 
     emit:
     validate = validateInputResult.validated
-    validation_log = validateInputResult.validation_log
 }

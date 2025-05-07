@@ -223,6 +223,7 @@ for chrom in $CHROMS_TO_CHECK; do
     else
         echo -e "  ${RED}✗ Reference mismatch at $VCF_CHROM:$POS (VCF: $REF_ALLELE, FASTA: $REF_SEQ)${NC}"
     fi
+
 done
 
 if [[ $VARIANTS_CHECKED -eq 0 ]]; then
