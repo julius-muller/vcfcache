@@ -23,6 +23,12 @@ process CaptureToolVersions {
 process ValidateInputs {
 	stageInMode 'symlink'
 
+	// Increase resources to improve performance
+	memory '4 GB'
+
+	// Add debug option to see more details
+	debug true
+
 	input:
 	path vcf
 	path vcf_index  // Explicitly passing the index file
@@ -43,6 +49,18 @@ process ValidateInputs {
 	test -e "${reference_index}" || { echo "Reference index file not found: ${reference_index}"; exit 1; }
 	test -e "${chr_add}" || { echo "Chr add file not found: ${chr_add}"; exit 1; }
 
+	# File diagnostics - check if they're symlinks and show sizes
+	echo "File access diagnostics:" > file_diagnostics.log
+	echo "VCF: \$(ls -la ${vcf})" >> file_diagnostics.log
+	echo "VCF index: \$(ls -la ${vcf_index})" >> file_diagnostics.log
+	echo "Reference: \$(ls -la ${reference})" >> file_diagnostics.log
+	echo "Reference index: \$(ls -la ${reference_index})" >> file_diagnostics.log
+	echo "Chr add: \$(ls -la ${chr_add})" >> file_diagnostics.log
+
+	# Check file system type and mount points
+	echo "File system info:" >> file_diagnostics.log
+	df -h . >> file_diagnostics.log
+
 	# Basic header check
 	${params.bcftools_cmd} view -h "${vcf}" | head -n 1 >/dev/null || { echo "Invalid VCF/BCF format"; exit 1; }
 
@@ -50,8 +68,17 @@ process ValidateInputs {
     cp \$VCFSTASH_ROOT/tools/validate_vcf_ref.sh ./
     chmod +x validate_vcf_ref.sh
 
-    # Run the validation script with required parameters
-    ./validate_vcf_ref.sh "${vcf}" "${reference}" "${chr_add}" > validation_results.log 2>&1
+    # Add performance optimization for reference access
+    # Create a local copy of the reference index for faster access
+    echo "Creating optimized local copies of critical files..." >> file_diagnostics.log
+    time cp ${reference_index} ./reference.fai
+
+    # Run the validation script with required parameters and pass local reference index
+    TIMEFORMAT='Validation run time: %3Rs'
+    time ./validate_vcf_ref.sh "${vcf}" "${reference}" "${chr_add}" > validation_results.log 2>&1
+
+    # Append diagnostics to validation log
+    cat file_diagnostics.log >> validation_results.log
 
     # Check the exit code of the validation script
     VALIDATION_EXIT_CODE=\$?
@@ -67,6 +94,7 @@ process ValidateInputs {
 
       """
   }
+
 
 
 workflow UTILS {

@@ -204,8 +204,16 @@ for chrom in $CHROMS_TO_CHECK; do
         continue
     fi
 
+    # Start timing the reference extraction
+    START_FAIDX=$(date +%s.%N)
+
     # Extract reference sequence
     REF_SEQ=$(samtools faidx "$REF_FASTA" "${REF_CHROM}:${POS}-$((POS + ${#REF_ALLELE} - 1))" 2>/dev/null | grep -v "^>" | tr -d '\n')
+
+    # End timing and calculate duration
+    END_FAIDX=$(date +%s.%N)
+    DURATION_FAIDX=$(echo "$END_FAIDX - $START_FAIDX" | bc)
+    echo "  Time for samtools faidx: ${DURATION_FAIDX}s"
 
     ((VARIANTS_CHECKED++))
 
