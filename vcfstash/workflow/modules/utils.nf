@@ -21,207 +21,45 @@ process CaptureToolVersions {
 }
 
 process ValidateInputs {
-      stageInMode 'symlink'
+	stageInMode 'symlink'
 
-      input:
-      path vcf
-      path vcf_index  // Explicitly passing the index file
-      path reference
-      path reference_index
-      path chr_add
+	input:
+	path vcf
+	path vcf_index  // Explicitly passing the index file
+	path reference
+	path reference_index
+	path chr_add
 
-      output:
-      val true, emit: validated
+	output:
+	val true, emit: validated
+	path "validation_results.log", emit: validation_log
 
-      script:
-      """
-      # Check file existence
-      test -e "${vcf}" || { echo "VCF file not found: ${vcf}"; exit 1; }
-      test -e "${vcf_index}" || { echo "VCF index file not found: ${vcf_index}"; exit 1; }
-      test -e "${reference}" || { echo "Reference file not found: ${reference}"; exit 1; }
-      test -e "${reference_index}" || { echo "Reference index file not found: ${reference_index}"; exit 1; }
-      test -e "${chr_add}" || { echo "Chr add file not found: ${chr_add}"; exit 1; }
+	script:
+	"""
+	# Check file existence
+	test -e "${vcf}" || { echo "VCF file not found: ${vcf}"; exit 1; }
+	test -e "${vcf_index}" || { echo "VCF index file not found: ${vcf_index}"; exit 1; }
+	test -e "${reference}" || { echo "Reference file not found: ${reference}"; exit 1; }
+	test -e "${reference_index}" || { echo "Reference index file not found: ${reference_index}"; exit 1; }
+	test -e "${chr_add}" || { echo "Chr add file not found: ${chr_add}"; exit 1; }
 
-      # Basic header check
-      ${params.bcftools_cmd} view -h "${vcf}" | head -n 1 >/dev/null || { echo "Invalid VCF/BCF format"; exit 1; }
+	# Basic header check
+	${params.bcftools_cmd} view -h "${vcf}" | head -n 1 >/dev/null || { echo "Invalid VCF/BCF format"; exit 1; }
 
-      # ===========================================
-      # Reference genome compatibility check
-      # ===========================================
-      echo "Validating reference genome compatibility with VCF..."
+	# Run the validation script with appropriate parameters
+	./\$VCFSTASH_ROOT/vcfstash/tools/validate_vcf_ref.sh "${vcf}" "${reference}" "${chr_add}" > validation_results.log 2>&1
 
-      # Get the list of available chromosomes in the reference
-      echo "Available chromosomes in reference:"
-      cut -f1 ${reference_index}
+	# Check the exit code
+	VALIDATION_EXIT_CODE=\$?
 
-      # Get all unique chromosomes from the VCF file
-      echo "Extracting chromosomes from VCF..."
-      ${params.bcftools_cmd} view -H ${vcf} | cut -f1 | sort | uniq > vcf_chroms.txt
-      
-      # Get all chromosomes from the reference index
-      cut -f1 ${reference_index} > ref_chroms.txt
-      
-      # Show first few variants for debugging
-      echo "First few variants in VCF:"
-      ${params.bcftools_cmd} view -H ${vcf} | head -n 3
-      
-      # Load the chromosome mapping from chr_add.txt file
-      echo "Loading chromosome mapping from ${chr_add}..."
-      awk '{print \$1"\t"\$2}' ${chr_add} > chr_mapping.txt
-      
-      # Check if we need to adjust chromosome names (chr prefix handling)
-      NEEDS_CHR_PREFIX=0
-      NEEDS_CHR_REMOVAL=0
-      
-      # Sample the first chromosome from VCF
-      FIRST_CHR=\$(head -n 1 vcf_chroms.txt)
-      echo "First chromosome in VCF: \$FIRST_CHR"
-      
-      # Check if VCF has chr prefix but reference doesn't
-      if [[ "\$FIRST_CHR" == chr* ]] && ! grep -q "^chr" ref_chroms.txt; then
-          echo "VCF uses 'chr' prefix but reference doesn't. Will adjust for comparison."
-          NEEDS_CHR_REMOVAL=1
-      fi
-      
-      # Check if reference has chr prefix but VCF doesn't
-      if [[ "\$FIRST_CHR" != chr* ]] && grep -q "^chr" ref_chroms.txt; then
-          echo "Reference uses 'chr' prefix but VCF doesn't. Will adjust for comparison."
-          NEEDS_CHR_PREFIX=1  
-      fi
-      
-      # Validate all chromosomes in the VCF exist in the reference
-      echo "Validating all chromosomes..."
-      MISSING_CHROMS=0
-      
-      while read -r chrom; do
-          # Skip empty lines
-          [ -z "\$chrom" ] && continue
-          
-          REF_CHROM="\$chrom"
-          
-          # First try direct mapping from chr_add.txt
-          MAPPED_CHROM=\$(grep -P "^\$chrom\t" chr_mapping.txt | cut -f2 || echo "")
-          
-          # If mapping exists in chr_add.txt, use it
-          if [ ! -z "\$MAPPED_CHROM" ]; then
-              echo "Found mapping for '\$chrom' to '\$MAPPED_CHROM' in chr_add.txt"
-              REF_CHROM="\$MAPPED_CHROM"
-          # Otherwise apply standard chr prefix adjustments
-          elif [ \$NEEDS_CHR_REMOVAL -eq 1 ]; then
-              REF_CHROM=\${chrom#"chr"}
-          elif [ \$NEEDS_CHR_PREFIX -eq 1 ]; then
-              REF_CHROM="chr\$chrom"
-          fi
-          
-          # Check if the chromosome exists in reference after mapping
-          if ! grep -q "^\$REF_CHROM\$" ref_chroms.txt && ! grep -q "^\$REF_CHROM\t" ref_chroms.txt; then
-              # If not found directly, check if the reverse mapping exists (to handle cases like MT->chrM->M)
-              REVERSE_MAPPED=\$(grep -P "\t\$REF_CHROM\$" chr_mapping.txt | cut -f1 || echo "")
-              if [ ! -z "\$REVERSE_MAPPED" ] && (grep -q "^\$REVERSE_MAPPED\$" ref_chroms.txt || grep -q "^\$REVERSE_MAPPED\t" ref_chroms.txt); then
-                  echo "Found chromosome '\$chrom' in reference via reverse mapping to '\$REVERSE_MAPPED'"
-              else
-                  echo "ERROR: Chromosome '\$chrom' (adjusted to '\$REF_CHROM') not found in reference genome!"
-                  echo "       Check if this chromosome is in the reference or add a mapping in chr_add.txt."
-                  MISSING_CHROMS=1
-              fi
-          fi
-      done < vcf_chroms.txt
-      
-      # Fail if any chromosomes are missing
-      if [ \$MISSING_CHROMS -eq 1 ]; then
-          echo "ERROR: One or more chromosomes from the VCF are missing in the reference genome."
-          echo "This suggests the reference genome and VCF use different chromosome naming conventions,"
-          echo "or the reference is incomplete for this dataset."
-          echo "Available chromosomes in reference:"
-          cat ref_chroms.txt
-          echo "Chromosomes in VCF:"
-          cat vcf_chroms.txt
-          echo "Chromosome mappings from chr_add.txt:"
-          cat chr_mapping.txt
-          echo "Consider updating chr_add.txt to include additional mappings."
-          exit 1
-      fi
+	if [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
+		echo "Validation failed with exit code \$VALIDATION_EXIT_CODE" >> validation_results.log
+		cat validation_results.log
+		exit \$VALIDATION_EXIT_CODE
+	fi
 
-      echo "All chromosomes in VCF are present in the reference genome or have valid mappings."
-      
-      # ===========================================
-      # Reference allele compatibility check
-      # ===========================================
-      echo "Validating reference allele compatibility with VCF..."
-      echo "This checks that the REF allele in the VCF matches the reference genome"
-      
-      # Extract a few variants for testing (first 5 variants)
-      ${params.bcftools_cmd} view -H ${vcf} | head -n 5 > sample_variants.txt
-      
-      # Initialize counter for mismatches
-      REF_MISMATCHES=0
-      TOTAL_CHECKED=0
-      
-      while read -r variant_line; do
-          # Parse VCF fields
-          CHROM=\$(echo "\$variant_line" | cut -f1)
-          POS=\$(echo "\$variant_line" | cut -f2)
-          REF_ALLELE=\$(echo "\$variant_line" | cut -f4)
-          
-          # Skip if the REF allele is not a simple nucleotide sequence
-          if [[ ! \$REF_ALLELE =~ ^[ACGTN]+\$ ]]; then
-              echo "Skipping variant with non-standard REF allele: \$REF_ALLELE"
-              continue
-          fi
-          
-          # Determine reference chromosome name
-          QUERY_CHROM="\$CHROM"
-          
-          # First try direct mapping from chr_add.txt
-          MAPPED_CHROM=\$(grep -P "^\$CHROM\t" chr_mapping.txt | cut -f2 || echo "")
-          
-          # If mapping exists in chr_add.txt, use it
-          if [ ! -z "\$MAPPED_CHROM" ]; then
-              QUERY_CHROM="\$MAPPED_CHROM"
-          # Otherwise apply standard chr prefix adjustments
-          elif [ \$NEEDS_CHR_REMOVAL -eq 1 ]; then
-              QUERY_CHROM=\${CHROM#"chr"}
-          elif [ \$NEEDS_CHR_PREFIX -eq 1 ]; then
-              QUERY_CHROM="chr\$CHROM"
-          fi
-          
-          # Use samtools to extract the reference sequence at this position
-          REF_BASE=\$(samtools faidx ${reference} \$QUERY_CHROM:\$POS-\$((\$POS + \${#REF_ALLELE} - 1)) | grep -v ">" | tr -d '\\n')
-          
-          echo "Checking variant \$CHROM:\$POS (querying as \$QUERY_CHROM)"
-          echo "  VCF REF allele: \$REF_ALLELE"
-          echo "  Genome sequence: \$REF_BASE"
-          
-          # Compare the sequences
-          if [[ "\$REF_ALLELE" != "\$REF_BASE" ]]; then
-              echo "WARNING: Reference mismatch at \$CHROM:\$POS (querying as \$QUERY_CHROM:\$POS)"
-              echo "  VCF REF allele: \$REF_ALLELE"
-              echo "  Reference genome: \$REF_BASE"
-              REF_MISMATCHES=\$((REF_MISMATCHES + 1))
-          fi
-          
-          TOTAL_CHECKED=\$((TOTAL_CHECKED + 1))
-      done < sample_variants.txt
-      
-      # Report the results
-      if [ \$REF_MISMATCHES -gt 0 ]; then
-          MISMATCH_PERCENT=\$((REF_MISMATCHES * 100 / TOTAL_CHECKED))
-          echo "WARNING: Found \$REF_MISMATCHES reference allele mismatches out of \$TOTAL_CHECKED variants checked (\$MISMATCH_PERCENT%)."
-          echo "This suggests the VCF may have been created with a different reference genome version."
-          
-          if [ \$REF_MISMATCHES -gt 2 ]; then
-              echo "ERROR: Too many reference allele mismatches detected (\$REF_MISMATCHES out of \$TOTAL_CHECKED)."
-              echo "The VCF file appears to use a different reference genome than the one provided."
-              echo "Normalization is likely to fail. Please check your reference genome."
-              exit 1
-          else
-              echo "Continuing with caution - a small number of mismatches may be acceptable."
-          fi
-      else
-          echo "Reference allele check passed: All sampled variants match the reference genome."
-      fi
-      
-      echo "Reference validation passed."
+	echo "Validation successful" >> validation_results.log
+
       """
   }
 
@@ -251,4 +89,5 @@ workflow UTILS {
 
     emit:
     validate = validateInputResult.validated
+    validation_log = validateInputResult.validation_log
 }
