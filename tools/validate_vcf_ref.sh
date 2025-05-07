@@ -1,6 +1,6 @@
 #!/bin/bash
-# validate_bcf_v10.sh - BCF/reference compatibility validator with configurable sampling
-# Usage: ./validate_bcf_v10.sh <bcf_file> <reference_fasta> <chr_add_file> [num_variants_to_sample]
+# validate_vcf_ref.sh - BCF/reference compatibility validator with configurable sampling
+# Usage: ./validate_vcf_ref.sh <bcf_file> <reference_fasta> <chr_add_file> [num_variants_to_sample]
 
 set -e  # Exit on error
 
@@ -95,7 +95,7 @@ echo "  Found $VCF_CHROM_COUNT unique chromosomes in VCF"
 print_step "Processing chromosome mappings..."
 declare -A CHR_MAP
 while read -r FROM TO; do
-    [[ -z "$FROM" || -z "$TO" ]] && continue
+    [[ -z "$FROM" || "$FROM" == \#* || -z "$TO" ]] && continue
     CHR_MAP["$FROM"]="$TO"
 done < "$CHR_ADD"
 MAPPING_COUNT=${#CHR_MAP[@]}
@@ -131,35 +131,6 @@ fi
 
 # Select variants for validation
 print_step "Selecting variants for reference sequence validation..."
-
-# First try with common chromosomes
-COMMON_CHROMS=("chr1" "1" "chrX" "X")
-for chr in "${COMMON_CHROMS[@]}"; do
-    # Skip if already validated
-    [[ $VALIDATED -eq 1 ]] && break
-
-    # Try to find variants on this chromosome
-    VARIANT_LINES=$(bcftools view -H -r "$chr" "$BCF_FILE" 2>/dev/null | head -n $NUM_VARIANTS)
-
-    if [[ -n "$VARIANT_LINES" ]]; then
-        break
-    fi
-done
-
-# If no variants found in common chromosomes, try any chromosome from VCF
-if [[ -z "$VARIANT_LINES" ]]; then
-    for chr in "${VCF_CHROMS[@]}"; do
-        VARIANT_LINES=$(bcftools view -H -r "$chr" "$BCF_FILE" 2>/dev/null | head -n $NUM_VARIANTS)
-        if [[ -n "$VARIANT_LINES" ]]; then
-            break
-        fi
-    done
-fi
-
-# If still no variants found, error out
-if [[ -z "$VARIANT_LINES" ]]; then
-    print_error "Could not extract any variants from the BCF file for validation."
-fi
 
 # Function to map chromosome name
 function map_chromosome() {
@@ -197,11 +168,41 @@ function map_chromosome() {
     echo "$chr"
 }
 
+# First try with common chromosomes for finding variants
+VARIANT_LINES=""
+COMMON_CHROMS=("chr1" "1" "chrX" "X")
+for chr in "${COMMON_CHROMS[@]}"; do
+    VARIANT_LINES=$(bcftools view -H -r "$chr" "$BCF_FILE" 2>/dev/null | head -n $NUM_VARIANTS)
+    if [[ -n "$VARIANT_LINES" ]]; then
+        break
+    fi
+done
+
+# If no variants found in common chromosomes, try any chromosome from VCF
+if [[ -z "$VARIANT_LINES" ]]; then
+    for chr in "${VCF_CHROMS[@]}"; do
+        VARIANT_LINES=$(bcftools view -H -r "$chr" "$BCF_FILE" 2>/dev/null | head -n $NUM_VARIANTS)
+        if [[ -n "$VARIANT_LINES" ]]; then
+            break
+        fi
+    done
+fi
+
+# If still no variants found, error out
+if [[ -z "$VARIANT_LINES" ]]; then
+    print_error "Could not extract any variants from the BCF file for validation."
+fi
+
 # Process each variant for validation
 VALIDATED=0
-TOTAL_CHECKED=0
 
-echo "$VARIANT_LINES" | while read -r line; do
+# Create a temporary file to store the parsed variants
+TEMP_VARIANTS=$(mktemp)
+echo "$VARIANT_LINES" > "$TEMP_VARIANTS"
+
+# Process the variants line by line (avoiding the pipeline subshell issue)
+TOTAL_CHECKED=0
+while IFS= read -r line; do
     CHROM=$(echo "$line" | cut -f1)
     POS=$(echo "$line" | cut -f2)
     REF_ALLELE=$(echo "$line" | cut -f4)
@@ -245,7 +246,10 @@ echo "$VARIANT_LINES" | while read -r line; do
     else
         print_warning "    Reference sequence mismatch. VCF: $REF_ALLELE, Reference: $REF_SEQ"
     fi
-done
+done < "$TEMP_VARIANTS"
+
+# Clean up temp file
+rm -f "$TEMP_VARIANTS"
 
 if [[ $VALIDATED -eq 1 ]]; then
     print_success "Validation complete. BCF is compatible with the reference genome."
