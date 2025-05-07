@@ -28,35 +28,57 @@ process RenameAndNormalizeVCF {
 		"-x INFO/${params.must_contain_info_tag}"
 	)
 
-	"""
-	set -eEuo pipefail
 
-	handle_error() {
-		exitcode=\$?
-		echo "[ERROR] VCF normalization failed with exit code \$exitcode" >&2
-		if [[ \$exitcode -eq 139 ]]; then
-			echo "[ERROR] Likely cause: segmentation fault (e.g., due to reference mismatch)" >&2
-		fi
-		exit \$exitcode
-	}
-	trap 'handle_error' ERR
-
-	(
-		${params.bcftools_cmd} view ${gt_option} -Ou ${vcf_file} --threads ${(task.cpus).intdiv(3)} |
-		${params.bcftools_cmd} annotate ${info_option} --rename-chrs ${chr_add_file} --threads ${(task.cpus).intdiv(3)} -Ou |
-		${params.bcftools_cmd} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]\$"' --threads ${(task.cpus).intdiv(3)} -Ou | \\
-		${sort_command} \\
-		${params.bcftools_cmd} norm -m- -c x -f ${reference_genome} -o ${sample_name}_norm.bcf -Ob --threads ${(task.cpus).intdiv(3)} --write-index
-	) 2>&1 | tee normalization_output.log
-	norm_exit=\${PIPESTATUS[-1]}  # bash arrays: last is bcftools norm
-	if [[ \$norm_exit -eq 139 ]]; then
-		echo "[FATAL] Segmentation fault in bcftools norm (reference mismatch?): exit code \$norm_exit" >> normalization_output.log
-		exit 139
-	elif [[ \$norm_exit -ne 0 ]]; then
-		echo "[FATAL] bcftools norm failed with exit code \$norm_exit" >> normalization_output.log
-		exit \$norm_exit
-	fi
 	"""
+    # First check that the reference genome and VCF are compatible
+    # This is much safer than waiting for a segfault in bcftools norm
+    echo "Validating reference compatibility with VCF..." | tee ${sample_name}_norm.log
+
+    # Get a sample variant from input VCF for testing
+    FIRST_VAR=\$(${params.bcftools_cmd} view -H ${vcf_file} | head -n 1)
+    if [ -z "\$FIRST_VAR" ]; then
+        echo "Error: Input VCF appears to be empty" | tee -a ${sample_name}_norm.log
+        exit 1
+    fi
+
+    # Extract chromosome, position and reference allele
+    CHROM=\$(echo "\$FIRST_VAR" | cut -f 1)
+    POS=\$(echo "\$FIRST_VAR" | cut -f 2)
+    REF=\$(echo "\$FIRST_VAR" | cut -f 4)
+
+    echo "Testing variant: \$CHROM:\$POS \$REF" | tee -a ${sample_name}_norm.log
+
+    # Check if reference matches at this position
+    REF_BASE=\$(${params.bcftools_cmd} consensus -f ${reference_genome} -r "\$CHROM:\$POS-\$POS" ${vcf_file} 2>/dev/null | grep -v ">" | tr -d '\n')
+
+    if [ "\$REF_BASE" != "\$REF" ]; then
+        echo "ERROR: Reference genome mismatch detected!" | tee -a ${sample_name}_norm.log
+        echo "VCF reference allele at \$CHROM:\$POS is \$REF, but reference genome has \$REF_BASE" | tee -a ${sample_name}_norm.log
+        echo "This indicates that the provided reference genome does not match the VCF file" | tee -a ${sample_name}_norm.log
+        echo "This would cause a segmentation fault in bcftools norm" | tee -a ${sample_name}_norm.log
+        exit 1
+    fi
+
+    echo "Reference validation passed. Proceeding with normalization..." | tee -a ${sample_name}_norm.log
+
+    # Now perform the normalization with more confidence
+    ${params.bcftools_cmd} view ${gt_option} -Ou ${vcf_file} --threads ${(task.cpus).intdiv(3)} |
+    ${params.bcftools_cmd} annotate ${info_option} --rename-chrs ${chr_add_file} --threads ${(task.cpus).intdiv(3)} -Ou |
+    ${params.bcftools_cmd} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]\$"' --threads ${(task.cpus).intdiv(3)} -Ou | \\
+    ${sort_command} \\
+    ${params.bcftools_cmd} norm -m- -c x -f ${reference_genome} -o ${sample_name}_norm.bcf -Ob --threads ${(task.cpus).intdiv(3)} --write-index 2>&1 | tee -a ${sample_name}_norm.log
+
+    # Check if normalization was successful
+    if [ ! -f "${sample_name}_norm.bcf" ]; then
+        echo "ERROR: Normalization failed! Output file not created." | tee -a ${sample_name}_norm.log
+        exit 1
+    fi
+
+    input_variants=\$(${params.bcftools_cmd} index -n "${vcf_file}".csi)
+    output_variants=\$(${params.bcftools_cmd} index -n "${sample_name}_norm.bcf".csi)
+    echo "Normalization complete: Input variants: \${input_variants}, Output variants: \${output_variants}" | tee -a ${sample_name}_norm.log
+    """
+
 
 }
 
