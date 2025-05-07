@@ -114,10 +114,11 @@ workflow {
         NORMALIZE(
             chr_add,
             vcf,
+            vcf_index,  // Pass the index file explicitly
             reference,
             sampleName,
             false,
-    		remove_gt,
+            remove_gt,
             remove_info
         )
 
