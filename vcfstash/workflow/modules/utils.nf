@@ -47,7 +47,10 @@ process ValidateInputs {
 	${params.bcftools_cmd} view -h "${vcf}" | head -n 1 >/dev/null || { echo "Invalid VCF/BCF format"; exit 1; }
 
 	# Run the validation script with appropriate parameters
-	./\$VCFSTASH_ROOT/vcfstash/tools/validate_vcf_ref.sh "${vcf}" "${reference}" "${chr_add}" > validation_results.log 2>&1
+    cp \$VCFSTASH_ROOT/tools/validate_vcf_ref.sh ./
+    chmod +x validate_vcf_ref.sh
+
+	.\validate_vcf_ref.sh "${vcf}" "${reference}" "${chr_add}" > validation_results.log 2>&1
 
 	# Check the exit code
 	VALIDATION_EXIT_CODE=\$?
