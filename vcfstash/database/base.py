@@ -665,13 +665,14 @@ class VCFDatabase:
 
         return expanded_data
 
-    def validate_vcf_reference(self, vcf_path: Path, ref_fasta: Path, variants_to_check: int = 3) -> Tuple[bool, Optional[str]]:
+    def validate_vcf_reference(self, vcf_path: Path, ref_fasta: Path, variants_to_check: int = 3) -> Tuple[
+        bool, Optional[str]]:
         """
         Validates a VCF/BCF file against a reference genome.
 
         This method performs two checks:
-        1. Verifies that all contigs in the VCF/BCF header or index are found in the reference FASTA index
-        2. Checks a configurable number of variants from different chromosomes to ensure their reference 
+        1. Verifies that all contigs in the VCF/BCF index are found in the reference FASTA index
+        2. Checks a configurable number of variants from different chromosomes to ensure their reference
            alleles match the reference genome
 
         Args:
@@ -714,14 +715,24 @@ class VCFDatabase:
 
             self.logger.debug(f"Found {len(ref_contigs)} contigs in reference index")
 
-            # Get VCF/BCF contigs
+            # Get VCF/BCF contigs from index instead of header
+            # This is important as the actual data may contain chromosomes not declared in the header
             vcf_contigs = set()
-            vcf = pysam.VariantFile(str(vcf_path))
+            vcf_index_file = vcf_index_csi if vcf_index_csi.exists() else vcf_index_tbi
 
-            for contig in vcf.header.contigs:
-                vcf_contigs.add(contig)
+            # Use bcftools to extract chromosomes from the index
+            cmd = ["bcftools", "index", "--stats", str(vcf_index_file)]
+            result = subprocess.run(cmd, capture_output=True, text=True)
 
-            self.logger.debug(f"Found {len(vcf_contigs)} contigs in VCF/BCF header")
+
+            # Parse chromosomes from output
+            for line in result.stdout.splitlines():
+                if '[' not in line and ']' not in line:  # Skip header/footer lines
+                    parts = line.strip().split()
+                    if parts and parts[0]:  # Ensure we have a chromosome name
+                        vcf_contigs.add(parts[0])
+
+            self.logger.debug(f"Found {len(vcf_contigs)} unique chromosomes in VCF index")
 
             # Check if all VCF contigs are in reference
             missing_contigs = vcf_contigs - ref_contigs
@@ -735,6 +746,9 @@ class VCFDatabase:
 
             # Open reference FASTA
             ref_fasta_file = pysam.FastaFile(str(ref_fasta))
+
+            # Open VCF file
+            vcf = pysam.VariantFile(str(vcf_path))
 
             # Iterate through variants
             for variant in vcf.fetch():
