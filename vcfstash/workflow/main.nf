@@ -140,6 +140,9 @@ workflow {
             MERGE_VARIANTS.out.merged_bcf_index.subscribe { idx ->
                 file(idx).copyTo("${outputDir}/vcfstash.bcf.csi")
             }
+            NORMALIZE.out.norm_bcf_log.subscribe { log ->
+                file(log).copyTo("${outputDir}/add_${sampleName}.bcf.log")
+            }
         } else if (params.db_mode == 'stash-init') {
             // stash-init: First database creation - just normalize the input
             // No annotation here
@@ -148,6 +151,9 @@ workflow {
             }
             NORMALIZE.out.norm_bcf_index.subscribe { idx ->
                 file(idx).copyTo("${outputDir}/vcfstash.bcf.csi")
+            }
+            NORMALIZE.out.norm_bcf_log.subscribe { log ->
+                file(log).copyTo("${outputDir}/vcfstash.bcf.log")
             }
 		} else if (params.db_mode == 'annotate-nocache') {
 			// annotate: DIRECT_ANNOTATION_WORKFLOW - Direct VCF annotation without database comparison
@@ -212,6 +218,9 @@ workflow {
             }
             ANNOTATE.out.annotated_bcf_log.subscribe { log ->
                 file(log).copyTo("${outputDir}/${sampleName}_vst.bcf.log")
+            }
+            NORMALIZE.out.norm_bcf_log.subscribe { log ->
+                file(log).copyTo("${outputDir}/${sampleName}_norm.bcf.log")
             }
 
 		}
