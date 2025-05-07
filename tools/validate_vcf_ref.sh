@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # validate_vcf_ref.sh - BCF/reference compatibility validator with configurable sampling
 # Usage: ./validate_vcf_ref.sh <bcf_file> <reference_fasta> <chr_add_file> [num_variants_to_sample]
@@ -19,6 +20,7 @@ ARROW="→"
 # Function to print a step
 function print_step() {
     echo -e "${BLUE}${ARROW} $1${NC}"
+    STEP_START_TIME=$(date +%s.%N)
 }
 
 # Function to print success
@@ -37,6 +39,17 @@ function print_warning() {
     echo -e "${YELLOW}! $1${NC}" >&2
 }
 
+# Function to end step timing
+function end_step() {
+    local STEP_END_TIME=$(date +%s.%N)
+    local STEP_DURATION=$(echo "$STEP_END_TIME - $STEP_START_TIME" | bc)
+    echo "  Time: ${STEP_DURATION}s" >> timing.log
+}
+
+# Start overall timing
+SCRIPT_START_TIME=$(date +%s.%N)
+echo "Starting validation script at $(date)" > timing.log
+
 # Check arguments
 if [[ $# -lt 3 ]]; then
     print_error "Usage: $0 <bcf_file> <reference_fasta> <chr_add_file> [num_variants_to_sample]"
@@ -48,7 +61,6 @@ CHR_ADD="$3"
 NUM_VARIANTS=${4:-3}  # Default to 3 variants if not specified
 
 print_step "Checking input files..."
-
 # Check if files exist and are readable
 if [[ ! -f "$BCF_FILE" ]]; then
     print_error "BCF file not found: $BCF_FILE"
@@ -77,22 +89,34 @@ fi
 
 print_success "All input files exist"
 print_success "Found both VCF and reference indexes"
+end_step
 
 # Extract reference genome information
 print_step "Extracting reference genome information..."
+REF_STEP_START=$(date +%s.%N)
 REF_CHROMS=($(cut -f1 "${REFERENCE}.fai"))
 REF_CHROM_COUNT=${#REF_CHROMS[@]}
 echo "  Found $REF_CHROM_COUNT chromosomes in reference genome"
+REF_STEP_END=$(date +%s.%N)
+REF_STEP_DURATION=$(echo "$REF_STEP_END - $REF_STEP_START" | bc)
+echo "  Reference extraction time: ${REF_STEP_DURATION}s" >> timing.log
+end_step
 
 # Extract VCF chromosome information from index
 print_step "Extracting VCF chromosome information..."
+VCF_INDEX_START=$(date +%s.%N)
 echo "  Retrieved chromosomes from VCF index"
 VCF_CHROMS=($(bcftools index -s "$BCF_FILE" 2>/dev/null | cut -f1 | sort -u))
 VCF_CHROM_COUNT=${#VCF_CHROMS[@]}
 echo "  Found $VCF_CHROM_COUNT unique chromosomes in VCF"
+VCF_INDEX_END=$(date +%s.%N)
+VCF_INDEX_DURATION=$(echo "$VCF_INDEX_END - $VCF_INDEX_START" | bc)
+echo "  VCF index extraction time: ${VCF_INDEX_DURATION}s" >> timing.log
+end_step
 
 # Load chromosome mapping
 print_step "Processing chromosome mappings..."
+MAPPING_START=$(date +%s.%N)
 declare -A CHR_MAP
 while read -r FROM TO; do
     [[ -z "$FROM" || "$FROM" == \#* || -z "$TO" ]] && continue
@@ -128,9 +152,14 @@ else
         echo "  Reference uses 'chr' prefix but VCF doesn't"
     fi
 fi
+MAPPING_END=$(date +%s.%N)
+MAPPING_DURATION=$(echo "$MAPPING_END - $MAPPING_START" | bc)
+echo "  Chromosome mapping time: ${MAPPING_DURATION}s" >> timing.log
+end_step
 
 # Select variants for validation
 print_step "Selecting variants for reference sequence validation..."
+VARIANT_SELECTION_START=$(date +%s.%N)
 
 # Function to map chromosome name
 function map_chromosome() {
@@ -193,6 +222,10 @@ if [[ -z "$VARIANT_LINES" ]]; then
     print_error "Could not extract any variants from the BCF file for validation."
 fi
 
+VARIANT_SELECTION_END=$(date +%s.%N)
+VARIANT_SELECTION_DURATION=$(echo "$VARIANT_SELECTION_END - $VARIANT_SELECTION_START" | bc)
+echo "  Variant selection time: ${VARIANT_SELECTION_DURATION}s" >> timing.log
+
 # Process each variant for validation
 VALIDATED=0
 
@@ -202,6 +235,7 @@ echo "$VARIANT_LINES" > "$TEMP_VARIANTS"
 
 # Process the variants line by line (avoiding the pipeline subshell issue)
 TOTAL_CHECKED=0
+VALIDATION_START=$(date +%s.%N)
 while IFS= read -r line; do
     CHROM=$(echo "$line" | cut -f1)
     POS=$(echo "$line" | cut -f2)
@@ -247,12 +281,24 @@ while IFS= read -r line; do
         print_warning "    Reference sequence mismatch. VCF: $REF_ALLELE, Reference: $REF_SEQ"
     fi
 done < "$TEMP_VARIANTS"
+VALIDATION_END=$(date +%s.%N)
+VALIDATION_DURATION=$(echo "$VALIDATION_END - $VALIDATION_START" | bc)
+echo "  Variant validation time: ${VALIDATION_DURATION}s" >> timing.log
 
 # Clean up temp file
 rm -f "$TEMP_VARIANTS"
 
+# Calculate total runtime
+SCRIPT_END_TIME=$(date +%s.%N)
+TOTAL_RUNTIME=$(echo "$SCRIPT_END_TIME - $SCRIPT_START_TIME" | bc)
+echo "Total script runtime: ${TOTAL_RUNTIME}s" >> timing.log
+echo "Script completed at $(date)" >> timing.log
+
 if [[ $VALIDATED -eq 1 ]]; then
     print_success "Validation complete. BCF is compatible with the reference genome."
+    # Print summary of timing information at the end
+    echo -e "\n== PERFORMANCE SUMMARY =="
+    cat timing.log
     exit 0
 else
     print_error "Could not validate any variants against the reference genome. Check chromosome naming and coordinates."
