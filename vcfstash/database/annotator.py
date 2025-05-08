@@ -1,7 +1,10 @@
-
+import os
 import shutil
 import sys
 import time
+
+import yaml
+
 from vcfstash.database.base import VCFDatabase, NextflowWorkflow
 from vcfstash.database.outputs import AnnotatedStashOutput, AnnotatedUserOutput
 from pathlib import Path
@@ -73,10 +76,53 @@ class DatabaseAnnotator(VCFDatabase):
             verbosity=self.verbosity
         )
 
+        self._validate_inputs()
+
         # Log initialization parameters
         self.logger.info("Initializing database annotation")
         self.logger.debug(f"Annotation directory: {self.output_dir}")
         self.logger.debug(f"Config file: {self.config_file}")
+
+    def _validate_inputs(self) -> None:
+        """Validate input files, directories, and YAML parameters"""
+        self.logger.debug("Validating inputs")
+
+
+        # Validate VCF reference
+        try:
+            # Load YAML file to get reference path
+            params_yaml = yaml.safe_load(Path(self.params_file).expanduser().resolve().read_text())
+
+            # Get reference path from YAML
+            reference_path_str = params_yaml.get('reference')
+            if not reference_path_str:
+                self.logger.error("Reference path not found in YAML file")
+                raise ValueError("Reference path not found in YAML file")
+
+            # Expand environment variables in reference path
+            if "${VCFSTASH_ROOT}" in reference_path_str:
+                vcfstash_root = os.environ.get("VCFSTASH_ROOT")
+                if not vcfstash_root:
+                    self.logger.error("VCFSTASH_ROOT environment variable not set")
+                    raise ValueError("VCFSTASH_ROOT environment variable not set")
+                reference_path_str = reference_path_str.replace("${VCFSTASH_ROOT}", vcfstash_root)
+
+            reference_path = Path(reference_path_str).expanduser().resolve()
+
+            # Validate VCF reference
+            self.logger.info(f"Validating VCF reference: {reference_path}")
+            valid, error_msg = self.validate_vcf_reference(self.blueprint_bcf, reference_path)
+
+            if not valid:
+                self.logger.error(f"VCF reference validation failed: {error_msg}")
+                raise ValueError(f"VCF reference validation failed: {error_msg}")
+
+            self.logger.info("VCF reference validation successful")
+        except Exception as e:
+            self.logger.error(f"Error during VCF reference validation: {e}")
+            raise RuntimeError(f"Error during VCF reference validation: {e}")
+
+        self.logger.debug("Input validation successful")
 
     def _setup_annotation_stash(self, force:bool) -> None:
         # Remove destination directory if it exists to ensure clean copy
@@ -218,10 +264,60 @@ class VCFAnnotator(VCFDatabase):
             verbosity=self.verbosity
         )
 
+        self._validate_inputs()
+
         # Log initialization parameters
         self.logger.info(f"Initializing annotation of {self.input_vcf.name}")
         self.logger.debug(f"Cache file: {self.stash_file}")
         self.logger.debug(f"Config file: {self.config_file}")
+
+    def _validate_inputs(self) -> None:
+        """Validate input files, directories, and YAML parameters"""
+        self.logger.debug("Validating inputs")
+
+        # Check input VCF/BCF if provided
+        if self.input_vcf:
+            if not self.input_vcf.exists():
+                msg = f"Input VCF/BCF file not found: {self.input_vcf}"
+                self.logger.error(msg)
+                raise FileNotFoundError(msg)
+            self.ensure_indexed(self.input_vcf)
+
+        # Validate VCF reference
+        try:
+            # Load YAML file to get reference path
+            params_yaml = yaml.safe_load(Path(self.params_file).expanduser().resolve().read_text())
+
+            # Get reference path from YAML
+            reference_path_str = params_yaml.get('reference')
+            if not reference_path_str:
+                self.logger.error("Reference path not found in YAML file")
+                raise ValueError("Reference path not found in YAML file")
+
+            # Expand environment variables in reference path
+            if "${VCFSTASH_ROOT}" in reference_path_str:
+                vcfstash_root = os.environ.get("VCFSTASH_ROOT")
+                if not vcfstash_root:
+                    self.logger.error("VCFSTASH_ROOT environment variable not set")
+                    raise ValueError("VCFSTASH_ROOT environment variable not set")
+                reference_path_str = reference_path_str.replace("${VCFSTASH_ROOT}", vcfstash_root)
+
+            reference_path = Path(reference_path_str).expanduser().resolve()
+
+            # Validate VCF reference
+            self.logger.info(f"Validating VCF reference: {reference_path}")
+            valid, error_msg = self.validate_vcf_reference(self.input_vcf, reference_path)
+
+            if not valid:
+                self.logger.error(f"VCF reference validation failed: {error_msg}")
+                raise ValueError(f"VCF reference validation failed: {error_msg}")
+
+            self.logger.info("VCF reference validation successful")
+        except Exception as e:
+            self.logger.error(f"Error during VCF reference validation: {e}")
+            raise RuntimeError(f"Error during VCF reference validation: {e}")
+
+        self.logger.debug("Input validation successful")
 
 
     def _setup_output(self, force:bool) -> None:

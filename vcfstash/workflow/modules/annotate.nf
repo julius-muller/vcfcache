@@ -41,6 +41,10 @@ process Annotate {
         # Export variables for use in the command
         export INPUT_BCF="${input_bcf}"
         export OUTPUT_BCF="vcfstash_annotated.bcf"
+        # Create output directory for annotation tools to write auxiliary files
+        export OUTPUT_DIR="${task.workDir}"
+        mkdir -p "\$OUTPUT_DIR"
+        echo "\$(timestamp) Created output directory for auxiliary files: \$OUTPUT_DIR"
         
         # Check input file integrity
         echo "\$(timestamp) Checking input file integrity..."
@@ -49,8 +53,8 @@ process Annotate {
             exit 1
         fi
         
-        if [ ! -f "\${INPUT_BCF}.csi" ]; then
-            echo "\$(timestamp) ERROR: Input BCF index not found: \${INPUT_BCF}.csi"
+        if [ ! -f "\${INPUT_BCF}.csi" ] && [ ! -f "\${INPUT_BCF}.tbi" ]; then
+            echo "\$(timestamp) ERROR: Input VCF/BCF index not found: \${INPUT_BCF}.tbi/csi"
             exit 1
         fi
         
