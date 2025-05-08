@@ -31,17 +31,16 @@ process RunAnnotation {
 	mkdir -p auxiliary
 
     # Define key variables locally
-    INPUT_BCF="${input_bcf}"
-    OUTPUT_BCF="vcfstash_annotated.bcf"
-    AUXILIARY_DIR="\$PWD/auxiliary"
-
+    export INPUT_BCF="${input_bcf}"
+    export OUTPUT_BCF="vcfstash_annotated.bcf"
+    export AUXILIARY_DIR="\$PWD/auxiliary"
 
     # Create the annotation command from params
     CMD="${params.annotation_cmd}"
 
     # Check if required version is specified and valid
     if [ ! -z "${params.required_tool_version}" ]; then
-		TOOL_VERSION=$(${params.bcftools_cmd} ${params.tool_version_command}$( [ -n "${params.tool_version_regex}" ] && echo " | ${params.tool_version_regex}" ))
+		TOOL_VERSION=$(${params.bcftools_cmd} ${params.tool_version_command} $( [ -n "${params.tool_version_regex}" ] && echo " | ${params.tool_version_regex}" ))
         echo "[`date`] Annotation tool version: \$TOOL_VERSION" | tee -a vcfstash_annotated.log
 
         # Check if version meets requirement using bash version comparison
@@ -61,16 +60,6 @@ process RunAnnotation {
         exit 1
     fi
 
-    # Create index if not already created by the annotation tool
-    if [ ! -f "\${OUTPUT_BCF}.csi" ]; then
-        echo "[`date`] Creating BCF index..." | tee -a vcfstash_annotated.log
-        ${params.bcftools_cmd} index --csi \${OUTPUT_BCF}
-    fi
-
-    # Move any VEP warnings log to the auxiliary directory
-    if [ -f "vep_warnings.log" ]; then
-        mv vep_warnings.log \${AUXILIARY_DIR}/
-    fi
 
     # Capture any other log files that might have been created
     for log_file in *.log; do
