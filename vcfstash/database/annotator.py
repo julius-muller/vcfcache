@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import sys
 import time
@@ -48,10 +49,7 @@ class DatabaseAnnotator(VCFDatabase):
 
         self.info_snapshot_file = self.output_dir / "blueprint_snapshot.info"
 
-        anno_config_file = Path(anno_config_file).expanduser().resolve()
-        self.anno_config_file = self.output_dir / 'annotation.config'
-        if anno_config_file != self.anno_config_file:
-            shutil.copyfile(anno_config_file.expanduser().resolve() , self.anno_config_file)
+        self.anno_config_file = self._preprocess_annotation_config(user_config=Path(anno_config_file).expanduser().resolve())
 
 
         self.params_file = self.output_dir / f'annotation.yaml'
@@ -82,6 +80,39 @@ class DatabaseAnnotator(VCFDatabase):
         self.logger.info("Initializing database annotation")
         self.logger.debug(f"Annotation directory: {self.output_dir}")
         self.logger.debug(f"Config file: {self.config_file}")
+
+    def _preprocess_annotation_config(self, user_config: Path) -> Path:
+        """
+        Preprocess annotation.config to fix variable substitution issues.
+        Replaces problematic variable references with their escaped versions.
+        This only has to be done once, as the config is copied to the output directory and used for all subsequent vcfstash annotate runs
+
+        Args:
+            anno_config_file (Path): Original annotation config file
+            output_config_file (Path): Where to save the processed config
+        """
+        assert user_config.exists(), f"Annotation config file not found: {user_config}"
+
+        with open(user_config, 'r') as f:
+            content = f.read()
+
+        # Simple patterns that just find the dollar sign before our variables
+        patterns = [
+            r'\$(INPUT_BCF|{INPUT_BCF)',  # Match $INPUT_BCF or ${INPUT_BCF
+            r'\$(OUTPUT_BCF|{OUTPUT_BCF)',  # Match $OUTPUT_BCF or ${OUTPUT_BCF
+            r'\$(OUTPUT_DIR|{OUTPUT_DIR)'  # Match $OUTPUT_DIR or ${OUTPUT_DIR
+        ]
+
+        # Apply each regex pattern - just add a backslash before each $
+        modified_content = content
+        for pattern in patterns:
+            modified_content = re.sub(pattern, r'\\\$\1', modified_content)
+
+        output_cfg = self.output_dir / 'annotation.config'
+        with open(output_cfg, 'w') as f:
+            f.write(modified_content)
+
+        return output_cfg
 
     def _validate_inputs(self) -> None:
         """Validate input files, directories, and YAML parameters"""
