@@ -44,11 +44,9 @@ process RunAnnotation {
         echo "[`date`] DEBUG: Preparing to check tool version" | tee -a vcfstash_annotated.log
         if [ -z "${params.tool_version_regex}" ]; then
             echo "[`date`] DEBUG: Version command: ${params.bcftools_cmd} ${params.tool_version_command}" | tee -a vcfstash_annotated.log
-            # Use $() instead of backticks for command substitution
             TOOL_VERSION=$(${params.bcftools_cmd} ${params.tool_version_command} 2>&1)
         else
             echo "[`date`] DEBUG: Version command with regex: ${params.bcftools_cmd} ${params.tool_version_command} | ${params.tool_version_regex}" | tee -a vcfstash_annotated.log
-            # Use $() instead of backticks for command substitution
             TOOL_VERSION=$(${params.bcftools_cmd} ${params.tool_version_command} 2>&1 | ${params.tool_version_regex})
         fi
 
