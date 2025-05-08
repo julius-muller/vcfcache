@@ -7,6 +7,19 @@ include { MERGE } from './modules/merge'
 include { MERGE_VARIANTS } from './modules/merge_variants'
 include { UTILS } from './modules/utils'
 
+// Then create a function to copy auxiliary files
+def copyAuxiliaryFiles(auxFiles, targetDir) {
+	auxFiles.flatten().ifEmpty([]).subscribe { aux_file ->
+		if (aux_file && file(aux_file).exists()) {
+			def auxiliaryDir = file(targetDir)
+			if (!auxiliaryDir.exists()) {
+				auxiliaryDir.mkdirs()
+			}
+			file(aux_file).copyTo("${auxiliaryDir}/${file(aux_file).name}")
+		}
+	}
+}
+
 def validateParams() {
 
     def validModes = ['annotate', 'stash-add', 'stash-init', 'stash-annotate', 'annotate-nocache', 'annotate-isec']
@@ -59,6 +72,7 @@ workflow {
 
     params.db_mode = null
     params.db_bcf = null
+	params.auxiliary_dir = "${params.output}/auxiliary"
 
     validateParams()
 
@@ -71,6 +85,7 @@ workflow {
     }
 
     def outputDir = file(params.output)
+	params.AUXILIARY_FILES = "${params.output}/auxiliary"
 
     chr_add = file(params.chr_add)
     reference = file(params.reference)
@@ -100,13 +115,7 @@ workflow {
         }
 
         // Copy all auxiliary files using flatten to handle the collection properly
-        ANNOTATE.out.aux_files.flatten().ifEmpty([]).subscribe { aux_file ->
-            if (aux_file != null && file(aux_file).exists()) {
-                // Get just the filename part
-                def filename = file(aux_file).getName()
-                file(aux_file).copyTo("${outputDir}/${filename}")
-            }
-        }
+		copyAuxiliaryFiles(ANNOTATE.out.aux_files, params.auxiliary_dir)
 
     } else { // in all other modes we're gonna have some sort of input that requires normalization
         vcf = file(params.input)
@@ -187,14 +196,7 @@ workflow {
                 file(log).copyTo("${outputDir}/${sampleName}_vst.bcf.log")
             }
 
-            // Copy all auxiliary files using flatten to handle the collection properly
-            ANNOTATE.out.aux_files.flatten().ifEmpty([]).subscribe { aux_file ->
-                if (aux_file != null && file(aux_file).exists()) {
-                    // Get just the filename part
-                    def filename = file(aux_file).getName()
-                    file(aux_file).copyTo("${outputDir}/${filename}")
-                }
-            }
+            copyAuxiliaryFiles(ANNOTATE.out.aux_files, params.auxiliary_dir)
 
         } else if (params.db_mode == 'annotate') {
             // annotate: SAMPLE_ANALYSIS_WORKFLOW - Sample comparison against database using bcftools annotate
@@ -236,6 +238,7 @@ workflow {
             MergeAnnotations.out.merged_bcf.subscribe { bcf ->
                 file(bcf).copyTo("${outputDir}/${sampleName}_vst.bcf")
             }
+
             MergeAnnotations.out.merged_bcf_index.subscribe { idx ->
                 file(idx).copyTo("${outputDir}/${sampleName}_vst.bcf.csi")
             }
@@ -247,13 +250,7 @@ workflow {
             }
 
             // Copy all auxiliary files using flatten to handle the collection properly
-            ANNOTATE.out.aux_files.flatten().ifEmpty([]).subscribe { aux_file ->
-                if (aux_file != null && file(aux_file).exists()) {
-                    // Get just the filename part
-                    def filename = file(aux_file).getName()
-                    file(aux_file).copyTo("${outputDir}/${filename}")
-                }
-            }
+			copyAuxiliaryFiles(ANNOTATE.out.aux_files, params.auxiliary_dir)
         }
     }
 }

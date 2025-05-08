@@ -102,8 +102,8 @@ class DatabaseAnnotator(VCFDatabase):
             ('$INPUT_BCF', '\\$INPUT_BCF'),
             ('${OUTPUT_BCF', '\\${OUTPUT_BCF'),
             ('$OUTPUT_BCF', '\\$OUTPUT_BCF'),
-            ('${OUTPUT_DIR', '\\${OUTPUT_DIR'),
-            ('$OUTPUT_DIR', '\\$OUTPUT_DIR')
+            ('${AUXILIARY_DIR', '\\${AUXILIARY_DIR'),
+            ('$AUXILIARY_DIR', '\\$AUXILIARY_DIR')
         ]
 
         # Apply each replacement

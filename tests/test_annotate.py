@@ -327,6 +327,17 @@ def test_full_annotation_workflow(test_output_dir):
     assert "MOCK_ANNO=" in variants_result.stdout, "MOCK_ANNO tag not found in the variants"
     print("MOCK_ANNO tag found in variants")
 
+    # Step 13: Verify the output contains the auxiliary information
+
+    # Check auxiliary directory exists
+    auxiliary_dir = output_dir / "auxiliary"
+    assert auxiliary_dir.exists(), "Auxiliary directory was not created"
+    assert auxiliary_dir.is_dir(), "Auxiliary directory is not a directory"
+
+    # Check for the expected test file
+    test_file = auxiliary_dir / "auxiliary_test.exo"
+    assert test_file.exists(), "Auxiliary test file was not copied to the auxiliary directory"
+
     print("Successfully tested full annotation workflow")
 
 

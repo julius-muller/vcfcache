@@ -606,8 +606,6 @@ class VCFDatabase:
             log_file=log_file
         )
 
-
-
     def setup_config(self, config_file: Path | str, config_name: str) -> Path:
         config_file = config_file.expanduser().resolve()
         shutil.copyfile(config_file, self.workflow_dir / config_name)

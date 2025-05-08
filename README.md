@@ -186,11 +186,11 @@ The example above shows a typical pattern: read from ${INPUT_BCF}, pipe through 
 When writing your annotation command in `annotation.config`, you can use the following variables that will be automatically replaced with the correct paths: 
 - Path to the input BCF file `INPUT_BCF`
 - Path where the annotated BCF file should be written `OUTPUT_BCF`
-- Directory where additional files can be written (current working directory) `OUTPUT_DIR`
+- Directory where additional files can be written (auxiliary subdirectory of cwd) `AUXILIARY_DIR`
 
 These variables can be used in either format:
-- Plain format: `INPUT_BCF`, `OUTPUT_BCF`, `OUTPUT_DIR`
-- Shell variable format: `${INPUT_BCF}`, `${OUTPUT_BCF}`, `${OUTPUT_DIR}`
+- Plain format: `INPUT_BCF`, `OUTPUT_BCF`, `AUXILIARY_DIR`
+- Shell variable format: `${INPUT_BCF}`, `${OUTPUT_BCF}`, `${AUXILIARY_DIR}`
 
 ### Step 2: Create params.yaml
 
