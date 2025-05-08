@@ -38,13 +38,19 @@ process RunAnnotation {
     # Create the annotation command from params
     CMD="${params.annotation_cmd}"
 
-    # Version check with proper Bash syntax - all in one shell command
-    if [ -n "${params.required_tool_version}" ]; then
-        TOOL_VERSION=\$(${params.bcftools_cmd} ${params.tool_version_command}) && \\
-        [ -n "${params.tool_version_regex}" ] && TOOL_VERSION=\$(echo "\$TOOL_VERSION" | ${params.tool_version_regex}) || true && \\
-        [ "\$TOOL_VERSION" = "${params.required_tool_version}" ] || { echo "[`date`] ERROR: Tool version \$TOOL_VERSION does not match required version ${params.required_tool_version}" | tee -a vcfstash_annotated.log; exit 1; }
+    echo "Checking tool version..."
+    TOOL_VERSION_OUTPUT=\$(${params.annotation_tool_cmd} ${params.tool_version_command})
+	TOOL_VERSION=\$(echo "\$TOOL_VERSION_OUTPUT" | ${params.tool_version_regex})
+    if [ -z "\$TOOL_VERSION" ]; then
+        echo "Error: Unable to determine tool version. Output: \$TOOL_VERSION_OUTPUT" >&2
+        exit 1
     fi
+    echo "Tool version detected: \$TOOL_VERSION"
 
+	if [ "\$TOOL_VERSION" != "${params.required_tool_version}" ]; then
+		echo "Error: Tool version mismatch. Found \$TOOL_VERSION but required ${params.required_tool_version}" >&2
+		exit 1
+	fi
 
     # Execute the annotation command
     eval \$CMD 2> >(tee -a vcfstash_annotated.log >&2)
