@@ -1,4 +1,4 @@
-# **VCFstash – turbo-charge your variant annotation workflow**
+# **VCFstash – Fast, Flexible, and Reliable Variant Annotation Caching**
 
 Stop re-annotating the same common variants over and over.  
 `VCFstash` builds a **local, shareable cache** of already-annotated alleles and
@@ -7,13 +7,19 @@ ones. **Save more than 70% of your annotation time** with minimal changes to you
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
 - **Speed**: Typically reduces annotation run time by more than 70% by caching common variants
 - **Flexibility**: Works with any annotation tool (VEP, SnpEff, ANNOVAR, custom scripts)
 - **Simplicity**: Easy integration with existing pipelines
 - **Efficiency**: Automatic variant normalization and deduplication
-- **Reproducibility**: Consistent annotations with hashed and locked cache
+- **Portability**: Shareable caches for easy collaboration
+- **Reliability**: Built-in checks for data integrity and consistency
+- **Tested**: Comprehensive test suite to ensure correctness and reliability
+- **Documentation**: Detailed usage instructions and examples
+- **Resource Management**: Optional Nextflow configuration for CPU and memory management
+- **Lightweight**: Minimal dependencies, no external tools required for basic functionality
+- **Open Source**: Available under the MIT License
 
 ---
 
@@ -80,8 +86,8 @@ Your `annotation.config` contains **exactly** the command you already use – se
 
 VCFstash works with **any annotation tool** by wrapping your existing command. Just split it into two parts:
 
-1. **annotation.config**: Your command structure (fixed) which will be applied to cache *and* input vcf files
-2. **params.yaml**: Configurable values (paths, resources)
+1. **annotation.config**: Your command structure which will be applied to cache *and* input vcf files. This file is fixed at stash-annotate and unavailable at vcfstash annotate! 
+2. **params.yaml**: Configurable values (paths, resources) which can be changed for each run
 
 ![Example conversion](resources/conv_uawf.png)
 
@@ -104,7 +110,7 @@ VCFstash works with **any annotation tool** by wrapping your existing command. J
    --canonical
 ```
 
-#### Step 1: Create annotation.config
+### Step 1: Create annotation.config
 
 As a first step, the original annotation command needs to be adapted to the VCFstash format and copied to the .config file.
 
@@ -147,7 +153,7 @@ If the annotation tool (here vep) doesn't support bcf as input, the input file n
 
 ```bash
 annotation_cmd = """
-   ${params.bcftools_cmd} view \${INPUT_BCF} 
+   ${params.bcftools_cmd} view ${INPUT_BCF} 
    | ${params.annotation_tool_cmd} \
    --offline \
    --buffer_size ${params.vep_buffer} \
@@ -159,7 +165,7 @@ annotation_cmd = """
    -o stdout \
    --format vcf \
    --canonical \
-   | ${params.bcftools_cmd} view -o \${OUTPUT_BCF} -Ob --write-index
+   | ${params.bcftools_cmd} view -o ${OUTPUT_BCF} -Ob --write-index
     """
 ```
 
@@ -168,15 +174,25 @@ Finally the expected tag in the output file needs to be specified using `must_co
     must_contain_info_tag = 'CSQ'
 ```
 
-**Important requirements for annotation.config:**
+#### **Important requirements for annotation.config:**
 
 - **${INPUT_BCF}**: This variable must be used as the input source. It represents an indexed BCF file that VCFstash will provide to your annotation pipeline.
 - **${params.bcftools_cmd}**: Use this to convert or pipe the input as needed for your annotation tool.
 - **${OUTPUT_BCF}**: Your command must output an indexed BCF file using this variable name. The final output must be in BCF format with an index.
 
-The example above shows a typical pattern: read from \${INPUT_BCF}, pipe through your annotation tool, and write the result to ${OUTPUT_BCF} with indexing.
+The example above shows a typical pattern: read from ${INPUT_BCF}, pipe through your annotation tool, and write the result to ${OUTPUT_BCF} with indexing.
 
-#### Step 2: Create params.yaml
+#### Variable Substitution in Annotation Commands
+When writing your annotation command in `annotation.config`, you can use the following variables that will be automatically replaced with the correct paths: 
+- Path to the input BCF file `INPUT_BCF`
+- Path where the annotated BCF file should be written `OUTPUT_BCF`
+- Directory where additional files can be written (current working directory) `OUTPUT_DIR`
+
+These variables can be used in either format:
+- Plain format: `INPUT_BCF`, `OUTPUT_BCF`, `OUTPUT_DIR`
+- Shell variable format: `${INPUT_BCF}`, `${OUTPUT_BCF}`, `${OUTPUT_DIR}`
+
+### Step 2: Create params.yaml
 
 As a second step, the parameters need to be defined in the params.yaml file. The annotation tool command should be defined as the variable `annotation_tool_cmd` and **optionally**, the version command and regex to extract the string matching `required_tool_version` can be defined. 
 ```yaml
