@@ -40,7 +40,13 @@ process RunAnnotation {
 
     # Check if required version is specified and valid
     if [ ! -z "${params.required_tool_version}" ]; then
-		TOOL_VERSION=$(${params.bcftools_cmd} ${params.tool_version_command} $( [ -n "${params.tool_version_regex}" ] && echo " | ${params.tool_version_regex}" ))
+        # Safely handle command execution with or without regex
+        if [ -z "${params.tool_version_regex}" ]; then
+            TOOL_VERSION=\$(${params.bcftools_cmd} ${params.tool_version_command})
+        else
+            TOOL_VERSION=\$(${params.bcftools_cmd} ${params.tool_version_command} | ${params.tool_version_regex})
+        fi
+
         echo "[`date`] Annotation tool version: \$TOOL_VERSION" | tee -a vcfstash_annotated.log
 
         # Check if version meets requirement using bash version comparison
