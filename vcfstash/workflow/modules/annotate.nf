@@ -39,9 +39,13 @@ process RunAnnotation {
     CMD="${params.annotation_cmd}"
 
     echo "Checking tool version..."
+    echo "Tool version command: ${params.annotation_tool_cmd} ${params.tool_version_command}"
     TOOL_VERSION_OUTPUT=\$(${params.annotation_tool_cmd} ${params.tool_version_command})
+    echo "Tool version output: \$TOOL_VERSION_OUTPUT"
     REGEX_CMD=\$([ ! -z "${params.tool_version_regex}" ] && echo "| ${params.tool_version_regex}" || echo "")
+    echo "Regex command: \$REGEX_CMD"
 	TOOL_VERSION=\$(echo "\$TOOL_VERSION_OUTPUT" \$REGEX_CMD)
+	echo "Tool version regex: \$TOOL_VERSION"
     if [ -z "\$TOOL_VERSION" ]; then
         echo "Error: Unable to determine tool version. Output: \$TOOL_VERSION_OUTPUT" >&2
         exit 1
@@ -54,6 +58,7 @@ process RunAnnotation {
 	fi
 
     # Execute the annotation command
+    echo "[`date`] Running annotation command: \$CMD" | tee -a vcfstash_annotated.log
     eval \$CMD 2> >(tee -a vcfstash_annotated.log >&2)
 
     # Check for success
