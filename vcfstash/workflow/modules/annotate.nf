@@ -86,11 +86,12 @@ process RunAnnotation {
         fi
     fi
 
-    # Calculate and report variant counts
-    INPUT_COUNT=`${params.bcftools_cmd} index -n \${INPUT_BCF}`
-    OUTPUT_COUNT=`${params.bcftools_cmd} index -n \${OUTPUT_BCF}`
-    echo "[`date`] Annotation complete: Input variants: \${INPUT_COUNT}, Output variants: \${OUTPUT_COUNT}" | tee -a vcfstash_annotated.log
+    # Calculate and report variant counts using the -n option
+    INPUT_COUNT=\$(${params.bcftools_cmd} index -n \$INPUT_BCF)
+    OUTPUT_COUNT=\$(${params.bcftools_cmd} index -n \$OUTPUT_BCF)
+    echo "[`date`] Annotation complete: Input variants: \$INPUT_COUNT, Output variants: \$OUTPUT_COUNT" | tee -a vcfstash_annotated.log
     """
+
 }
 
 
