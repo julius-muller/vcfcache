@@ -85,7 +85,6 @@ workflow {
     }
 
     def outputDir = file(params.output)
-	params.AUXILIARY_FILES = "${params.output}/auxiliary"
 
     chr_add = file(params.chr_add)
     reference = file(params.reference)

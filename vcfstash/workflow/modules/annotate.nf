@@ -28,10 +28,13 @@ process RunAnnotation {
     echo "[`date`]   - Time: ${task.time}" | tee -a vcfstash_annotated.log
     echo "[`date`] ==========================================" | tee -a vcfstash_annotated.log
 
+	mkdir -p auxiliary
+
     # Define key variables locally
     INPUT_BCF="${input_bcf}"
     OUTPUT_BCF="vcfstash_annotated.bcf"
-    AUXILIARY_DIR="auxiliary"
+    AUXILIARY_DIR="\$PWD/auxiliary"
+
 
     # Create the annotation command from params
     CMD="${params.annotation_cmd}"
