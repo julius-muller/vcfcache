@@ -1,9 +1,6 @@
 process Annotate {
     debug true
-    // Add error strategy to retry on failure
-    errorStrategy { task.attempt <= 2 ? 'retry' : 'terminate' }
-    maxRetries 2
-    
+
     // Add resource tracking
     time { params.containsKey('annotation_max_time') ? params.annotation_max_time : '24h' }
     memory { params.containsKey('annotation_memory') ? params.annotation_memory : '16 GB' }
@@ -130,28 +127,7 @@ process Annotate {
         
         # Validate output file was created
         if [ ! -f "vcfstash_annotated.bcf" ]; then
-            echo "\<pad><pad><pad><pad><pad><pad><pad><pad>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"(timestamp) ERROR: Output file vcfstash_annotated.bcf was not created"
+            echo "\$(timestamp) ERROR: Output file vcfstash_annotated.bcf was not created"
             exit 1
         fi
         
