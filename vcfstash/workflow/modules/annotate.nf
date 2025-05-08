@@ -40,26 +40,24 @@ process RunAnnotation {
 
     # Check if required version is specified and valid
     if [ ! -z "${params.required_tool_version}" ]; then
-        # Debug output - print commands before execution
-        echo "[`date`] DEBUG: Preparing to check tool version" | tee -a vcfstash_annotated.log
-        if [ -z "${params.tool_version_regex}" ]; then
-            echo "[`date`] DEBUG: Version command: ${params.bcftools_cmd} ${params.tool_version_command}" | tee -a vcfstash_annotated.log
-            TOOL_VERSION=$(${params.bcftools_cmd} ${params.tool_version_command} 2>&1)
+        # Version check using temporary files to avoid command substitution issues
+        ${params.bcftools_cmd} ${params.tool_version_command} > version_output.txt 2>&1
+
+        if [ ! -z "${params.tool_version_regex}" ]; then
+            cat version_output.txt | ${params.tool_version_regex} > version_number.txt
+            TOOL_VERSION=\$(cat version_number.txt)
         else
-            echo "[`date`] DEBUG: Version command with regex: ${params.bcftools_cmd} ${params.tool_version_command} | ${params.tool_version_regex}" | tee -a vcfstash_annotated.log
-            TOOL_VERSION=$(${params.bcftools_cmd} ${params.tool_version_command} 2>&1 | ${params.tool_version_regex})
+            TOOL_VERSION=\$(cat version_output.txt)
         fi
 
-        echo "[`date`] DEBUG: Tool version detected: \${TOOL_VERSION}" | tee -a vcfstash_annotated.log
-        echo "[`date`] DEBUG: Required version: ${params.required_tool_version}" | tee -a vcfstash_annotated.log
-        echo "[`date`] Annotation tool version: \${TOOL_VERSION}" | tee -a vcfstash_annotated.log
+        echo "[`date`] DEBUG: Tool version detected: \$TOOL_VERSION" | tee -a vcfstash_annotated.log
 
-        # Check if version meets requirement using bash version comparison
-        if [[ "\${TOOL_VERSION}" != "${params.required_tool_version}" ]]; then
-            echo "[`date`] ERROR: Tool version \${TOOL_VERSION} does not match required version ${params.required_tool_version}" | tee -a vcfstash_annotated.log
+        if [ "\$TOOL_VERSION" != "${params.required_tool_version}" ]; then
+            echo "[`date`] ERROR: Tool version \$TOOL_VERSION does not match required version ${params.required_tool_version}" | tee -a vcfstash_annotated.log
             exit 1
         fi
     fi
+
 
 
 
