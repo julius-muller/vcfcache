@@ -96,17 +96,20 @@ class DatabaseAnnotator(VCFDatabase):
         with open(user_config, 'r') as f:
             content = f.read()
 
-        # Simple patterns that just find the dollar sign before our variables
-        patterns = [
-            r'\$(INPUT_BCF|{INPUT_BCF)',  # Match $INPUT_BCF or ${INPUT_BCF
-            r'\$(OUTPUT_BCF|{OUTPUT_BCF)',  # Match $OUTPUT_BCF or ${OUTPUT_BCF
-            r'\$(OUTPUT_DIR|{OUTPUT_DIR)'  # Match $OUTPUT_DIR or ${OUTPUT_DIR
+        # Direct replacements for all possible forms
+        replacements = [
+            ('${INPUT_BCF', '\\${INPUT_BCF'),
+            ('$INPUT_BCF', '\\$INPUT_BCF'),
+            ('${OUTPUT_BCF', '\\${OUTPUT_BCF'),
+            ('$OUTPUT_BCF', '\\$OUTPUT_BCF'),
+            ('${OUTPUT_DIR', '\\${OUTPUT_DIR'),
+            ('$OUTPUT_DIR', '\\$OUTPUT_DIR')
         ]
 
-        # Apply each regex pattern - just add a backslash before each $
+        # Apply each replacement
         modified_content = content
-        for pattern in patterns:
-            modified_content = re.sub(pattern, r'\\\$\1', modified_content)
+        for old, new in replacements:
+            modified_content = modified_content.replace(old, new)
 
         output_cfg = self.output_dir / 'annotation.config'
         with open(output_cfg, 'w') as f:
