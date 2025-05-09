@@ -198,8 +198,7 @@ As a second step, the parameters need to be defined in the params.yaml file. The
 ```yaml
 # Tool paths and commands
 annotation_tool_cmd: "vep"
-tool_version_command: "113.0"
-tool_version_regex: "grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
+tool_version_command: "vep | grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
 ```
 
 The bcftools command and version should be left as is, as default values, as bcftools is included in the package. 

@@ -23,7 +23,6 @@ class NextflowWorkflow:
         'bcftools_cmd_version': str,
         'annotation_tool_cmd': str,
         'tool_version_command': str,
-        'tool_version_regex': str,
         'reference': Path,
         'reference_md5sum': str,
         'chr_add': Path,
@@ -150,7 +149,7 @@ class NextflowWorkflow:
         # 1. Check required parameters
         required_params = [
             'bcftools_cmd', 'bcftools_cmd_version', 'chr_add',
-            'annotation_tool_cmd', 'tool_version_command', 'tool_version_regex'
+            'annotation_tool_cmd', 'tool_version_command'
         ]
 
         missing_params = [param for param in required_params if param not in config_params]

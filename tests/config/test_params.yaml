@@ -1,7 +1,6 @@
 # Tool paths and commands
 annotation_tool_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
-tool_version_command: "--version-only"
-tool_version_regex: ""
+tool_version_command: "${VCFSTASH_ROOT}/tools/bcftools --version-only"
 
 # bcftools
 bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"

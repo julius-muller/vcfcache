@@ -39,15 +39,10 @@ process RunAnnotation {
     CMD="${params.annotation_cmd}"
 
     echo "Checking tool version..."
-    echo "Tool version command: ${params.annotation_tool_cmd} ${params.tool_version_command}"
-    TOOL_VERSION_OUTPUT=\$(${params.annotation_tool_cmd} ${params.tool_version_command})
-    echo "Tool version output: \$TOOL_VERSION_OUTPUT"
-    REGEX_CMD=\$([ ! -z "${params.tool_version_regex}" ] && echo "| ${params.tool_version_regex}" || echo "")
-    echo "Regex command: \$REGEX_CMD"
-	TOOL_VERSION=\$(echo "\$TOOL_VERSION_OUTPUT" \$REGEX_CMD)
-	echo "Tool version regex: \$TOOL_VERSION"
+    echo "Tool version command: ${params.tool_version_command}"
+    TOOL_VERSION=`${params.tool_version_command}`
     if [ -z "\$TOOL_VERSION" ]; then
-        echo "Error: Unable to determine tool version. Output: \$TOOL_VERSION_OUTPUT" >&2
+        echo "Error: Unable to determine tool version. Output: \$TOOL_VERSION" >&2
         exit 1
     fi
     echo "Tool version detected: \$TOOL_VERSION"
