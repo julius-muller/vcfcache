@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-# Get the directory of this script
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 # Default directories
 DEFAULT_REFERENCE_DIR="./reference"
 DEFAULT_DATA_DIR="./data"
@@ -19,6 +16,10 @@ export REFERENCE_DIR
 export DATA_DIR
 export CACHE_DIR
 
-# Run docker-compose with the provided arguments
-cd "$SCRIPT_DIR/.."
-docker-compose -f docker/docker-compose.yml run --rm vcfstash "$@"
+# Run docker with the provided arguments
+docker run --rm \
+  -v ${REFERENCE_DIR}:/reference:ro \
+  -v ${DATA_DIR}:/data \
+  -v ${CACHE_DIR}:/cache \
+  -e REFERENCE_PATH=/reference \
+  vcfstash:latest "$@"

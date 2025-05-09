@@ -5,6 +5,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    image: vcfstash:latest  # This line names your image
     volumes:
       - ${REFERENCE_DIR:-./reference}:/reference:ro
       - ${DATA_DIR:-./data}:/data
@@ -13,7 +14,7 @@ services:
       - REFERENCE_PATH=/reference
     # This container will stop after running the command
     # Use "docker-compose run" to execute specific commands
-    command: --help
+    command: ["--help"]  # Now this is passed as an argument to the entrypoint
 
 volumes:
   cache:

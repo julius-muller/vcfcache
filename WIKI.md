@@ -160,6 +160,7 @@ The most common check is verifying the reference genome's MD5 checksum:
 ```yaml
 optional_checks:
   reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
+
 ```
 
 This ensures that the same reference genome is used for both cache creation and annotation, preventing mismatches in variant coordinates or reference alleles.
@@ -168,10 +169,11 @@ This ensures that the same reference genome is used for both cache creation and 
 
 You can verify that the annotation tool version matches the expected version:
 
-```yaml
+```bash
 # In annotation.config
 required_tool_version = '113.0'
-
+```
+```yaml
 # In params.yaml
 tool_version_command: "vep | grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
 ```
@@ -265,7 +267,7 @@ git clone https://github.com/julius-muller/vcfstash.git
 cd vcfstash
 
 # Build the Docker image
-docker build -f docker/Dockerfile -t vcfstash .
+docker-compose -f docker/docker-compose.yml build
 ```
 
 #### Running VCFstash with Docker
