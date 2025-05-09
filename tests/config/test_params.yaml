@@ -1,17 +1,27 @@
+## * REQUIRED RESOURCES *
+# Do not change the key names in this section, as they are used in the code.
+
+# Mapping of chromosome names between the reference genome and the VCF file
+chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
+# Temporary directory for storing intermediate files
+temp_dir: "/tmp"
 # Tool paths and commands
 annotation_tool_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
+# Leave empty if version check is not required
 tool_version_command: "${VCFSTASH_ROOT}/tools/bcftools --version-only"
-
-# bcftools
+# bcftools * best to leaave the default as this is the tested and shipped version v1.20
 bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
-bcftools_cmd_version: '1.20+htslib-1.21'
-
 # Reference data required for the normalization step
 reference: "${VCFSTASH_ROOT}/tests/data/references/reference.fasta"
-reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
 
-# Required resources
-chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
-temp_dir: "/tmp"
+## * OPTIONAL RESOURCES *
+# Alls keys here can be utilized in the annotation.config file as ${params.MYKEY}
 
-# * OPTIONAL RESOURCES *
+
+## * OPTIONAL CHECKS *
+# Optional checks and verifications. These can be set to any key:value pair, but all keys must match the values in the annotation.config.
+optional_checks:
+  reference_md5sum: "ec59e3976d29e276414191a6283499f7"
+  # Add other optional verifications here
+  # example_version: "1.2.3"
+  # example_option: "value"

@@ -39,18 +39,20 @@ process RunAnnotation {
     # Create the annotation command from params
     CMD="${params.annotation_cmd}"
 
-    echo "Checking tool version..."
-    echo "Tool version command: ${params.tool_version_command}"
-    TOOL_VERSION=`${params.tool_version_command}`
-    if [ -z "\$TOOL_VERSION" ]; then
-        echo "Error: Unable to determine tool version. Output: \$TOOL_VERSION" >&2
-        exit 1
-    fi
-    echo "Tool version detected: \$TOOL_VERSION"
+	if [ ! -z "${params.tool_version_command}" ]; then
+		echo "Checking tool version..."
+		echo "Tool version command: ${params.tool_version_command}"
+		TOOL_VERSION=`${params.tool_version_command}`
+		if [ -z "\$TOOL_VERSION" ]; then
+			echo "Error: Unable to determine tool version. Output: \$TOOL_VERSION" >&2
+			exit 1
+		fi
+		echo "Tool version detected: \$TOOL_VERSION"
 
-	if [[ "\$TOOL_VERSION" != "${params.required_tool_version}"* ]]; then
-		echo "[`date`] ERROR: Tool version mismatch. Found \$TOOL_VERSION but required ${params.required_tool_version}" | tee -a vcfstash_annotated.log
-		exit 1
+		if [[ "\$TOOL_VERSION" != "${params.required_tool_version}"* ]]; then
+			echo "[`date`] ERROR: Tool version mismatch. Found \$TOOL_VERSION but required ${params.required_tool_version}" | tee -a vcfstash_annotated.log
+			exit 1
+		fi
 	fi
 
 

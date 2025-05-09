@@ -1,20 +1,29 @@
+## * REQUIRED RESOURCES *
+# Do not change the key names in this section, as they are used in the code.
+
+# Mapping of chromosome names between the reference genome and the VCF file
+chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
+# Temporary directory for storing intermediate files
+temp_dir: "/tmp"
 # Tool paths and commands
 annotation_tool_cmd: "docker run --user $(id -u):$(id -g) -i -v /mnt/data:/mnt/data --rm ensemblorg/ensembl-vep:release_113.0 vep"
+# Leave empty if version check is not required
 tool_version_command: "docker run --user $(id -u):$(id -g) -i -v /mnt/data:/mnt/data --rm ensemblorg/ensembl-vep:release_113.0 vep | grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
-
-# bcftools
+# bcftools * best to leaave the default as this is the tested and shipped version v1.20
 bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
-bcftools_cmd_version: '1.20+htslib-1.21'
-
 # Reference data required for the normalization step
 reference: "/mnt/data/resources/reference/ucsc/hg19_canonical.fa.gz"
-reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
 
-# Required resources
-chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
-temp_dir: "/tmp"
-
-# * OPTIONAL RESOURCES *
+## * OPTIONAL RESOURCES *
+# Alls keys here can be utilized in the annotation.config file as ${params.MYKEY}
 vep_cache: "/mnt/data/apps/ensembl-vep/113/cachedir"
 vep_buffer: 5000000
 vep_forks: 8
+
+## * OPTIONAL CHECKS *
+# Optional checks and verifications. These can be set to any key:value pair, but all keys must match the values in the annotation.config.
+optional_checks:
+  reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
+  # Add other optional verifications here
+  # example_version: "1.2.3"
+  # example_option: "value"

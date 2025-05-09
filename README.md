@@ -15,6 +15,7 @@ ones. **Save more than 70% of your annotation time** with minimal changes to you
 - **Efficiency**: Automatic variant normalization and deduplication
 - **Portability**: Shareable caches for easy collaboration
 - **Reliability**: Built-in checks for data integrity and consistency
+- **Configurable**: YAML-based configuration for easy customization and environment adaptation
 - **Tested**: Comprehensive test suite to ensure correctness and reliability
 - **Documentation**: Detailed usage instructions and examples
 - **Resource Management**: Optional Nextflow configuration for CPU and memory management
@@ -194,44 +195,63 @@ These variables can be used in either format:
 
 ### Step 2: Create params.yaml
 
-As a second step, the parameters need to be defined in the params.yaml file. The annotation tool command should be defined as the variable `annotation_tool_cmd` and **optionally**, the version command and regex to extract the string matching `required_tool_version` can be defined. 
+As a second step, the parameters need to be defined in the params.yaml file. The YAML file is structured into three main sections:
+
+#### 1. REQUIRED RESOURCES
+
+These are essential parameters that must be defined and are used by the core functionality:
+
 ```yaml
+## * REQUIRED RESOURCES *
+# Do not change the key names in this section, as they are used in the code.
+
 # Tool paths and commands
 annotation_tool_cmd: "vep"
 tool_version_command: "vep | grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
-```
 
-The bcftools command and version should be left as is, as default values, as bcftools is included in the package. 
-```yaml
-# bcftools
+# bcftools - best to leave as default since this is the tested and shipped version v1.20
 bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
-bcftools_cmd_version: '1.20'
-```
 
-For normalization, the reference genome and its md5sum need to be defined as well as the path to the temporary directory. If contig names need to be mapped between input vcf files and cache, a custom chromosome addition file can be provided here.
-```yaml
 # Reference data required for the normalization step
 reference: "/path/to/reference.fasta"
-reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
 
-# Required resources
+# Mapping of chromosome names between the reference genome and the VCF file
 chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
+
+# Temporary directory for storing intermediate files
 temp_dir: "/tmp"
 ```
 
-Finally, the configurable parameters can be listed under the section OPTIONAL RESOURCES:
+#### 2. OPTIONAL RESOURCES
+
+These parameters can be customized for each annotation run and are referenced in your annotation.config file:
+
 ```yaml
-# * OPTIONAL RESOURCES *
-# These parameters can be changed for each annotation run
-# without modifying the annotation.config file
+## * OPTIONAL RESOURCES *
+# All keys here can be utilized in the annotation.config file as ${params.MYKEY}
 vep_buffer: 500000
 vep_forks: 4
 vep_cache: "/path/to/vep_cachedir"
 ```
 
+#### 3. OPTIONAL CHECKS
+
+These parameters provide verification mechanisms to ensure consistency between cache creation and annotation:
+
+```yaml
+## * OPTIONAL CHECKS *
+# Optional checks and verifications. These can be set to any key:value pair, 
+# but all keys must match the values in the annotation.config.
+optional_checks:
+  reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
+  # Add other optional verifications here
+  # example_version: "1.2.3"
+  # example_option: "value"
+```
+
 The final example of the params.yaml can be found here: [test_params.yaml](tests/config/test_params.yaml) and for annotation.config here: [test_annotation.config](tests/config/test_annotation.config).
 
-It is the responsibility of the user that any optional resource listed here impacting annotation results is never changed between cache creation and annotation. 
+> **Important**: It is the responsibility of the user that any optional resource listed here impacting annotation results is never changed between cache creation and annotation. The optional checks section helps enforce this consistency.
 
 ## 📋 Command Reference
 
@@ -389,7 +409,6 @@ The tests are designed to run on any system after installation of the package, w
 
 - `tests/config/test_params.yaml`: Configuration for the test annotation tool (bcftools)
 - `tests/config/test_annotation.config`: Configuration for the test annotation command
-- `tests/config/mock_annotation_header.txt`: Mock header for annotations
 
 The tests create temporary directories for output and clean up after themselves. They use bcftools (included in the package) to simulate annotations, making the tests portable and reliable.
 

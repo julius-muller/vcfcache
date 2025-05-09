@@ -20,13 +20,12 @@ class NextflowWorkflow:
 
     REQUIRED_PARAMS = {  # these are the minimal yaml parameters required to run the workflow
         'bcftools_cmd': Path,
-        'bcftools_cmd_version': str,
         'annotation_tool_cmd': str,
         'tool_version_command': str,
         'reference': Path,
-        'reference_md5sum': str,
         'chr_add': Path,
-        'temp_dir': Path
+        'temp_dir': Path,
+        'optional_checks': dict
     }
 
     """ Base class for Nextflow workflow operations for a single input file """
@@ -91,11 +90,9 @@ class NextflowWorkflow:
         self.work_dir = None
         self._setup_nextflow_skeleton()
 
-
     def validate_params_config(self):
         # Load and validate YAML parameters
         try:
-
             # Check for missing parameters
             missing_params = set(self.REQUIRED_PARAMS.keys()) - set(self.params_file_content.keys())
             if missing_params:
@@ -104,7 +101,11 @@ class NextflowWorkflow:
             # Validate parameter types and paths
             for param, param_type in self.REQUIRED_PARAMS.items():
                 value = self.params_file_content[param]
-                if param_type == Path:
+                if param == 'optional_checks':
+                    # Special handling for optional_checks
+                    if not isinstance(value, dict):
+                        raise TypeError(f"Parameter {param} must be a dictionary/mapping")
+                elif param_type == Path:
                     # Skip validation for paths with environment variables
                     if str(value).startswith('${'):
                         continue
@@ -114,12 +115,67 @@ class NextflowWorkflow:
                 elif not isinstance(value, param_type):
                     raise TypeError(f"Parameter {param} must be of type {param_type.__name__}")
 
+            # Validate optional checks against annotation config if available
+            if hasattr(self, 'nfa_config_content') and self.nfa_config_content:
+                self._validate_optional_checks()
+
             self.logger.debug("YAML parameter validation successful")
 
         except yaml.YAMLError as e:
             raise ValueError(f"Error parsing YAML file: {e}")
         except Exception as e:
             raise ValueError(f"Error validating YAML parameters: {e}")
+
+    def _validate_optional_checks(self):
+        """
+        Validates that all keys in the optional_checks section of the YAML file
+        have matching values in the annotation configuration's optional_checks section.
+        """
+        yaml_optional_checks = self.params_file_content.get('optional_checks', {})
+        if not yaml_optional_checks:
+            return  # No optional checks to validate
+
+        # Check if the annotation config has an optional_checks section
+        config_optional_checks = self.nfa_config_content.get('optional_checks', {})
+
+        # Fall back to params section if optional_checks section doesn't exist (for backward compatibility)
+        if not config_optional_checks:
+            self.logger.debug("No dedicated optional_checks section found, falling back to params section")
+            config_optional_checks = self.nfa_config_content.get('params', {})
+
+        if not config_optional_checks:
+            raise ValueError("No section 'optional_checks' found in annotation config, please do not remove")
+
+        # Check each key-value pair from YAML optional_checks
+        mismatches = []
+        missing_keys = []
+
+        for key, yaml_value in yaml_optional_checks.items():
+            if key not in config_optional_checks:
+                missing_keys.append(key)
+                continue
+
+            config_value = config_optional_checks[key]
+
+            # Convert both to strings for comparison
+            yaml_value_str = str(yaml_value)
+            config_value_str = str(config_value)
+
+            # Perform comparison (case-sensitive)
+            if yaml_value_str != config_value_str:
+                mismatches.append(
+                    f"Value mismatch for '{key}': YAML has '{yaml_value_str}', config has '{config_value_str}'")
+
+        # Report any issues
+        if missing_keys:
+            self.logger.warning(f"Keys in optional_checks not found in config: {', '.join(missing_keys)}")
+
+        if mismatches:
+            error_msg = "Optional checks validation failed:\n" + "\n".join(mismatches)
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        self.logger.debug(f"Successfully validated {len(yaml_optional_checks)} optional checks")
 
     def validate_env_config(self):
         """
@@ -148,7 +204,7 @@ class NextflowWorkflow:
 
         # 1. Check required parameters
         required_params = [
-            'bcftools_cmd', 'bcftools_cmd_version', 'chr_add',
+            'bcftools_cmd', 'chr_add',
             'annotation_tool_cmd', 'tool_version_command'
         ]
 
@@ -203,7 +259,6 @@ class NextflowWorkflow:
 
         # 1. Check required MD5 parameters
         required_params = [
-            'reference_md5sum',
             'must_contain_info_tag',
             'annotation_cmd',
             'required_tool_version'
