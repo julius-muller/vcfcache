@@ -15,7 +15,6 @@ from multiprocessing import Pool
 from pathlib import Path
 from typing import Optional, Union
 
-import pandas as pd
 import pysam
 import yaml
 

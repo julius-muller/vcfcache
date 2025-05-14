@@ -24,6 +24,8 @@ parquet = [
     "pyarrow>=18.0.0"
 ]
 dev = [
+    "pandas>=2.2.0",
+    "pyarrow>=18.0.0",
     "pytest>=8.3.0", # python -m pytest -xvs
     "ruff>=0.11.9", # ruff check --fix vcfstash
     "black>=25.1.0", # black vcfstash
