@@ -26,6 +26,21 @@ ones. **Save more than 70% of your annotation time** with minimal changes to you
 
 ## 🛠️ Quick Setup
 
+### Prerequisites
+
+VCFstash requires:
+- Python 3.11 or higher
+- Java Runtime Environment (JRE) 17 or higher for Nextflow execution
+- [uv](https://github.com/astral-sh/uv) for package management
+
+On Ubuntu/Debian systems, you can install Java using:
+```bash
+sudo apt-get update
+sudo apt-get install openjdk-17-jre-headless
+```
+For other operating systems, please install Java from [OpenJDK](https://openjdk.org/) or your preferred distribution.
+
+### Installation
 VCFstash uses [uv](https://github.com/astral-sh/uv) for fast, reliable package management and flit as the build backend.
 
 ```bash
