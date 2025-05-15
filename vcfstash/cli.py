@@ -195,11 +195,25 @@ def main() -> None:
     log_command(logger)
 
     # Check bcftools if params file is provided (required for stash-init)
-    # For other commands, we'll use params from the database
+    # For other commands, we'll use params from the database or fall back to init.yaml
+    logger.info(f"Expected bcftools version: {EXPECTED_BCFTOOLS_VERSION}")
     if args.params:
         logger.info(f"Checking bcftools installation using params file: {args.params}")
-        logger.info(f"Expected bcftools version: {EXPECTED_BCFTOOLS_VERSION}")
-        check_bcftools_installed(Path(args.params))
+        bcftools_path = check_bcftools_installed(Path(args.params))
+    elif args.command in ["stash-add", "stash-annotate", "annotate"]:
+        # For these commands, try to get bcftools path from the workflow directory
+        workflow_dir = None
+        if args.command == "stash-add" or args.command == "stash-annotate":
+            workflow_dir = Path(args.db) / "workflow"
+        elif args.command == "annotate":
+            workflow_dir = Path(args.a).parent.parent / "workflow"
+
+        if workflow_dir and workflow_dir.exists():
+            logger.info(f"Checking bcftools installation using init.yaml from: {workflow_dir}")
+            bcftools_path = check_bcftools_installed(workflow_dir=workflow_dir)
+        else:
+            logger.warning(f"Workflow directory not found: {workflow_dir}")
+            bcftools_path = check_bcftools_installed()
 
     try:
         if args.command == "stash-init":
@@ -213,6 +227,7 @@ def main() -> None:
                 verbosity=args.verbose,
                 force=args.force,
                 debug=args.debug,
+                bcftools_path=bcftools_path,
             )
             initializer.initialize()
 
@@ -225,6 +240,7 @@ def main() -> None:
                 params_file=Path(args.params) if args.params else None,
                 verbosity=args.verbose,
                 debug=args.debug,
+                bcftools_path=bcftools_path,
             )
             updater.add()
 
@@ -240,6 +256,7 @@ def main() -> None:
                 verbosity=args.verbose,
                 force=args.force,
                 debug=args.debug,
+                bcftools_path=bcftools_path,
             )
             annotator.annotate()
 
@@ -255,6 +272,7 @@ def main() -> None:
                 verbosity=args.verbose,
                 force=args.force,
                 debug=args.debug,
+                bcftools_path=bcftools_path,
             )
 
             vcf_annotator.annotate(uncached=args.uncached, convert_parquet=args.parquet)

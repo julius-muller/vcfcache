@@ -35,6 +35,7 @@ class DatabaseInitializer(VCFDatabase):
         self,
         input_file: Path | str,
         params_file: Path | str,
+        bcftools_path: Path,
         config_file: Optional[Path | str] = None,
         output_dir: Path | str = Path("."),
         verbosity: int = 0,

@@ -22,11 +22,19 @@ def check_duplicate_md5(db_info: dict, new_md5: str) -> bool:
         return False
 
 
-def get_bcf_stats(bcf_path: Path) -> Dict[str, str]:
-    """Get statistics from BCF file using bcftools stats."""
+def get_bcf_stats(bcf_path: Path, bcftools_path: Path = None) -> Dict[str, str]:
+    """Get statistics from BCF file using bcftools stats.
+
+    Args:
+        bcf_path: Path to the BCF file
+        bcftools_path: Path to the bcftools binary (required)
+    """
+    if bcftools_path is None:
+        raise ValueError("bcftools_path must be provided. A specific bcftools path is required.")
+
     try:
         result = subprocess.run(
-            ["bcftools", "stats", bcf_path], capture_output=True, text=True, check=True
+            [str(bcftools_path), "stats", bcf_path], capture_output=True, text=True, check=True
         )
         stats = {}
         for line in result.stdout.splitlines():
@@ -42,15 +50,24 @@ def get_bcf_stats(bcf_path: Path) -> Dict[str, str]:
 
 
 def validate_bcf_header(
-    bcf_path: Path, norm: bool = True
+    bcf_path: Path, norm: bool = True, bcftools_path: Path = None
 ) -> Tuple[bool, Optional[str]]:
     """Validate BCF header for required normalization command and contig format.
 
-    Returns tuple (is_valid, error_message).
+    Args:
+        bcf_path: Path to the BCF file
+        norm: Whether to check for normalization command
+        bcftools_path: Path to the bcftools binary (required)
+
+    Returns:
+        tuple: (is_valid, error_message)
     """
+    if bcftools_path is None:
+        raise ValueError("bcftools_path must be provided. A specific bcftools path is required.")
+
     try:
         header = subprocess.run(
-            ["bcftools", "view", "-h", bcf_path],
+            [str(bcftools_path), "view", "-h", bcf_path],
             check=True,
             capture_output=True,
             text=True,
@@ -99,42 +116,60 @@ def validate_bcf_header(
         return False, f"Error reading BCF header: {e}"
 
 
-def check_bcftools_installed(params_file: Path) -> None:
+def check_bcftools_installed(params_file: Path = None, workflow_dir: Path = None) -> Path:
     """Check if bcftools is installed, validate version, and log information.
 
     This function verifies that bcftools is available on the system and validates
     that it's the expected version (EXPECTED_BCFTOOLS_VERSION). The function will:
 
     1. Check if the 'bcftools_cmd' parameter is specified in the YAML config
+       - First tries the provided params_file
+       - If not provided or not found, falls back to workflow_dir/init.yaml
     2. Verify that the binary exists and is executable
     3. Check the version against the expected version string
     4. Raise appropriate warnings or errors based on validation results
     5. Log information about the binary location and version if checks pass
 
     Args:
-        params_file: Path to the required params YAML file.
+        params_file: Path to the params YAML file (optional)
+        workflow_dir: Path to the workflow directory (optional)
+                     Used to find init.yaml if params_file is not provided
 
     Raises:
-        FileNotFoundError: If bcftools binary or params file is not found
+        FileNotFoundError: If bcftools binary is not found
         ValueError: If version check fails
         RuntimeError: If bcftools execution fails
     """
     logger = logging.getLogger("vcfstash")
 
-
     # Initialize bcftools_cmd as None
     bcftools_cmd = None
+    params = None
+    params_path = None
 
     try:
-        # Params file is required
-        params_path = Path(params_file).expanduser().resolve()
-        if not params_path.exists():
-            logger.error(f"Params file not found: {params_path}")
-            raise FileNotFoundError(f"Params file not found: {params_path}")
+        # Try to load params from the provided params_file
+        if params_file:
+            params_path = Path(params_file).expanduser().resolve()
+            if params_path.exists():
+                logger.debug(f"Loading bcftools path from params file: {params_path}")
+                with open(params_path, 'r') as f:
+                    params = yaml.safe_load(f)
+            else:
+                logger.warning(f"Params file not found: {params_path}")
 
-        # Parse YAML to get bcftools_cmd
-        with open(params_path, 'r') as f:
-            params = yaml.safe_load(f)
+        # If params is still None and workflow_dir is provided, try to load from init.yaml
+        if params is None and workflow_dir:
+            init_yaml_path = Path(workflow_dir) / "init.yaml"
+            if init_yaml_path.exists():
+                logger.debug(f"Loading bcftools path from init.yaml: {init_yaml_path}")
+                with open(init_yaml_path, 'r') as f:
+                    params = yaml.safe_load(f)
+            else:
+                logger.warning(f"init.yaml not found in workflow directory: {workflow_dir}")
+
+        # If we have params, extract bcftools_cmd
+        if params:
             bcftools_cmd_raw = params.get('bcftools_cmd')
 
             if bcftools_cmd_raw:
@@ -142,14 +177,19 @@ def check_bcftools_installed(params_file: Path) -> None:
                 if "${VCFSTASH_ROOT}" in bcftools_cmd_raw:
                     vcfstash_root = os.environ.get("VCFSTASH_ROOT")
                     if not vcfstash_root:
-                        logger.warning("VCFSTASH_ROOT environment variable not set, using default bcftools")
+                        logger.error("VCFSTASH_ROOT environment variable not set. This is required for bcftools path resolution.")
+                        raise ValueError("VCFSTASH_ROOT environment variable not set. This is required for bcftools path resolution.")
                     else:
                         bcftools_cmd = bcftools_cmd_raw.replace("${VCFSTASH_ROOT}", vcfstash_root)
                 else:
                     bcftools_cmd = bcftools_cmd_raw
             else:
-                logger.warning("bcftools_cmd not specified in params file, falling back to system bcftools")
-                bcftools_cmd = "bcftools"
+                logger.error("bcftools_cmd not specified in params file. A specific bcftools path must be provided in the YAML.")
+                raise ValueError("bcftools_cmd not specified in params file. A specific bcftools path must be provided in the YAML.")
+        else:
+            # If no params could be loaded, raise an error
+            logger.error("No params file available. A YAML file with bcftools_cmd must be provided.")
+            raise ValueError("No params file available. A YAML file with bcftools_cmd must be provided.")
 
         # Check if binary exists
         if "/" in bcftools_cmd:
@@ -209,9 +249,12 @@ def check_bcftools_installed(params_file: Path) -> None:
             logger.error("Failed to check bcftools version. The binary might be corrupted or incompatible.")
             raise ValueError("Failed to check bcftools version. The binary might be corrupted or incompatible.")
 
+        return Path(bcftools_cmd)
+
     except Exception as e:
         logger.error(f"Error checking bcftools installation: {str(e)}")
         raise RuntimeError(f"Error checking bcftools installation: {str(e)}")
+
 
 
 def compute_md5(file_path: Path) -> str:

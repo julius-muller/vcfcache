@@ -60,6 +60,7 @@ class DatabaseAnnotator(VCFDatabase):
         annotation_name: str,
         db_path: Path | str,
         anno_config_file: Path | str,
+        bcftools_path: Path,
         params_file: Optional[Path | str] = None,
         config_file: Optional[Path | str] = None,
         verbosity: int = 0,
@@ -369,6 +370,7 @@ class VCFAnnotator(VCFDatabase):
         input_vcf: Path | str,
         annotation_db: Path | str,
         output_dir: Path | str,
+        bcftools_path: Path,
         config_file: Optional[Path | str] = None,
         params_file: Optional[Path | str] = None,
         verbosity: int = 0,
@@ -401,7 +403,7 @@ class VCFAnnotator(VCFDatabase):
         self.annotation_db_path = self.stashed_annotations.annotation_dir
         self.annotation_name = self.stashed_annotations.name
         super().__init__(
-            self.stashed_annotations.stash_output.root_dir, verbosity, debug
+            self.stashed_annotations.stash_output.root_dir, verbosity, debug, bcftools_path
         )
 
         self.output_annotations = AnnotatedUserOutput(str(output_dir))

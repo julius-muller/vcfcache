@@ -782,7 +782,7 @@ class VCFDatabase:
     ]
     """Base class for VCF database operations"""
 
-    def __init__(self, db_path: Path, verbosity: int, debug: bool):
+    def __init__(self, db_path: Path, verbosity: int, debug: bool, bcftools_path: Path):
         self.debug = debug
         self.stashed_output = StashOutput(str(db_path))
         self.stash_path = self.stashed_output.root_dir
@@ -792,9 +792,9 @@ class VCFDatabase:
         self.stash_dir = self.stash_path / "stash"
         self.workflow_dir_src = self.stashed_output.workflow_src_dir
         self.blueprint_bcf = self.blueprint_dir / "vcfstash.bcf"
-
         self.info_file = self.blueprint_dir / "sources.info"
         self.verbosity = verbosity if not debug else 2
+        self.bcftools_path = bcftools_path
 
         if self.info_file.exists():
             with open(self.info_file) as f:
@@ -837,7 +837,7 @@ class VCFDatabase:
         """Validate BCF header format"""
         if self.logger:
             self.logger.debug(f"Validating BCF header: {bcf_path}")
-        result = validate_bcf_header(bcf_path, norm)
+        result = validate_bcf_header(bcf_path, norm, bcftools_path=self.bcftools_path)
         if not result[0] and self.logger:
             self.logger.error(f"BCF header validation failed: {result[1]}")
         return result
@@ -939,14 +939,14 @@ class VCFDatabase:
                     f"Found {len(ref_contigs)} contigs in reference index"
                 )
 
-            # Get VCF/BCF contigs from index instead of header
-            # This is important as the actual data may contain chromosomes not declared in the header
+            # Use bcftools to extract chromosomes from the index
             vcf_contigs = set()
             vcf_index_file = vcf_index_csi if vcf_index_csi.exists() else vcf_index_tbi
 
             # Use bcftools to extract chromosomes from the index
-            cmd = ["bcftools", "index", "--stats", str(vcf_index_file)]
+            cmd = [self.bcftools_path, "index", "--stats", str(vcf_index_file)]
             result = subprocess.run(cmd, capture_output=True, text=True)
+
 
             # Parse chromosomes from output
             for line in result.stdout.splitlines():

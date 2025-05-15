@@ -36,6 +36,7 @@ class DatabaseUpdater(VCFDatabase):
         self,
         db_path: Path | str,
         input_file: Path | str,
+        bcftools_path: Path,
         config_file: Optional[Path] | Optional[str] = None,
         params_file: Optional[Path] | Optional[str] = None,
         verbosity: int = 0,
@@ -214,7 +215,7 @@ class DatabaseUpdater(VCFDatabase):
 
         try:
             # Get statistics before merge
-            pre_stats = get_bcf_stats(self.blueprint_bcf)
+            pre_stats = get_bcf_stats(self.blueprint_bcf, bcftools_path=self.bcftools_path)
 
             # Run the workflow in database mode
             start_time = datetime.now()
@@ -228,7 +229,7 @@ class DatabaseUpdater(VCFDatabase):
             duration = datetime.now() - start_time
 
             # Get statistics after merge
-            post_stats = get_bcf_stats(self.blueprint_bcf)
+            post_stats = get_bcf_stats(self.blueprint_bcf, bcftools_path=self.bcftools_path)
 
             # Calculate differences
             diff_stats = {}
