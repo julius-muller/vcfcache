@@ -52,7 +52,7 @@ def test_vcf_reference_validation():
     ref_file = TEST_ROOT / "data/references/reference.fasta"
 
     # Create a VCFDatabase instance
-    db = VCFDatabase(Path(TEST_ROOT), 2, True)
+    db = VCFDatabase(Path(TEST_ROOT), 2, True, TEST_ROOT / "tools" / "bcftools")
     db.logger = logging.getLogger("test")
 
     # Test validation with valid files
