@@ -1,3 +1,4 @@
+
 """VCF Annotation Cache.
 
 This script manages a database of genetic variants in BCF/VCF format,
@@ -21,6 +22,7 @@ import sys
 from importlib.metadata import version as pkg_version
 from pathlib import Path
 
+from vcfstash import EXPECTED_BCFTOOLS_VERSION
 from vcfstash.database.annotator import DatabaseAnnotator, VCFAnnotator
 from vcfstash.database.initializer import DatabaseInitializer
 from vcfstash.database.updater import DatabaseUpdater
@@ -38,7 +40,6 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "-v",
         "--version",
         action="version",
         version=pkg_version("vcfstash"),
@@ -101,13 +102,9 @@ def main() -> None:
         help="Force overwrite of existing database directory",
         default=False,
     )
-    init_parser.add_argument(
-        "-y",
-        "--yaml",
-        dest="params",
-        required=True,
-        help="Path to a nextflow yaml containing environment variables related to paths and resources",
-    )
+    # Override the -y/--yaml from parent_parser to make it required for stash-init
+    init_parser._option_string_actions['-y'].required = True
+    init_parser._option_string_actions['--yaml'].required = True
 
     # add command
     add_parser = subparsers.add_parser(
@@ -198,6 +195,8 @@ def main() -> None:
     # Check bcftools if params file is provided (required for stash-init)
     # For other commands, we'll use params from the database
     if args.params:
+        logger.info(f"Checking bcftools installation using params file: {args.params}")
+        logger.info(f"Expected bcftools version: {EXPECTED_BCFTOOLS_VERSION}")
         check_bcftools_installed(Path(args.params))
 
     try:
