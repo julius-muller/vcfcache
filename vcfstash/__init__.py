@@ -5,3 +5,6 @@ a cache of frequently shared variants across human WGS samples. It manages a var
 cache database and runs VCF annotations only on novel variants not present in the cache,
 significantly reducing annotation time.
 """
+
+# Package-wide constants
+EXPECTED_BCFTOOLS_VERSION = "1.20+htslib-1.21"

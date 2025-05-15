@@ -101,6 +101,13 @@ def main() -> None:
         help="Force overwrite of existing database directory",
         default=False,
     )
+    init_parser.add_argument(
+        "-y",
+        "--yaml",
+        dest="params",
+        required=True,
+        help="Path to a nextflow yaml containing environment variables related to paths and resources",
+    )
 
     # add command
     add_parser = subparsers.add_parser(
@@ -182,15 +189,18 @@ def main() -> None:
         default=False,
     )
 
+
     args = parser.parse_args(args=None if sys.argv[1:] else ["--help"])
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)
     log_command(logger)
 
-    check_bcftools_installed()
+    # Check bcftools if params file is provided (required for stash-init)
+    # For other commands, we'll use params from the database
+    if args.params:
+        check_bcftools_installed(Path(args.params))
 
     try:
-
         if args.command == "stash-init":
             logger.info(f"Initializing database: {Path(args.output).parent}")
 

@@ -4,15 +4,15 @@ This module provides functions for validating VCF/BCF files, checking dependenci
 computing MD5 checksums, and other validation-related tasks.
 """
 
+import pysam
+import logging
 import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, Optional, Tuple
-
-import pysam
 import yaml
-
+from vcfstash import EXPECTED_BCFTOOLS_VERSION
 
 def check_duplicate_md5(db_info: dict, new_md5: str) -> bool:
     """Check if a file with the same MD5 was already added."""
@@ -99,57 +99,119 @@ def validate_bcf_header(
         return False, f"Error reading BCF header: {e}"
 
 
-def check_bcftools_installed() -> None:
-    """Check if bcftools is installed and available in the PATH.
+def check_bcftools_installed(params_file: Path) -> None:
+    """Check if bcftools is installed, validate version, and log information.
 
-    Exits the program with an error message if bcftools is not found.
-    """
-    try:
-        subprocess.run(["bcftools", "--version"], check=True, capture_output=True)
-    except FileNotFoundError:
-        sys.exit("Error: bcftools is not installed or not in PATH.")
+    This function verifies that bcftools is available on the system and validates
+    that it's the expected version (EXPECTED_BCFTOOLS_VERSION). The function will:
 
-
-def check_vep_installed(yaml_path: Path) -> Tuple[bool, Optional[str]]:
-    """Check if VEP is installed and properly configured.
+    1. Check if the 'bcftools_cmd' parameter is specified in the YAML config
+    2. Verify that the binary exists and is executable
+    3. Check the version against the expected version string
+    4. Raise appropriate warnings or errors based on validation results
+    5. Log information about the binary location and version if checks pass
 
     Args:
-        yaml_path: Path to the YAML file containing VEP configuration
+        params_file: Path to the required params YAML file.
 
-    Returns:
-        Tuple of (is_installed, error_message)
+    Raises:
+        FileNotFoundError: If bcftools binary or params file is not found
+        ValueError: If version check fails
+        RuntimeError: If bcftools execution fails
     """
+    logger = logging.getLogger("vcfstash")
+
+
+    # Initialize bcftools_cmd as None
+    bcftools_cmd = None
+
     try:
-        # First check if Docker is installed
-        docker_result = subprocess.run(
-            ["docker", "--version"], capture_output=True, text=True
-        )
-        if docker_result.returncode != 0:
-            return False, "Docker is not installed or not in PATH."
+        # Params file is required
+        params_path = Path(params_file).expanduser().resolve()
+        if not params_path.exists():
+            logger.error(f"Params file not found: {params_path}")
+            raise FileNotFoundError(f"Params file not found: {params_path}")
 
-        # Load the YAML file to get the VEP configuration
-        with open(yaml_path, "r") as f:
-            config = yaml.safe_load(f)
+        # Parse YAML to get bcftools_cmd
+        with open(params_path, 'r') as f:
+            params = yaml.safe_load(f)
+            bcftools_cmd_raw = params.get('bcftools_cmd')
 
-        # Check if annotation_tool_cmd is defined
-        if "annotation_tool_cmd" not in config:
-            return False, "annotation_tool_cmd not defined in YAML file."
+            if bcftools_cmd_raw:
+                # Handle environment variable expansion
+                if "${VCFSTASH_ROOT}" in bcftools_cmd_raw:
+                    vcfstash_root = os.environ.get("VCFSTASH_ROOT")
+                    if not vcfstash_root:
+                        logger.warning("VCFSTASH_ROOT environment variable not set, using default bcftools")
+                    else:
+                        bcftools_cmd = bcftools_cmd_raw.replace("${VCFSTASH_ROOT}", vcfstash_root)
+                else:
+                    bcftools_cmd = bcftools_cmd_raw
+            else:
+                logger.warning("bcftools_cmd not specified in params file, falling back to system bcftools")
+                bcftools_cmd = "bcftools"
 
-        # Check if the command contains 'vep'
-        if "vep" not in config["annotation_tool_cmd"]:
-            return False, "VEP not found in annotation_tool_cmd."
+        # Check if binary exists
+        if "/" in bcftools_cmd:
+            # It's a path, check if it exists directly
+            bcftools_path = Path(bcftools_cmd)
+            if not bcftools_path.exists():
+                logger.error(f"bcftools binary not found at specified path: {bcftools_cmd}")
+                raise FileNotFoundError(f"bcftools binary not found: {bcftools_cmd}")
+        else:
+            # Try to check with 'which' command
+            try:
+                bcftools_path = subprocess.run(
+                    ["which", bcftools_cmd],
+                    check=True,
+                    capture_output=True,
+                    text=True
+                ).stdout.strip()
+                if not bcftools_path:
+                    logger.error(f"bcftools binary not found in PATH: {bcftools_cmd}")
+                    raise FileNotFoundError(f"bcftools binary not found in PATH: {bcftools_cmd}")
+            except subprocess.CalledProcessError:
+                logger.error(f"bcftools binary not found in PATH: {bcftools_cmd}")
+                raise FileNotFoundError(f"bcftools binary not found in PATH: {bcftools_cmd}")
 
-        # Check if vep_cache is defined and exists
-        if "vep_cache" in config:
-            vep_cache = config["vep_cache"]
-            # Replace environment variables in the path
-            vep_cache = os.path.expandvars(vep_cache)
-            if not os.path.exists(vep_cache):
-                return False, f"VEP cache directory not found: {vep_cache}"
+        # Check version
+        try:
+            version_output = subprocess.run(
+                [bcftools_cmd, "--version-only"],
+                check=True,
+                capture_output=True,
+                text=True
+            ).stdout.strip()
 
-        return True, None
+            # Verify version matches expected version
+            if version_output != EXPECTED_BCFTOOLS_VERSION:
+                logger.warning(
+                    f"Warning: You are using bcftools version {version_output}, "
+                    f"but the recommended version is {EXPECTED_BCFTOOLS_VERSION}. "
+                    "Using a different version is risky and is the responsibility of the user."
+                )
+
+            # Get full path for logging
+            if not "/" in bcftools_cmd:
+                bcftools_full_path = subprocess.run(
+                    ["which", bcftools_cmd],
+                    check=True,
+                    capture_output=True,
+                    text=True
+                ).stdout.strip()
+            else:
+                bcftools_full_path = bcftools_cmd
+
+            # Success - log the version and location
+            logger.info(f"Using bcftools version {version_output} located at {bcftools_full_path}")
+
+        except subprocess.CalledProcessError:
+            logger.error("Failed to check bcftools version. The binary might be corrupted or incompatible.")
+            raise ValueError("Failed to check bcftools version. The binary might be corrupted or incompatible.")
+
     except Exception as e:
-        return False, f"Error checking VEP installation: {e}"
+        logger.error(f"Error checking bcftools installation: {str(e)}")
+        raise RuntimeError(f"Error checking bcftools installation: {str(e)}")
 
 
 def compute_md5(file_path: Path) -> str:
