@@ -38,7 +38,7 @@ Here's a basic workflow for setting up a gnomAD-based cache:
    ```bash
    vcfstash stash-annotate \
      --name gnomad_ex \
-     -a annotation.config \
+     -a example_annotation.config \
      --db /path/to/cache_dir
    ```
 
@@ -53,7 +53,7 @@ Here's a basic workflow for setting up a gnomAD-based cache:
    ```bash
    vcfstash stash-annotate \
      --name gnomad_genex \
-     -a annotation.config \
+     -a example_annotation.config \
      --db /path/to/cache_dir
    ```
 
@@ -68,7 +68,7 @@ Here's a basic workflow for setting up a gnomAD-based cache:
    ```bash
    vcfstash stash-annotate \
      --name gnomad_genex_dbsnp \
-     -a annotation.config \
+     -a example_annotation.config \
      --db /path/to/cache_dir
    ```
 
@@ -119,7 +119,7 @@ vcfstash stash-init -v \
 # Step 2: First Annotation
 vcfstash stash-annotate -v \
   --name gnomad_ex_${AF} \
-  -a annotation.config \
+  -a example_annotation.config \
   --db ${STASH_DIR}
 
 # Step 3: Add gnomAD genomes data
@@ -130,7 +130,7 @@ vcfstash stash-add -v \
 # Step 4: Second Annotation
 vcfstash stash-annotate -v \
   --name gnomad_genex_${AF} \
-  -a annotation.config \
+  -a example_annotation.config \
   --db ${STASH_DIR}
 
 # Step 5: Add dbSNP data
@@ -141,7 +141,7 @@ vcfstash stash-add -v \
 # Step 6: Final Annotation
 vcfstash stash-annotate -v \
   --name gnomad_complete_${AF} \
-  -a annotation.config \
+  -a example_annotation.config \
   --db ${STASH_DIR}
 
 echo "Cache setup complete: ${STASH_DIR}"
@@ -170,7 +170,7 @@ This ensures that the same reference genome is used for both cache creation and 
 You can verify that the annotation tool version matches the expected version:
 
 ```bash
-# In annotation.config
+# In example_annotation.config
 required_tool_version = '113.0'
 ```
 ```yaml
@@ -375,8 +375,8 @@ cp /path/to/params.yaml data/
 #### Example 2: Annotate with Docker
 
 ```bash
-# Create annotation.config
-cat > data/annotation.config << 'EOF'
+# Create example_annotation.config
+cat > data/example_annotation.config << 'EOF'
 params {
     annotation_cmd = """
         ${params.annotation_tool_cmd} \
@@ -398,7 +398,7 @@ EOF
 # Run stash-annotate
 ./docker/run-vcfstash.sh stash-annotate \
   --name vep_gnomad \
-  -a /data/annotation.config \
+  -a /data/example_annotation.config \
   --db /cache
 ```
 

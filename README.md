@@ -31,13 +31,15 @@ ones. **Save more than 70% of your annotation time** with minimal changes to you
 VCFstash requires:
 - Python 3.11 or higher
 - Java Runtime Environment (JRE) 17 or higher for Nextflow execution
+- tabix for VCF/BCF handling
 - [uv](https://github.com/astral-sh/uv) for package management
 
-On Ubuntu/Debian systems, you can install Java using:
+On Ubuntu/Debian systems, you can install the required dependencies using:
 ```bash
 sudo apt-get update
-sudo apt-get install openjdk-17-jre-headless
+sudo apt-get install openjdk-17-jre-headless tabix
 ```
+
 For other operating systems, please install Java from [OpenJDK](https://openjdk.org/) or your preferred distribution.
 
 ### Installation
@@ -109,7 +111,7 @@ For more detailed Docker instructions, see the [Using Docker](#using-docker) sec
 
 2. **Run your annotation tool once** on the blueprint and freeze it
    ```bash
-   vcfstash stash-annotate -d /my/destination/dir -n vep_gnomad -a annotation.config -y params.yaml
+   vcfstash stash-annotate -d /my/destination/dir -n vep_gnomad -a example_annotation.config -y params.yaml
    ```
 
 3. **Annotate your samples** using the cache
@@ -271,7 +273,7 @@ These parameters can be customized for each annotation run and are referenced in
 
 ```yaml
 ## * OPTIONAL RESOURCES *
-# All keys here can be utilized in the annotation.config file as ${params.MYKEY}
+# All keys here can be utilized in the example_annotation.config file as ${params.MYKEY}
 vep_buffer: 500000
 vep_forks: 4
 vep_cache: "/path/to/vep_cachedir"
@@ -284,7 +286,7 @@ These parameters provide verification mechanisms to ensure consistency between c
 ```yaml
 ## * OPTIONAL CHECKS *
 # Optional checks and verifications. These can be set to any key:value pair, 
-# but all keys must match the values in the annotation.config.
+# but all keys must match the values in the example_annotation.config.
 optional_checks:
   reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
   # Add other optional verifications here

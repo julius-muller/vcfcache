@@ -1,21 +1,24 @@
-version: '3.8'
+version: '3'
 
 services:
   vcfstash:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    image: vcfstash:latest  # This line names your image
+      context: .
+      dockerfile: Dockerfile
+    image: vcfstash:latest
     volumes:
-      - ${REFERENCE_DIR:-./reference}:/reference:ro
-      - ${DATA_DIR:-./data}:/data
+      - ${DATA_DIR:-./}:/data
       - ${CACHE_DIR:-./cache}:/cache
+      - ${REFERENCE_DIR:-./references}:/references:ro
+    working_dir: /data
     environment:
-      - REFERENCE_PATH=/reference
-    # This container will stop after running the command
-    # Use "docker-compose run" to execute specific commands
-    command: ["--help"]  # Now this is passed as an argument to the entrypoint
+      - VCFSTASH_ROOT=/app
+    command: --help
 
-volumes:
-  cache:
-    driver: local
+  # Service for running tests
+  test:
+    image: vcfstash:latest
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: test

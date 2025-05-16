@@ -311,7 +311,7 @@ class NextflowWorkflow:
         self.logger.info("Main configuration validation completed successfully.")
 
     def validate_annotation_config(self):
-        """Validates the annotation configuration (annotation.config) loaded into self.anno_config_content.
+        """Validates the annotation configuration (example_annotation.config) loaded into self.anno_config_content.
 
         Checks for required parameters, annotation options, and proper configuration structure.
 

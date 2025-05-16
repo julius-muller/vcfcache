@@ -69,7 +69,7 @@ class DatabaseAnnotator(VCFDatabase):
     ):
         """Initialize database annotator.
 
-        self = DatabaseAnnotator(annotation_name="testor", anno_config_file=Path('~/projects/vcfstash/tests/config/annotation.config'),
+        self = DatabaseAnnotator(annotation_name="testor", anno_config_file=Path('~/projects/vcfstash/tests/config/example_annotation.config'),
          db_path=Path('~/tmp/vcfstash/test_stash'),force=True)
 
         Args:
@@ -140,7 +140,7 @@ class DatabaseAnnotator(VCFDatabase):
             self.logger.debug(f"Config file: {self.config_file}")
 
     def _preprocess_annotation_config(self, user_config: Path) -> Path:
-        """Preprocess annotation.config to fix variable substitution issues.
+        """Preprocess example_annotation.config to fix variable substitution issues.
         Replaces problematic variable references with their escaped versions.
         This only has to be done once, as the config is copied to the output directory and used for all subsequent vcfstash annotate runs
 
@@ -168,7 +168,7 @@ class DatabaseAnnotator(VCFDatabase):
         for old, new in replacements:
             modified_content = modified_content.replace(old, new)
 
-        output_cfg = self.output_dir / "annotation.config"
+        output_cfg = self.output_dir / "example_annotation.config"
         with open(output_cfg, "w") as f:
             f.write(modified_content)
 
@@ -422,7 +422,7 @@ class VCFAnnotator(VCFDatabase):
         self.output_vcf = Path(self.output_dir / f"{self.vcf_name}_vst{fext}")
 
         # now also import the mandatory annotation file, that cannot be provided by the user at this stage
-        self.anno_config_file = self.annotation_db_path / "annotation.config"
+        self.anno_config_file = self.annotation_db_path / "example_annotation.config"
         if not self.anno_config_file.exists():
             raise FileNotFoundError(
                 f"Annotation config file not found: {self.anno_config_file}"

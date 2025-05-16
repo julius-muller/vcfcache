@@ -1,41 +1,50 @@
-FROM ubuntu:24.04
+# Build stage
+FROM python:3.13-slim AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    python3 python3-pip openjdk-17-jre-headless procps curl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Create Python symlink
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
-# Install uv package manager and add it to PATH
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# Install build dependencies and uv
+RUN apt update && apt install -y curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:${PATH}"
 
-# Set working directory
-WORKDIR /app
+# Only copy what's needed for building
+WORKDIR /build
+COPY pyproject.toml README.md ./
+COPY vcfstash ./vcfstash/
 
-# Copy application files
-COPY . /app
+# Build the package (not in development mode)
+RUN uv venv /build/venv && \
+    . /build/venv/bin/activate && \
+    uv pip install --no-cache-dir hatchling && \
+    uv pip install --no-cache-dir . && \
+    rm -rf ~/.cache
+
+# Runtime stage
+FROM python:3.13-slim
+
+# Only install absolutely required runtime dependencies
+RUN apt update && apt install -y \
+    openjdk-17-jre-headless --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy only the built package without development files
+WORKDIR /app
+COPY --from=builder /build/venv /app/venv
+COPY tools /app/tools
+COPY resources /app/resources
 
 # Make bcftools executable
 RUN chmod +x /app/tools/bcftools
 
-# Create venv and install dependencies
-RUN /root/.local/bin/uv venv /app/.venv && \
-    . /app/.venv/bin/activate && \
-    /root/.local/bin/uv pip install hatchling editables && \
-    /root/.local/bin/uv pip install -e ".[parquet]"
-
-# Set environment variables for runtime
-ENV PATH="/app/.venv/bin:${PATH}"
+# Set environment variables
+ENV PATH="/app/venv/bin:${PATH}"
 ENV VCFSTASH_ROOT="/app"
 
-# Use ENTRYPOINT with the proper command to run the CLI
-# Looking at cli.py, we should run the main() function directly
-ENTRYPOINT ["python", "-c", "from vcfstash.cli import main; main()"]
+# Create the executable
+RUN echo '#!/bin/bash' > /usr/local/bin/vcfstash && \
+    echo 'source /app/venv/bin/activate' >> /usr/local/bin/vcfstash && \
+    echo 'python -m vcfstash.cli "$@"' >> /usr/local/bin/vcfstash && \
+    chmod +x /usr/local/bin/vcfstash
 
-# Default command is empty since arguments will be passed to the entrypoint
-CMD []
+ENTRYPOINT ["/usr/local/bin/vcfstash"]
+CMD ["--help"]

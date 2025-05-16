@@ -321,8 +321,8 @@ def generate_test_command(
     vcf_path="${VCFSTASH_ROOT}/tests/data/nodata/crayz_db.bcf",
     output_dir="/tmp/vcfstash/test_stash",
     config_path="${VCFSTASH_ROOT}/tests/config/nextflow_test.config",
-    yaml_path="${VCFSTASH_ROOT}/tests/config/user_params.yaml",
-    annotation_config="${VCFSTASH_ROOT}/tests/config/annotation.config",
+    yaml_path="${VCFSTASH_ROOT}/tests/config/example_params.yaml",
+    annotation_config="${VCFSTASH_ROOT}/tests/config/example_annotation.config",
     add_vcf_path="${VCFSTASH_ROOT}/tests/data/nodata/crayz_db2.bcf",
     input_vcf_path="${VCFSTASH_ROOT}/tests/data/nodata/sample4.bcf",
     annotate_name="testor",
@@ -403,9 +403,9 @@ alias stx="{full_cmd}"
 
 # as one:
 cmd = """alias stx="
-~/projects/vcfstash/vcfstash.py stash-init --vcf ~/projects/vcfstash/tests/data/nodata/crayz_db.bcf --output ~/tmp/vcfstash/test_stash -y ~/projects/vcfstash/tests/config/user_params.yaml -f;
+~/projects/vcfstash/vcfstash.py stash-init --vcf ~/projects/vcfstash/tests/data/nodata/crayz_db.bcf --output ~/tmp/vcfstash/test_stash -y ~/projects/vcfstash/tests/config/example_params.yaml -f;
 ~/projects/vcfstash/vcfstash.py stash-add --db ~/tmp/vcfstash/test_stash/ -i ~/projects/vcfstash/tests/data/nodata/crayz_db2.bcf ; 
-~/projects/vcfstash/vcfstash.py stash-annotate --name testor -a ~/projects/vcfstash/tests/config/annotation.config --db ~/tmp/vcfstash/test_stash -f;
+~/projects/vcfstash/vcfstash.py stash-annotate --name testor -a ~/projects/vcfstash/tests/config/example_annotation.config --db ~/tmp/vcfstash/test_stash -f;
 ~/projects/vcfstash/vcfstash.py annotate -a ~/tmp/vcfstash/test_stash/stash/testor --vcf ~/projects/vcfstash/tests/data/nodata/sample4.bcf --output ~/tmp/vcfstash/aout -f
 """
 
@@ -414,6 +414,6 @@ cmd = """alias stx="
 cmd2 = """
 ~/projects/vcfstash/vcfstash.py stash-init --vcf /mnt/data/resources/gnomad/vcf_gnomad_v4_hg19_exomes/gnomad.exomes.v4.1.sites.grch37.trimmed_liftover_norm_1e-1.bcf --output gnomad_1e-1  -c ~/projects/vcfstash/tests/config/nextflow_gnomadhg19.config;
 ~/projects/vcfstash/vcfstash.py stash-add --db gnomad_1e-1 -i /mnt/data/resources/gnomad/vcf_gnomad_v4_hg19_genomes/gnomad.genomes.v4.1.sites.grch37.trimmed_liftover_norm_1e-1.bcf;
-~/projects/vcfstash/vcfstash.py stash-annotate --name gen_ex -a ~/projects/vcfstash/tests/config/annotation.config --db gnomad_1e-1;
+~/projects/vcfstash/vcfstash.py stash-annotate --name gen_ex -a ~/projects/vcfstash/tests/config/example_annotation.config --db gnomad_1e-1;
 ~/projects/vcfstash/vcfstash.py annotate -a gnomad_1e-1/stash/gen_ex --vcf /mnt/data/samples/test_mgm/mgm_WGS_32.gatkWGS_norm.bcf --output mgm_WGS_32 -p;
 """

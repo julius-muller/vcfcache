@@ -15,11 +15,11 @@ bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
 reference: "${VCFSTASH_ROOT}/tests/data/references/reference.fasta"
 
 ## * OPTIONAL RESOURCES *
-# Alls keys here can be utilized in the annotation.config file as ${params.MYKEY}
+# Alls keys here can be utilized in the example_annotation.config file as ${params.MYKEY}
 
 
 ## * OPTIONAL CHECKS *
-# Optional checks and verifications. These can be set to any key:value pair, but all keys must match the values in the annotation.config.
+# Optional checks and verifications. These can be set to any key:value pair, but all keys must match the values in the example_annotation.config.
 optional_checks:
   reference_md5sum: "ec59e3976d29e276414191a6283499f7"
   # Add other optional verifications here

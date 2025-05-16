@@ -19,10 +19,10 @@ from vcfstash.utils.paths import get_vcfstash_root, get_resource_path
 TEST_ROOT = Path(os.path.dirname(os.path.abspath(__file__)))
 VCFSTASH_CMD = "vcfstash"
 TEST_DATA_DIR = TEST_ROOT / "data" / "nodata"
-TEST_PARAMS = TEST_ROOT / "config" / "user_params.yaml"
+TEST_PARAMS = TEST_ROOT / "config" / "example_params.yaml"
 TEST_VCF = TEST_DATA_DIR / "crayz_db.bcf"
 EXPECTED_OUTPUT_DIR = TEST_ROOT / "data" / "expected_output"
-TEST_ANNO_CONFIG = TEST_ROOT / "config" / "annotation.config"
+TEST_ANNO_CONFIG = TEST_ROOT / "config" / "example_annotation.config"
 
 # Set Nextflow-specific environment variables
 os.environ['NXF_VER'] = '24.10.5'

@@ -15,13 +15,13 @@ bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
 reference: "/mnt/data/resources/reference/ucsc/hg19_canonical.fa.gz"
 
 ## * OPTIONAL RESOURCES *
-# Alls keys here can be utilized in the annotation.config file as ${params.MYKEY}
+# Alls keys here can be utilized in the example_annotation.config file as ${params.MYKEY}
 vep_cache: "/mnt/data/apps/ensembl-vep/113/cachedir"
 vep_buffer: 5000000
 vep_forks: 8
 
 ## * OPTIONAL CHECKS *
-# Optional checks and verifications. These can be set to any key:value pair, but all keys must match the values in the annotation.config.
+# Optional checks and verifications. These can be set to any key:value pair, but all keys must match the values in the example_annotation.config.
 optional_checks:
   reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
   # Add other optional verifications here
