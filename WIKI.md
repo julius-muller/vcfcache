@@ -6,11 +6,14 @@ This wiki provides detailed information about advanced usage scenarios, configur
 
 1. [Setting Up a gnomAD-based Cache](#setting-up-a-gnomad-based-cache)
 2. [Optional Checks](#optional-checks)
-3. [Advanced Configuration Options](#advanced-configuration-options)
-4. [Using Docker](#using-docker)
-5. [Performance Optimization](#performance-optimization)
-6. [Troubleshooting](#troubleshooting)
-7. [Annotation Tool Examples](#annotation-tool-examples)
+3. [Configuration Instructions](#configuration-instructions)
+4. [Advanced Configuration Options](#advanced-configuration-options)
+5. [Cache Structure](#cache-structure)
+6. [Using Docker](#using-docker)
+7. [Performance Optimization](#performance-optimization)
+8. [Testing & Validation](#testing--validation)
+9. [Troubleshooting](#troubleshooting)
+10. [Annotation Tool Examples](#annotation-tool-examples)
 
 ## Setting Up a gnomAD-based Cache
 
@@ -206,6 +209,173 @@ These values must match exactly between the params.yaml file and the annotation.
 3. **Document your checks**: Add comments explaining what each check verifies and why it's important
 4. **Be specific**: Use precise version numbers and checksums rather than ranges or patterns
 
+## Configuration Instructions
+
+VCFstash works with **any annotation tool** by wrapping your existing command. Just split it into two parts:
+
+1. **annotation.config**: Your command structure which will be applied to cache *and* input vcf files. This file is fixed at stash-annotate and unavailable at vcfstash annotate! 
+2. **params.yaml**: Configurable values (paths, resources) which can be changed for each run
+
+### Example: From VEP command to VCFstash
+
+#### Original command:
+
+```bash
+   vep \
+   --offline \
+   --buffer_size 500000 \
+   --fork 4 \
+   --cache \
+   --dir_cache /path/to/vep_cache/113/cachedir \
+   --fasta /path/to/reference.fasta \
+   -i sample.vcf \
+   -o annotated.vcf \
+   --format vcf \
+   --canonical
+```
+
+### Step 1: Create annotation.config
+
+As a first step, the original annotation command needs to be adapted to the VCFstash format and copied to the .config file.
+
+Conventions here are:
+1. The annotation tool command should be replaced by ${params.annotation_tool_cmd} and the actual command should be listed in the params.yaml file.
+2. The input filename has to be replaced with the variable ${INPUT_BCF}
+3. The output filename hat to be replaced with the variable ${OUTPUT_BCF}
+
+```bash
+   ${params.annotation_tool_cmd} \
+   --offline \
+   --buffer_size 500000 \
+   --fork 4 \
+   --cache \
+   --dir_cache /path/to/vep_cache/113/cachedir \
+   --fasta /path/to/reference.fasta \
+   -i ${INPUT_BCF} \
+   -o ${OUTPUT_BCF} \
+   --format vcf \
+   --canonical 
+```
+
+If there are any parts of the command that need to be kept configurable during vcfstash annotate (e.g., paths, parameters), they have to be replaced with the corresponding variable names starting with `params.`, and listed under 'OPTIONAL RESOURCES' within the params.yaml file:
+
+```bash
+   ${params.annotation_tool_cmd} \
+   --offline \
+   --buffer_size ${params.vep_buffer} \
+   --fork ${params.vep_forks} \
+   --cache \
+   --dir_cache ${params.vep_cache}/113/cachedir \
+   --fasta ${params.reference} \
+   -i ${INPUT_BCF} \
+   -o ${OUTPUT_BCF} \
+   --format vcf \
+   --canonical 
+```
+
+If the annotation tool (here vep) doesn't support bcf as input, the input file needs to be converted and ideally piped through bcftools view. Similarly, the output is expected to be an indexed bcf file. If the tool does not natively support such output, it can be piped through bcftools view with option -W for conversion. Instead of piping, the conversion could be done in multiple steps, however this is not recommended as it would require writing the intermediate files to disk. 
+
+```bash
+annotation_cmd = """
+   ${params.bcftools_cmd} view ${INPUT_BCF} 
+   | ${params.annotation_tool_cmd} \
+   --offline \
+   --buffer_size ${params.vep_buffer} \
+   --fork ${params.vep_forks} \
+   --cache \
+   --dir_cache ${params.vep_cachedir}/113/cachedir \
+   --fasta ${params.reference} \
+   -i stdin \
+   -o stdout \
+   --format vcf \
+   --canonical \
+   | ${params.bcftools_cmd} view -o ${OUTPUT_BCF} -Ob --write-index
+    """
+```
+
+Finally the expected tag in the output file needs to be specified using `must_contain_info_tag`:
+```bash
+    must_contain_info_tag = 'CSQ'
+```
+
+#### **Important requirements for annotation.config:**
+
+- **${INPUT_BCF}**: This variable must be used as the input source. It represents an indexed BCF file that VCFstash will provide to your annotation pipeline.
+- **${params.bcftools_cmd}**: Use this to convert or pipe the input as needed for your annotation tool.
+- **${OUTPUT_BCF}**: Your command must output an indexed BCF file using this variable name. The final output must be in BCF format with an index.
+
+The example above shows a typical pattern: read from ${INPUT_BCF}, pipe through your annotation tool, and write the result to ${OUTPUT_BCF} with indexing.
+
+#### Variable Substitution in Annotation Commands
+When writing your annotation command in `annotation.config`, you can use the following variables that will be automatically replaced with the correct paths: 
+- Path to the input BCF file `INPUT_BCF`
+- Path where the annotated BCF file should be written `OUTPUT_BCF`
+- Directory where additional files can be written (auxiliary subdirectory of cwd) `AUXILIARY_DIR`
+
+These variables can be used in either format:
+- Plain format: `INPUT_BCF`, `OUTPUT_BCF`, `AUXILIARY_DIR`
+- Shell variable format: `${INPUT_BCF}`, `${OUTPUT_BCF}`, `${AUXILIARY_DIR}`
+
+### Step 2: Create params.yaml
+
+As a second step, the parameters need to be defined in the params.yaml file. The YAML file is structured into three main sections:
+
+#### 1. REQUIRED RESOURCES
+
+These are essential parameters that must be defined and are used by the core functionality:
+
+```yaml
+## * REQUIRED RESOURCES *
+# Do not change the key names in this section, as they are used in the code.
+
+# Tool paths and commands
+annotation_tool_cmd: "vep"
+tool_version_command: "vep | grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
+
+# bcftools - best to leave as default since this is the tested and shipped version v1.20
+bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
+
+# Reference data required for the normalization step
+reference: "/path/to/reference.fasta"
+
+# Mapping of chromosome names between the reference genome and the VCF file
+chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
+
+# Temporary directory for storing intermediate files
+temp_dir: "/tmp"
+```
+
+#### 2. OPTIONAL RESOURCES
+
+These parameters can be customized for each annotation run and are referenced in your annotation.config file:
+
+```yaml
+## * OPTIONAL RESOURCES *
+# All keys here can be utilized in the example_annotation.config file as ${params.MYKEY}
+vep_buffer: 500000
+vep_forks: 4
+vep_cache: "/path/to/vep_cachedir"
+```
+
+#### 3. OPTIONAL CHECKS
+
+These parameters provide verification mechanisms to ensure consistency between cache creation and annotation:
+
+```yaml
+## * OPTIONAL CHECKS *
+# Optional checks and verifications. These can be set to any key:value pair, 
+# but all keys must match the values in the example_annotation.config.
+optional_checks:
+  reference_md5sum: "28a3d9f0162be1d5db2011aa30458129"
+  # Add other optional verifications here
+  # example_version: "1.2.3"
+  # example_option: "value"
+```
+
+The final example of the params.yaml can be found in the repository: [test_params.yaml](https://github.com/julius-muller/vcfstash/blob/main/tests/config/test_params.yaml) and for annotation.config: [test_annotation.config](https://github.com/julius-muller/vcfstash/blob/main/tests/config/test_annotation.config).
+
+> **Important**: It is the responsibility of the user that any optional resource listed here impacting annotation results is never changed between cache creation and annotation. The optional checks section helps enforce this consistency.
+
 ## Advanced Configuration Options
 
 VCFstash offers several advanced configuration options for customizing its behavior to suit your specific needs.
@@ -250,6 +420,72 @@ VCFstash works well with containerized annotation tools. Example using Docker wi
 annotation_tool_cmd: "docker run --user $(id -u):$(id -g) -i -v /mnt/data:/mnt/data --rm ensemblorg/ensembl-vep:release_113.0 vep"
 tool_version_command: "docker run --user $(id -u):$(id -g) -i -v /mnt/data:/mnt/data --rm ensemblorg/ensembl-vep:release_113.0 vep | grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
 ```
+
+## Cache Structure
+
+The VCFstash cache is organized in a structured directory hierarchy that maintains both the normalized variants and their annotations. Understanding this structure can help you manage and troubleshoot your caches.
+
+### Directory Structure
+
+```
+cache_directory/
+├── blueprint/                  # Contains normalized variants
+│   ├── vcfstash.bcf            # Normalized variants from input VCF files
+│   ├── vcfstash.bcf.csi        # Index for the normalized variants
+│   ├── sources.info            # Information about input VCF files
+│   └── ...                     # Nextflow reports and logs
+│
+├── stash/                      # Contains annotated variants
+│   └── [annotation_name]/      # Named annotation directory (e.g., "vep_gnomad")
+│       ├── annotation.config   # Locked annotation configuration
+│       ├── blueprint_snapshot.info  # Blueprint info at annotation time
+│       ├── vcfstash_annotated.bcf   # Annotated variants
+│       ├── vcfstash_annotated.bcf.csi  # Index for annotated variants
+│       ├── annotation.yaml         # Configuration for annotation tools
+│       └── ...                 # Nextflow reports and logs
+│
+├── workflow/                   # Contains Nextflow workflow files
+│   ├── init.yaml               # Initial configuration
+│   ├── main.nf                 # Nextflow workflow file
+│   ├── modules/                # Nextflow modules
+│   └── ...                     # Workflow logs
+│
+└── vcfdb.log                   # Log file for cache operations
+```
+
+### Key Files Explained
+
+#### Blueprint Files
+
+- **vcfstash.bcf**: The core normalized variant database containing all variants from input VCF files. This file is created during `stash-init` and updated during `stash-add`.
+- **sources.info**: JSON file tracking all input VCF files that have been added to the cache, including their MD5 checksums and timestamps.
+
+#### Stash Files
+
+- **annotation.yaml**: Contains configuration for annotation tools, including paths, commands, and resource settings.
+- **annotation.config**: The locked annotation configuration that defines exactly how variants are annotated. This file is frozen after `stash-annotate` to ensure consistency.
+- **blueprint_snapshot.info**: Records the state of the blueprint at the time of annotation, ensuring traceability.
+- **vcfstash_annotated.bcf**: The annotated variant database that serves as the cache for future annotations.
+
+#### Workflow Files
+
+- **init.yaml**: Initial configuration used by the Nextflow workflow.
+- **main.nf**: The Nextflow workflow that orchestrates the normalization and annotation processes.
+
+### Cache Lifecycle
+
+1. **Initialization** (`stash-init`): Creates the blueprint directory and normalizes input variants
+2. **Addition** (`stash-add`): Updates the blueprint with additional variants
+3. **Annotation** (`stash-annotate`): Creates a named annotation in the stash directory
+4. **Usage** (`annotate`): Uses the annotated cache to speed up annotation of new samples
+
+Understanding this structure helps when:
+- Troubleshooting annotation issues
+- Managing multiple annotation versions
+- Sharing caches between environments
+- Backing up or archiving caches
+
+The cache is designed to be portable - you can copy an entire cache directory to another location or system and use it there, as long as the paths in your `params.yaml` file are updated accordingly.
 
 ## Using Docker
 
@@ -484,6 +720,56 @@ For optimal performance:
    ```
 
 3. **Sample-level parallelization**: Process multiple samples in parallel using a workflow manager
+
+## Testing & Validation
+
+VCFstash includes comprehensive tests to ensure reliability and correctness:
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run all tests
+python -m pytest
+
+# Run specific test with increased verbosity
+python -m pytest -xvs tests/test_core.py
+```
+
+### Test Structure
+
+The test suite is organized into two modules:
+
+- `test_core.py`: Tests basic utility functions like MD5 calculation
+- `test_annotate.py`: Tests the annotate command and full workflow
+
+Each test prints information about which part of the code is being tested, making it easier to understand test coverage.
+
+### Test Implementation
+
+The tests are designed to run on any system after installation of the package, without requiring external annotation tools. They use:
+
+- `tests/config/test_params.yaml`: Configuration for the test annotation tool (bcftools)
+- `tests/config/test_annotation.config`: Configuration for the test annotation command
+
+The tests create temporary directories for output and clean up after themselves. They use bcftools (included in the package) to simulate annotations, making the tests portable and reliable.
+
+### Running Tests
+
+To run the tests:
+
+```bash
+# Run all tests
+python -m pytest
+
+# Run a specific test file
+python -m pytest tests/test_annotate.py
+
+# Run a specific test with increased verbosity
+python -m pytest -xvs tests/test_annotate.py::test_annotate_workflow
+```
+
+All tests should pass on any system where the package is installed, without requiring any external tools or configuration.
 
 ## Troubleshooting
 

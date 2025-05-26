@@ -1,6 +1,6 @@
 nextflow.enable.dsl = 2
 
-include { NORMALIZE } from './modules/normalize'
+include { NORMALIZE; FILTER_ONLY } from './modules/normalize'
 include { ANNOTATE } from './modules/annotate'
 include { AnnotateFromDB; FilterMissingAnnotations; MergeAnnotations } from './modules/annotate_cache'
 include { MERGE } from './modules/merge'
@@ -87,8 +87,25 @@ workflow {
 
     def outputDir = file(params.output)
 
-    chr_add = file(params.chr_add)
-    reference = file(params.reference)
+    // Only require chr_add and reference when normalization is enabled
+    def chr_add = null
+    def reference = null
+
+    // Check if normalization is enabled (default to false if not specified)
+    def normalize = params.containsKey('normalize') ? params.normalize.toString().toBoolean() : false
+
+    if (normalize && (params.db_mode == 'stash-init' || params.db_mode == 'stash-add')) {
+        // Validate that chr_add and reference are provided when normalization is enabled
+        if (!params.containsKey('chr_add') || !params.chr_add) {
+            error "chr_add parameter is required when normalization is enabled"
+        }
+        if (!params.containsKey('reference') || !params.reference) {
+            error "reference parameter is required when normalization is enabled"
+        }
+
+        chr_add = file(params.chr_add)
+        reference = file(params.reference)
+    }
 
     if (params.db_mode == 'stash-annotate') {
         // For annotation mode, use db_bcf as the input
@@ -117,31 +134,65 @@ workflow {
         // Copy all auxiliary files using flatten to handle the collection properly
 		copyAuxiliaryFiles(ANNOTATE.out.aux_files, params.auxiliary_dir)
 
-    } else { // in all other modes we're gonna have some sort of input that requires normalization
+    } else { // in all other modes we're gonna have some sort of input
         vcf = file(params.input)
         vcf_index = file("${params.input}.csi")
 
-        UTILS(
-            sampleName,
-            outputDir,
-            vcf,
-            chr_add,
-            reference
-        )
+        // Only run UTILS process when normalization is enabled
+        if (normalize && (params.db_mode == 'stash-init' || params.db_mode == 'stash-add')) {
+            UTILS(
+                sampleName,
+                outputDir,
+                vcf,
+                chr_add,
+                reference
+            )
+        }
 
+        // Only apply normalization for stash-init and stash-add, and only if normalize is true
+        // Note: normalize is defined above, we're using it here
         def remove_gt = params.db_mode.startsWith('stash-')
         def remove_info = params.db_mode.startsWith('stash-')
 
-        NORMALIZE(
-            chr_add,
-            vcf,
-            vcf_index,  // Pass the index file explicitly
-            reference,
-            sampleName,
-            false,
-            remove_gt,
-            remove_info
-        )
+        // Define normalized_vcf and normalized_vcf_index variables
+        def normalized_vcf
+        def normalized_vcf_index
+        def normalized_vcf_log
+
+        if (params.db_mode == 'stash-init' || params.db_mode == 'stash-add') {
+            if (normalize) {
+                // Apply full normalization for stash-init and stash-add if normalize is true
+                NORMALIZE(
+                    chr_add,
+                    vcf,
+                    vcf_index,  // Pass the index file explicitly
+                    reference,
+                    sampleName,
+                    remove_gt,
+                    remove_info
+                )
+                normalized_vcf = NORMALIZE.out.norm_bcf
+                normalized_vcf_index = NORMALIZE.out.norm_bcf_index
+                normalized_vcf_log = NORMALIZE.out.norm_bcf_log
+            } else {
+                // Apply only GT and INFO removal if normalize is false
+                FILTER_ONLY(
+                    vcf,
+                    vcf_index,
+                    sampleName,
+                    remove_gt,
+                    remove_info
+                )
+                normalized_vcf = FILTER_ONLY.out.filtered_bcf
+                normalized_vcf_index = FILTER_ONLY.out.filtered_bcf_index
+                normalized_vcf_log = FILTER_ONLY.out.filtered_bcf_log
+            }
+        } else {
+            // For other modes, use the input VCF directly
+            normalized_vcf = vcf
+            normalized_vcf_index = vcf_index
+            normalized_vcf_log = Channel.empty()
+        }
 
         // stash-add: DATABASE_UPDATE_WORKFLOW - Add new variants to database
         if (params.db_mode == 'stash-add') {
@@ -151,8 +202,8 @@ workflow {
             MERGE_VARIANTS(
                 db_bcf,
                 db_bcf_index,
-                NORMALIZE.out.norm_bcf,
-                NORMALIZE.out.norm_bcf_index
+                normalized_vcf,
+                normalized_vcf_index
             )
 
             // Publish final merged BCF without annotation
@@ -162,27 +213,35 @@ workflow {
             MERGE_VARIANTS.out.merged_bcf_index.subscribe { idx ->
                 file(idx).copyTo("${outputDir}/vcfstash.bcf.csi")
             }
-            NORMALIZE.out.norm_bcf_log.subscribe { log ->
-                file(log).copyTo("${outputDir}/add_${sampleName}.bcf.log")
+
+            // Only copy log if normalization was performed
+            if ((params.db_mode == 'stash-init' || params.db_mode == 'stash-add') && normalize) {
+                normalized_vcf_log.subscribe { log ->
+                    file(log).copyTo("${outputDir}/add_${sampleName}.bcf.log")
+                }
             }
         } else if (params.db_mode == 'stash-init') {
-            // stash-init: First database creation - just normalize the input
+            // stash-init: First database creation - just use the input (normalized or not)
             // No annotation here
-            NORMALIZE.out.norm_bcf.subscribe { bcf ->
+            normalized_vcf.subscribe { bcf ->
                 file(bcf).copyTo("${outputDir}/vcfstash.bcf")
             }
-            NORMALIZE.out.norm_bcf_index.subscribe { idx ->
+            normalized_vcf_index.subscribe { idx ->
                 file(idx).copyTo("${outputDir}/vcfstash.bcf.csi")
             }
-            NORMALIZE.out.norm_bcf_log.subscribe { log ->
-                file(log).copyTo("${outputDir}/vcfstash.bcf.log")
+
+            // Only copy log if normalization was performed
+            if ((params.db_mode == 'stash-init' || params.db_mode == 'stash-add') && normalize) {
+                normalized_vcf_log.subscribe { log ->
+                    file(log).copyTo("${outputDir}/vcfstash.bcf.log")
+                }
             }
 
         } else if (params.db_mode == 'annotate-nocache') {
             // annotate: DIRECT_ANNOTATION_WORKFLOW - Direct VCF annotation without database comparison
             ANNOTATE(
-                NORMALIZE.out.norm_bcf,
-                NORMALIZE.out.norm_bcf_index
+                normalized_vcf,
+                normalized_vcf_index
             )
 
             // Publish annotated database
@@ -205,8 +264,8 @@ workflow {
 
             // Step 1: Annotate input with database INFO fields
             AnnotateFromDB(
-                NORMALIZE.out.norm_bcf,
-                NORMALIZE.out.norm_bcf_index,
+                normalized_vcf,
+                normalized_vcf_index,
                 db_bcf,
                 db_bcf_index,
                 sampleName
@@ -245,8 +304,11 @@ workflow {
             ANNOTATE.out.annotated_bcf_log.subscribe { log ->
                 file(log).copyTo("${outputDir}/${sampleName}_vst.bcf.log")
             }
-            NORMALIZE.out.norm_bcf_log.subscribe { log ->
-                file(log).copyTo("${outputDir}/${sampleName}_norm.bcf.log")
+            // Only copy log if normalization was performed
+            if ((params.db_mode == 'stash-init' || params.db_mode == 'stash-add') && normalize) {
+                normalized_vcf_log.subscribe { log ->
+                    file(log).copyTo("${outputDir}/${sampleName}_norm.bcf.log")
+                }
             }
 
             // Copy all auxiliary files using flatten to handle the collection properly

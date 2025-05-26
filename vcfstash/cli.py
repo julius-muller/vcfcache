@@ -103,6 +103,14 @@ def main() -> None:
         help="Force overwrite of existing database directory",
         default=False,
     )
+    init_parser.add_argument(
+        "-n",
+        "--normalize",
+        dest="normalize",
+        action="store_true",
+        help="Apply normalization steps (add chr prefix, filter chromosomes, split multiallelic sites)",
+        default=False,
+    )
 
     # add command
     add_parser = subparsers.add_parser(
@@ -113,6 +121,14 @@ def main() -> None:
     )
     add_parser.add_argument(
         "-i", "--vcf", dest="i", help="Path to the VCF file to be added", required=True
+    )
+    add_parser.add_argument(
+        "-n",
+        "--normalize",
+        dest="normalize",
+        action="store_true",
+        help="Apply normalization steps (add chr prefix, filter chromosomes, split multiallelic sites)",
+        default=False,
     )
 
     # annotate command
@@ -229,6 +245,7 @@ def main() -> None:
                 force=args.force,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
+                normalize=args.normalize,
             )
             initializer.initialize()
 
@@ -242,6 +259,7 @@ def main() -> None:
                 verbosity=args.verbose,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
+                normalize=args.normalize,
             )
             updater.add()
 

@@ -41,6 +41,7 @@ class DatabaseInitializer(VCFDatabase):
         verbosity: int = 0,
         force: bool = False,
         debug: bool = False,
+        normalize: bool = False,
     ) -> None:
         """Initialize the database creator.
 
@@ -50,6 +51,7 @@ class DatabaseInitializer(VCFDatabase):
             output_dir: Output directory (default: current directory)
             verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
             force: Force overwrite of existing database (default: False)
+            normalize: Apply normalization steps (add chr prefix, filter chromosomes, split multiallelic sites) (default: False)
 
         """
         # Initialize the parent class
@@ -59,6 +61,7 @@ class DatabaseInitializer(VCFDatabase):
             debug,
             bcftools_path
         )
+        self.normalize = normalize
         self._setup_stash(force=force)
         self.logger = self.connect_loggers()
 
@@ -259,8 +262,10 @@ class DatabaseInitializer(VCFDatabase):
             start_time = datetime.now()
             if self.logger:
                 self.logger.info("Starting the workflow execution...")
+            # Pass the normalize parameter to the workflow
+            nextflow_args = ["--normalize", str(self.normalize).lower()]
             self.nx_workflow.run(
-                db_mode="stash-init", trace=True, dag=True, report=True
+                db_mode="stash-init", nextflow_args=nextflow_args, trace=True, dag=True, report=True
             )
             if self.logger:
                 self.logger.info("Workflow execution completed.")

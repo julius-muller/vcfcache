@@ -30,6 +30,7 @@ class DatabaseUpdater(VCFDatabase):
         params_file (Optional[Path]): Optional parameters file path.
         verbosity (int): Verbosity level for logging. Higher numbers increase detail.
         debug (bool): Debug flag indicating whether debugging is enabled.
+        normalize (bool): Apply normalization steps (add chr prefix, filter chromosomes, split multiallelic sites).
     """
 
     def __init__(
@@ -41,10 +42,12 @@ class DatabaseUpdater(VCFDatabase):
         params_file: Optional[Path] | Optional[str] = None,
         verbosity: int = 0,
         debug: bool = False,
+        normalize: bool = False,
     ):
         super().__init__(Path(db_path), verbosity, debug, bcftools_path)
         self.stashed_output.validate_structure()
         self.logger = self.connect_loggers()
+        self.normalize = normalize
         self.input_file = Path(input_file).expanduser().resolve()
         self.input_md5 = compute_md5(self.input_file)  # might take too long to do here
         self.config_file: Optional[Path] = None
@@ -219,8 +222,11 @@ class DatabaseUpdater(VCFDatabase):
 
             # Run the workflow in database mode
             start_time = datetime.now()
+            # Pass the normalize parameter to the workflow
+            nextflow_args = ["--normalize", str(self.normalize).lower()]
             self.nx_workflow.run(
                 db_mode="stash-add",
+                nextflow_args=nextflow_args,
                 trace=True,
                 dag=True,
                 report=True,

@@ -17,7 +17,7 @@ TEST_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.config"
 VCFSTASH_CMD = "vcfstash"
 
 
-def run_stash_init(input_vcf, output_dir, force=False):
+def run_stash_init(input_vcf, output_dir, force=False, normalize=False):
     """Run the stash-init command and return the process result."""
     # Make sure the directory doesn't exist (clean start)
     if os.path.exists(output_dir):
@@ -34,6 +34,9 @@ def run_stash_init(input_vcf, output_dir, force=False):
     if force:
         cmd.append("-f")
 
+    if normalize:
+        cmd.append("-n")
+
     result = subprocess.run(
         cmd,
         stdout=subprocess.PIPE,
@@ -43,7 +46,7 @@ def run_stash_init(input_vcf, output_dir, force=False):
     return result
 
 
-def run_stash_add(db_dir, input_vcf):
+def run_stash_add(db_dir, input_vcf, normalize=False):
     """Run the stash-add command and return the process result."""
     cmd = [
         str(VCFSTASH_CMD),
@@ -51,6 +54,9 @@ def run_stash_add(db_dir, input_vcf):
         "--db", str(db_dir),
         "-i", str(input_vcf)
     ]
+
+    if normalize:
+        cmd.append("-n")
 
     result = subprocess.run(
         cmd,
@@ -356,3 +362,190 @@ def test_cached_vs_uncached_annotation(test_output_dir, params_file):
     assert len(cached_lines) == len(uncached_lines), f"Different number of variants: cached={len(cached_lines)}, uncached={len(uncached_lines)}"
 
     print("Successfully verified that cached and uncached annotations produce identical results")
+
+
+def test_input_not_modified_during_annotation(test_output_dir, params_file):
+    """Test that input VCF files are not modified during annotation."""
+    print("\n=== Testing input file preservation during annotation ===")
+
+    # Step 1: Create a database
+    print("Creating database...")
+    init_cmd = [VCFSTASH_CMD, "stash-init", "-i", str(TEST_VCF),
+                "-o", str(test_output_dir), "-y", str(params_file), "-f"]
+    init_result = subprocess.run(init_cmd, capture_output=True, text=True)
+    assert init_result.returncode == 0, f"stash-init failed: {init_result.stderr}"
+
+    # Step 2: Run stash-annotate to create the annotation cache
+    print("Creating annotation cache...")
+    annotate_name = "test_annotation"
+    stash_annotate_cmd = [VCFSTASH_CMD, "stash-annotate", "--name", annotate_name,
+                          "--db", str(test_output_dir), "-a", str(TEST_ANNO_CONFIG),
+                          "-y", str(params_file), "-f"]
+    stash_annotate_result = subprocess.run(stash_annotate_cmd, capture_output=True, text=True)
+    assert stash_annotate_result.returncode == 0, f"stash-annotate failed: {stash_annotate_result.stderr}"
+
+    # Step 3: Make a copy of the input file to compare later
+    print("Creating a copy of the input file...")
+    input_copy_dir = Path(test_output_dir) / "input_copy"
+    input_copy_dir.mkdir(exist_ok=True, parents=True)
+    input_copy = input_copy_dir / "sample_copy.bcf"
+
+    # Get the MD5 hash of the original input file
+    original_md5 = subprocess.run(
+        ["md5sum", str(TEST_SAMPLE)],
+        capture_output=True, text=True
+    ).stdout.split()[0]
+
+    # Copy the input file
+    import shutil
+    shutil.copy(TEST_SAMPLE, input_copy)
+    shutil.copy(f"{TEST_SAMPLE}.csi", f"{input_copy}.csi")
+
+    # Step 4: Run annotation with caching
+    print("Running annotation...")
+    output_dir = Path(test_output_dir) / "annotation_output"
+    annotate_cmd = [VCFSTASH_CMD, "annotate", "-a", str(Path(test_output_dir) / "stash" / annotate_name),
+                  "-i", str(TEST_SAMPLE), "-o", str(output_dir),
+                  "-y", str(params_file), "-f"]
+    annotate_result = subprocess.run(annotate_cmd, capture_output=True, text=True)
+    assert annotate_result.returncode == 0, f"Annotation failed: {annotate_result.stderr}"
+
+    # Step 5: Verify the input file was not modified
+    print("Verifying input file was not modified...")
+
+    # Get the MD5 hash of the input file after annotation
+    after_md5 = subprocess.run(
+        ["md5sum", str(TEST_SAMPLE)],
+        capture_output=True, text=True
+    ).stdout.split()[0]
+
+    # Compare the hashes
+    assert original_md5 == after_md5, "Input file was modified during annotation"
+
+    # Step 6: Verify the output file exists and has the expected content
+    print("Verifying output file...")
+
+    # Get bcftools path for verification
+    bcftools_path = get_resource_path(Path('tools/bcftools'))
+    if not bcftools_path.exists():
+        bcftools_path = 'bcftools'
+
+    # Check if the output file exists
+    # The output file is named after the input file with _vst.bcf suffix
+    sample_name = Path(str(TEST_SAMPLE)).stem
+    output_file = output_dir / f"{sample_name}_vst.bcf"
+    assert output_file.exists(), f"Output file not found: {output_file}"
+
+    # Check if the output file has a valid header
+    header_result = subprocess.run(
+        [str(bcftools_path), "view", "-h", str(output_file)],
+        capture_output=True, text=True
+    )
+    assert header_result.returncode == 0, f"Output file has invalid header: {header_result.stderr}"
+
+    # Check if the output file has the MOCK_ANNO tag in the header
+    assert "MOCK_ANNO" in header_result.stdout, "MOCK_ANNO tag not found in output header"
+
+    # Check if the output file has variants
+    variants_result = subprocess.run(
+        [str(bcftools_path), "view", str(output_file)],
+        capture_output=True, text=True
+    )
+    assert variants_result.returncode == 0, f"Failed to view output file: {variants_result.stderr}"
+    assert "MOCK_ANNO=" in variants_result.stdout, "MOCK_ANNO tag not found in variants"
+
+    print("Successfully verified that input files are not modified during annotation")
+
+
+def test_normalization_flag(test_output_dir, params_file):
+    """Test that the normalization flag works correctly."""
+    print("\n=== Testing normalization flag functionality ===")
+
+    # Step 1: Run stash-init with normalization
+    print("Running stash-init with normalization...")
+    norm_dir = Path(test_output_dir) / "normalized"
+    norm_result = run_stash_init(TEST_VCF, norm_dir, force=True, normalize=True)
+    assert norm_result.returncode == 0, f"stash-init with normalization failed: {norm_result.stderr}"
+
+    # Step 2: Run stash-init without normalization
+    print("Running stash-init without normalization...")
+    no_norm_dir = Path(test_output_dir) / "not_normalized"
+    no_norm_result = run_stash_init(TEST_VCF, no_norm_dir, force=True, normalize=False)
+    assert no_norm_result.returncode == 0, f"stash-init without normalization failed: {no_norm_result.stderr}"
+
+    # Step 3: Compare the output files
+    print("Comparing output files...")
+
+    # Get bcftools path for comparison
+    bcftools_path = get_resource_path(Path('tools/bcftools'))
+    if not bcftools_path.exists():
+        bcftools_path = 'bcftools'
+
+    # Compare the headers of the normalized and non-normalized files
+    norm_header = subprocess.run(
+        [str(bcftools_path), "view", "-h", str(norm_dir / "blueprint" / "vcfstash.bcf")],
+        capture_output=True, text=True
+    )
+    no_norm_header = subprocess.run(
+        [str(bcftools_path), "view", "-h", str(no_norm_dir / "blueprint" / "vcfstash.bcf")],
+        capture_output=True, text=True
+    )
+
+    # The headers should be different if normalization was applied
+    assert norm_header.stdout != no_norm_header.stdout, "Normalization did not produce different headers"
+
+    # Step 4: Run stash-add with normalization
+    print("Running stash-add with normalization...")
+    add_norm_result = run_stash_add(norm_dir, TEST_VCF2, normalize=True)
+    assert add_norm_result.returncode == 0, f"stash-add with normalization failed: {add_norm_result.stderr}"
+
+    # Step 5: Run stash-add without normalization
+    print("Running stash-add without normalization...")
+    add_no_norm_result = run_stash_add(no_norm_dir, TEST_VCF2, normalize=False)
+    assert add_no_norm_result.returncode == 0, f"stash-add without normalization failed: {add_no_norm_result.stderr}"
+
+    # Step 6: Compare the output files after stash-add
+    print("Comparing output files after stash-add...")
+
+    # Compare the headers after stash-add
+    norm_header_after = subprocess.run(
+        [str(bcftools_path), "view", "-h", str(norm_dir / "blueprint" / "vcfstash.bcf")],
+        capture_output=True, text=True
+    )
+    no_norm_header_after = subprocess.run(
+        [str(bcftools_path), "view", "-h", str(no_norm_dir / "blueprint" / "vcfstash.bcf")],
+        capture_output=True, text=True
+    )
+
+    # The headers should still be different after stash-add
+    assert norm_header_after.stdout != no_norm_header_after.stdout, "Normalization did not produce different headers after stash-add"
+
+    # Step 7: Compare the actual content of the files to verify normalization was applied
+    print("Comparing file content to verify normalization...")
+
+    # Get the content of the normalized and non-normalized files
+    norm_content = subprocess.run(
+        [str(bcftools_path), "view", str(norm_dir / "blueprint" / "vcfstash.bcf")],
+        capture_output=True, text=True
+    )
+    no_norm_content = subprocess.run(
+        [str(bcftools_path), "view", str(no_norm_dir / "blueprint" / "vcfstash.bcf")],
+        capture_output=True, text=True
+    )
+
+    # The content should be different if normalization was applied
+    assert norm_content.stdout != no_norm_content.stdout, "Normalization did not produce different file content"
+
+    # Check if the normalized file has chr prefix in chromosome names (a sign of normalization)
+    if "chr" in norm_content.stdout:
+        print("Verified that normalization adds chr prefix to chromosome names")
+
+    # Check if the number of variants is different (another sign of normalization)
+    norm_count = len(norm_content.stdout.strip().split("\n"))
+    no_norm_count = len(no_norm_content.stdout.strip().split("\n"))
+    print(f"Normalized file has {norm_count} variants, non-normalized file has {no_norm_count} variants")
+
+    # The counts might be different due to normalization (splitting multiallelic sites)
+    # but we don't assert this as it depends on the test data
+
+    print("Successfully verified normalization flag functionality")
