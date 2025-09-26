@@ -20,7 +20,7 @@ RUN micromamba install -y -n base -c bioconda -c conda-forge \
     micromamba clean --all --yes
 
 # Make Python/bcftools from the base env visible for the following commands
-ENV PATH="/opt/conda/envs/base/bin:${PATH}"
+ENV PATH="/opt/conda/bin:${PATH}"
 
 # Prepare workspace
 WORKDIR /build
