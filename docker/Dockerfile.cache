@@ -14,8 +14,9 @@ RUN micromamba install -y -n base -c conda-forge -c bioconda \
         curl tabix && \
     micromamba clean --all --yes
 # ---- 2. perl stack with VEP  ----------------------------------------
-RUN micromamba install -y -n base -c bioconda \
-        ensembl-vep=115 && \
+RUN micromamba install -y -n base -c bioconda -c conda-forge \
+        ensembl-vep=115.1 \
+        unzip && \
     micromamba clean --all --yes
 
 
@@ -66,7 +67,7 @@ RUN mkdir -p "${CACHE_DIR}" && \
 FROM python:3.13-slim AS runtime
 LABEL org.opencontainers.image.title="VCFstash cache image"
 LABEL org.opencontainers.image.description="Contains prebuilt cache and vcfstash CLI"
-LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
+# (The variable is undefined in the build context – drop the label)
 
 # Minimal OS deps; JRE optional if you run Nextflow inside the container later
 RUN apt-get update && \
