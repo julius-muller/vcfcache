@@ -28,17 +28,25 @@ done
 # --------------------------------------------------------------------------
 # 1. pick a default URL if none was passed (tiny file good for CI)
 if [[ -z "${GNOMAD_URL}" ]]; then
-  GNOMAD_URL="https://raw.githubusercontent.com/vcftools/vcftools/master/examples/sequence.vcf.gz"
+  GNOMAD_URL="https://raw.githubusercontent.com/samtools/htslib/develop/test/test.vcf.bgz"
 fi
 
 mkdir -p "${CACHE_DIR}"
 
 # --------------------------------------------------------------------------
-# 2. Download & index
+# 2. Download & ensure BGZF compression + tabix index
 G_SRC="/tmp/gnomad.${GENOME}.vcf.gz"
 echo "Downloading gnomAD slice from: ${GNOMAD_URL}"
 curl -L "${GNOMAD_URL}" -o "${G_SRC}"
-tabix -p vcf "${G_SRC}"
+
+# try to index; if it fails the file is plain gzip -> bgzip it
+if ! tabix -p vcf "${G_SRC}" 2>/dev/null; then
+    echo "Source not BGZF – recompressing with bgzip"
+    mv "${G_SRC}" "${G_SRC%.gz}"
+    bgzip -f "${G_SRC%.gz}"          # creates ${G_SRC%.gz}.gz
+    G_SRC="${G_SRC%.gz}.gz"
+    tabix -p vcf "${G_SRC}"
+fi
 
 echo "Filtering for AF >= ${AF}"
 bcftools view -i "AF>=${AF}" "${G_SRC}" \
