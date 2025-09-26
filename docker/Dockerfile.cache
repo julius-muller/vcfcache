@@ -51,7 +51,7 @@ ARG GENOME=GRCh38
 ARG CACHE_NAME=vep_gnomad
 
 # Build the cache inside the image; store it in a user-writable path
-ENV CACHE_DIR=/cache
+ENV CACHE_DIR=/home/micromamba/cache
 RUN mkdir -p "${CACHE_DIR}" && \
     bash /tmp/build-cache.sh \
         --gnomad-af "${AF}" \
