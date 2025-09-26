@@ -99,7 +99,7 @@ RUN useradd -m vcfstash && chown -R vcfstash /cache /app
 USER vcfstash
 WORKDIR /work
 
-ARG GNOMAD_URL="https://raw.githubusercontent.com/vcftools/vcftools/master/examples/sequence.vcf.gz"
+ARG GNOMAD_URL="https://raw.githubusercontent.com/samtools/htslib/develop/test/test.vcf.bgz"
 ENV GNOMAD_URL=${GNOMAD_URL}
 
 ENTRYPOINT ["vcfstash"]
