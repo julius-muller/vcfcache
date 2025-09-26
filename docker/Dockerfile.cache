@@ -99,7 +99,8 @@ RUN useradd -m vcfstash && chown -R vcfstash /cache /app
 USER vcfstash
 WORKDIR /work
 
-ARG GNOMAD_URL="https://raw.githubusercontent.com/samtools/htslib/develop/test/test.vcf.bgz"
+# optional – keeps ARG but leave empty so script generates toy file
+ARG GNOMAD_URL=""
 ENV GNOMAD_URL=${GNOMAD_URL}
 
 ENTRYPOINT ["vcfstash"]

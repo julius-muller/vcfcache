@@ -34,24 +34,32 @@ fi
 mkdir -p "${CACHE_DIR}"
 
 # --------------------------------------------------------------------------
-# 2. Download & ensure BGZF compression + tabix index
+# 2. Obtain a BGZF-indexed VCF
 G_SRC="/tmp/gnomad.${GENOME}.vcf.gz"
-echo "Downloading gnomAD slice from: ${GNOMAD_URL}"
-curl -L "${GNOMAD_URL}" -o "${G_SRC}"
 
-# try to index; if it fails the file is plain gzip -> bgzip it
-if ! tabix -p vcf "${G_SRC}" 2>/dev/null; then
-    echo "Source not BGZF – recompressing with bgzip"
-    mv "${G_SRC}" "${G_SRC%.gz}"
-    bgzip -f "${G_SRC%.gz}"          # creates ${G_SRC%.gz}.gz
-    G_SRC="${G_SRC%.gz}.gz"
-    tabix -p vcf "${G_SRC}"
+if [[ -n "${GNOMAD_URL}" ]]; then
+    echo "Downloading gnomAD slice from: ${GNOMAD_URL}"
+    curl -L "${GNOMAD_URL}" -o "${G_SRC}"
+else
+    echo "No GNOMAD_URL provided – generating a 2-variant toy VCF"
+    cat > /tmp/toy.vcf <<'EOF'
+##fileformat=VCFv4.2
+##contig=<ID=1,length=248956422>
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
+1       10000   .       G       A       .       PASS    AF=0.15
+1       10500   .       C       T       .       PASS    AF=0.20
+EOF
+    bgzip -c /tmp/toy.vcf > "${G_SRC}"
 fi
 
-echo "Filtering for AF >= ${AF}"
-bcftools view -i "AF>=${AF}" "${G_SRC}" \
-        -Ob -o /tmp/gnomad_af.bcf --threads "${THREADS}"
-bcftools index /tmp/gnomad_af.bcf
+# ensure index exists (recompress if plain gzip)
+if ! tabix -p vcf "${G_SRC}" 2>/dev/null; then
+    echo "Re-compressing as BGZF and indexing"
+    gunzip -c "${G_SRC}" | bgzip -c > "${G_SRC}.bgz"
+    mv "${G_SRC}.bgz" "${G_SRC}"
+    tabix -p vcf "${G_SRC}"
+fi
 
 # --------------------------------------------------------------------------
 # 3. Build blueprint & annotate
