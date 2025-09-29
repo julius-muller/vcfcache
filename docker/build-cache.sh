@@ -59,7 +59,6 @@ tabix -f -p vcf "${G_SRC}"
 # --- build blueprint & annotate -------------------------------------------
 DB_DIR="${CACHE_DIR}/db"
 rm -rf "${DB_DIR}"
-mkdir -p "${DB_DIR}"
 
 vcfstash stash-init   --force \
         --vcf "${G_SRC}" \
