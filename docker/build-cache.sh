@@ -39,12 +39,12 @@ if [[ ! -f "${REF_PATH}" ]]; then
     # Try different tools that might be available for indexing
     if command -v samtools &> /dev/null; then
         samtools faidx "${REF_PATH}"
-    elif command -v bgzip &> /dev/null; then
-        # Create a simple index file manually using available tools
-        awk 'BEGIN{RS=">"} NR>1 {gsub(/\n/,""); name=$1; gsub(/^[^\n]*\n/,""); print name"\t"length($0)"\t"offset"\t"length($0)"\t"length($0)+1; offset+=length(name)+length($0)+2}' "${REF_PATH}" > "${REF_PATH}.fai"
     else
-        # Create minimal index manually if no tools available
-        echo -e "1\t20000\t44\t20000\t20001" > "${REF_PATH}.fai"
+        # Create minimal index manually
+        # Format: name length offset linebases linewidth
+        # Calculate header length dynamically
+        header_len=$(head -1 "${REF_PATH}" | wc -c)
+        echo -e "1\t20000\t${header_len}\t20000\t20001" > "${REF_PATH}.fai"
     fi
 fi
 
@@ -64,19 +64,20 @@ echo "Attempting download: ${GNOMAD_URL:-<none>}"
 if [[ -n "${GNOMAD_URL}" ]] && curl -fL "${GNOMAD_URL}" -o "${G_SRC}"; then
     echo "✓ downloaded test VCF"
 else
-    echo "× download failed – generating inline 2-variant BGZF VCF"
+    echo "× download failed – generating inline test BGZF VCF"
     cat > /tmp/toy.vcf <<'HEADER'
 ##fileformat=VCFv4.2
 ##contig=<ID=1,length=248956422>
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	sample1
 HEADER
 
-    # create 5 000 fake single-alt SNPs; AF alternates between 0.11 and 0.12
-    for i in $(seq 1 5000); do
+    # create 500 fake single-alt SNPs with GT field; AF alternates between 0.11 and 0.12
+    for i in $(seq 1 500); do
         pos=$((10000 + i))
         af=$(printf "0.%02d" $((10 + i % 2)))   # 0.11 / 0.12
-        echo -e "1\t${pos}\t.\tA\tG\t.\tPASS\tAF=${af}" >> /tmp/toy.vcf
+        echo -e "1\t${pos}\t.\tA\tG\t.\tPASS\tAF=${af}\tGT\t0/1" >> /tmp/toy.vcf
     done
 
     bgzip -c /tmp/toy.vcf > "${G_SRC}"
@@ -96,4 +97,4 @@ vcfstash stash-init   --force \
 vcfstash stash-annotate \
         --db   "${DB_DIR}" \
         --name "${CNAME}" \
-        -a     "${CONFIG_FILE}"
+        -a     /tmp/recipe/annotation.config
