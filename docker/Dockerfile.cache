@@ -1,26 +1,25 @@
 # =====================  stage 0: build cache + CLI  ======================
-# Use current micromamba (2.3.2+) to get recent bio tools in one shot
-FROM mambaorg/micromamba:2.3.2 AS builder
-# refs: micromamba 2.3.2 releases (Sep 2025) https://github.com/mamba-org/micromamba-releases/releases
+# Use Ubuntu 25.04 as base since that's the development environment
+FROM ubuntu:25.04 AS builder
 
-# Install toolchain to build the cache:
-# - python 3.13 for vcfstash
-# - bcftools/htslib 1.22 (latest as of mid-2025)
-# - ensembl-vep 115.1 (annotation tool for the recipe)
-# - curl/tabix for downloads/indexing
-RUN micromamba install -y -n base -c conda-forge -c bioconda \
-        python=3.12 \
-        bcftools=1.22 htslib=1.22 \
-        curl tabix procps && \
-    micromamba clean --all --yes
-# ---- 2. perl stack with VEP  ----------------------------------------
-RUN micromamba install -y -n base -c bioconda -c conda-forge \
-        ensembl-vep=115.1 \
-        unzip && \
-    micromamba clean --all --yes
+# Install system dependencies including ps command
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3 \
+        python3-pip \
+        python3-venv \
+        curl \
+        wget \
+        procps \
+        ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# Make Python/bcftools from the base env visible for the following commands
-ENV PATH="/opt/conda/bin:${PATH}"
+# Install bcftools and htslib from apt (Ubuntu 25.04 should have recent versions)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        bcftools \
+        samtools && \
+    rm -rf /var/lib/apt/lists/*
 
 # Prepare workspace
 WORKDIR /build
@@ -33,7 +32,7 @@ COPY tools ./tools
 COPY tests ./tests
 
 # Install vcfstash into a venv
-RUN python -m venv /build/venv && \
+RUN python3 -m venv /build/venv && \
     /build/venv/bin/pip install --upgrade pip && \
     /build/venv/bin/pip install --no-cache-dir .
 
@@ -52,7 +51,7 @@ ARG GENOME=GRCh38
 ARG CACHE_NAME=vep_gnomad
 
 # Build the cache inside the image; store it in a user-writable path
-ENV CACHE_DIR=/home/micromamba/cache
+ENV CACHE_DIR=/opt/vcfstash-cache
 RUN mkdir -p "${CACHE_DIR}" && \
     GNOMAD_URL="${GNOMAD_URL}" bash /tmp/build-cache.sh \
         --gnomad-af "${AF}" \
@@ -72,7 +71,7 @@ LABEL org.opencontainers.image.description="Contains prebuilt cache and vcfstash
 
 # Minimal OS deps; JRE optional if you run Nextflow inside the container later
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openjdk-21-jre-headless ca-certificates && \
+    apt-get install -y --no-install-recommends default-jre-headless ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy venv with vcfstash installed, plus resources/tools
