@@ -37,15 +37,20 @@ if [[ -n "${GNOMAD_URL}" ]] && curl -fL "${GNOMAD_URL}" -o "${G_SRC}"; then
     echo "✓ downloaded test VCF"
 else
     echo "× download failed – generating inline 2-variant BGZF VCF"
-    cat > /tmp/toy.vcf <<'EOF'
+    cat > /tmp/toy.vcf <<'HEADER'
 ##fileformat=VCFv4.2
 ##contig=<ID=1,length=248956422>
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-1	10000	.	G	A	.	PASS	AF=0.15
-1	10500	.	C	T	.	PASS	AF=0.20
-EOF
-    dd if=/dev/zero bs=1K count=64 >> /tmp/toy.vcf 2>/dev/null
+HEADER
+
+    # create 5 000 fake single-alt SNPs; AF alternates between 0.11 and 0.12
+    for i in $(seq 1 5000); do
+        pos=$((10000 + i))
+        af=$(printf "0.%02d" $((10 + i % 2)))   # 0.11 / 0.12
+        echo -e "1\t${pos}\t.\tA\tG\t.\tPASS\tAF=${af}" >> /tmp/toy.vcf
+    done
+
     bgzip -c /tmp/toy.vcf > "${G_SRC}"
 fi
 
