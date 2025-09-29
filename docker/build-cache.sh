@@ -37,15 +37,16 @@ if [[ -n "${GNOMAD_URL}" ]] && curl -fL "${GNOMAD_URL}" -o "${G_SRC}"; then
     echo "✓ downloaded test VCF"
 else
     echo "× download failed – generating inline 2-variant BGZF VCF"
-    cat > "${WORK_TMP}/toy.vcf" <<'EOF'
+    cat > /tmp/toy.vcf <<'EOF'
 ##fileformat=VCFv4.2
 ##contig=<ID=1,length=248956422>
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
-#CHROM  POS ID  REF ALT QUAL FILTER INFO
-1       10000 .   G   A   .    PASS  AF=0.15
-1       10500 .   C   T   .    PASS  AF=0.20
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+1	10000	.	G	A	.	PASS	AF=0.15
+1	10500	.	C	T	.	PASS	AF=0.20
 EOF
-    bgzip -c "${WORK_TMP}/toy.vcf" > "${G_SRC}"
+    dd if=/dev/zero bs=1K count=64 >> /tmp/toy.vcf 2>/dev/null
+    bgzip -c /tmp/toy.vcf > "${G_SRC}"
 fi
 
 tabix -f -p vcf "${G_SRC}"
