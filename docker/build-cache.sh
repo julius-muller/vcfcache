@@ -34,14 +34,20 @@ fi
 mkdir -p "${CACHE_DIR}"
 
 # --------------------------------------------------------------------------
-# 2. Obtain a BGZF-indexed VCF
-G_SRC="/tmp/gnomad.${GENOME}.vcf.gz"
+# 2. Obtain a BGZF-indexed VCF (download or synthesize)
+G_SRC="/tmp/gnomad.${GENOME}.vcf.bgz"
 
+have_file=false
 if [[ -n "${GNOMAD_URL}" ]]; then
-    echo "Downloading gnomAD slice from: ${GNOMAD_URL}"
-    curl -L "${GNOMAD_URL}" -o "${G_SRC}"
-else
-    echo "No GNOMAD_URL provided – generating a 2-variant toy VCF"
+    echo "Attempting download: ${GNOMAD_URL}"
+    if curl -fL "${GNOMAD_URL}" -o "${G_SRC}"; then
+        have_file=true
+    else
+        echo "Download failed → falling back to inline toy VCF"
+    fi
+fi
+
+if ! $have_file; then
     cat > /tmp/toy.vcf <<'EOF'
 ##fileformat=VCFv4.2
 ##contig=<ID=1,length=248956422>
@@ -53,13 +59,9 @@ EOF
     bgzip -c /tmp/toy.vcf > "${G_SRC}"
 fi
 
-# ensure index exists (recompress if plain gzip)
-if ! tabix -p vcf "${G_SRC}" 2>/dev/null; then
-    echo "Re-compressing as BGZF and indexing"
-    gunzip -c "${G_SRC}" | bgzip -c > "${G_SRC}.bgz"
-    mv "${G_SRC}.bgz" "${G_SRC}"
-    tabix -p vcf "${G_SRC}"
-fi
+# create tabix index (always succeeds – file is now BGZF)
+tabix -p vcf "${G_SRC}"
+
 
 # --------------------------------------------------------------------------
 # 3. Build blueprint & annotate
