@@ -36,7 +36,16 @@ if [[ ! -f "${REF_PATH}" ]]; then
     python3 -c "print('A' * 20000)" >> "${REF_PATH}"
     # Index the reference genome
     echo "Indexing reference genome..."
-    samtools faidx "${REF_PATH}"
+    # Try different tools that might be available for indexing
+    if command -v samtools &> /dev/null; then
+        samtools faidx "${REF_PATH}"
+    elif command -v bgzip &> /dev/null; then
+        # Create a simple index file manually using available tools
+        awk 'BEGIN{RS=">"} NR>1 {gsub(/\n/,""); name=$1; gsub(/^[^\n]*\n/,""); print name"\t"length($0)"\t"offset"\t"length($0)"\t"length($0)+1; offset+=length(name)+length($0)+2}' "${REF_PATH}" > "${REF_PATH}.fai"
+    else
+        # Create minimal index manually if no tools available
+        echo -e "1\t20000\t44\t20000\t20001" > "${REF_PATH}.fai"
+    fi
 fi
 
 # Update params.yaml to use our temporary reference
