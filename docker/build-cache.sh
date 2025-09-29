@@ -34,6 +34,9 @@ if [[ ! -f "${REF_PATH}" ]]; then
     echo ">1 dna:chromosome chromosome:GRCh38:1:1:248956422:1 REF" > "${REF_PATH}"
     # Generate 20000 bases of 'A' to cover our test variant positions (10001-15000)
     python3 -c "print('A' * 20000)" >> "${REF_PATH}"
+    # Index the reference genome
+    echo "Indexing reference genome..."
+    samtools faidx "${REF_PATH}"
 fi
 
 # Update params.yaml to use our temporary reference
