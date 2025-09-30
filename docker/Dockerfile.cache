@@ -51,6 +51,7 @@ ARG AF=0.10
 ARG TOOL_VERSION=115.2
 ARG GENOME=GRCh38
 ARG CACHE_NAME=vep_gnomad
+ARG GNOMAD_URL=""
 
 # Build the cache inside the image; store it in a user-writable path
 ENV CACHE_DIR=/opt/vcfstash-cache

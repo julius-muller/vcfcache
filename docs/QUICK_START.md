@@ -100,10 +100,12 @@ Each pre-built cache includes:
 
 ## Performance
 
-With pre-built caches, annotation is **70-90% faster** than running VEP directly:
-- Novel variants: Annotated with full VEP pipeline
-- Cached variants: Retrieved instantly from cache
-- Typical speedup: 5-10x faster on population studies
+With pre-built caches, annotation performance varies based on cache overlap:
+- **Cached variants**: Retrieved instantly from cache (no VEP needed)  
+- **Novel variants**: Annotated with full VEP pipeline
+- **Cache contains**: gnomAD v4.1 variants from chr1 at specified AF thresholds
+- **Typical performance**: 2-5x speedup when 30-80% of variants are cached
+- **Best results**: Population studies with common variants
 
 ## Next Steps
 

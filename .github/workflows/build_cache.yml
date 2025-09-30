@@ -58,6 +58,7 @@ jobs:
             TOOL_VERSION=${{ github.event.inputs.tool_version }}
             GENOME=${{ github.event.inputs.genome }}
             CACHE_NAME=${{ github.event.inputs.cache_name }}
+            GNOMAD_URL=https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/genomes/gnomad.genomes.v4.1.sites.chr1.vcf.bgz
           tags: |
             ghcr.io/${{ github.repository_owner }}/vcfstash-cache:${{ github.event.inputs.genome }}-af${{ github.event.inputs.af }}-vep${{ github.event.inputs.tool_version }}
           cache-from: type=gha

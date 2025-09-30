@@ -26,34 +26,53 @@ while [[ $# -gt 0 ]]; do
 done
 
 # --------------------------------------------------------------------------
-# 1. Use existing test data and configuration
+# 1. Download and filter real gnomAD data
 
-echo "Using existing test data and configuration..."
+echo "Setting up real gnomAD data for AF threshold: ${AF}"
 
-# --------------------------------------------------------------------------
-# 2. Use existing test VCF data
+# Use proper VEP configuration (not test config)
+PARAMS_FILE="${PARAMS_FILE:-/tmp/recipe/params.yaml}"
+CONFIG_FILE="${CONFIG_FILE:-/tmp/recipe/annotation.config}"
 
-echo "Using gnomad_test.bcf from test data..."
-G_SRC="/build/tests/data/nodata/gnomad_test.bcf"
+# Create working directory for gnomAD data
+WORK_DIR="/tmp/gnomad_work"
+mkdir -p "${WORK_DIR}"
 
-# For now, use the test configuration that we know works
-# TODO: In production, we can extend this to use VEP when properly configured
-echo "Using test configuration for reliable cache build..."
-PARAMS_FILE="/build/tests/config/test_params.yaml"  
-CONFIG_FILE="/build/tests/config/test_annotation.config"
+# --------------------------------------------------------------------------  
+# 2. Download gnomAD data filtered by allele frequency
+
+if [[ -n "${GNOMAD_URL}" ]]; then
+    echo "Using provided gnomAD URL: ${GNOMAD_URL}"
+    G_SRC="${WORK_DIR}/gnomad_filtered.vcf.gz"
+    
+    # Download and filter gnomAD data
+    echo "Downloading and filtering gnomAD data (AF >= ${AF})..."
+    curl -L "${GNOMAD_URL}" | \
+    bcftools view -i "INFO/AF >= ${AF}" -Oz -o "${G_SRC}"
+    
+    # Index the filtered file
+    tabix -p vcf "${G_SRC}"
+    
+    echo "✓ Downloaded and filtered gnomAD data: ${G_SRC}"
+else
+    echo "WARNING: No GNOMAD_URL provided, falling back to test data"
+    echo "This will result in a cache with minimal coverage!"
+    G_SRC="/build/tests/data/nodata/gnomad_test.bcf"
+    PARAMS_FILE="/build/tests/config/test_params.yaml"  
+    CONFIG_FILE="/build/tests/config/test_annotation.config"
+fi
 
 echo "Configuration details:"
 echo "  - Params: ${PARAMS_FILE}"
-echo "  - Config: ${CONFIG_FILE}"
-echo "  - Test VCF: ${G_SRC}"
+echo "  - Config: ${CONFIG_FILE}"  
+echo "  - VCF Source: ${G_SRC}"
+echo "  - AF Threshold: ${AF}"
 
-# Verify the test file exists
+# Verify the source file exists
 if [[ ! -f "${G_SRC}" ]]; then
-    echo "ERROR: Test file ${G_SRC} not found!"
+    echo "ERROR: Source file ${G_SRC} not found!"
     exit 1
 fi
-
-echo "✓ Using test VCF: ${G_SRC}"
 
 # --- build blueprint & annotate -------------------------------------------
 DB_DIR="${CACHE_DIR}/db"

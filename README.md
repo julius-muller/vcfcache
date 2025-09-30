@@ -44,14 +44,21 @@ Get started immediately with our pre-built cache images:
 # Pull a ready-to-use cache with VEP annotations
 docker pull ghcr.io/julius-muller/vcfstash-cache:GRCh38-af0.10-vep115.2
 
-# Annotate your VCF immediately (70-90% faster!)
+# Annotate your VCF (performance depends on cache overlap with your data)
 docker run --rm \
   -v $(pwd):/data \
   ghcr.io/julius-muller/vcfstash-cache:GRCh38-af0.10-vep115.2 \
   annotate -a /cache/stash/vep_gnomad --vcf your_sample.vcf.gz --output results
 ```
 
-✨ **Available cache variants:** 10% AF (small), 5% AF (medium), 1% AF (comprehensive)
+✨ **Cache variants by AF threshold:**
+- **10% AF**: Common variants only (~50K variants from chr1)
+- **5% AF**: Moderately common variants (~200K variants)  
+- **1% AF**: Comprehensive coverage (~1M+ variants)
+
+**Performance expectations**: Speedup depends on how many of your sample's variants overlap with the gnomAD variants in the cache. Population studies and clinical samples typically see 30-80% cache hit rates.
+
+⚠️ **Current limitation**: Pre-built caches contain only **chromosome 1** variants. For genome-wide coverage, build your own cache using Option 2 below.
 
 #### 🐳 Option 2: Using Docker
 

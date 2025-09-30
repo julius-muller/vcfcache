@@ -162,7 +162,8 @@ Test the same 1000-variant VCF across tiers:
 ### **Tier 1** (Pre-built): 
 - **Setup time**: 30 seconds (just pull image)
 - **Annotation time**: ~5 seconds
-- **Cache hits**: 70-90% (depending on AF threshold)
+- **Cache coverage**: Contains gnomAD chr1 variants at specified AF threshold
+- **Cache hits**: Varies by sample origin (30-80% typical for population studies)
 
 ### **Tier 2** (Custom):  
 - **Setup time**: 2-3 hours (one-time)
