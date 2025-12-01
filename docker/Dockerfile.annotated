@@ -4,16 +4,20 @@ FROM ensemblorg/ensembl-vep:release_115.2 AS builder
 
 USER root
 
-# Install system dependencies including Python 3.11 (vcfstash requires >=3.11)
-RUN apt-get update && \
+# Install system dependencies including Python 3.13 (matches blueprint image)
+# Set timezone non-interactively to avoid prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         software-properties-common && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        python3.11 \
-        python3.11-venv \
-        python3.11-dev \
+        python3.13 \
+        python3.13-venv \
+        python3.13-dev \
         python3-pip \
         curl \
         wget \
@@ -36,8 +40,8 @@ COPY tools ./tools
 COPY recipes ./recipes
 COPY tests ./tests
 
-# Install vcfstash with dev dependencies into a venv using Python 3.11
-RUN python3.11 -m venv /build/venv && \
+# Install vcfstash with dev dependencies into a venv using Python 3.13
+RUN python3.13 -m venv /build/venv && \
     /build/venv/bin/pip install --upgrade pip && \
     /build/venv/bin/pip install --no-cache-dir ".[dev]"
 
@@ -95,14 +99,18 @@ USER root
 LABEL org.opencontainers.image.title="VCFstash annotated cache image"
 LABEL org.opencontainers.image.description="Contains VEP pipeline and pre-annotated cache"
 
-# Install minimal dependencies (Python 3.11 for vcfstash, JRE for Nextflow, procps for 'ps', tabix for annotation)
-RUN apt-get update && \
+# Install minimal dependencies (Python 3.13 for vcfstash, JRE for Nextflow, procps for 'ps', tabix for annotation)
+# Set timezone non-interactively to avoid prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         software-properties-common && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        python3.11 \
+        python3.13 \
         default-jre-headless \
         ca-certificates \
         procps \
@@ -132,10 +140,10 @@ RUN if [ ! -d "/opt/vep/.vep" ]; then \
     fi && \
     echo "VEP cache available at /opt/vep/.vep"
 
-# vcfstash wrapper - use Python 3.11 with venv in PYTHONPATH
+# vcfstash wrapper - use Python 3.13 with venv in PYTHONPATH
 RUN printf '%s\n' '#!/bin/sh' \
-                  'export PYTHONPATH=/app/venv/lib/python3.11/site-packages:$PYTHONPATH' \
-                  'exec python3.11 -m vcfstash.cli "$@"' \
+                  'export PYTHONPATH=/app/venv/lib/python3.13/site-packages:$PYTHONPATH' \
+                  'exec python3.13 -m vcfstash.cli "$@"' \
     > /usr/local/bin/vcfstash && chmod +x /usr/local/bin/vcfstash
 
 ENV PATH="/app/venv/bin:/opt/vep/ensembl-vep:${PATH}"
