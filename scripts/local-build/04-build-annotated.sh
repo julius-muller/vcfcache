@@ -216,7 +216,7 @@ docker run \
   --entrypoint /bin/bash \
   "${TEMP_IMAGE}" \
   -c "export VCFSTASH_ROOT=/app && \
-      export PATH=/app/venv/bin:/opt/vep/ensembl-vep:\$PATH && \
+      export PATH=/usr/local/bin:/opt/vep/ensembl-vep:\$PATH && \
       bash /tmp/build-annotated-cache.sh \
         --bcf-file /tmp/gnomad.bcf \
         --gnomad-af '${AF}' \
