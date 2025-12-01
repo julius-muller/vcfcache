@@ -653,14 +653,16 @@ class NextflowWorkflow:
         env["NXF_OFFLINE"] = "true"
         if "VCFSTASH_ROOT" not in env:
             raise RuntimeError("VCFSTASH_ROOT environment variable is not set")
-        # Set up the Nextflow executable
+        # Set up the Nextflow executable using the workflow source directory
+        # (from importlib.resources, works in both dev and Docker)
+        nxf_jar_path = (
+            self.workflow_dir_src
+            / f".nextflow/framework/{self.NXF_VERSION}/nextflow-{self.NXF_VERSION}-one.jar"
+        )
         nxf_exe = [
             "java",
             "-jar",
-            str(
-                Path(env["VCFSTASH_ROOT"])
-                / f"vcfstash/workflow/.nextflow/framework/{self.NXF_VERSION}/nextflow-{self.NXF_VERSION}-one.jar"
-            ),
+            str(nxf_jar_path),
         ]
         # this could also use the executable in PATH with nxf_exe = ['nextflow']
 
