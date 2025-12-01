@@ -22,6 +22,7 @@ set -euo pipefail
 #   --registry REGISTRY     Docker registry (default: ghcr.io/julius-muller)
 #   --push                  Push to registry after build
 #   --no-cache              Build without using Docker cache
+#   --host-network          Use host network for Docker build (fixes PyPI timeouts)
 #===============================================================================
 
 # Check arguments
@@ -42,6 +43,7 @@ TAG=""
 REGISTRY="ghcr.io/julius-muller"
 PUSH=false
 NO_CACHE=""
+HOST_NETWORK=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -54,6 +56,7 @@ while [[ $# -gt 0 ]]; do
     --registry)         REGISTRY="$2"; shift 2;;
     --push)             PUSH=true; shift;;
     --no-cache)         NO_CACHE="--no-cache"; shift;;
+    --host-network)     HOST_NETWORK="--network host"; shift;;
     --help)
       grep "^#" "$0" | grep -v "#!/" | sed 's/^# \?//'
       exit 0
@@ -168,6 +171,7 @@ docker build \
   -t "${IMAGE_NAME}" \
   -t "${REGISTRY}/vcfstash-annotated:latest" \
   ${NO_CACHE} \
+  ${HOST_NETWORK} \
   "${BUILD_CONTEXT_DIR}"
 
 END_TIME=$(date +%s)
