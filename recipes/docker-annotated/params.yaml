@@ -3,7 +3,8 @@
 
 ## * REQUIRED RESOURCES *
 annotation_tool_cmd: "vep"
-tool_version_command: "vep --version | head -1 | awk '{print $2}'"
+# Escape $ to survive Bash strict mode (set -u) inside Nextflow wrapper
+tool_version_command: "vep --version | head -1 | awk '{print \\$2}'"
 bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
 reference: "/tmp/dummy.fa"  # Placeholder - not used during cache init from BCF
 chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
