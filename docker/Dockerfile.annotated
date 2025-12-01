@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 # ==================== stage 0: VEP base with vcfstash ====================
 # Use VEP official image as base
 FROM ensemblorg/ensembl-vep:release_115.2 AS builder
@@ -62,33 +63,21 @@ ARG GENOME=GRCh38
 ARG CACHE_NAME
 ARG BCF_FILE=""
 ARG VEP_CACHE_DIR="/opt/vep/.vep"
+ARG HOST_VEP_CACHE
 ARG ANNOTATION_NAME="vep_gnomad"
 
 # Copy the pre-generated BCF file if provided
 COPY ${BCF_FILE} /tmp/gnomad.bcf
 COPY ${BCF_FILE}.csi /tmp/gnomad.bcf.csi
 
-# Optionally use a staged VEP cache copied into the build context at docker/vep-cache
-COPY docker/vep-cache/ /tmp/vep-cache
-RUN if [ -d "/tmp/vep-cache/homo_sapiens" ] || [ -d "/tmp/vep-cache/homo_sapiens_refseq" ]; then \
-        echo "Using staged VEP cache from build context"; \
-        rm -rf /opt/vep/.vep && mkdir -p /opt/vep/.vep && \
-        cp -a /tmp/vep-cache/. /opt/vep/.vep/; \
-    else \
-        echo "No staged VEP cache found; using base image cache"; \
-    fi
-
-# VEP cache should already exist in the base image at /opt/vep/.vep
-# Verify it exists
-RUN if [ ! -d "${VEP_CACHE_DIR}" ]; then \
+# Build the annotated cache inside the image
+ENV CACHE_DIR=/opt/vcfstash-cache
+RUN --mount=type=bind,source=${HOST_VEP_CACHE},target=${VEP_CACHE_DIR},readonly \
+    if [ ! -d "${VEP_CACHE_DIR}" ]; then \
         echo "ERROR: VEP cache not found at ${VEP_CACHE_DIR}"; \
         exit 1; \
     fi && \
-    echo "VEP cache found at ${VEP_CACHE_DIR}"
-
-# Build the annotated cache inside the image
-ENV CACHE_DIR=/opt/vcfstash-cache
-RUN mkdir -p "${CACHE_DIR}" && \
+    mkdir -p "${CACHE_DIR}" && \
     bash /tmp/build-annotated-cache.sh \
         --bcf-file /tmp/gnomad.bcf \
         --gnomad-af "${AF}" \
@@ -136,8 +125,6 @@ COPY --from=builder /build/venv /app/venv
 COPY --from=builder /build/resources /app/resources
 COPY --from=builder /build/tools /app/tools
 COPY --from=builder /build/tests /app/tests
-# Copy VEP cache from builder (ensures availability even if base image lacks it)
-COPY --from=builder /opt/vep/.vep /opt/vep/.vep
 
 # Ensure bcftools shim is executable
 RUN chmod +x /app/tools/bcftools
@@ -145,12 +132,7 @@ RUN chmod +x /app/tools/bcftools
 # Copy the annotated cache
 COPY --from=builder /opt/vcfstash-cache /cache
 
-# VEP cache is already in the base image, verify it's there
-RUN if [ ! -d "/opt/vep/.vep" ]; then \
-        echo "ERROR: VEP cache not found in runtime"; \
-        exit 1; \
-    fi && \
-    echo "VEP cache available at /opt/vep/.vep"
+# Note: VEP cache not bundled to keep image size reasonable; mount at runtime if needed
 
 # vcfstash wrapper - use Python 3.13 with venv in PYTHONPATH
 RUN printf '%s\n' '#!/bin/sh' \
