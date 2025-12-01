@@ -25,7 +25,7 @@ EXPECTED_OUTPUT_DIR = TEST_ROOT / "data" / "expected_output"
 TEST_ANNO_CONFIG = TEST_ROOT / "config" / "example_annotation.config"
 
 # Set Nextflow-specific environment variables
-os.environ['NXF_VER'] = '24.10.5'
+os.environ['NXF_VER'] = '25.10.2'
 os.environ['NXF_DISABLE_CHECK_LATEST'] = '1'
 os.environ['NXF_OFFLINE'] = 'true'
 

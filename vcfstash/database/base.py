@@ -45,7 +45,7 @@ class NextflowWorkflow:
         workflow_dir_src (Path): The source directory for workflows within the package.
     """
 
-    NXF_VERSION = "24.10.5"
+    NXF_VERSION = "25.10.2"
 
     REQUIRED_PARAMS = (
         {  # these are the minimal yaml parameters required to run the workflow
