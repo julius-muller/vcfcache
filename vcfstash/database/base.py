@@ -541,7 +541,7 @@ class NextflowWorkflow:
             dir_path = Path(self.nxf_home / d)
             dir_path.mkdir(parents=True, exist_ok=True)
 
-        jar_fl = jar_dir / f"nextflow-{self.NXF_VERSION}-one.jar"
+        jar_fl = jar_dir / f"nextflow-{self.NXF_VERSION}-dist"
         if not jar_fl.exists():
             self.logger.error(f"Nextflow JAR file not found: {jar_fl}")
             raise FileNotFoundError(f"Nextflow JAR file not found: {jar_fl}")
@@ -657,7 +657,7 @@ class NextflowWorkflow:
         # (from importlib.resources, works in both dev and Docker)
         nxf_jar_path = (
             self.workflow_dir_src
-            / f".nextflow/framework/{self.NXF_VERSION}/nextflow-{self.NXF_VERSION}-one.jar"
+            / f".nextflow/framework/{self.NXF_VERSION}/nextflow-{self.NXF_VERSION}-dist"
         )
         nxf_exe = [
             "java",
