@@ -3,8 +3,8 @@
 
 ## * REQUIRED RESOURCES *
 annotation_tool_cmd: "vep"
-# Use --help (safer in Ensembl VEP 115.2 image than --version) and escape $ for set -u
-tool_version_command: "vep --help | head -1 | awk '{print \\$2}'"
+# Parse the version line from VEP stdout (same pattern as tests/config/example_params.yaml)
+tool_version_command: "vep | grep -oP \"ensembl-vep\\s+:\\s+\\K\\d+\\.\\d+\""
 bcftools_cmd: "${VCFSTASH_ROOT}/tools/bcftools"
 reference: "/tmp/dummy.fa"  # Placeholder - not used during cache init from BCF
 chr_add: "${VCFSTASH_ROOT}/resources/chr_add.txt"
