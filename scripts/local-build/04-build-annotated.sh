@@ -121,6 +121,10 @@ echo "Full image:         ${IMAGE_NAME}"
 echo "Push to GHCR:       ${PUSH}"
 if [ -n "${VEP_CACHE_DIR}" ]; then
   echo "Host VEP cache:     ${VEP_CACHE_DIR}"
+  if [ ! -d "${VEP_CACHE_DIR}" ]; then
+    echo "❌ ERROR: VEP cache dir not found: ${VEP_CACHE_DIR}"
+    exit 1
+  fi
 fi
 echo "==============================================================================="
 echo ""

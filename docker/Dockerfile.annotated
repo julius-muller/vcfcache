@@ -69,15 +69,11 @@ ARG ANNOTATION_NAME="vep_gnomad"
 COPY ${BCF_FILE} /tmp/gnomad.bcf
 COPY ${BCF_FILE}.csi /tmp/gnomad.bcf.csi
 
-# Optionally import VEP cache from host (requires BuildKit bind mount)
-RUN --mount=type=bind,source=${HOST_VEP_CACHE:-/dev/null},target=/tmp/host_vep_cache,readonly,optional=true \
-    if [ -n "${HOST_VEP_CACHE}" ] && [ -d /tmp/host_vep_cache ]; then \
-        echo "Copying VEP cache from host: ${HOST_VEP_CACHE}"; \
-        rm -rf /opt/vep/.vep && mkdir -p /opt/vep/.vep && \
-        cp -a /tmp/host_vep_cache/. /opt/vep/.vep/; \
-    else \
-        echo "HOST_VEP_CACHE not provided; using base image cache"; \
-    fi
+# Import VEP cache from host (requires HOST_VEP_CACHE to be a valid directory on build host)
+RUN --mount=type=bind,source=${HOST_VEP_CACHE},target=/tmp/host_vep_cache,readonly \
+    echo "Copying VEP cache from host: ${HOST_VEP_CACHE}" && \
+    rm -rf /opt/vep/.vep && mkdir -p /opt/vep/.vep && \
+    cp -a /tmp/host_vep_cache/. /opt/vep/.vep/
 
 # VEP cache should already exist in the base image at /opt/vep/.vep
 # Verify it exists
