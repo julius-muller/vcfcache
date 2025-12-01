@@ -70,7 +70,7 @@ docker run --rm -v $(pwd):/data vcfstash --help
 
 If you prefer a local installation, you'll need:
 
-- **Python 3.11+** 
+- **Python 3.13+**
 - **Java 17+** (for Nextflow)
 - **tabix** for VCF/BCF handling
 
