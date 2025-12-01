@@ -10,7 +10,7 @@ process RunAnnotation {
     path "vcfstash_annotated.bcf", emit: annotated_bcf
     path "vcfstash_annotated.bcf.csi", emit: annotated_bcf_index
     path "vcfstash_annotated.log", emit: annotated_bcf_log
-    path "auxiliary/*", emit: aux_files
+    path "auxiliary/*", emit: aux_files, optional: true
 
     script:
     """
