@@ -94,11 +94,12 @@ else
   exit 1
 fi
 
-# Auto-generate tag if not provided
+# Auto-generate tag if not provided (includes AF threshold for unique tags)
 if [ -z "${TAG}" ]; then
   GENOME_LOWER=$(echo "${GENOME}" | tr '[:upper:]' '[:lower:]')
+  TYPE_LOWER=$(echo "${TYPE}" | tr '[:upper:]' '[:lower:]')
   VEP_MAJOR=$(echo "${VEP_VERSION}" | cut -d. -f1)
-  TAG="gnomad-${GENOME_LOWER}-vep${VEP_MAJOR}"
+  TAG="gnomad-v41-${GENOME_LOWER}-${TYPE_LOWER}-af${AF_CLEAN}-vep${VEP_MAJOR}"
 fi
 
 # Generate cache name
