@@ -124,7 +124,7 @@ def test_annotate_with_cache(test_scenario, test_sample_with_hits_and_misses,
     assert vep_params.exists(), f"VEP params not found: {vep_params}"
 
     output_dir = Path(test_output_dir) / "annotated_output"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Don't create the output directory - vcfstash will create it
 
     # Run annotation using the pre-built cache
     cmd = [
