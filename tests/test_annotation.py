@@ -378,7 +378,8 @@ def test_annotation_consistency_across_scenarios(test_scenario, test_output_dir)
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         assert result.returncode == 0, f"Annotation failed: {result.stderr}"
 
-        output_bcf = output_dir / "annotated.bcf"
+        sample_name = sample_vcf.name.replace(".bcf", "").replace(".vcf", "")
+        output_bcf = output_dir / f"{sample_name}_vst.bcf"
 
     elif test_scenario == "blueprint":
         # In blueprint scenario, create minimal cache and use it
