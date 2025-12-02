@@ -13,6 +13,7 @@ TEST_ROOT = get_vcfstash_root() / "tests"
 TEST_DATA_DIR = TEST_ROOT / "data" / "nodata"
 TEST_PARAMS = TEST_ROOT / "config" / "test_params.yaml"
 TEST_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.config"
+VEP_ANNO_CONFIG = TEST_ROOT / "config" / "example_annotation.config"
 
 
 # ============================================================================
@@ -85,13 +86,16 @@ def annotation_config(test_scenario):
 
     Returns:
         Path: Path to annotation config file
-        - 'annotated': Could use VEP config (for now using mock)
+        - 'annotated': VEP annotation config (real annotations)
         - 'blueprint': Mock annotation with bcftools
         - 'vanilla': Mock annotation with bcftools
     """
-    # For now, all scenarios use mock annotation
-    # TODO: Add VEP annotation config for annotated scenario
-    return TEST_ANNO_CONFIG
+    if test_scenario == "annotated":
+        # Use VEP annotation config for annotated scenario
+        return VEP_ANNO_CONFIG
+    else:
+        # Use mock annotation for blueprint and vanilla
+        return TEST_ANNO_CONFIG
 
 
 @pytest.fixture

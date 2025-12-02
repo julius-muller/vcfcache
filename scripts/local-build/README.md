@@ -269,34 +269,38 @@ Master BCF (AF ≥ 0.001 = 0.1%)
 
 ## File Size Estimates
 
-| Filter | Variants | BCF Size | Docker Image | Build Time | Use Case |
+| Filter | Variants | BCF Size | Docker Image | Build Time | Tradeoff |
 |--------|----------|----------|--------------|------------|----------|
-| AF ≥ 0.001 (0.1%) | ~18.9 M | ~1.2 GB | N/A | N/A | Master file |
-| AF ≥ 0.01 (1%) | ~18.9 M | ~246 MB | 5.17 GB | ~5h | Research |
-| AF ≥ 0.05 (5%) | ~11 M | ~139 MB | N/A | N/A | Clinical |
-| AF ≥ 0.10 (10%) | ~8.1 M | ~107 MB | 3.63 GB | ~2h | Common variants |
+| AF ≥ 0.001 (0.1%) | ~99.9 M  | N/A | N/A | N/A | Master file |
+| AF ≥ 0.01 (1%) | ~18.9 M  | ~246 MB  | 5.17 GB | ~5h | Higher cache hit rate, more storage |
+| AF ≥ 0.05 (5%) | ~10.5 M | N/A  | N/A | N/A | Balanced |
+| AF ≥ 0.10 (10%) | ~8.1 M   | ~107 MB  | 3.63 GB | ~2h | Lower cache hit rate, less storage |
 
 *(Based on gnomAD v4.1 joint dataset, GRCh38, VEP 115.2)*
+
+**Important:** Annotation results are 100% identical (MD5sum match) regardless of cache size. The only difference is annotation speed (cache hit rate) vs storage requirements. WGS benefits more from larger caches than WES or smaller panels due to higher variant overlap with gnomAD.
 
 ### Pre-built Annotated Images
 
 Pre-built Docker images with VEP annotations are available:
 
-**1% AF (Research/Production):**
+**1% AF (18.9M variants):**
 ```bash
 docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115
 ```
 - 18,869,857 variants
 - 5.17 GB image size
-- Best for comprehensive coverage
+- Higher cache hit rate (faster annotation), larger storage footprint
+- Recommended for WGS workflows where storage is available
 
-**10% AF (Common Variants):**
+**10% AF (8.1M variants):**
 ```bash
 docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115
 ```
 - 8,074,875 variants
 - 3.63 GB image size
-- Best for common variant analysis
+- Lower cache hit rate (slower annotation), smaller storage footprint
+- Good for resource-constrained environments or WES/panel workflows
 
 ## Reproducibility
 
