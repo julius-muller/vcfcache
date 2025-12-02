@@ -239,7 +239,7 @@ def test_blueprint_annotation_workflow(test_scenario, prebuilt_cache, test_outpu
     assert result.returncode == 0, f"Blueprint annotation failed: {result.stderr}"
 
     # Verify stash was created
-    stash_path = cache_dir / "db" / "stash" / "test_anno"
+    stash_path = cache_dir / "stash" / "test_anno"
     assert stash_path.exists(), "Annotation stash not created"
 
     annotated_cache = stash_path / "vcfstash_annotated.bcf"
@@ -404,7 +404,7 @@ def test_annotation_consistency_across_scenarios(test_scenario, test_output_dir)
 
         # Annotate sample
         output_dir = Path(test_output_dir) / "consistency_output"
-        stash_path = cache_dir / "db" / "stash" / "consistency_anno"
+        stash_path = cache_dir / "stash" / "consistency_anno"
 
         subprocess.run([
             "vcfstash", "annotate",
