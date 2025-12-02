@@ -1,14 +1,12 @@
 # VCFstash Test Suite
 
-## Philosophy: One Test Suite, Three Scenarios
+## Philosophy: One Suite, Three Scenarios
 
-The VCFstash test suite uses **scenario-aware adaptive testing**. All tests run in all scenarios, but they automatically adapt their behavior based on the available resources (cache, VEP, test data).
-
-This ensures that each scenario is fully functional and provides 100% test coverage appropriate for its use case.
+The test suite is **scenario‑aware**: the same tests adapt to what’s available (cache, VEP, data). Coverage stays the same; only execution paths change.
 
 ## The Three Scenarios
 
-### 1. Vanilla (Development Environment)
+### 1) Vanilla (dev environment)
 **What it is:** Plain Python environment with no pre-built cache
 
 **What's available:**
@@ -25,15 +23,15 @@ This ensures that each scenario is fully functional and provides 100% test cover
 - Full workflow testing from stash-init through annotate
 - Cache validation tests are skipped (no `/cache`)
 
-**Run with:**
+**Run (host):**
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -vv --color=yes --disable-warnings -rA
 ```
 
 ---
 
-### 2. Blueprint (Data-Only Docker Image)
-**What it is:** Production Docker image with pre-built gnomAD cache, no VEP
+### 2) Blueprint (data-only image)
+**What it is:** Docker image with pre-built gnomAD cache, no VEP
 
 **What's available:**
 - ✅ Pre-built cache at `/cache` (gnomAD variants, AF-filtered)
@@ -49,18 +47,19 @@ pytest tests/ -v
 - Full workflow testing with mock annotation
 - Tests verify cache is production-ready
 
-**Run with:**
+**Run:**
 ```bash
-docker run --rm ghcr.io/julius-muller/vcfstash-blueprint:TAG \
-  --entrypoint /bin/sh -c \
-  'cd /app && export PYTHONPATH=/app/venv/lib/python3.13/site-packages && \
-   python3 -m pytest tests/ -v'
+docker run --rm -t \
+  --entrypoint /bin/bash \
+  ghcr.io/julius-muller/vcfstash-blueprint:TAG \
+  -lc 'cd /app && PYTEST_ADDOPTS="--color=yes --disable-warnings -rA --durations=10 -vv --maxfail=1" \
+       python3 -m pytest tests'
 ```
 
 ---
 
-### 3. Annotated (Full-Stack Docker Image)
-**What it is:** Complete Docker image with VEP, pre-annotated cache, and full pipeline
+### 3) Annotated (full-stack image)
+**What it is:** Docker image with VEP + pre‑annotated cache
 
 **What's available:**
 - ✅ Pre-built cache at `/cache` (gnomAD + VEP annotations)
@@ -75,17 +74,21 @@ docker run --rm ghcr.io/julius-muller/vcfstash-blueprint:TAG \
 - Full workflow testing with annotation
 - Complete integration testing
 
-**Run with:**
+**Run (remember to mount your VEP cache and override entrypoint):**
 ```bash
-docker run --rm ghcr.io/julius-muller/vcfstash-annotated:TAG \
-  --entrypoint /bin/sh -c \
-  'cd /app && export PYTHONPATH=/app/venv/lib/python3.13/site-packages && \
-   python3 -m pytest tests/ -v'
+docker run --rm -t \
+  --entrypoint /bin/bash \
+  -v /path/to/vep/cache:/opt/vep/.vep:ro \
+  ghcr.io/julius-muller/vcfstash-annotated:TAG \
+  -lc 'cd /app && PYTEST_ADDOPTS="--color=yes --disable-warnings -rA --durations=10 -vv --maxfail=1" \
+       VCFSTASH_LOGLEVEL=INFO VCFSTASH_FILE_LOGLEVEL=ERROR \
+       python3 -m pytest tests'
 ```
+Tip: add `-s` inside `PYTEST_ADDOPTS` if you want to see live print output.
 
 ---
 
-## How Scenario Detection Works
+## How Scenario Detection Works (tl;dr)
 
 Tests automatically detect which scenario they're running in:
 
@@ -122,9 +125,9 @@ def test_full_annotation_workflow(test_scenario, prebuilt_cache):
 
 ---
 
-## Test Categories
+## Test Categories (where to look)
 
-### Pure Python Tests (10 tests)
+### Pure Python Tests
 Tests that work in all scenarios without adaptation:
 - Module imports
 - CLI help and version
@@ -134,7 +137,7 @@ Tests that work in all scenarios without adaptation:
 
 **Files:** `test_vanilla.py`
 
-### Cache Validation Tests (11 tests)
+### Cache Validation Tests
 Tests that validate cache structure (skip in vanilla scenario):
 - Cache directory structure
 - Blueprint BCF file integrity
@@ -149,7 +152,12 @@ Tests that validate cache structure (skip in vanilla scenario):
 - Vanilla: Skipped (no cache)
 - Blueprint/Annotated: Validate `/cache`
 
-### Workflow Integration Tests (8 tests)
+### Workflow Integration Tests
+
+### Performance / Cache Stats
+- In annotated scenario only; long‑running (~30–55s each on Docker)
+- `test_annotation.py::test_cache_hit_statistics`
+- `test_annotation.py::test_annotation_performance_with_cache`
 Tests that run full annotation workflows:
 - stash-init, stash-add, stash-annotate, annotate
 - Cached vs uncached annotation comparison
