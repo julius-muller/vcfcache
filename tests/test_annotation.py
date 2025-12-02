@@ -469,7 +469,8 @@ def test_cache_hit_statistics(test_scenario, test_sample_with_hits_and_misses,
     vep_params = get_vcfstash_root() / "recipes" / "docker-annotated" / "params.yaml"
 
     output_dir = Path(test_output_dir) / "cache_stats_test"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
 
     cmd = [
         "vcfstash", "annotate",
