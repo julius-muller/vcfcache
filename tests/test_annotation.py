@@ -161,6 +161,9 @@ def test_annotate_with_cache(test_scenario, test_sample_with_hits_and_misses,
     with open(vep_params) as f:
         params_cfg = yaml.safe_load(f)
     bcftools_cmd = params_cfg.get("bcftools_cmd", "bcftools")
+    if bcftools_cmd.startswith("${VCFSTASH_ROOT}"):
+        root = get_vcfstash_root()
+        bcftools_cmd = bcftools_cmd.replace("${VCFSTASH_ROOT}", str(root))
 
     # Verify annotations were added
     header_result = subprocess.run(
