@@ -269,14 +269,34 @@ Master BCF (AF ≥ 0.001 = 0.1%)
 
 ## File Size Estimates
 
-| Filter | Variants | BCF Size | Use Case |
-|--------|----------|----------|----------|
-| AF ≥ 0.001 (0.1%) | ~XX M | ~XX GB | Master file |
-| AF ≥ 0.01 (1%) | ~XX M | ~XX GB | Research |
-| AF ≥ 0.05 (5%) | ~XX M | ~XX GB | Clinical |
-| AF ≥ 0.10 (10%) | ~XX M | ~XX GB | Common variants |
+| Filter | Variants | BCF Size | Docker Image | Build Time | Use Case |
+|--------|----------|----------|--------------|------------|----------|
+| AF ≥ 0.001 (0.1%) | ~18.9 M | ~1.2 GB | N/A | N/A | Master file |
+| AF ≥ 0.01 (1%) | ~18.9 M | ~246 MB | 5.17 GB | ~5h | Research |
+| AF ≥ 0.05 (5%) | ~11 M | ~139 MB | N/A | N/A | Clinical |
+| AF ≥ 0.10 (10%) | ~8.1 M | ~107 MB | 3.63 GB | ~2h | Common variants |
 
-*(Actual sizes depend on gnomAD version and genome build)*
+*(Based on gnomAD v4.1 joint dataset, GRCh38, VEP 115.2)*
+
+### Pre-built Annotated Images
+
+Pre-built Docker images with VEP annotations are available:
+
+**1% AF (Research/Production):**
+```bash
+docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115
+```
+- 18,869,857 variants
+- 5.17 GB image size
+- Best for comprehensive coverage
+
+**10% AF (Common Variants):**
+```bash
+docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115
+```
+- 8,074,875 variants
+- 3.63 GB image size
+- Best for common variant analysis
 
 ## Reproducibility
 
