@@ -151,9 +151,10 @@ def test_annotate_with_cache(test_scenario, test_sample_with_hits_and_misses,
 
     assert result.returncode == 0, f"Annotation failed: {result.stderr}"
 
-    # Check output file exists (workflow emits vcfstash_annotated.bcf)
-    output_bcf = output_dir / "vcfstash_annotated.bcf"
-    assert output_bcf.exists(), "Annotated output BCF not found"
+    sample_name = test_sample_with_hits_and_misses.name.replace(".bcf", "").replace(".vcf", "")
+    # In annotate mode the workflow publishes "<sample>_vst.bcf"
+    output_bcf = output_dir / f"{sample_name}_vst.bcf"
+    assert output_bcf.exists(), f"Annotated output BCF not found at {output_bcf}"
 
     # Resolve bcftools path from the same params file used for the run
     import yaml
