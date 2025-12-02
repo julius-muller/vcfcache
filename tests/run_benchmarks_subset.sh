@@ -83,6 +83,8 @@ run_bench() {
   docker run --rm \
     -v "$bcf":/data/input.bcf:ro \
     -v "${bcf}.csi":/data/input.bcf.csi:ro \
+    -v "$bcf":/opt/vep/.vep/input.bcf:ro \
+    -v "${bcf}.csi":/opt/vep/.vep/input.bcf.csi:ro \
     -v "$VEP_CACHE_DIR":/opt/vep/.vep:ro \
     -v "$outdir":/data/out \
     -v /tmp:/tmp \
