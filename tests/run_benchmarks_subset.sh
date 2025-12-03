@@ -208,13 +208,15 @@ main() {
     fi
   done
   echo ""
-  echo "Docker images:"
+  echo "Docker images (cached mode):"
   for image in "${IMAGES[@]}"; do
     echo "  - ${image##*:}"
   done
   echo ""
-  echo "Modes: cached, uncached"
-  echo "Total benchmarks: $((${#SCALES[@]} * ${#IMAGES[@]} * 2))"
+  echo "Modes:"
+  echo "  - Uncached: ${#SCALES[@]} benchmarks (once per scale)"
+  echo "  - Cached: $((${#SCALES[@]} * ${#IMAGES[@]})) benchmarks (all scales × all cache AFs)"
+  echo "Total benchmarks: $((${#SCALES[@]} + ${#SCALES[@]} * ${#IMAGES[@]}))"
   echo ""
   if [ "$FORCE_MODE" = true ]; then
     echo "FORCE MODE: Will delete all existing logs and re-run"
@@ -248,14 +250,22 @@ main() {
       fi
     fi
 
+    # Run UNCACHED once per scale (cache AF doesn't matter for uncached)
+    # Use first image for consistency
+    first_image="${IMAGES[0]}"
+    LOG_FILE="$bench_dir/uncached_${scale_name}.log"
+    if [ ! -f "$LOG_FILE" ]; then
+      tsv_log "timestamp\timage\tmode\tscale\tvariants\tseconds\tstatus\toutput_bcf"
+    fi
+    run_bench "$first_image" "--uncached" "$scale_name" "$subset_bcf" "$bench_dir/out_uncached"
+
+    # Run CACHED for each cache image (AF010, AF001, etc.)
     for image in "${IMAGES[@]}"; do
       LOG_FILE="$bench_dir/${image##*:}_${scale_name}.log"
-      # Only write header if log file doesn't exist
       if [ ! -f "$LOG_FILE" ]; then
         tsv_log "timestamp\timage\tmode\tscale\tvariants\tseconds\tstatus\toutput_bcf"
       fi
-      run_bench "$image" "--uncached" "$scale_name" "$subset_bcf" "$bench_dir/out_uncached"
-      run_bench "$image" ""           "$scale_name" "$subset_bcf" "$bench_dir/out_cached"
+      run_bench "$image" "" "$scale_name" "$subset_bcf" "$bench_dir/out_cached"
     done
   done
 }
