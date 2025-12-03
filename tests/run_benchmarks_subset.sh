@@ -39,7 +39,7 @@ if [[ ! -d "$VEP_CACHE_DIR" ]]; then
   exit 1
 fi
 
-SCALES=("PANEL:5000" "WES:100000" "WGS:0")
+SCALES=("PANEL:5000" "WES:100000" "WGS:FULL")
 IMAGES=(
   "ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115"
   "ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115"
@@ -57,6 +57,12 @@ mk_subset() {
   local scale_name=$1
   local n=$2
   local dest_dir=$3
+
+  # WGS/FULL: use source directly
+  if [[ "$n" == "FULL" ]]; then
+    echo "$SOURCE_BCF"
+    return
+  fi
   mkdir -p "$dest_dir"
   local list="$dest_dir/${scale_name}.sites"
   local out="$dest_dir/${scale_name}.bcf"
@@ -85,8 +91,7 @@ run_bench() {
   local outfile="${run_dir_host}/${out_name}"
 
   # Skip if output already exists
-  if [ -f "$outfile" ]; then
-    echo "Skipping $mode $scale - output already exists: $outfile"
+  if [ -f "$outfile" ] && [ -f "${outfile}.csi" ]; then
     local variants=$(bcftools index -n "$bcf")
     tsv_log "$(date -Iseconds)\t${image}\t${mode}\t${scale}\t${variants}\t0\tSKIPPED\t${outfile}"
     return 0
@@ -132,12 +137,12 @@ main() {
   for scale_def in "${SCALES[@]}"; do
     IFS=":" read -r scale_name nvars <<<"$scale_def"
     bench_dir="$LOG_DIR/${scale_name,,}"
+    mkdir -p "$bench_dir"
 
-    # Use full source file for WGS (nvars=0), create subset for others
-    if [ "$nvars" -eq 0 ]; then
+    # Use full source file for WGS (nvars='FULL'), create/reuse subset for others
+    if [[ "$nvars" == "FULL" ]]; then
       subset_bcf="$SOURCE_BCF"
     else
-      # Check if subset already exists, reuse it
       if [ -f "$bench_dir/subset/${scale_name}.bcf" ]; then
         subset_bcf="$bench_dir/subset/${scale_name}.bcf"
       else
