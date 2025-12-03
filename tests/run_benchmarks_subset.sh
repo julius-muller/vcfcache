@@ -90,8 +90,8 @@ run_bench() {
   local run_dir_cont="/out/${run_name}"
   local outfile="${run_dir_host}/${out_name}"
 
-  # Skip if output already exists
-  if [ -f "$outfile" ] && [ -f "${outfile}.csi" ]; then
+  # Skip if already completed
+  if [ -f "$outfile" ] && [ -f "${outfile}.csi" ] && [ -f "${run_dir_host}/.done" ]; then
     local variants=$(bcftools index -n "$bcf")
     tsv_log "$(date -Iseconds)\t${image}\t${mode}\t${scale}\t${variants}\t0\tSKIPPED\t${outfile}"
     return 0
@@ -130,6 +130,10 @@ run_bench() {
   local end=$(date -u +%s)
   local elapsed=$((end - start))
   local outfile="${run_dir_host}/${out_name}"
+  # mark completion on success
+  if [ "$status" -eq 0 ] && [ -f "$outfile" ]; then
+    touch "${run_dir_host}/.done"
+  fi
   tsv_log "$(date -Iseconds)\t${image}\t${mode}\t${scale}\t$(bcftools index -n "$bcf")\t${elapsed}\t${status}\t${outfile}"
 }
 
