@@ -7,4 +7,4 @@ significantly reducing annotation time.
 """
 
 # Package-wide constants
-EXPECTED_BCFTOOLS_VERSION = "1.20+htslib-1.21"
+EXPECTED_BCFTOOLS_VERSION = "1.22+htslib-1.22"
