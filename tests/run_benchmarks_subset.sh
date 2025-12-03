@@ -84,15 +84,15 @@ run_bench() {
     -v "$bcf":/work/input.bcf:ro \
     -v "${bcf}.csi":/work/input.bcf.csi:ro \
     -v "$VEP_CACHE_DIR":/opt/vep/.vep:ro \
-    -v "$outdir":/data/out \
+    -v "$outdir":/out \
     -v /tmp:/tmp \
     -w /app \
     --entrypoint /bin/bash \
     "$image" \
-    -lc "mkdir -p /data/out/tmp && TMPDIR=/data/out/tmp vcfstash annotate ${mode} \
+    -lc "mkdir -p /out/tmp && TMPDIR=/out/tmp vcfstash annotate ${mode} \
          -a /cache/db/stash/vep_gnomad \
          --vcf /work/input.bcf \
-         --output /data/out \
+         --output /out \
          -y /app/recipes/docker-annotated/params.yaml \
          -vv"
   status=$?
