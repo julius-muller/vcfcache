@@ -97,6 +97,7 @@ run_bench() {
     --entrypoint /bin/bash \
     "$image" \
     -lc "NXF_HOME=${run_dir_cont}/.nxf NXF_WORK=${run_dir_cont}/work TMPDIR=${run_dir_cont}/tmp \
+         VCFSTASH_LOGLEVEL=ERROR VCFSTASH_FILE_LOGLEVEL=ERROR NXF_ANSI_LOG=false \
          vcfstash annotate ${mode} \
          -a /cache/db/stash/vep_gnomad \
          --vcf /work/input.bcf \
