@@ -23,6 +23,10 @@ set -euo pipefail
 #
 #   SOURCE_BCF defaults to /mnt/data/samples/test_mgm/mgm_WGS_32.gatkWGS_norm_hg38.bcf
 #
+# Environment Variables:
+#   VEP_CACHE_DIR   VEP cache directory (default: /mnt/data/apps/ensembl-vep/115/cachedir)
+#   TEMP_DIR        Temporary directory for annotation files (default: /mnt/data/tmp)
+#
 # Output:
 #   Logs are written to ./tests/benchmarks/ in TSV format:
 #     timestamp\timage\tmode\tscale\tvariants\tseconds\tstatus\toutput_bcf
@@ -41,6 +45,10 @@ shift $((OPTIND-1))
 
 SOURCE_BCF=${1:-/mnt/data/samples/test_mgm/mgm_WGS_32.gatkWGS_norm_hg38.bcf}
 VEP_CACHE_DIR=${VEP_CACHE_DIR:-/mnt/data/apps/ensembl-vep/115/cachedir}
+TEMP_DIR=${TEMP_DIR:-/mnt/data/tmp}
+
+# Create temp directory if it doesn't exist
+mkdir -p "$TEMP_DIR"
 
 if [[ ! -f "$SOURCE_BCF" ]]; then
   echo "Source BCF not found: $SOURCE_BCF" >&2
@@ -117,14 +125,11 @@ run_bench() {
   local total_lines=0
   if [ -f "$LOG_FILE" ]; then
     total_lines=$(wc -l < "$LOG_FILE")
-    echo "    Log file exists: $LOG_FILE ($total_lines lines)"
-  else
-    echo "    Log file does not exist: $LOG_FILE"
   fi
 
   # If log has less than 2 lines (header only or corrupted), delete it
   if [ -f "$LOG_FILE" ] && [ "$total_lines" -lt 2 ]; then
-    echo "    Log file incomplete (<2 lines), deleting and re-running"
+    echo "    Log incomplete, deleting and re-running"
     rm -f "$LOG_FILE"
     total_lines=0
   fi
@@ -135,13 +140,10 @@ run_bench() {
     # Log format: timestamp\timage\tmode\tscale\tvariants\tseconds\tstatus\toutput
     # We need to match: \t{mode}\t{scale}\t
     local grep_pattern=$'\t'"${mode}"$'\t'"${scale}"$'\t'
-    echo "    Checking if benchmark exists in log (mode='${mode}', scale='${scale}')"
     # Check if this specific benchmark already exists in the log
     if grep -qF "${grep_pattern}" "$LOG_FILE" 2>/dev/null; then
-      echo "    Skipping - already completed (use -a to append)"
+      echo "    Skipped - already completed (use -a to append)"
       return 0
-    else
-      echo "    Pattern not found in log, will run benchmark"
     fi
   fi
 
@@ -160,7 +162,7 @@ run_bench() {
     -v "${bcf}.csi":/work/input.bcf.csi:ro \
     -v "$VEP_CACHE_DIR":/opt/vep/.vep:ro \
     -v "$outdir":/out \
-    -v /tmp:/tmp \
+    -v "$TEMP_DIR":/tmp \
     -v "${project_root}/vcfstash":/app/venv/lib/python3.13/site-packages/vcfstash:ro \
     -w /app \
     --user "$(id -u):$(id -g)" \
@@ -194,6 +196,7 @@ main() {
   # Pre-flight summary
   echo "=== VCFstash Benchmark Plan ==="
   echo "Source: $SOURCE_BCF"
+  echo "Temp directory: $TEMP_DIR"
   echo ""
   echo "Scales to test:"
   for scale_def in "${SCALES[@]}"; do
