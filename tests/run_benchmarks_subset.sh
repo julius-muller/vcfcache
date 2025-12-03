@@ -92,6 +92,7 @@ run_bench() {
          -a /cache/db/stash/vep_gnomad \
          --vcf /work/input.bcf \
          --output /data/out \
+         --temp /data/out/tmp \
          -y /app/recipes/docker-annotated/params.yaml \
          -vv"
   status=$?
