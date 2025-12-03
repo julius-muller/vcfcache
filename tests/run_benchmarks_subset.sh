@@ -117,6 +117,9 @@ run_bench() {
   local total_lines=0
   if [ -f "$LOG_FILE" ]; then
     total_lines=$(wc -l < "$LOG_FILE")
+    echo "    Log file exists: $LOG_FILE ($total_lines lines)"
+  else
+    echo "    Log file does not exist: $LOG_FILE"
   fi
 
   # If log has less than 2 lines (header only or corrupted), delete it
@@ -128,10 +131,17 @@ run_bench() {
 
   # Skip logic (only applies if NOT in append mode and NOT in force mode)
   if [ "$APPEND_MODE" = false ] && [ "$total_lines" -ge 2 ]; then
+    # Create a precise grep pattern that matches tab-separated fields
+    # Log format: timestamp\timage\tmode\tscale\tvariants\tseconds\tstatus\toutput
+    # We need to match: \t{mode}\t{scale}\t
+    local grep_pattern=$'\t'"${mode}"$'\t'"${scale}"$'\t'
+    echo "    Checking if benchmark exists in log (mode='${mode}', scale='${scale}')"
     # Check if this specific benchmark already exists in the log
-    if grep -q "${mode}.*${scale}" "$LOG_FILE" 2>/dev/null; then
+    if grep -qF "${grep_pattern}" "$LOG_FILE" 2>/dev/null; then
       echo "    Skipping - already completed (use -a to append)"
       return 0
+    else
+      echo "    Pattern not found in log, will run benchmark"
     fi
   fi
 
