@@ -78,11 +78,11 @@ class NextflowWorkflow:
         self.output_dir = Path(output_dir).expanduser()
         self.name = name
         self.work_dir: Optional[Path] = None
-        # Set up logging
-        log_file = Path(self.workflow_dir) / "workflow.log"
+        # Set up logging - log to output directory instead of workflow directory (which may be read-only)
+        log_file = self.output_dir / "workflow.log" if self.output_dir else None
         self.logger = setup_logging(
             verbosity=verbosity,
-            log_file=log_file if self.workflow_file.exists() else None,
+            log_file=log_file if log_file and self.output_dir.exists() else None,
         )
 
         if not self.workflow_file.exists():

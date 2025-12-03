@@ -102,8 +102,7 @@ run_bench() {
          -a /cache/db/stash/vep_gnomad \
          --vcf /work/input.bcf \
          --output ${run_dir_cont} \
-         -y /app/recipes/docker-annotated/params.yaml \
-         -vv"
+         -y /app/recipes/docker-annotated/params.yaml"
   status=$?
   set -e
   local end=$(date -u +%s)
