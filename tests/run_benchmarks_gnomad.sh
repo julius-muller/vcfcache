@@ -5,7 +5,7 @@ set -euo pipefail
 source /home/appuser/projects/vcfstash/.venv/bin/activate
 
 # Set a variable for the verbose flag
-VERBOSE="-v"
+VERBOSE=""
 
 # Define allele frequencies ordered from highest to lowest: '1e-1', '5e-2', '1e-2', '1e-3', '0'
 AF_VALUES=('1e-1' '5e-2' '1e-2' '1e-3' '0')
