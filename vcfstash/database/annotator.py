@@ -682,13 +682,8 @@ class VCFAnnotator(VCFDatabase):
                 report=True,
             )
             duration = time.time() - start_time
-            if self.logger:
-                # Show a clean completion message
-                if self.logger.isEnabledFor(logging.INFO):
-                    self.logger.info(f"Annotation completed in {duration:.1f}s")
-                else:
-                    # Even in default mode, show completion
-                    print(f"Annotation completed in {duration:.1f}s")
+            # Always show completion (even in default mode)
+            print(f"Annotation completed in {duration:.1f}s")
 
         except Exception:
             if self.logger:

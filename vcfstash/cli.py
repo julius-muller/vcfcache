@@ -280,10 +280,10 @@ def main() -> None:
             annotator.annotate()
 
         elif args.command == "annotate":
-            # Show minimal info message for annotation command
-            if logger.isEnabledFor(logging.INFO):
-                input_name = Path(args.i).name
-                logger.info(f"Annotating {input_name}")
+            # Always show what we're doing (even in default mode)
+            input_name = Path(args.i).name
+            mode = "uncached" if args.uncached else "cached"
+            print(f"Annotating {input_name} ({mode} mode)...")
 
             vcf_annotator = VCFAnnotator(
                 annotation_db=args.a,

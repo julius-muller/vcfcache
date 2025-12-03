@@ -85,12 +85,18 @@ run_bench() {
   rm -rf "${run_dir_host}"
   local start=$(date -u +%s)
   set +e
+
+  # Get the project root directory (parent of tests/)
+  local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local project_root="$(dirname "$script_dir")"
+
   docker run --rm \
     -v "$bcf":/work/input.bcf:ro \
     -v "${bcf}.csi":/work/input.bcf.csi:ro \
     -v "$VEP_CACHE_DIR":/opt/vep/.vep:ro \
     -v "$outdir":/out \
     -v /tmp:/tmp \
+    -v "${project_root}/vcfstash":/app/venv/lib/python3.13/site-packages/vcfstash:ro \
     -w /app \
     --user "$(id -u):$(id -g)" \
     --entrypoint /bin/bash \
