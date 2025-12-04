@@ -14,7 +14,7 @@ TEST_VCF = TEST_DATA_DIR / "crayz_db.bcf"
 TEST_VCF2 = TEST_DATA_DIR / "crayz_db2.bcf"
 TEST_SAMPLE = TEST_DATA_DIR / "sample4.bcf"
 TEST_PARAMS = TEST_ROOT / "config" / "test_params.yaml"
-TEST_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.config"
+TEST_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.yaml"
 VCFSTASH_CMD = "vcfstash"
 VCFSTASH_ROOT = get_vcfstash_root()
 

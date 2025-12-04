@@ -64,6 +64,7 @@ class DatabaseAnnotator(VCFDatabase):
         verbosity: int = 0,
         force: bool = False,
         debug: bool = False,
+        use_nextflow: bool = False,
     ):
         """Initialize database annotator.
 
@@ -117,8 +118,10 @@ class DatabaseAnnotator(VCFDatabase):
                 self.params_file.exists()
             ), f"Workflow params file not found: {self.params_file}"
 
-        # Initialize NextflowWorkflow
-        self.nx_workflow = NextflowWorkflow(
+        # Initialize workflow backend (pure Python by default, Nextflow if --nf flag)
+        from vcfstash.database.base import create_workflow
+        self.nx_workflow = create_workflow(
+            use_nextflow=use_nextflow,
             input_file=self.blueprint_bcf,
             output_dir=self.output_dir,
             name=self.annotation_name,
@@ -305,6 +308,7 @@ class VCFAnnotator(VCFDatabase):
         verbosity: int = 0,
         force: bool = False,
         debug: bool = False,
+        use_nextflow: bool = False,
     ):
         """Initialize database annotator.
 
@@ -396,8 +400,10 @@ class VCFAnnotator(VCFDatabase):
         if not self.stash_file.exists():
             raise FileNotFoundError(f"Stash file not found: {self.stash_file}")
 
-        # Initialize NextflowWorkflow
-        self.nx_workflow = NextflowWorkflow(
+        # Initialize workflow backend (pure Python by default, Nextflow if --nf flag)
+        from vcfstash.database.base import create_workflow
+        self.nx_workflow = create_workflow(
+            use_nextflow=use_nextflow,
             input_file=self.input_vcf,
             output_dir=self.output_dir,
             name=self.annotation_name,

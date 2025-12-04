@@ -1,0 +1,626 @@
+"""Pure Python workflow manager for VCFstash operations.
+
+This module implements a pure Python alternative to the Nextflow-based workflow
+system. It executes the same bcftools commands directly via subprocess, eliminating
+the need for Java and Nextflow dependencies.
+"""
+
+import datetime
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+
+import yaml
+
+from vcfstash.database.workflow_base import WorkflowBase
+from vcfstash.utils.logging import setup_logging
+
+
+class BcftoolsCommand:
+    """Helper class to execute and log bcftools commands."""
+
+    def __init__(self, cmd: str, logger, work_dir: Path, log_file: Optional[Path] = None):
+        """Initialize a bcftools command.
+
+        Args:
+            cmd: The command to execute (bash script)
+            logger: Logger instance for output
+            work_dir: Working directory for execution
+            log_file: Optional path to log file
+        """
+        self.cmd = cmd
+        self.logger = logger
+        self.work_dir = work_dir
+        self.log_file = log_file or (work_dir / "command.log")
+
+    def run(self, check: bool = True) -> subprocess.CompletedProcess:
+        """Execute the command with logging.
+
+        Args:
+            check: If True, raise exception on non-zero exit code
+
+        Returns:
+            subprocess.CompletedProcess with results
+
+        Raises:
+            subprocess.CalledProcessError: If command fails and check=True
+        """
+        self.logger.debug(f"Running command in {self.work_dir}")
+        self.logger.debug(f"Command: {self.cmd}")
+
+        # Write command to file for debugging
+        script_file = self.work_dir / "command.sh"
+        script_file.write_text(f"#!/bin/bash\nset -euo pipefail\n\n{self.cmd}\n")
+        script_file.chmod(0o755)
+
+        # Execute command
+        result = subprocess.run(
+            self.cmd,
+            shell=True,
+            capture_output=True,
+            text=True,
+            cwd=self.work_dir,
+            executable="/bin/bash",
+        )
+
+        # Save stdout/stderr
+        (self.work_dir / "stdout.txt").write_text(result.stdout)
+        (self.work_dir / "stderr.txt").write_text(result.stderr)
+
+        # Log output
+        if result.stdout:
+            self.logger.debug(f"STDOUT: {result.stdout}")
+        if result.stderr:
+            self.logger.debug(f"STDERR: {result.stderr}")
+
+        if result.returncode != 0:
+            self.logger.error(f"Command failed with exit code {result.returncode}")
+            self.logger.error(f"STDERR: {result.stderr}")
+            if check:
+                raise subprocess.CalledProcessError(
+                    result.returncode, self.cmd, result.stdout, result.stderr
+                )
+
+        return result
+
+
+class WorkflowManager(WorkflowBase):
+    """Pure Python workflow manager for VCFstash operations.
+
+    This class implements the same workflow logic as Nextflow but using
+    pure Python subprocess calls. It eliminates the Java/Nextflow dependency
+    while maintaining identical functionality and output.
+    """
+
+    def __init__(
+        self,
+        workflow: Path,
+        input_file: Path,
+        output_dir: Path,
+        name: str,
+        config_file: Optional[Path] = None,
+        anno_config_file: Optional[Path] = None,
+        params_file: Optional[Path] = None,
+        verbosity: int = 0,
+    ):
+        """Initialize the pure Python workflow manager.
+
+        Args:
+            workflow: Path to workflow file (for compatibility, not used)
+            input_file: Path to input VCF/BCF file
+            output_dir: Directory for output files
+            name: Unique name for this workflow instance
+            config_file: Optional process configuration file (not used in pure Python)
+            anno_config_file: Optional annotation configuration YAML file
+            params_file: Required YAML parameters file
+            verbosity: Verbosity level (0=quiet, 1=info, 2=debug)
+        """
+        super().__init__(
+            workflow=workflow,
+            input_file=input_file,
+            output_dir=output_dir,
+            name=name,
+            config_file=config_file,
+            anno_config_file=anno_config_file,
+            params_file=params_file,
+            verbosity=verbosity,
+        )
+
+        # Set up logging
+        log_file = self.output_dir / "workflow.log" if self.output_dir else None
+        self.logger = setup_logging(
+            verbosity=verbosity,
+            log_file=log_file if log_file and self.output_dir.exists() else None,
+        )
+
+        self.logger.debug(f"Initializing Pure Python workflow in: {self.output_dir}")
+
+        # Load and validate params file (required for all modes)
+        if params_file:
+            self.params_file = Path(params_file).expanduser().resolve()
+            if not self.params_file.exists():
+                self.logger.error(f"Parameters file not found: {self.params_file}")
+                raise FileNotFoundError(f"Parameters file not found: {self.params_file}")
+
+            # Load params with environment variable expansion
+            params_content = self.params_file.read_text()
+            params_expanded = os.path.expandvars(params_content)
+            self.params_file_content = yaml.safe_load(params_expanded)
+
+            self.logger.debug(f"Loaded parameters from: {self.params_file}")
+        else:
+            self.params_file_content = {}
+
+        # Load annotation config if provided (YAML format)
+        if anno_config_file:
+            self.nfa_config = Path(anno_config_file).expanduser().resolve()
+            if not self.nfa_config.exists():
+                self.logger.error(f"Annotation config file not found: {self.nfa_config}")
+                raise FileNotFoundError(
+                    f"Annotation config file not found: {self.nfa_config}"
+                )
+
+            # Load annotation config (YAML format, not Groovy)
+            anno_content = self.nfa_config.read_text()
+            anno_expanded = os.path.expandvars(anno_content)
+            self.nfa_config_content = yaml.safe_load(anno_expanded)
+
+            self.logger.debug(f"Loaded annotation config from: {self.nfa_config}")
+        else:
+            self.nfa_config_content = {}
+
+    def run(
+        self,
+        db_mode: str,
+        nextflow_args: Optional[List[str]] = None,
+        trace: bool = False,
+        db_bcf: Optional[Path] = None,
+        dag: bool = False,
+        timeline: bool = False,
+        report: bool = False,
+        temp: Union[Path, str] = "/tmp",
+    ) -> subprocess.CompletedProcess:
+        """Execute the workflow using pure Python.
+
+        Args:
+            db_mode: Workflow mode ('stash-init', 'stash-add', 'stash-annotate', 'annotate')
+            nextflow_args: Additional arguments (repurposed for normalize flag)
+            trace: Whether to generate trace file
+            db_bcf: Path to database BCF file (required for stash-add and annotate)
+            dag: Ignored (not supported in pure Python mode)
+            timeline: Ignored (not supported in pure Python mode)
+            report: Ignored (not supported in pure Python mode)
+            temp: Temporary directory for intermediate files
+
+        Returns:
+            subprocess.CompletedProcess with execution results
+
+        Raises:
+            ValueError: If invalid db_mode or missing required parameters
+            RuntimeError: If workflow execution fails
+        """
+        start_time = datetime.datetime.now()
+
+        # Create work directory
+        self._create_work_dir(self.output_dir, dirname="work")
+
+        # Parse normalize flag from nextflow_args
+        normalize = False
+        if nextflow_args:
+            for arg in nextflow_args:
+                if arg.startswith("--normalize"):
+                    if "=" in arg:
+                        normalize = arg.split("=")[1].lower() == "true"
+                    else:
+                        normalize = True
+
+        self.logger.info(f"Running workflow in mode: {db_mode}")
+        if normalize:
+            self.logger.info("Normalization enabled")
+
+        try:
+            # Route to appropriate workflow method
+            if db_mode == "stash-init":
+                result = self._run_stash_init(normalize)
+            elif db_mode == "stash-add":
+                if not db_bcf:
+                    raise ValueError("db_bcf is required for stash-add mode")
+                result = self._run_stash_add(db_bcf, normalize)
+            elif db_mode == "stash-annotate":
+                if not db_bcf:
+                    raise ValueError("db_bcf is required for stash-annotate mode")
+                result = self._run_stash_annotate(db_bcf)
+            elif db_mode == "annotate":
+                if not db_bcf:
+                    raise ValueError("db_bcf is required for annotate mode")
+                result = self._run_annotate(db_bcf)
+            elif db_mode == "annotate-nocache":
+                result = self._run_annotate_nocache()
+            else:
+                raise ValueError(
+                    f"Invalid db_mode: {db_mode}. Must be one of: "
+                    "stash-init, stash-add, stash-annotate, annotate, annotate-nocache"
+                )
+
+            end_time = datetime.datetime.now()
+
+            # Write trace file if requested
+            if trace:
+                self._write_trace_file(db_mode, start_time, end_time)
+
+            self.logger.info(f"Workflow completed successfully in {(end_time - start_time).total_seconds():.1f}s")
+
+            return result
+
+        except subprocess.CalledProcessError as e:
+            self.warn_temp_files()
+            self.logger.error(f"Workflow execution failed: {e}")
+            raise RuntimeError(f"Workflow execution failed: {e}") from e
+        except Exception as e:
+            self.warn_temp_files()
+            self.logger.error(f"Unexpected error: {e}")
+            raise
+
+    def _run_stash_init(self, normalize: bool) -> subprocess.CompletedProcess:
+        """Initialize database blueprint.
+
+        Args:
+            normalize: If True, apply full normalization pipeline
+
+        Returns:
+            subprocess.CompletedProcess with results
+        """
+        self.logger.info("Initializing database blueprint")
+
+        work_task = self.work_dir / "stash-init"
+        work_task.mkdir(parents=True, exist_ok=True)
+
+        input_bcf = self.input_file
+        output_bcf = self.output_dir / "vcfstash.bcf"
+        bcftools = self.params_file_content['bcftools_cmd']
+
+        if normalize:
+            # Full normalization pipeline (from normalize.nf:75-82)
+            chr_add = self.params_file_content['chr_add']
+            self.logger.info("Applying full normalization with chromosome renaming")
+
+            cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
+{bcftools} annotate -x INFO --rename-chrs {chr_add} -Ou | \\
+{bcftools} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]$"' -Ou | \\
+{bcftools} norm -m- -o {output_bcf} -Ob --write-index
+"""
+        else:
+            # Just remove GT and INFO (from normalize.nf:32-33)
+            self.logger.info("Removing GT and INFO fields only")
+
+            cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
+{bcftools} annotate -x INFO -o {output_bcf} -Ob --write-index
+"""
+
+        return BcftoolsCommand(cmd, self.logger, work_task).run()
+
+    def _run_stash_add(self, db_bcf: Path, normalize: bool) -> subprocess.CompletedProcess:
+        """Add variants to existing blueprint.
+
+        Args:
+            db_bcf: Path to existing blueprint BCF
+            normalize: If True, normalize new input before merging
+
+        Returns:
+            subprocess.CompletedProcess with results
+        """
+        self.logger.info("Adding variants to existing blueprint")
+
+        work_task = self.work_dir / "stash-add"
+        work_task.mkdir(parents=True, exist_ok=True)
+
+        bcftools = self.params_file_content['bcftools_cmd']
+
+        # Step 1: Normalize/filter new input (same as stash-init)
+        normalized = work_task / "normalized.bcf"
+        input_bcf = self.input_file
+
+        if normalize:
+            chr_add = self.params_file_content['chr_add']
+            self.logger.info("Normalizing new input")
+
+            norm_cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
+{bcftools} annotate -x INFO --rename-chrs {chr_add} -Ou | \\
+{bcftools} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]$"' -Ou | \\
+{bcftools} norm -m- -o {normalized} -Ob --write-index
+"""
+        else:
+            self.logger.info("Filtering new input")
+
+            norm_cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
+{bcftools} annotate -x INFO -o {normalized} -Ob --write-index
+"""
+
+        BcftoolsCommand(norm_cmd, self.logger, work_task).run()
+
+        # Step 2: Merge with existing blueprint (from merge_variants.nf)
+        output_bcf = self.output_dir / "vcfstash.bcf"
+        self.logger.info(f"Merging with existing blueprint: {db_bcf}")
+
+        merge_cmd = f"{bcftools} merge {db_bcf} {normalized} -o {output_bcf} -Ob --write-index"
+
+        return BcftoolsCommand(merge_cmd, self.logger, work_task).run()
+
+    def _run_stash_annotate(self, db_bcf: Path) -> subprocess.CompletedProcess:
+        """Run annotation on blueprint to create cache.
+
+        Args:
+            db_bcf: Path to blueprint BCF
+
+        Returns:
+            subprocess.CompletedProcess with results
+        """
+        self.logger.info("Annotating blueprint to create cache")
+
+        work_task = self.work_dir / "stash-annotate"
+        work_task.mkdir(parents=True, exist_ok=True)
+
+        # Prepare auxiliary directory
+        aux_dir = self.output_dir / "auxiliary"
+        aux_dir.mkdir(exist_ok=True)
+
+        output_bcf = self.output_dir / "vcfstash_annotated.bcf"
+
+        # Substitute variables in annotation command (from annotate.nf:34-39)
+        anno_cmd = self._substitute_variables(
+            self.nfa_config_content['annotation_cmd'],
+            extra_vars={
+                'INPUT_BCF': str(db_bcf),
+                'OUTPUT_BCF': str(output_bcf),
+                'AUXILIARY_DIR': str(aux_dir),
+            }
+        )
+
+        self.logger.info("Running annotation command on blueprint")
+
+        # Execute annotation command
+        result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
+
+        # Validate output has required INFO tag (from annotate.nf:76-85)
+        tag = self.nfa_config_content['must_contain_info_tag']
+        self._validate_info_tag(output_bcf, tag)
+
+        self.logger.info(f"Annotation complete, cache created at: {output_bcf}")
+
+        return result
+
+    def _run_annotate(self, db_bcf: Path) -> subprocess.CompletedProcess:
+        """Annotate sample using cache - 4-step caching process.
+
+        This is the key performance feature that makes VCFstash fast.
+        It uses pre-annotated common variants from the cache and only
+        annotates novel variants.
+
+        Args:
+            db_bcf: Path to cache BCF (vcfstash_annotated.bcf)
+
+        Returns:
+            subprocess.CompletedProcess with results
+        """
+        self.logger.info("Annotating sample using cache (4-step process)")
+
+        work_task = self.work_dir / "annotate"
+        work_task.mkdir(parents=True, exist_ok=True)
+
+        sample_name = self.input_file.stem
+        input_bcf = self.input_file
+        bcftools = self.params_file_content['bcftools_cmd']
+        tag = self.nfa_config_content['must_contain_info_tag']
+
+        # Step 1: Add cache annotations (from annotate_cache.nf:19)
+        self.logger.info("Step 1/4: Adding cache annotations")
+        step1_bcf = work_task / f"{sample_name}_isecvst.bcf"
+        cmd1 = f"{bcftools} annotate -a {db_bcf} {input_bcf} -c INFO -o {step1_bcf} -Ob -W"
+        BcftoolsCommand(cmd1, self.logger, work_task).run()
+
+        # Step 2: Filter to get missing annotations (from annotate_cache.nf:37)
+        self.logger.info("Step 2/4: Identifying variants missing from cache")
+        step2_bcf = work_task / f"{sample_name}_isecvst_miss.bcf"
+        cmd2 = f"{bcftools} filter -i 'INFO/{tag}==\"\"' -Ob -o {step2_bcf} {step1_bcf} -W"
+        BcftoolsCommand(cmd2, self.logger, work_task).run()
+
+        # Count missing variants
+        count_result = subprocess.run(
+            f"{bcftools} index -n {step2_bcf}.csi",
+            shell=True,
+            capture_output=True,
+            text=True,
+        )
+        missing_count = int(count_result.stdout.strip()) if count_result.returncode == 0 else 0
+        self.logger.info(f"Found {missing_count} variants not in cache")
+
+        # Step 3: Annotate only missing variants (from annotate.nf)
+        if missing_count > 0:
+            self.logger.info(f"Step 3/4: Annotating {missing_count} missing variants")
+            step3_bcf = work_task / f"{sample_name}_missing_annotated.bcf"
+            aux_dir = self.output_dir / "auxiliary"
+            aux_dir.mkdir(exist_ok=True)
+
+            anno_cmd = self._substitute_variables(
+                self.nfa_config_content['annotation_cmd'],
+                extra_vars={
+                    'INPUT_BCF': str(step2_bcf),
+                    'OUTPUT_BCF': str(step3_bcf),
+                    'AUXILIARY_DIR': str(aux_dir),
+                }
+            )
+            BcftoolsCommand(anno_cmd, self.logger, work_task).run()
+        else:
+            self.logger.info("Step 3/4: Skipped (all variants found in cache)")
+            # Create empty file for step 4
+            step3_bcf = step2_bcf
+
+        # Step 4: Merge newly annotated back into original (from annotate_cache.nf:57)
+        self.logger.info("Step 4/4: Merging cache and newly annotated variants")
+        output_bcf = self.output_dir / f"{sample_name}_vst.bcf"
+
+        if missing_count > 0:
+            cmd4 = f"{bcftools} annotate -a {step3_bcf} {step1_bcf} -c INFO -o {output_bcf} -Ob -W"
+        else:
+            # No new annotations, just copy step1 to output
+            cmd4 = f"cp {step1_bcf} {output_bcf} && cp {step1_bcf}.csi {output_bcf}.csi"
+
+        result = BcftoolsCommand(cmd4, self.logger, work_task).run()
+
+        self.logger.info(f"Annotation complete: {output_bcf}")
+
+        return result
+
+    def _run_annotate_nocache(self) -> subprocess.CompletedProcess:
+        """Annotate sample directly without using cache.
+
+        This is for benchmarking or when cache is not available.
+
+        Returns:
+            subprocess.CompletedProcess with results
+        """
+        self.logger.info("Annotating sample directly (no cache)")
+
+        work_task = self.work_dir / "annotate-nocache"
+        work_task.mkdir(parents=True, exist_ok=True)
+
+        sample_name = self.input_file.stem
+        input_bcf = self.input_file
+        output_bcf = self.output_dir / f"{sample_name}_vst.bcf"
+        aux_dir = self.output_dir / "auxiliary"
+        aux_dir.mkdir(exist_ok=True)
+
+        # Run annotation command directly (from annotate.nf)
+        anno_cmd = self._substitute_variables(
+            self.nfa_config_content['annotation_cmd'],
+            extra_vars={
+                'INPUT_BCF': str(input_bcf),
+                'OUTPUT_BCF': str(output_bcf),
+                'AUXILIARY_DIR': str(aux_dir),
+            }
+        )
+
+        result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
+
+        # Validate output
+        tag = self.nfa_config_content['must_contain_info_tag']
+        self._validate_info_tag(output_bcf, tag)
+
+        self.logger.info(f"Direct annotation complete: {output_bcf}")
+
+        return result
+
+    def _substitute_variables(self, text: str, extra_vars: Optional[Dict[str, str]] = None) -> str:
+        """Replace variables in command strings.
+
+        Order of substitution:
+        1. Environment variables (${VCFSTASH_ROOT})
+        2. Params file variables (${params.vep_cache})
+        3. Special workflow variables (${INPUT_BCF}, ${OUTPUT_BCF}, ${AUXILIARY_DIR})
+
+        Args:
+            text: Text with variables to substitute
+            extra_vars: Additional variables to substitute (e.g., INPUT_BCF, OUTPUT_BCF)
+
+        Returns:
+            Text with variables substituted
+        """
+        # 1. Environment variables
+        text = os.path.expandvars(text)
+
+        # 2. Params file variables
+        if self.params_file_content:
+            for key, value in self.params_file_content.items():
+                if key != 'optional_checks':
+                    text = text.replace(f"${{params.{key}}}", str(value))
+
+        # 3. Special workflow variables
+        if extra_vars:
+            for key, value in extra_vars.items():
+                text = text.replace(f"${{{key}}}", str(value))
+                text = text.replace(f"${key}", str(value))  # Also support $VAR format
+
+        return text
+
+    def _validate_info_tag(self, bcf_path: Path, tag: str) -> None:
+        """Validate that BCF header contains required INFO tag.
+
+        Args:
+            bcf_path: Path to BCF file to validate
+            tag: INFO tag that must be present
+
+        Raises:
+            RuntimeError: If tag is not found in header
+        """
+        bcftools = self.params_file_content['bcftools_cmd']
+
+        # Check header for INFO tag (from annotate.nf:76-85)
+        result = subprocess.run(
+            f"{bcftools} view -h {bcf_path} | grep '##INFO=<ID={tag},'",
+            shell=True,
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"Annotation validation failed: Required INFO tag '{tag}' not found in {bcf_path}. "
+                f"Check that your annotation command is working correctly."
+            )
+
+        self.logger.debug(f"Validated INFO tag '{tag}' present in {bcf_path}")
+
+    def _write_trace_file(self, mode: str, start_time, end_time) -> None:
+        """Write execution trace file.
+
+        Args:
+            mode: Workflow mode
+            start_time: Start time
+            end_time: End time
+        """
+        trace_file = self.output_dir / f"{self.name}_trace.txt"
+
+        duration = (end_time - start_time).total_seconds()
+
+        with open(trace_file, 'w') as f:
+            f.write(f"task_id\tname\tstatus\texit\tduration\n")
+            f.write(f"1\t{mode}\tCOMPLETED\t0\t{duration:.1f}s\n")
+
+        self.logger.debug(f"Trace file written to: {trace_file}")
+
+    def _create_work_dir(self, parent: Path, dirname: str = "work") -> None:
+        """Create a temporary work directory.
+
+        Args:
+            parent: Parent directory
+            dirname: Name of work directory
+        """
+        self.work_dir = parent / dirname
+        if self.work_dir is not None:
+            if not self.work_dir.exists():
+                self.work_dir.mkdir(parents=True, exist_ok=True)
+                if self.logger:
+                    self.logger.debug(f"Created work directory: {self.work_dir}")
+            else:
+                if self.logger:
+                    self.logger.warning(
+                        f"Work directory already exists: {self.work_dir}"
+                    )
+
+    def cleanup_work_dir(self) -> None:
+        """Remove temporary work directory."""
+        if not self.work_dir:
+            return
+
+        self.logger.debug("Cleaning up work directory")
+        try:
+            if self.work_dir.exists():
+                self.logger.debug(f"Removing work directory: {self.work_dir}")
+                shutil.rmtree(self.work_dir)
+        except Exception as e:
+            self.logger.warning(f"Failed to remove work directory {self.work_dir}: {e}")
+        self.work_dir = None

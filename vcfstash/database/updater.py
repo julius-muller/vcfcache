@@ -40,6 +40,7 @@ class DatabaseUpdater(VCFDatabase):
         verbosity: int = 0,
         debug: bool = False,
         normalize: bool = False,
+        use_nextflow: bool = False,
     ):
         super().__init__(Path(db_path), verbosity, debug, bcftools_path)
         self.stashed_output.validate_structure()
@@ -69,8 +70,10 @@ class DatabaseUpdater(VCFDatabase):
             wfini = self.workflow_dir / "init.yaml"
             self.params_file = wfini if wfini.exists() else None
 
-        # Initialize NextflowWorkflow
-        self.nx_workflow = NextflowWorkflow(
+        # Initialize workflow backend (pure Python by default, Nextflow if --nf flag)
+        from vcfstash.database.base import create_workflow
+        self.nx_workflow = create_workflow(
+            use_nextflow=use_nextflow,
             input_file=self.input_file,
             output_dir=self.blueprint_dir,
             name=f"add_{self.input_md5}",

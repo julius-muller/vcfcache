@@ -15,7 +15,7 @@ os.environ.setdefault("VCFSTASH_ROOT", str(get_vcfstash_root()))
 TEST_ROOT = get_vcfstash_root() / "tests"
 TEST_DATA_DIR = TEST_ROOT / "data" / "nodata"
 TEST_PARAMS = TEST_ROOT / "config" / "test_params.yaml"
-TEST_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.config"
+TEST_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.yaml"
 VEP_ANNO_CONFIG = TEST_ROOT / "config" / "example_annotation.config"
 
 

@@ -13,11 +13,12 @@ import pysam
 import yaml
 
 from vcfstash.database.outputs import StashOutput
+from vcfstash.database.workflow_base import WorkflowBase
 from vcfstash.utils.logging import setup_logging
 from vcfstash.utils.validation import validate_bcf_header
 
 
-class NextflowWorkflow:
+class NextflowWorkflow(WorkflowBase):
     """Base class for Nextflow workflow operations for a single input file.
 
     The NextflowWorkflow class is designed to handle the initialization and execution
@@ -71,13 +72,18 @@ class NextflowWorkflow:
         params_file: Optional[Path] = None,
         verbosity: int = 0,
     ):
+        # Initialize base class
+        super().__init__(
+            workflow=workflow,
+            input_file=input_file,
+            output_dir=output_dir,
+            name=name,
+            config_file=config_file,
+            anno_config_file=anno_config_file,
+            params_file=params_file,
+            verbosity=verbosity,
+        )
 
-        self.workflow_file = Path(workflow).expanduser()
-        self.workflow_dir = self.workflow_file.parent
-        self.input_file = Path(input_file).expanduser()
-        self.output_dir = Path(output_dir).expanduser()
-        self.name = name
-        self.verbosity = verbosity
         self.work_dir: Optional[Path] = None
         # Set up logging - log to output directory instead of workflow directory (which may be read-only)
         log_file = self.output_dir / "workflow.log" if self.output_dir else None
@@ -822,6 +828,55 @@ class NextflowWorkflow:
         finally:
             if params_tfile:
                 os.unlink(params_tfile)
+
+
+def create_workflow(
+    use_nextflow: bool = False,
+    **kwargs
+) -> WorkflowBase:
+    """Factory function to create workflow backend.
+
+    This function creates either a NextflowWorkflow (legacy) or WorkflowManager
+    (pure Python) instance based on the use_nextflow flag. It provides a unified
+    interface for creating workflow backends.
+
+    Args:
+        use_nextflow: If True, use legacy Nextflow backend (requires Java).
+                     If False (default), use pure Python WorkflowManager.
+        **kwargs: Arguments to pass to the workflow constructor:
+                 - workflow: Path to workflow file
+                 - input_file: Path to input VCF/BCF
+                 - output_dir: Output directory
+                 - name: Workflow instance name
+                 - config_file: Optional process config
+                 - anno_config_file: Optional annotation config
+                 - params_file: Optional YAML params
+                 - verbosity: Verbosity level
+
+    Returns:
+        WorkflowBase instance (either NextflowWorkflow or WorkflowManager)
+
+    Example:
+        >>> workflow = create_workflow(
+        ...     use_nextflow=False,  # Use pure Python (default)
+        ...     workflow=Path("main.nf"),
+        ...     input_file=Path("input.bcf"),
+        ...     output_dir=Path("/tmp/output"),
+        ...     name="test",
+        ...     verbosity=1
+        ... )
+    """
+    if use_nextflow:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(
+            "Nextflow backend is deprecated and will be removed in v2.0. "
+            "Please test the pure Python backend and report any issues."
+        )
+        return NextflowWorkflow(**kwargs)
+    else:
+        from vcfstash.database.workflow_manager import WorkflowManager
+        return WorkflowManager(**kwargs)
 
 
 class VCFDatabase:

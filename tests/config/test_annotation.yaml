@@ -1,0 +1,34 @@
+# test_annotation.yaml
+# This file defines a test annotation workflow using bcftools annotate
+# for testing purposes. It adds a mock annotation to the INFO tag.
+
+# annotation_cmd: Shell commands to annotate the input VCF/BCF file
+# Available variables:
+# - ${INPUT_BCF}: Path to the input BCF file
+# - ${OUTPUT_BCF}: Path where the annotated BCF file should be written
+# - ${AUXILIARY_DIR}: Directory where any additional files can be written
+# - ${params.bcftools_cmd}: Path to bcftools from params.yaml
+annotation_cmd: |
+  echo '##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description=Mock_annotation_for_testing_purposes>' > newheader.txt
+  ${params.bcftools_cmd} query -f '%CHROM\t%POS\ttest\n' ${INPUT_BCF} > mockanno.txt
+  bgzip -c mockanno.txt > mockanno.txt.gz
+  touch ${AUXILIARY_DIR}/auxiliary_test.exo
+  tabix -s 1 -b 2 -e 2 mockanno.txt.gz
+  ${params.bcftools_cmd} annotate \
+      -a mockanno.txt.gz \
+      -h newheader.txt \
+      -c CHROM,POS,INFO/MOCK_ANNO \
+      ${INPUT_BCF} \
+      -Ob -o ${OUTPUT_BCF} -W
+
+# must_contain_info_tag: INFO tag that should appear in the final annotated VCF/BCF
+# The pipeline verifies this tag exists to ensure annotation was successful
+must_contain_info_tag: MOCK_ANNO
+
+# required_tool_version: Version marker for the annotation tool
+# Used to verify tool version matches expectations
+required_tool_version: "1.22+htslib-1.22"
+
+# optional_checks: Optional parameters to verify cache and input use same annotation settings
+# These values are locked after stash-annotate and must match exactly
+optional_checks: {}

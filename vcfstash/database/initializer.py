@@ -39,6 +39,7 @@ class DatabaseInitializer(VCFDatabase):
         force: bool = False,
         debug: bool = False,
         normalize: bool = False,
+        use_nextflow: bool = False,
     ) -> None:
         """Initialize the database creator.
 
@@ -82,11 +83,15 @@ class DatabaseInitializer(VCFDatabase):
         self.config_yaml = self.workflow_dir / "init.yaml"
         shutil.copyfile(Path(params_file).expanduser().resolve(), self.config_yaml)
 
-        # Initialize NextflowWorkflow
+        # Initialize workflow backend (pure Python by default, Nextflow if --nf flag)
         if self.logger:
-            self.logger.info("Initializing Nextflow workflow...")
+            backend = "Nextflow" if use_nextflow else "pure Python"
+            self.logger.info(f"Initializing {backend} workflow...")
         params_path = Path(params_file) if isinstance(params_file, str) else params_file
-        self.nx_workflow = NextflowWorkflow(
+
+        from vcfstash.database.base import create_workflow
+        self.nx_workflow = create_workflow(
+            use_nextflow=use_nextflow,
             input_file=self.input_file,
             output_dir=self.blueprint_dir,
             name="init",
