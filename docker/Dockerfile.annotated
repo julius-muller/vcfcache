@@ -32,7 +32,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         make \
         zlib1g-dev \
         libbz2-dev \
-        liblzma-dev && \
+        liblzma-dev \
+        libcurl4-openssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install bcftools 1.22 from source (VEP image has 1.13 which lacks --write-index)
@@ -140,7 +141,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         make \
         zlib1g-dev \
         libbz2-dev \
-        liblzma-dev && \
+        liblzma-dev \
+        libcurl4-openssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install bcftools 1.22 from source (VEP image has 1.13 which lacks --write-index)
@@ -152,7 +154,8 @@ RUN cd /tmp && \
     make -j$(nproc) && \
     make install && \
     cd / && rm -rf /tmp/bcftools-1.22* && \
-    apt-get purge -y build-essential gcc make wget && \
+    apt-get purge -y build-essential gcc make wget libcurl4-openssl-dev \
+        zlib1g-dev libbz2-dev liblzma-dev && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
