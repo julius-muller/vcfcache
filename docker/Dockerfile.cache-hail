@@ -1,6 +1,6 @@
 # =====================  stage 0: build cache + CLI  ======================
-# Use Python 3.14 builder to match runtime (ensures venv compatibility)
-FROM python:3.14.1-slim-trixie AS builder
+# Use Python 3.13 Trixie (GLIBC 2.41, has pysam wheels, bundled bcftools compatible)
+FROM python:3.13-slim-trixie AS builder
 
 # Install system dependencies and build tools for pysam
 RUN apt-get update && \
@@ -80,8 +80,8 @@ RUN mkdir -p "${CACHE_DIR}" && \
 
 # =====================  stage 1: slim runtime  ===========================
 # Keep runtime lean; the cache is already annotated, so no VEP at runtime.
-# Use Python 3.14.1 with Debian Trixie (GLIBC 2.41) for bundled bcftools compatibility
-FROM python:3.14.1-slim-trixie AS runtime
+# Use Python 3.13 with Debian Trixie (GLIBC 2.41) for bundled bcftools compatibility
+FROM python:3.13-slim-trixie AS runtime
 LABEL org.opencontainers.image.title="VCFstash cache image"
 LABEL org.opencontainers.image.description="Contains prebuilt cache and vcfstash CLI"
 
@@ -119,7 +119,7 @@ COPY --from=builder /opt/vcfstash-cache /cache
 
 # vcfstash wrapper - use system python with venv in PYTHONPATH
 RUN printf '%s\n' '#!/bin/sh' \
-                  'export PYTHONPATH=/app/venv/lib/python3.14/site-packages:$PYTHONPATH' \
+                  'export PYTHONPATH=/app/venv/lib/python3.13/site-packages:$PYTHONPATH' \
                   'exec python3 -m vcfstash.cli "$@"' \
     > /usr/local/bin/vcfstash && chmod +x /usr/local/bin/vcfstash
 
