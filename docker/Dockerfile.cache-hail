@@ -45,8 +45,8 @@ COPY tests ./tests
 RUN uv pip install --python /app/venv/bin/python --no-deps -e .
 
 # Make CLI available in PATH for the build step
-ENV PATH="/build/venv/bin:${PATH}"
-ENV VCFSTASH_ROOT="/build"
+ENV PATH="/app/venv/bin:${PATH}"
+ENV VCFSTASH_ROOT="/app"
 
 # Copy recipe and build script
 COPY recipes/docker-cache /tmp/recipe
