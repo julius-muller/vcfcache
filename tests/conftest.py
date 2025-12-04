@@ -93,6 +93,17 @@ def prebuilt_cache(test_scenario):
     return None
 
 
+@pytest.fixture(scope="session")
+def vep_cache_available():
+    """Check if VEP cache is actually available and populated.
+
+    Returns:
+        bool: True if VEP cache directory exists with species data
+    """
+    vep_cache_dir = Path("/opt/vep/.vep/homo_sapiens")
+    return vep_cache_dir.exists() and vep_cache_dir.is_dir()
+
+
 @pytest.fixture
 def annotation_config(test_scenario):
     """Provide appropriate annotation config based on scenario.
