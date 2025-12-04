@@ -26,8 +26,18 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         bcftools \
         samtools \
         procps \
-        ca-certificates && \
+        ca-certificates \
+        build-essential \
+        gcc \
+        make \
+        zlib1g-dev \
+        libbz2-dev \
+        liblzma-dev && \
     rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast package management
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
 
 # Prepare workspace
 WORKDIR /build
@@ -40,10 +50,9 @@ COPY tools ./tools
 COPY recipes ./recipes
 COPY tests ./tests
 
-# Install vcfstash with dev dependencies into a venv using Python 3.14
+# Install vcfstash with dev dependencies using uv (much faster than pip)
 RUN python3.14 -m venv /build/venv && \
-    /build/venv/bin/pip install --upgrade pip && \
-    /build/venv/bin/pip install --no-cache-dir ".[dev]"
+    uv pip install --python /build/venv/bin/python ".[dev]"
 
 # Make CLI available in PATH for the build step
 ENV PATH="/build/venv/bin:${PATH}"

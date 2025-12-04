@@ -2,7 +2,7 @@
 # Use Python 3.14 builder to match runtime (ensures venv compatibility)
 FROM python:3.14.1-slim-trixie AS builder
 
-# Install system dependencies (Python 3.14 already in base image)
+# Install system dependencies and build tools for pysam
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
@@ -11,8 +11,18 @@ RUN apt-get update && \
         procps \
         ca-certificates \
         bcftools \
-        samtools && \
+        samtools \
+        build-essential \
+        gcc \
+        make \
+        zlib1g-dev \
+        libbz2-dev \
+        liblzma-dev && \
     rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast package management
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
 
 # Prepare workspace
 WORKDIR /build
@@ -24,10 +34,9 @@ COPY resources ./resources
 COPY tools ./tools
 COPY tests ./tests
 
-# Install vcfstash with dev dependencies (includes pytest)
+# Install vcfstash with dev dependencies using uv (much faster than pip)
 RUN python3 -m venv /build/venv && \
-    /build/venv/bin/pip install --upgrade pip && \
-    /build/venv/bin/pip install --no-cache-dir ".[dev]"
+    uv pip install --python /build/venv/bin/python ".[dev]"
 
 # Make CLI available in PATH for the build step
 ENV PATH="/build/venv/bin:${PATH}"
