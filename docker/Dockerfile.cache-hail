@@ -47,6 +47,7 @@ RUN uv pip install --python /app/venv/bin/python --no-deps -e .
 # Make CLI available in PATH for the build step
 ENV PATH="/app/venv/bin:${PATH}"
 ENV VCFSTASH_ROOT="/app"
+ENV PYTHONPATH="/app/venv/lib/python3.13/site-packages"
 
 # Copy recipe and build script
 COPY recipes/docker-cache /tmp/recipe
@@ -110,6 +111,7 @@ COPY --from=builder /app/venv /app/venv
 COPY --from=builder /app/resources /app/resources
 COPY --from=builder /app/tools /app/tools
 COPY --from=builder /app/tests /app/tests
+COPY --from=builder /app/vcfstash /app/vcfstash
 
 # Ensure bcftools shim is executable (your repo's static bcftools)
 RUN chmod +x /app/tools/bcftools
