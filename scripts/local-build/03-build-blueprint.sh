@@ -90,7 +90,7 @@ fi
 # Auto-generate tag if not provided
 if [ -z "${TAG}" ]; then
   GENOME_LOWER=$(echo "${GENOME}" | tr '[:upper:]' '[:lower:]')
-  TAG="gnomad-${GENOME_LOWER}-${TYPE}-af${AF_CLEAN}"
+  TAG="gnomad-${GENOME_LOWER}-${TYPE}-af${AF_CLEAN}-py"
 fi
 
 # Generate cache name
@@ -101,7 +101,7 @@ CACHE_NAME="gnomad_${GENOME_LOWER}_${TYPE}_af${AF_CLEAN}"
 IMAGE_NAME="${REGISTRY}/vcfstash-blueprint:${TAG}"
 
 echo "==============================================================================="
-echo "Building Blueprint Docker Image"
+echo "Building Blueprint Docker Image (Pure Python - No Nextflow/Java)"
 echo "==============================================================================="
 echo "BCF file:        ${BCF_FILE}"
 echo "Genome:          ${GENOME}"

@@ -77,7 +77,7 @@ else
 fi
 
 echo "==============================================================================="
-echo "Running VEP Annotation and Committing Final Image"
+echo "Running VEP Annotation and Committing Final Image (Pure Python)"
 echo "==============================================================================="
 echo "Base image:         ${BASE_IMAGE}"
 echo "VEP cache:          ${VEP_CACHE_DIR}"
