@@ -52,7 +52,7 @@ COPY tests ./tests
 
 # Install vcfstash with dev dependencies using uv (much faster than pip)
 RUN python3.14 -m venv /build/venv && \
-    uv pip install --python /build/venv/bin/python ".[dev]"
+    uv pip install --python /build/venv/bin/python --verbose ".[dev]"
 
 # Make CLI available in PATH for the build step
 ENV PATH="/build/venv/bin:${PATH}"

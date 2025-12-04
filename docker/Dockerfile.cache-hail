@@ -35,8 +35,9 @@ COPY tools ./tools
 COPY tests ./tests
 
 # Install vcfstash with dev dependencies using uv (much faster than pip)
+# Use --no-build-isolation-package pysam to speed up builds
 RUN python3 -m venv /build/venv && \
-    uv pip install --python /build/venv/bin/python ".[dev]"
+    uv pip install --python /build/venv/bin/python --verbose ".[dev]"
 
 # Make CLI available in PATH for the build step
 ENV PATH="/build/venv/bin:${PATH}"
