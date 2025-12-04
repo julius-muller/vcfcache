@@ -357,10 +357,8 @@ def test_cached_vs_uncached_annotation(test_output_dir, params_file, test_scenar
     # Step 5: Compare the outputs
     print("Comparing outputs...")
 
-    # Get bcftools path for comparison
-    bcftools_path = get_resource_path(Path('tools/bcftools'))
-    if not bcftools_path.exists():
-        bcftools_path = 'bcftools'
+    # Use bcftools from PATH (respects setup_test_environment fixture)
+    bcftools_path = 'bcftools'
 
     # Compare headers
     cached_header = subprocess.run(
@@ -458,10 +456,8 @@ def test_input_not_modified_during_annotation(test_output_dir, params_file, test
     # Step 6: Verify the output file exists and has the expected content
     print("Verifying output file...")
 
-    # Get bcftools path for verification
-    bcftools_path = get_resource_path(Path('tools/bcftools'))
-    if not bcftools_path.exists():
-        bcftools_path = 'bcftools'
+    # Use bcftools from PATH (respects setup_test_environment fixture)
+    bcftools_path = 'bcftools'
 
     # Check if the output file exists
     # The output file is named after the input file with _vst.bcf suffix
@@ -509,10 +505,8 @@ def test_normalization_flag(test_output_dir, params_file, test_scenario):
     # Step 3: Compare the output files
     print("Comparing output files...")
 
-    # Get bcftools path for comparison
-    bcftools_path = get_resource_path(Path('tools/bcftools'))
-    if not bcftools_path.exists():
-        bcftools_path = 'bcftools'
+    # Use bcftools from PATH (respects setup_test_environment fixture)
+    bcftools_path = 'bcftools'
 
     # Compare the headers of the normalized and non-normalized files
     norm_header = subprocess.run(
