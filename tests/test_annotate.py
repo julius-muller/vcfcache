@@ -137,11 +137,10 @@ def test_sample_file_validity(test_output_dir, test_scenario):
     """Test that the sample BCF file is valid."""
     print(f"\n=== Testing sample file validity (scenario: {test_scenario}) ===")
 
-    # Get bcftools path for verification
-    bcftools_path = get_resource_path(Path('tools/bcftools'))
-    if not bcftools_path.exists():
-        # Fall back to system bcftools if the project-specific one doesn't exist
-        bcftools_path = 'bcftools'
+    # Use bcftools from PATH (respects setup_test_environment fixture)
+    # In annotated images, this will be /opt/bcftools/bin/bcftools (compiled 1.22)
+    # In other scenarios, this will be the bundled or system bcftools
+    bcftools_path = 'bcftools'
 
     # Check if the sample BCF file exists
     assert TEST_SAMPLE.exists(), f"Sample BCF file not found: {TEST_SAMPLE}"
@@ -229,11 +228,10 @@ def test_full_annotation_workflow(test_output_dir, test_scenario, prebuilt_cache
         print(f"Workflow directory contents: {list(workflow_dir.iterdir())}")
     assert annotate_result.returncode == 0, f"stash-annotate failed: {annotate_result.stderr}"
 
-    # Get bcftools path for verification
-    bcftools_path = get_resource_path(Path('tools/bcftools'))
-    if not bcftools_path.exists():
-        # Fall back to system bcftools if the project-specific one doesn't exist
-        bcftools_path = 'bcftools'
+    # Use bcftools from PATH (respects setup_test_environment fixture)
+    # In annotated images, this will be /opt/bcftools/bin/bcftools (compiled 1.22)
+    # In other scenarios, this will be the bundled or system bcftools
+    bcftools_path = 'bcftools'
 
     # Step 4: Verify the annotation directory was created
     stash_dir = Path(test_output_dir) / "stash"

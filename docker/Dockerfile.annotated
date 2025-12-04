@@ -197,7 +197,7 @@ RUN printf '%s\n' '#!/bin/sh' \
                   'exec python3.13 -m vcfstash.cli "$@"' \
     > /usr/local/bin/vcfstash && chmod +x /usr/local/bin/vcfstash
 
-ENV PATH="/opt/bcftools/bin:/app/venv/bin:/opt/vep/ensembl-vep:${PATH}"
+ENV PATH="/opt/bcftools/bin:/opt/vep/ensembl-vep:${PATH}"
 ENV VCFSTASH_ROOT="/app"
 ENV PYTHONPATH="/app/venv/lib/python3.13/site-packages:/app"
 
