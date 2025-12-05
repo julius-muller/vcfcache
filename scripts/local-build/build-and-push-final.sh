@@ -172,8 +172,8 @@ build_af010() {
 
     # Define expected image names (match what the scripts actually generate)
     BLUEPRINT_IMAGE="ghcr.io/julius-muller/vcfstash-blueprint:gnomad-grch38-joint-af010"
-    BASE_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115-base"
-    ANNOTATED_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115"
+    BASE_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115-base"
+    ANNOTATED_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115"
 
     # Check if images already exist
     if [[ "$FORCE_BUILD" == "false" ]]; then
@@ -264,8 +264,8 @@ build_af001() {
 
     # Define expected image names (match what the scripts actually generate)
     BLUEPRINT_IMAGE="ghcr.io/julius-muller/vcfstash-blueprint:gnomad-grch38-joint-af001"
-    BASE_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115-base"
-    ANNOTATED_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115"
+    BASE_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af001-vep115-base"
+    ANNOTATED_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af001-vep115"
 
     # Check if images already exist
     if [[ "$FORCE_BUILD" == "false" ]]; then
@@ -396,7 +396,7 @@ main() {
     if [[ "$BUILD_AF010" == "true" ]]; then
         echo "AF ≥ 0.10 (10%):"
         echo "  Blueprint:  ghcr.io/julius-muller/vcfstash-blueprint:gnomad-grch38-joint-af010"
-        echo "  Annotated:  ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115"
+        echo "  Annotated:  ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115"
         echo "  Latest:     ghcr.io/julius-muller/vcfstash-annotated:latest"
         echo ""
     fi
@@ -404,7 +404,7 @@ main() {
     if [[ "$BUILD_AF001" == "true" ]]; then
         echo "AF ≥ 0.01 (1%):"
         echo "  Blueprint:  ghcr.io/julius-muller/vcfstash-blueprint:gnomad-grch38-joint-af001"
-        echo "  Annotated:  ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115"
+        echo "  Annotated:  ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af001-vep115"
         echo ""
     fi
 
@@ -412,7 +412,7 @@ main() {
         echo "NOTE: Images were not pushed (--skip-push)"
         echo "To push manually:"
         echo "  docker push ghcr.io/julius-muller/vcfstash-blueprint:gnomad-grch38-joint-af010"
-        echo "  docker push ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115"
+        echo "  docker push ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115"
         echo ""
     fi
 }

@@ -110,15 +110,14 @@ def test_cache_metadata(test_scenario):
 
 
 def test_workflow_directory(test_scenario):
-    """Test that workflow directory exists with required files."""
+    """Test that workflow directory exists (pure Python - no Nextflow files needed)."""
     _skip_if_vanilla(test_scenario)
 
     workflow_dir = Path("/cache/db/workflow")
     assert workflow_dir.exists(), "Workflow directory does not exist"
 
-    # Check for main.nf
-    main_nf = workflow_dir / "main.nf"
-    assert main_nf.exists(), "main.nf not found in workflow directory"
+    # Note: Pure Python workflow doesn't require main.nf anymore
+    # The workflow directory exists for storing config snapshots
 
     # Check for init.yaml (configuration snapshot)
     init_yaml = workflow_dir / "init.yaml"
