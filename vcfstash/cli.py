@@ -123,14 +123,14 @@ def main() -> None:
         "--debug",
         action="store_true",
         default=False,
-        help="Debug mode, keeping intermediate files such as the nextflow work directory",
+        help="Debug mode, keeping intermediate files such as the work directory",
     )
     parent_parser.add_argument(
         "-c",
         "--config",
         dest="config",
         required=False,
-        help="Path to an optional nextflow config containing only a process definition",
+        help="Optional process config overriding defaults",
     )
     # Define params in parent parser but don't set required
     parent_parser.add_argument(
@@ -138,7 +138,7 @@ def main() -> None:
         "--yaml",
         dest="params",
         required=False,
-        help="Path to a nextflow yaml containing environment variables related to paths and resources",
+        help="Path to a params YAML containing environment variables related to paths and resources",
     )
 
     subparsers = parser.add_subparsers(
@@ -224,7 +224,7 @@ def main() -> None:
         "--anno_config",
         dest="anno_config",
         required=True,
-        help="Path to an nextflow config file containing the annotation commands to run",
+        help="Path to an annotation config file containing the annotation commands to run",
     )
 
     # Main functionality, apply to user vcf
