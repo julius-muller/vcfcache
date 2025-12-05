@@ -23,7 +23,7 @@ Only novel/rare variants get annotated in real-time. Common variants (60-90% of 
 ### 🔧 **Mode 1: From Source (Development)**
 Full flexibility, requires manual setup.
 
-**Requirements**: Python 3.13+, bcftools 1.20+, tabix
+**Requirements**: Python 3.13+, uv (package manager)
 
 ```bash
 git clone https://github.com/julius-muller/vcfstash.git
@@ -32,6 +32,8 @@ uv venv .venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
 vcfstash --help
 ```
+
+**Note**: bcftools 1.22 is bundled with the package, no separate installation needed.
 
 **Use when**: Developing vcfstash, customizing workflows, or running tests.
 
@@ -240,11 +242,13 @@ Typical speedups with gnomAD AF ≥ 1% cache:
 
 ## Requirements by Mode
 
-| Mode | Python | bcftools | Docker | VEP | Disk Space |
-|------|--------|----------|--------|-----|------------|
-| **Vanilla** | 3.13+ | 1.20+ | - | Optional | 5-10GB |
-| **Blueprint** | - | - | ✓ | - | 2GB |
-| **Annotated** | - | - | ✓ | Cache for updates | 5GB |
+| Mode | Python | Docker | VEP | Disk Space |
+|------|--------|--------|-----|------------|
+| **Vanilla** | 3.13+ | - | Optional | 5-10GB |
+| **Blueprint** | - | ✓ | - | 2GB |
+| **Annotated** | - | ✓ | Cache for updates | 5GB |
+
+**Note**: bcftools 1.22 is bundled with all modes, no separate installation needed.
 
 ---
 
