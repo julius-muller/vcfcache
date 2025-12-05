@@ -404,6 +404,9 @@ class VCFDatabase:
     ) -> None:
         """Copy workflow files from source to destination, optionally skipping nextflow.config.
 
+        Note: For pure Python workflows, the source may be empty (no Nextflow files).
+        In this case, we just ensure the destination directory exists.
+
         Parameters:
             destination (Path): Destination directory for copying.
             skip_config (bool): If True, does not copy nextflow.config. Default is False.
@@ -411,15 +414,18 @@ class VCFDatabase:
         try:
             # Ensure the source directory exists
             if not source.exists():
-                raise RuntimeError(
-                    f"Source workflow directory does not exist: {source}"
-                )
+                # Source doesn't exist - just create destination
+                destination.mkdir(parents=True, exist_ok=True)
+                return
 
             # Ensure the destination directory exists
-            if not destination.exists():
-                raise RuntimeError(
-                    f"Destination directory does not exist: {destination}"
-                )
+            destination.mkdir(parents=True, exist_ok=True)
+
+            # Check if source has any files to copy
+            source_files = list(source.glob("*"))
+            if not source_files:
+                # Source is empty (pure Python, no Nextflow files) - nothing to copy
+                return
 
             # Copy entire directory structure except *.config files
             if skip_config:
@@ -431,10 +437,6 @@ class VCFDatabase:
                 )
             else:
                 shutil.copytree(source, destination, dirs_exist_ok=True)
-
-            # Verify copy worked by ensuring destination isn't empty
-            if not list(destination.glob("*")):
-                raise RuntimeError(f"Failed to copy workflow files to {destination}")
 
         except Exception as e:
             raise RuntimeError(f"Error copying workflow files: {str(e)}") from e

@@ -90,7 +90,7 @@ fi
 # Auto-generate tag if not provided
 if [ -z "${TAG}" ]; then
   GENOME_LOWER=$(echo "${GENOME}" | tr '[:upper:]' '[:lower:]')
-  TAG="gnomad-${GENOME_LOWER}-${TYPE}-af${AF_CLEAN}-py"
+  TAG="gnomad-${GENOME_LOWER}-${TYPE}-af${AF_CLEAN}"
 fi
 
 # Generate cache name

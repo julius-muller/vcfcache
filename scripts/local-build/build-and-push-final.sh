@@ -161,11 +161,14 @@ build_af010() {
 
     # 1. Build blueprint
     log_step "Step 1/3: Building blueprint image"
-    "$SCRIPT_DIR/03-build-blueprint.sh" \
+    if ! "$SCRIPT_DIR/03-build-blueprint.sh" \
         "$GNOMAD_AF010" \
         --host-network \
         --genome GRCh38 \
-        --type joint
+        --type joint; then
+        log_error "Failed to build blueprint image"
+        return 1
+    fi
 
     BLUEPRINT_IMAGE="ghcr.io/julius-muller/vcfstash-blueprint:gnomad-v41-grch38-joint-af010"
 
@@ -181,19 +184,25 @@ build_af010() {
 
     # 2. Build base image
     log_step "Step 2/3: Building base annotated image"
-    "$SCRIPT_DIR/04a-build-base-image.sh" \
+    if ! "$SCRIPT_DIR/04a-build-base-image.sh" \
         "$GNOMAD_AF010" \
         --host-network \
-        -y
+        -y; then
+        log_error "Failed to build base annotated image"
+        return 1
+    fi
 
     BASE_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115-base"
 
     # 3. Annotate with VEP and commit
     log_step "Step 3/3: Annotating with VEP"
-    "$SCRIPT_DIR/04b-annotate-and-commit.sh" \
+    if ! "$SCRIPT_DIR/04b-annotate-and-commit.sh" \
         --base-image "$BASE_IMAGE" \
         --vep-cache-dir "$VEP_CACHE_DIR" \
-        -y
+        -y; then
+        log_error "Failed to annotate with VEP"
+        return 1
+    fi
 
     ANNOTATED_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115"
 
@@ -224,11 +233,14 @@ build_af001() {
 
     # 1. Build blueprint
     log_step "Step 1/3: Building blueprint image"
-    "$SCRIPT_DIR/03-build-blueprint.sh" \
+    if ! "$SCRIPT_DIR/03-build-blueprint.sh" \
         "$GNOMAD_AF001" \
         --host-network \
         --genome GRCh38 \
-        --type joint
+        --type joint; then
+        log_error "Failed to build blueprint image"
+        return 1
+    fi
 
     BLUEPRINT_IMAGE="ghcr.io/julius-muller/vcfstash-blueprint:gnomad-v41-grch38-joint-af001"
 
@@ -244,19 +256,25 @@ build_af001() {
 
     # 2. Build base image
     log_step "Step 2/3: Building base annotated image"
-    "$SCRIPT_DIR/04a-build-base-image.sh" \
+    if ! "$SCRIPT_DIR/04a-build-base-image.sh" \
         "$GNOMAD_AF001" \
         --host-network \
-        -y
+        -y; then
+        log_error "Failed to build base annotated image"
+        return 1
+    fi
 
     BASE_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115-base"
 
     # 3. Annotate with VEP and commit
     log_step "Step 3/3: Annotating with VEP"
-    "$SCRIPT_DIR/04b-annotate-and-commit.sh" \
+    if ! "$SCRIPT_DIR/04b-annotate-and-commit.sh" \
         --base-image "$BASE_IMAGE" \
         --vep-cache-dir "$VEP_CACHE_DIR" \
-        -y
+        -y; then
+        log_error "Failed to annotate with VEP"
+        return 1
+    fi
 
     ANNOTATED_IMAGE="ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115"
 

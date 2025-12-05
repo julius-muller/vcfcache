@@ -114,10 +114,8 @@ class StashOutput(BaseOutput):
         self.workflow_dir = self.stash_root_dir / "workflow"
         self.workflow_src_dir = self.module_src_dir / "workflow"
 
-        if not self.workflow_src_dir.exists():
-            raise RuntimeError(
-                f"Source workflow directory does not exist: {self.workflow_src_dir}"
-            )
+        # Note: workflow_src_dir may be empty (pure Python, no Nextflow files)
+        # We keep the workflow_dir for storing config snapshots
 
     def required_paths(self) -> dict:
         """Returns a dictionary with the required paths for the stash output structure."""
