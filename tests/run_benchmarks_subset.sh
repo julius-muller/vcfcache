@@ -11,8 +11,8 @@ set -euo pipefail
 # Requirements on host:
 #   - bcftools, tabix, shuf
 #   - docker with access to:
-#       ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115
-#       ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115
+#       ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115
+#       ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af001-vep115
 #   - VEP cache directory (set VEP_CACHE_DIR)
 #
 # Usage:
@@ -65,8 +65,8 @@ fi
 
 SCALES=("PANEL:5000" "WES:100000" "WGS:FULL")
 IMAGES=(
-  "ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115"
-  "ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115"
+  "ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115"
+  "ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af001-vep115"
 )
 
 LOG_DIR="$(pwd)/tests/benchmarks"

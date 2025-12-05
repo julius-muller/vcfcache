@@ -84,13 +84,13 @@ Pre-built cache with VEP annotations, ready to use.
 
 ```bash
 # Pull pre-built image with gnomAD cache + VEP annotations
-docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115-py
+docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115
 
 # Annotate your sample (VEP cache hit rate: 60-90% typical)
 docker run --rm \
   -v $(pwd)/samples:/data \
   -v $(pwd)/results:/output \
-  ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115-py \
+  ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115 \
   annotate \
     -a /cache/db/stash/vep_gnomad \
     --vcf /data/sample.vcf.gz \

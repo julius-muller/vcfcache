@@ -237,7 +237,7 @@ docker run --rm \
 
 **Pull Image**:
 ```bash
-docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115-py
+docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115
 ```
 
 **Annotate Samples**:
@@ -245,7 +245,7 @@ docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af0
 docker run --rm \
   -v $(pwd)/samples:/data \
   -v $(pwd)/results:/output \
-  ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115-py \
+  ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115 \
   annotate \
     -a /cache/db/stash/vep_gnomad \
     --vcf /data/sample.vcf.gz \
@@ -596,7 +596,7 @@ docker run --rm \
 
 ```bash
 # Use specific tags for reproducibility
-docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115-py
+docker pull ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115
 
 # Avoid :latest in production
 ```

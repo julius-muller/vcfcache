@@ -52,13 +52,13 @@ Options:
 The script produces these images:
 
 ### AF ≥ 0.10 (10% - recommended for most users)
-- **Blueprint**: `ghcr.io/julius-muller/vcfstash-blueprint:gnomad-v41-grch38-joint-af010`
-- **Annotated**: `ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af010-vep115`
+- **Blueprint**: `ghcr.io/julius-muller/vcfstash-blueprint:gnomad-grch38-joint-af010`
+- **Annotated**: `ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af010-vep115`
 - **Latest**: `ghcr.io/julius-muller/vcfstash-annotated:latest` (tagged to AF 0.10)
 
 ### AF ≥ 0.01 (1% - larger cache, higher hit rate)
-- **Blueprint**: `ghcr.io/julius-muller/vcfstash-blueprint:gnomad-v41-grch38-joint-af001`
-- **Annotated**: `ghcr.io/julius-muller/vcfstash-annotated:gnomad-v41-grch38-joint-af001-vep115`
+- **Blueprint**: `ghcr.io/julius-muller/vcfstash-blueprint:gnomad-grch38-joint-af001`
+- **Annotated**: `ghcr.io/julius-muller/vcfstash-annotated:gnomad-grch38-joint-af001-vep115`
 
 ## Requirements
 
