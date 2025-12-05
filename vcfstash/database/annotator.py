@@ -114,6 +114,8 @@ class DatabaseAnnotator(VCFDatabase):
             assert wfi.exists(), f"Workflow init params file not found: {wfi}"
             shutil.copyfile(wfi, self.params_file)
             assert (
+
+
                 self.params_file.exists()
             ), f"Workflow params file not found: {self.params_file}"
 
@@ -123,7 +125,6 @@ class DatabaseAnnotator(VCFDatabase):
             input_file=self.blueprint_bcf,
             output_dir=self.output_dir,
             name=self.annotation_name,
-            workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file if self.config_file is not None else None,
             anno_config_file=self.anno_config_file,
             params_file=self.params_file,
@@ -403,7 +404,6 @@ class VCFAnnotator(VCFDatabase):
             input_file=self.input_vcf,
             output_dir=self.output_dir,
             name=self.annotation_name,
-            workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file,
             anno_config_file=self.anno_config_file,
             params_file=self.params_file,
@@ -693,7 +693,6 @@ class VCFAnnotator(VCFDatabase):
             raise
 
         if convert_parquet:
-            # This should be implemented in nextflow in the long run to leverage resource management
             # threads = self.nx_workflow.nf_config_content['params'].get('vep_max_forks',1) * self.nx_workflow.nf_config_content['params'].get('vep_max_chr_parallel', 1)
             self._convert_to_parquet(self.output_vcf)  # , threads=threads)
 

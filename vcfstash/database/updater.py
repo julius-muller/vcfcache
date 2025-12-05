@@ -75,7 +75,6 @@ class DatabaseUpdater(VCFDatabase):
             input_file=self.input_file,
             output_dir=self.blueprint_dir,
             name=f"add_{self.input_md5}",
-            workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file,
             params_file=self.params_file,
             verbosity=self.verbosity,

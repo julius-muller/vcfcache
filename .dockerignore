@@ -27,10 +27,5 @@ build/
 # Exclude data directories (large)
 /data/
 
-# Exclude Nextflow work directories
-work/
-.nextflow/
-.nextflow.log*
-
 # Exclude documentation build artifacts
 docs/_build/

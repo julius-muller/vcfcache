@@ -92,7 +92,6 @@ class DatabaseInitializer(VCFDatabase):
             input_file=self.input_file,
             output_dir=self.blueprint_dir,
             name="init",
-            workflow=self.workflow_dir / "main.nf",
             config_file=self.config_file,
             params_file=params_path,
             verbosity=self.verbosity,

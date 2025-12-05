@@ -284,7 +284,7 @@ class WorkflowManager(WorkflowBase):
         bcftools = self.params_file_content['bcftools_cmd']
 
         if normalize:
-            # Full normalization pipeline (from normalize.nf:75-82)
+            # Full normalization pipeline
             chr_add = self.params_file_content['chr_add']
             self.logger.info("Applying full normalization with chromosome renaming")
 
@@ -294,7 +294,7 @@ class WorkflowManager(WorkflowBase):
 {bcftools} norm -m- -o {output_bcf} -Ob --write-index
 """
         else:
-            # Just remove GT and INFO (from normalize.nf:32-33)
+            # Just remove GT and INFO
             self.logger.info("Removing GT and INFO fields only")
 
             cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
@@ -342,7 +342,7 @@ class WorkflowManager(WorkflowBase):
 
         BcftoolsCommand(norm_cmd, self.logger, work_task).run()
 
-        # Step 2: Merge with existing blueprint (from merge_variants.nf)
+        # Step 2: Merge with existing blueprint
         output_bcf = self.output_dir / "vcfstash.bcf"
         self.logger.info(f"Merging with existing blueprint: {db_bcf}")
 
@@ -370,7 +370,7 @@ class WorkflowManager(WorkflowBase):
 
         output_bcf = self.output_dir / "vcfstash_annotated.bcf"
 
-        # Substitute variables in annotation command (from annotate.nf:34-39)
+        # Substitute variables in annotation command
         anno_cmd = self._substitute_variables(
             self.nfa_config_content['annotation_cmd'],
             extra_vars={
@@ -385,7 +385,7 @@ class WorkflowManager(WorkflowBase):
         # Execute annotation command
         result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
 
-        # Validate output has required INFO tag (from annotate.nf:76-85)
+        # Validate output has required INFO tag
         tag = self.nfa_config_content['must_contain_info_tag']
         self._validate_info_tag(output_bcf, tag)
 
@@ -416,13 +416,13 @@ class WorkflowManager(WorkflowBase):
         bcftools = self.params_file_content['bcftools_cmd']
         tag = self.nfa_config_content['must_contain_info_tag']
 
-        # Step 1: Add cache annotations (from annotate_cache.nf:19)
+        # Step 1: Add cache annotations
         self.logger.info("Step 1/4: Adding cache annotations")
         step1_bcf = work_task / f"{sample_name}_isecvst.bcf"
         cmd1 = f"{bcftools} annotate -a {db_bcf} {input_bcf} -c INFO -o {step1_bcf} -Ob -W"
         BcftoolsCommand(cmd1, self.logger, work_task).run()
 
-        # Step 2: Filter to get missing annotations (from annotate_cache.nf:37)
+        # Step 2: Filter to get missing annotations
         self.logger.info("Step 2/4: Identifying variants missing from cache")
         step2_bcf = work_task / f"{sample_name}_isecvst_miss.bcf"
         cmd2 = f"{bcftools} filter -i 'INFO/{tag}==\"\"' -Ob -o {step2_bcf} {step1_bcf} -W"
@@ -438,7 +438,7 @@ class WorkflowManager(WorkflowBase):
         missing_count = int(count_result.stdout.strip()) if count_result.returncode == 0 else 0
         self.logger.info(f"Found {missing_count} variants not in cache")
 
-        # Step 3: Annotate only missing variants (from annotate.nf)
+        # Step 3: Annotate only missing variants
         if missing_count > 0:
             self.logger.info(f"Step 3/4: Annotating {missing_count} missing variants")
             step3_bcf = work_task / f"{sample_name}_missing_annotated.bcf"
@@ -459,7 +459,7 @@ class WorkflowManager(WorkflowBase):
             # Create empty file for step 4
             step3_bcf = step2_bcf
 
-        # Step 4: Merge newly annotated back into original (from annotate_cache.nf:57)
+        # Step 4: Merge newly annotated back into original
         self.logger.info("Step 4/4: Merging cache and newly annotated variants")
         output_bcf = self.output_dir / f"{sample_name}_vst.bcf"
 
@@ -494,7 +494,6 @@ class WorkflowManager(WorkflowBase):
         aux_dir = self.output_dir / "auxiliary"
         aux_dir.mkdir(exist_ok=True)
 
-        # Run annotation command directly (from annotate.nf)
         anno_cmd = self._substitute_variables(
             self.nfa_config_content['annotation_cmd'],
             extra_vars={
@@ -558,7 +557,6 @@ class WorkflowManager(WorkflowBase):
         """
         bcftools = self.params_file_content['bcftools_cmd']
 
-        # Check header for INFO tag (from annotate.nf:76-85)
         result = subprocess.run(
             f"{bcftools} view -h {bcf_path} | grep '##INFO=<ID={tag},'",
             shell=True,

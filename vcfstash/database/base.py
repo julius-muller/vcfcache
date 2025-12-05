@@ -402,14 +402,13 @@ class VCFDatabase:
     def _copy_workflow_srcfiles(
         source: Path, destination: Path, skip_config: bool = False
     ) -> None:
-        """Copy workflow files from source to destination, optionally skipping nextflow.config.
+        """Copy workflow files from source to destination,
 
         Note: For pure Python workflows, the source may be empty (no Nextflow files).
         In this case, we just ensure the destination directory exists.
 
         Parameters:
             destination (Path): Destination directory for copying.
-            skip_config (bool): If True, does not copy nextflow.config. Default is False.
         """
         try:
             # Ensure the source directory exists

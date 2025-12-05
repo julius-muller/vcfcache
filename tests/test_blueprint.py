@@ -116,7 +116,6 @@ def test_workflow_directory(test_scenario):
     workflow_dir = Path("/cache/db/workflow")
     assert workflow_dir.exists(), "Workflow directory does not exist"
 
-    # Note: Pure Python workflow doesn't require main.nf anymore
     # The workflow directory exists for storing config snapshots
 
     # Check for init.yaml (configuration snapshot)
