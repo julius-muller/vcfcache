@@ -107,6 +107,35 @@ class DatabaseInitializer(VCFDatabase):
             self.logger.debug(f"Output directory: {self.blueprint_dir}")
             self.logger.debug(f"Config file: {self.config_file}")
 
+    def _log_contigs(self) -> None:
+        """Log a preview of contigs present in the input BCF/VCF (top 30)."""
+
+        try:
+            result = subprocess.run(
+                [str(self.bcftools_path), "index", "-s", str(self.input_file)],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            contigs = [line.split("\t", 1)[0] for line in result.stdout.splitlines()]
+
+            # Sort first by string length, then lexicographically
+            contigs.sort(key=lambda c: (len(c), c))
+
+            preview = ", ".join(contigs[:30]) if contigs else "(none)"
+            msg = f"Cache will be set up including the following contigs (top 30): {preview}"
+            if self.logger:
+                self.logger.info(msg)
+            else:
+                print(msg)
+        except Exception as exc:
+            if self.logger:
+                self.logger.warning(
+                    f"Could not list contigs via bcftools index -s: {exc}"
+                )
+            else:
+                print(f"Warning: Could not list contigs via bcftools index -s: {exc}")
+
     def _setup_stash(self, force: bool) -> None:
         # Remove destination directory if it exists to ensure clean copy
         if self.stashed_output.root_dir.exists():
@@ -215,6 +244,8 @@ class DatabaseInitializer(VCFDatabase):
             start_time = datetime.now()
             if self.logger:
                 self.logger.info("Starting the workflow execution...")
+            # Log contig preview
+            self._log_contigs()
             # Pass the normalize parameter to the workflow
             nextflow_args = ["--normalize", str(self.normalize).lower()]
             self.nx_workflow.run(
