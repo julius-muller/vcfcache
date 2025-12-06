@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1.7
+FROM python:3.13-slim-trixie
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Minimal system deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bcftools \
+    tabix \
+    ca-certificates \
+    procps \
+    curl \
+    wget && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY pyproject.toml README.md .
+RUN python -m venv /app/venv && \
+    /app/venv/bin/python -m pip install --upgrade pip && \
+    /app/venv/bin/pip install --no-cache-dir "uv" && \
+    /app/venv/bin/uv pip install --python /app/venv/bin/python --verbose .[dev]
+
+COPY vcfstash ./vcfstash
+COPY resources ./resources
+COPY tools ./tools
+COPY tests ./tests
+COPY public_caches.yaml ./public_caches.yaml
+
+# Editable install (no caches inside)
+RUN /app/venv/bin/uv pip install --python /app/venv/bin/python --no-deps -e .
+
+# Entry point
+RUN printf '%s\n' '#!/bin/sh' \
+    'export PYTHONPATH=/app/venv/lib/python3.13/site-packages:$PYTHONPATH' \
+    'exec /app/venv/bin/python -m vcfstash.cli "$@"' > /usr/local/bin/vcfstash && chmod +x /usr/local/bin/vcfstash
+
+ENV PATH="/app/venv/bin:${PATH}" \
+    VCFSTASH_ROOT="/app"
+
+WORKDIR /work
+ENTRYPOINT ["/usr/local/bin/vcfstash"]
+CMD ["--help"]

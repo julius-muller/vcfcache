@@ -17,18 +17,25 @@ Date: 16-03-2025
 """
 
 import argparse
+import os
 import sys
 from importlib.metadata import version as pkg_version
 from pathlib import Path
 
 import yaml
+import requests
 
 from vcfstash import EXPECTED_BCFTOOLS_VERSION
+from vcfstash.integrations.zenodo import download_doi
+from vcfstash.manifest import find_alias, format_manifest, load_manifest
 from vcfstash.database.annotator import DatabaseAnnotator, VCFAnnotator
 from vcfstash.database.initializer import DatabaseInitializer
 from vcfstash.database.updater import DatabaseUpdater
 from vcfstash.utils.logging import log_command, setup_logging
+from vcfstash.utils.archive import extract_cache, tar_cache
 from vcfstash.utils.validation import check_bcftools_installed
+
+MANIFEST_DEFAULT = Path(__file__).resolve().parent.parent / "public_caches.yaml"
 
 
 def _print_annotation_command(annotation_dir: Path) -> None:
@@ -139,6 +146,12 @@ def main() -> None:
         dest="params",
         required=False,
         help="Path to a params YAML containing environment variables related to paths and resources",
+    )
+    parent_parser.add_argument(
+        "--manifest",
+        dest="manifest",
+        required=False,
+        help="Path or URL to public cache manifest (defaults to public_caches.yaml)",
     )
 
     subparsers = parser.add_subparsers(
@@ -280,6 +293,47 @@ def main() -> None:
         ),
     )
 
+    pull_parser = subparsers.add_parser(
+        "pull",
+        help="Download and extract a cache tarball from Zenodo",
+        parents=[parent_parser],
+    )
+    pull_parser.add_argument("--doi", required=True, help="Zenodo DOI of the cache")
+    pull_parser.add_argument("--dest", required=True, help="Destination directory")
+    pull_parser.add_argument(
+        "--filename",
+        required=False,
+        help="Optional filename for the downloaded tarball (default: cache.tar.gz)",
+    )
+
+    list_parser = subparsers.add_parser(
+        "list", help="List public caches from manifest", parents=[parent_parser]
+    )
+    list_parser.add_argument(
+        "--public-caches",
+        action="store_true",
+        help="Show public caches defined in the manifest",
+    )
+
+    push_parser = subparsers.add_parser(
+        "push",
+        help="Tar and upload a cache directory to Zenodo (requires token)",
+        parents=[parent_parser],
+    )
+    push_parser.add_argument(
+        "--cache-dir", required=True, help="Cache directory to upload"
+    )
+    push_parser.add_argument(
+        "--metadata",
+        required=False,
+        help="Path to YAML/JSON with Zenodo metadata (title, creators, etc.)",
+    )
+    push_parser.add_argument(
+        "--publish",
+        action="store_true",
+        help="Publish the deposit after upload (otherwise leave draft)",
+    )
+
     args = parser.parse_args(args=None if sys.argv[1:] else ["--help"])
 
     show_command_only = args.command == "annotate" and getattr(
@@ -307,7 +361,7 @@ def main() -> None:
     # Check bcftools if params file is provided (required for stash-init)
     # For other commands, we'll use params from the database or fall back to init.yaml
     bcftools_path = None
-    if not (show_command_only or list_only):
+    if not (show_command_only or list_only or args.command in ["pull", "list", "push"]):
         logger.debug(f"Expected bcftools version: {EXPECTED_BCFTOOLS_VERSION}")
         if args.params:
             logger.debug(
@@ -379,6 +433,27 @@ def main() -> None:
             annotator.annotate()
 
         elif args.command == "annotate":
+            # Resolve alias via manifest if path does not exist
+            alias_or_path = Path(args.a)
+            if not alias_or_path.exists():
+                manifest_path = args.manifest if hasattr(args, "manifest") else None
+                manifest_entries = load_manifest(str(manifest_path or MANIFEST_DEFAULT))
+                entry = find_alias(manifest_entries, args.a)
+                if not entry:
+                    raise FileNotFoundError(
+                        f"Annotation cache alias '{args.a}' not found and path does not exist"
+                    )
+                cache_store = Path.home() / ".cache/vcfstash/caches"
+                cache_store.mkdir(parents=True, exist_ok=True)
+                tar_dest = cache_store / f"{entry.alias}.tar.gz"
+                print(
+                    f"Downloading cache for alias '{entry.alias}' from DOI {entry.doi}..."
+                )
+                download_doi(entry.doi, tar_dest)
+                cache_dir = extract_cache(tar_dest, cache_store)
+                alias_or_path = cache_dir / "stash" / entry.alias
+                args.a = str(alias_or_path)
+
             if args.show_command:
                 _print_annotation_command(Path(args.a))
                 return
@@ -411,6 +486,66 @@ def main() -> None:
             )
 
             vcf_annotator.annotate(uncached=args.uncached, convert_parquet=args.parquet)
+
+        elif args.command == "pull":
+            tar_name = args.filename or "cache.tar.gz"
+            tar_path = Path(args.dest).expanduser().resolve() / tar_name
+            print(f"Downloading cache from DOI {args.doi} -> {tar_path}")
+            download_doi(args.doi, tar_path)
+            extracted = extract_cache(tar_path, Path(args.dest))
+            print(f"Extracted to {extracted}")
+
+        elif args.command == "list":
+            if not args.public_caches:
+                parser.error("list currently supports only --public-caches")
+            manifest_entries = load_manifest(str(args.manifest or MANIFEST_DEFAULT))
+            print(format_manifest(manifest_entries))
+
+        elif args.command == "push":
+            from vcfstash.integrations import zenodo
+            from vcfstash.utils.archive import file_md5
+            import json
+
+            token = os.environ.get("ZENODO_TOKEN")
+            if not token:
+                raise RuntimeError(
+                    "ZENODO_TOKEN environment variable required for push"
+                )
+            sandbox = os.environ.get("ZENODO_SANDBOX", "0") == "1"
+
+            cache_dir = Path(args.cache_dir).expanduser().resolve()
+            if not cache_dir.exists():
+                raise FileNotFoundError(f"Cache directory not found: {cache_dir}")
+
+            tar_path = cache_dir.parent / f"{cache_dir.name}.tar.gz"
+            tar_cache(cache_dir, tar_path)
+            md5 = file_md5(tar_path)
+
+            dep = zenodo.create_deposit(token, sandbox=sandbox)
+
+            metadata = {}
+            if args.metadata:
+                mpath = Path(args.metadata).expanduser().resolve()
+                text = mpath.read_text()
+                metadata = (
+                    json.loads(text)
+                    if text.strip().startswith("{")
+                    else yaml.safe_load(text)
+                )
+                zenodo_url = (
+                    f"{zenodo._api_base(sandbox)}/deposit/depositions/{dep['id']}"
+                )
+                requests.put(
+                    zenodo_url,
+                    params={"access_token": token},
+                    json={"metadata": metadata},
+                    timeout=30,
+                ).raise_for_status()
+
+            zenodo.upload_file(dep, tar_path, token, sandbox=sandbox)
+            if args.publish:
+                dep = zenodo.publish_deposit(dep, token, sandbox=sandbox)
+            print(f"Upload complete. DOI: {dep.get('doi', 'draft')} MD5: {md5}")
 
     except Exception as e:
         # Only log the top-level error without traceback - it will be shown by the raise
