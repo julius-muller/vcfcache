@@ -4,7 +4,7 @@ set -euo pipefail
 : "${ZENODO_TOKEN:?Please export ZENODO_TOKEN (prod token)}"
 ZENODO_SANDBOX=${ZENODO_SANDBOX:-0}
 
-ALIAS="GRCh38-af010-vep115.2_basic"
+export ALIAS="GRCh38-af010-vep115.2_basic"
 work=/tmp/vcfstash_dummy_upload
 rm -rf "$work"
 mkdir -p "$work"
