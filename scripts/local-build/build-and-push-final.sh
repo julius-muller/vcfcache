@@ -39,7 +39,7 @@ build_image() {
 test_image() {
   local tag=$1
   log "Testing $tag"
-  docker run --rm "$tag" python -m pytest tests/test_archive.py tests/test_manifest.py tests/test_cli_alias_and_pull.py -q
+  docker run --rm "$tag" python -m pytest tests/test_archive.py tests/test_manifest.py tests/test_cli_alias_and_pull.py tests/test_integration_annotation.py -q
 }
 
 smoke_image() {
