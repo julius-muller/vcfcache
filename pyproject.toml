@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vcfcache"
-version = "0.2.0"
+version = "0.3.0"
 description = "Cache-based VCF annotation accelerator"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -13,9 +13,10 @@ authors = [
     {name = "Julius Müller", email = "julius.mueller@dkfz-heidelberg.de"}
 ]
 dependencies = [
-    "click>=8.0",
-    "pyyaml>=6.0",
-    "pysam>=0.21.0",
+    "click==8.3.1",
+    "pyyaml==6.0.3",
+    "pysam==0.23.3",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]
@@ -25,11 +26,11 @@ parquet = [
 ]
 dev = [
     "pandas>=2.2.0",
-    "pyarrow>=18.0.0",
-    "pytest>=8.3.0", # python -m pytest -xvs
-    "ruff>=0.11.9", # ruff check --fix vcfcache
-    "black>=25.1.0", # black vcfcache
-    "mypy>=1.15.0" # mypy vcfcache
+    "pyarrow>=22.0.0",
+    "pytest>=9.0.2", # python -m pytest -xvs
+    "ruff>=0.14.8", # ruff check --fix vcfcache
+    "black>=25.12.0", # black vcfcache
+    "mypy>=1.19.0" # mypy vcfcache
 ]
 
 [project.scripts]

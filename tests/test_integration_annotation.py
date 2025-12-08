@@ -21,10 +21,10 @@ def test_full_integration_annotation():
     Integration test: download cache via alias + manifest, run annotate, and validate output exists.
 
     This test is enabled by default and relies on network access to Zenodo.
-    It uses the public cache alias GRCh38-af010-vep115.2_basic.
+    It uses the public cache alias cache-hg38-gnomad-4.1wgs-AF0100-vep-115.2-basic.
     """
 
-    alias = "GRCh38-af010-vep115.2_basic"
+    alias = "cache-hg38-gnomad-4.1wgs-AF0100-vep-115.2-basic"
     manifest = Path(__file__).resolve().parent.parent / "public_caches.yaml"
     sample_vcf = Path(__file__).resolve().parent / "data" / "nodata" / "sample4.bcf"
     params = Path(__file__).resolve().parent / "config" / "test_params.yaml"

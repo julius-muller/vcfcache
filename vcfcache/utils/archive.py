@@ -5,8 +5,6 @@ It's intentionally light-weight (tarfile + hashlib) so it works in both
 local and container environments without extra deps.
 """
 
-from __future__ import annotations
-
 import hashlib
 import tarfile
 from pathlib import Path
@@ -53,7 +51,7 @@ def extract_cache(tar_path: Path, dest_dir: Path) -> Path:
     dest_dir.mkdir(parents=True, exist_ok=True)
 
     with tarfile.open(tar_path, "r:*") as tf:
-        tf.extractall(dest_dir)
+        tf.extractall(dest_dir, filter="data")
 
     with tarfile.open(tar_path, "r:*") as tf:
         members = [m for m in tf.getmembers() if m.name and not m.name.endswith("/")]

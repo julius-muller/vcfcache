@@ -142,6 +142,9 @@ def check_bcftools_installed(params_file: Path = None, workflow_dir: Path = None
     """
     logger = logging.getLogger("vcfcache")
 
+    repo_root = Path(__file__).resolve().parents[2]
+    default_bcftools = repo_root / "tools" / "bcftools"
+
     # Initialize bcftools_cmd as None
     bcftools_cmd = None
     params = None
@@ -187,9 +190,21 @@ def check_bcftools_installed(params_file: Path = None, workflow_dir: Path = None
                 logger.error("bcftools_cmd not specified in params file. A specific bcftools path must be provided in the YAML.")
                 raise ValueError("bcftools_cmd not specified in params file. A specific bcftools path must be provided in the YAML.")
         else:
-            # If no params could be loaded, raise an error
-            logger.error("No params file available. A YAML file with bcftools_cmd must be provided.")
-            raise ValueError("No params file available. A YAML file with bcftools_cmd must be provided.")
+            # Fallback to bundled bcftools if available
+            if default_bcftools.exists():
+                bcftools_cmd = str(default_bcftools)
+                logger.debug(
+                    "No params/init.yaml provided; falling back to bundled bcftools at %s",
+                    bcftools_cmd,
+                )
+            else:
+                logger.error(
+                    "No params file available and bundled bcftools missing at %s",
+                    default_bcftools,
+                )
+                raise ValueError(
+                    "No params file available. A YAML file with bcftools_cmd must be provided."
+                )
 
         # Check if binary exists
         if "/" in bcftools_cmd:

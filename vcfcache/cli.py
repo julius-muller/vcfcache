@@ -358,32 +358,17 @@ def main() -> None:
     logger = setup_logging(args.verbose)
     log_command(logger)
 
-    # Check bcftools if params file is provided (required for blueprint-init)
-    # For other commands, we'll use params from the database or fall back to init.yaml
+    # Check bcftools once early (skip for pure manifest ops)
     bcftools_path = None
     if not (show_command_only or list_only or args.command in ["pull", "list", "push"]):
         logger.debug(f"Expected bcftools version: {EXPECTED_BCFTOOLS_VERSION}")
-        if args.params:
-            logger.debug(
-                f"Checking bcftools installation using params file: {args.params}"
-            )
-            bcftools_path = check_bcftools_installed(Path(args.params))
-        elif args.command in ["blueprint-extend", "cache-build", "annotate"]:
-            # For these commands, try to get bcftools path from the workflow directory
-            workflow_dir = None
-            if args.command == "blueprint-extend" or args.command == "cache-build":
-                workflow_dir = Path(args.db) / "workflow"
-            elif args.command == "annotate":
-                workflow_dir = Path(args.a).parent.parent / "workflow"
-
-            if workflow_dir and workflow_dir.exists():
-                logger.debug(
-                    f"Checking bcftools installation using init.yaml from: {workflow_dir}"
-                )
-                bcftools_path = check_bcftools_installed(workflow_dir=workflow_dir)
-            else:
-                logger.warning(f"Workflow directory not found: {workflow_dir}")
-                bcftools_path = check_bcftools_installed()
+        workflow_dir = None
+        if args.command in ["blueprint-extend", "cache-build"] and args.db:
+            workflow_dir = Path(args.db) / "workflow"
+        bcftools_path = check_bcftools_installed(
+            Path(args.params) if args.params else None,
+            workflow_dir=workflow_dir if workflow_dir and workflow_dir.exists() else None,
+        )
 
     try:
         if args.command == "blueprint-init":
@@ -441,7 +426,11 @@ def main() -> None:
                 entry = find_alias(manifest_entries, args.a)
                 if not entry:
                     raise FileNotFoundError(
-                        f"Annotation cache alias '{args.a}' not found and path does not exist"
+                        f"Cache alias '{args.a}' not found and path does not exist"
+                    )
+                if entry.type != "cache":
+                    raise ValueError(
+                        f"Alias '{args.a}' is type '{entry.type}', not usable for annotate"
                     )
                 cache_store = Path.home() / ".cache/vcfcache/caches"
                 cache_store.mkdir(parents=True, exist_ok=True)

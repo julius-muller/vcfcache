@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build and (optionally) push the two code-only images:
-#  - ghcr.io/julius-muller/vcfcache:latest          (lean CLI + bcftools)
-#  - ghcr.io/julius-muller/vcfcache:vep115.2_basic  (CLI + bcftools + VEP + fixed recipe)
+# Build and (optionally) push the lean code-only image:
+#  - ghcr.io/julius-muller/vcfcache:latest (CLI + bundled bcftools)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -50,16 +49,9 @@ smoke_image() {
 
 push_image() { log "Pushing $1"; docker push "$1"; }
 
-# Build lean image
 LEAN_TAG="ghcr.io/julius-muller/vcfcache:latest"
 build_image docker/Dockerfile.vcfcache "$LEAN_TAG"
 if ! $SKIP_TESTS; then test_image "$LEAN_TAG"; fi
 if ! $SKIP_PUSH;  then push_image "$LEAN_TAG"; fi
 
-# Build preset
-PRESET_TAG="ghcr.io/julius-muller/vcfcache:vep115.2_basic"
-build_image docker/Dockerfile.vep115.2_basic "$PRESET_TAG"
-if ! $SKIP_TESTS; then smoke_image "$PRESET_TAG"; fi
-if ! $SKIP_PUSH;  then push_image "$PRESET_TAG"; fi
-
-log "Done. Built: $LEAN_TAG and $PRESET_TAG"
+log "Done. Built: $LEAN_TAG"

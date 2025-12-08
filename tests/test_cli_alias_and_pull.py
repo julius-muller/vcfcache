@@ -24,7 +24,7 @@ def make_dummy_cache(tmp_path: Path, alias: str) -> Path:
 
 
 def test_cli_pull_downloads_and_extracts(tmp_path, monkeypatch, capsys):
-    alias = "GRCh38-af010-vep115.2_basic"
+    alias = "cache-hg38-gnomad-4.1wgs-AF0100-vep-115.2-basic"
     cache_root = make_dummy_cache(tmp_path, alias)
     tar_path = tmp_path / "dummy.tar.gz"
     tar_cache(cache_root, tar_path)
@@ -54,7 +54,7 @@ def test_cli_pull_downloads_and_extracts(tmp_path, monkeypatch, capsys):
 
 
 def test_cli_annotate_alias_resolves_and_prints_command(tmp_path, monkeypatch, capsys):
-    alias = "GRCh38-af010-vep115.2_basic"
+    alias = "cache-hg38-gnomad-4.1wgs-AF0100-vep-115.2-basic"
     cache_root = make_dummy_cache(tmp_path, alias)
     tar_path = tmp_path / "dummy.tar.gz"
     tar_cache(cache_root, tar_path)
@@ -71,11 +71,16 @@ def test_cli_annotate_alias_resolves_and_prints_command(tmp_path, monkeypatch, c
             [
                 {
                     "alias": alias,
+                    "type": "cache",
+                    "version": "0.3.0",
+                    "genome": "hg38",
+                    "source": "gnomad",
+                    "release": "4.1wgs",
+                    "filt": "AF0100",
+                    "tool": "vep",
+                    "tool_version": "115.2",
+                    "preset": "basic",
                     "doi": "10.5281/zenodo.fake",
-                    "genome": "GRCh38",
-                    "af": "0.10",
-                    "tool": "vep115.2",
-                    "image_tag": "vcfcache:vep115.2_basic",
                     "updated_at": "2025-01-01",
                 }
             ]
@@ -108,12 +113,17 @@ def test_cli_list_manifest(tmp_path, monkeypatch, capsys):
     manifest = tmp_path / "manifest.yaml"
     manifest.write_text(
         """
-- alias: GRCh38-af010-vep115.2_basic
+- alias: cache-hg38-gnomad-4.1wgs-AF0100-vep-115.2-basic
+  type: cache
+  version: "0.3.0"
+  genome: hg38
+  source: gnomad
+  release: 4.1wgs
+  filt: AF0100
+  tool: vep
+  tool_version: "115.2"
+  preset: basic
   doi: 10.5281/zenodo.fake
-  genome: GRCh38
-  af: "0.10"
-  tool: vep115.2
-  image_tag: vcfcache:vep115.2_basic
   updated_at: 2025-01-01
 """
     )
@@ -124,4 +134,4 @@ def test_cli_list_manifest(tmp_path, monkeypatch, capsys):
     cli.main()
     captured = capsys.readouterr()
     assert "alias" in captured.out
-    assert "GRCh38-af010-vep115.2_basic" in captured.out
+    assert "cache-hg38-gnomad-4.1wgs-AF0100-vep-115.2-basic" in captured.out

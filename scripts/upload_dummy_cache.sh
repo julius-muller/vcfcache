@@ -98,10 +98,10 @@ echo "[5/6] Manifest entry to add:"
 cat <<EOF
 - alias: $ALIAS
   doi: $DOI
+  version: "0.3.0"
   genome: GRCh38
   af: "0.10"
   tool: vep115.2
-  image_tag: vcfcache:vep115.2_basic
   updated_at: $(date +%Y-%m-%d)
   md5: $md5
   annotation_yaml_md5: placeholder
