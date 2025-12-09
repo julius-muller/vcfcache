@@ -151,7 +151,8 @@ def run_demo(keep_files=False):
             "--vcf", str(bp_init_file),
             "--output", str(cache_dir),
             "-y", str(params_file),
-            "--force"
+            "--force",
+            # Note: no --normalize flag, demo files already have chr prefix
         ]
 
         if not run_command(cmd, "Blueprint initialization"):
