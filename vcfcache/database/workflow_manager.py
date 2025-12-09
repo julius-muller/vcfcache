@@ -310,7 +310,7 @@ class WorkflowManager(WorkflowBase):
             # Normalize multiallelics without forcing contig renames
             self.logger.info("Applying normalization (splitting multiallelic sites)")
 
-            cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
+            cmd = f"""{bcftools} view -G -Ou {input_bcf} | {bcftools} annotate -x INFO | \\
 {bcftools} norm -m- -o {output_bcf} -Ob --write-index
 """
         else:
@@ -349,7 +349,7 @@ class WorkflowManager(WorkflowBase):
         if normalize:
             self.logger.info("Normalizing new input (splitting multiallelic sites)")
 
-            norm_cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
+            norm_cmd = f"""{bcftools} view -G -Ou {input_bcf} | {bcftools} annotate -x INFO | \\
 {bcftools} norm -m- -o {normalized} -Ob --write-index
 """
         else:
