@@ -533,18 +533,33 @@ class WorkflowManager(WorkflowBase):
         aux_dir.mkdir(exist_ok=True)
         bcftools = self.params_file_content["bcftools_cmd"]
 
+        # Use a unique placeholder for stdin when piping
+        STDIN_PLACEHOLDER = "__VCFCACHE_STDIN__"
+
         anno_cmd = self._substitute_variables(
             self.nfa_config_content["annotation_cmd"],
             extra_vars={
-                "INPUT_BCF": "-" if self.contig_map else str(input_bcf),
+                "INPUT_BCF": STDIN_PLACEHOLDER if self.contig_map else str(input_bcf),
                 "OUTPUT_BCF": str(output_bcf),
                 "AUXILIARY_DIR": str(aux_dir),
             },
         )
 
         if self.contig_map:
+            # Pipe through contig renaming and handle stdin placeholder
+            # Save stdin to temp file, replace placeholder, execute annotation
             prefix = f"{bcftools} annotate --rename-chrs {self.contig_map} {input_bcf} -Ou | \\\n"
-            anno_cmd = prefix + anno_cmd
+            anno_cmd = (
+                f"{prefix}"
+                f"bash -c '\n"
+                f"set -e\n"
+                f"TEMP=$(mktemp --suffix=.bcf)\n"
+                f"trap \"rm -f $TEMP\" EXIT\n"
+                f"cat > $TEMP\n"
+                f"bcftools index $TEMP\n"  # Index the temp file
+                f"{anno_cmd.replace(STDIN_PLACEHOLDER, \"$TEMP\")}\n"
+                f"'"
+            )
 
         result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
 
@@ -557,7 +572,7 @@ class WorkflowManager(WorkflowBase):
         return result
 
     def _substitute_variables(
-        self, text: str, extra_vars: Optional[Dict[str, str]] = None
+        self, text: str, extra_vars: Optional[Dict[str, str]] = None, skip_vars: Optional[list] = None
     ) -> str:
         """Replace variables in command strings.
 
@@ -569,10 +584,13 @@ class WorkflowManager(WorkflowBase):
         Args:
             text: Text with variables to substitute
             extra_vars: Additional variables to substitute (e.g., INPUT_BCF, OUTPUT_BCF)
+            skip_vars: List of variable names to skip substitution for
 
         Returns:
             Text with variables substituted
         """
+        skip_vars = skip_vars or []
+
         # 1. Environment variables
         text = os.path.expandvars(text)
 
@@ -585,8 +603,9 @@ class WorkflowManager(WorkflowBase):
         # 3. Special workflow variables
         if extra_vars:
             for key, value in extra_vars.items():
-                text = text.replace(f"${{{key}}}", str(value))
-                text = text.replace(f"${key}", str(value))  # Also support $VAR format
+                if key not in skip_vars:
+                    text = text.replace(f"${{{key}}}", str(value))
+                    text = text.replace(f"${key}", str(value))  # Also support $VAR format
 
         return text
 

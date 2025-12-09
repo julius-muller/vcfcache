@@ -519,9 +519,9 @@ class VCFAnnotator(VCFDatabase):
                 cache_map[self._canonical_contig(contig)] = contig
             self._write_contig_map(cache_map)
 
-            # Log info about missing contigs (but don't fail)
+            # Log info about missing contigs (but don't fail - they'll be annotated uncached)
             if missing_in_cache:
-                msg = f"Note: Input has {len(missing_in_cache)} contig(s) not in cache (will skip cache for these): {sorted(list(missing_in_cache))[:5]}"
+                msg = f"Note: Input has {len(missing_in_cache)} contig(s) not in cache (will annotate these uncached): {sorted(list(missing_in_cache))[:5]}"
                 if self.logger:
                     self.logger.info(msg)
                 else:

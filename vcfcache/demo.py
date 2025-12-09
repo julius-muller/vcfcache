@@ -1,14 +1,15 @@
 """Comprehensive demo of vcfcache workflow.
 
-This module demonstrates the complete vcfcache workflow with all 4 commands:
+This module demonstrates the complete vcfcache workflow with all 5 steps:
 1. blueprint-init: Create initial cache from VCF
 2. blueprint-extend: Add more variants to existing cache
 3. cache-build: Annotate the cache
 4. annotate: Use the cache to annotate a sample VCF
+5. validation: Verify cached and uncached outputs match (MD5 comparison)
 
 Usage:
     vcfcache demo --smoke-test [--keep-files]
-    vcfcache demo --cache <cache> --vcf <vcf> -y <params>
+    vcfcache demo -a <cache> --vcf <vcf> -y <params>  # benchmark mode
 
 Or from Python:
     from vcfcache.demo import run_smoke_test, run_benchmark
@@ -156,7 +157,7 @@ def run_smoke_test(keep_files=False):
             "--output", str(cache_dir),
             "-y", str(params_file),
             "--force",
-            # Note: no --normalize flag, demo files already have chr prefix
+            "--normalize",  # Split multiallelic variants and normalize
         ]
 
         if not run_command(cmd, "Blueprint initialization"):
@@ -284,15 +285,68 @@ def run_smoke_test(keep_files=False):
             print(f"✓ Annotation tag DEMO_TAG present in output")
 
         # ====================================================================
+        # Validation: Compare cached vs uncached annotation
+        # ====================================================================
+        print_step(5, "Validation - Compare cached vs uncached annotation outputs")
+
+        # Run uncached annotation for comparison
+        output_dir_uncached = temp_dir / "output_uncached"
+        cmd_uncached = [
+            sys.executable, "-m", "vcfcache.cli",
+            "annotate",
+            "-a", str(cache_dir / "cache" / "demo_cache"),
+            "--vcf", str(sample_file),
+            "--output", str(output_dir_uncached),
+            "-y", str(params_file),
+            "--uncached",  # Force full annotation without cache
+            "--force"
+        ]
+
+        if not run_command(cmd_uncached, "Uncached annotation (for validation)"):
+            print("✗ ERROR: Uncached annotation failed")
+            print("This is a critical issue - uncached mode must work for validation.")
+            return 1
+
+        output_bcf_uncached = output_dir_uncached / "demo_sample.vcf_vst.bcf"
+        if not output_bcf_uncached.exists():
+            print(f"✗ ERROR: Uncached output not created: {output_bcf_uncached}")
+            return 1
+
+        # Compute MD5 of BCF bodies (without headers)
+        def compute_bcf_body_md5(bcf_path):
+            """Compute MD5 of BCF body without header."""
+            result = subprocess.run(
+                ["bcftools", "view", "-H", str(bcf_path)],
+                capture_output=True,
+                text=True,
+            )
+            return hashlib.md5(result.stdout.encode()).hexdigest()
+
+        print("\nComputing MD5 checksums (body only, excluding headers)...")
+        cached_md5 = compute_bcf_body_md5(output_bcf)
+        uncached_md5 = compute_bcf_body_md5(output_bcf_uncached)
+
+        print(f"Cached output MD5:   {cached_md5}")
+        print(f"Uncached output MD5: {uncached_md5}")
+
+        if cached_md5 == uncached_md5:
+            print("\n✓ SUCCESS: Cached and uncached outputs are identical (body matches)")
+        else:
+            print("\n✗ ERROR: Cached and uncached outputs differ!")
+            print("This indicates a problem with the caching logic.")
+            return 1
+
+        # ====================================================================
         # Summary
         # ====================================================================
         print_section("Demo Complete!")
 
-        print("✓ All 4 commands executed successfully:\n")
+        print("✓ All steps executed successfully:\n")
         print("  1. blueprint-init  - Created initial cache")
         print("  2. blueprint-extend - Extended cache with more variants")
         print("  3. cache-build     - Annotated the blueprint")
-        print("  4. annotate        - Used cache to annotate sample\n")
+        print("  4. annotate        - Used cache to annotate sample")
+        print("  5. validation      - Verified cached == uncached (MD5 match)\n")
 
         print(f"Demo files location: {demo_data}")
         if keep_files:
