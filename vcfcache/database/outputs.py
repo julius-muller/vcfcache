@@ -133,11 +133,15 @@ class CacheOutput(BaseOutput):
         # Minimal existence checks
         required_paths = self.required_paths()
 
+        # workflow_src is optional (pure Python workflow, no Nextflow files)
+        # Skip it in validation since it's excluded from create_structure
+        paths_to_check = {k: v for k, v in required_paths.items() if k != "workflow_src"}
+
         # for path in self.workflow_src_dir.rglob("*"):  # Recursively find all files and dirs
         #     if not path.name.endswith(".config"):  # Exclude .config files
         #         required_paths[f"{path.parent.stem}>{path.name}"] = self.workflow_dir / path.name
 
-        for pname, path in required_paths.items():
+        for pname, path in paths_to_check.items():
             if not path.exists():
                 warnings.warn(f"Missing required path {pname}: {path}", stacklevel=2)
                 return False

@@ -498,13 +498,34 @@ class VCFAnnotator(VCFDatabase):
             self._write_contig_map(cache_map)
             return
 
-        missing_in_input = sorted(list(cache_canon - input_canon))[:10]
-        missing_in_cache = sorted(list(input_canon - cache_canon))[:10]
-        raise RuntimeError(
-            "Contig names between cache and input are incompatible.\n"
-            f"In cache but not input (canonical): {missing_in_input}\n"
-            f"In input but not cache (canonical): {missing_in_cache}"
-        )
+        # Check overlap after canonicalization (chr prefix normalization)
+        overlap = cache_canon & input_canon
+        missing_in_cache = input_canon - cache_canon
+
+        # It's okay if input has contigs not in cache (they won't get annotations)
+        # But we need at least some overlap to proceed
+        if not overlap:
+            raise RuntimeError(
+                "Contig names between cache and input are completely incompatible.\n"
+                f"Cache contigs (canonical): {sorted(list(cache_canon))[:10]}\n"
+                f"Input contigs (canonical): {sorted(list(input_canon))[:10]}\n"
+                "No overlap found even after chr prefix normalization."
+            )
+
+        # If there's overlap, create contig map for chr prefix fixing
+        if overlap:
+            cache_map: dict[str, str] = {}
+            for contig in cache_contigs:
+                cache_map[self._canonical_contig(contig)] = contig
+            self._write_contig_map(cache_map)
+
+            # Log info about missing contigs (but don't fail)
+            if missing_in_cache:
+                msg = f"Note: Input has {len(missing_in_cache)} contig(s) not in cache (will skip cache for these): {sorted(list(missing_in_cache))[:5]}"
+                if self.logger:
+                    self.logger.info(msg)
+                else:
+                    print(msg)
 
     def _validate_inputs(self) -> None:
         """Validate input files, directories, and YAML parameters."""
@@ -568,10 +589,19 @@ class VCFAnnotator(VCFDatabase):
             )
 
         # Check for valid extensions, considering multi-part extensions
+        # vcfcache internally uses BCF format, so we prefer .csi indices
         if input_vcf_path.name.endswith(".vcf.gz"):
             extension = ".vcf.gz"
             sample_name = input_vcf_path.name[:-7]  # Removes '.vcf.gz'
-            index_file = input_vcf_path.with_suffix(input_vcf_path.suffix + ".tbi")
+            # Check for .csi first (BCF-compatible), then .tbi (legacy VCF)
+            index_file_csi = Path(str(input_vcf_path) + ".csi")
+            index_file_tbi = input_vcf_path.with_suffix(input_vcf_path.suffix + ".tbi")
+            if index_file_csi.exists():
+                index_file = index_file_csi
+            elif index_file_tbi.exists():
+                index_file = index_file_tbi
+            else:
+                index_file = index_file_csi  # For error message
         elif input_vcf_path.name.endswith(".bcf"):
             extension = ".bcf"
             sample_name = input_vcf_path.name[:-4]  # Removes '.bcf'
@@ -579,7 +609,15 @@ class VCFAnnotator(VCFDatabase):
         elif input_vcf_path.name.endswith(".vcf"):
             extension = ".vcf"
             sample_name = input_vcf_path.name[:-4]  # Removes '.vcf'
-            index_file = input_vcf_path.with_suffix(".vcf.tbi")
+            # Check for .csi first (BCF-compatible), then .tbi (legacy VCF)
+            index_file_csi = input_vcf_path.with_suffix(".vcf.csi")
+            index_file_tbi = input_vcf_path.with_suffix(".vcf.tbi")
+            if index_file_csi.exists():
+                index_file = index_file_csi
+            elif index_file_tbi.exists():
+                index_file = index_file_tbi
+            else:
+                index_file = index_file_csi  # For error message
         else:
             raise ValueError(
                 f"Input VCF file '{input_vcf_path}' must end with one of {self.VALID_VCF_EXTENSIONS}"
@@ -587,7 +625,7 @@ class VCFAnnotator(VCFDatabase):
 
         if not index_file.exists():
             raise FileNotFoundError(
-                f"Index file for '{input_vcf_path}' not found: '{index_file}'"
+                f"Index file for '{input_vcf_path}' not found: '{index_file}' (vcfcache uses .csi indices for BCF-compatible operations)"
             )
 
         return sample_name, extension

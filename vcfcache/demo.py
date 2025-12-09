@@ -239,7 +239,8 @@ def run_demo(keep_files=False):
         # ====================================================================
         print_step(4, "annotate - Use cache to annotate a sample VCF")
 
-        output_dir.mkdir(parents=True, exist_ok=True)
+        # Note: Don't create output_dir manually - let vcfcache annotate create it
+        # to avoid validation issues
 
         cmd = [
             sys.executable, "-m", "vcfcache.cli",
@@ -255,7 +256,8 @@ def run_demo(keep_files=False):
             return 1
 
         # Verify output was created
-        output_bcf = output_dir / "demo_sample_vst.bcf"
+        # Note: output filename is based on input filename, so demo_sample.vcf.gz -> demo_sample.vcf_vst.bcf
+        output_bcf = output_dir / "demo_sample.vcf_vst.bcf"
         if not output_bcf.exists():
             print(f"✗ Annotated output not created: {output_bcf}")
             return 1

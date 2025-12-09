@@ -441,15 +441,20 @@ class WorkflowManager(WorkflowBase):
         self.logger.info("Step 1/4: Adding cache annotations")
         step1_bcf = work_task / f"{sample_name}_isecvst.bcf"
         if self.contig_map:
-            source = f"{bcftools} annotate --rename-chrs {self.contig_map} {input_bcf} -Ou | \\\n"
-            input_arg = "-"
+            # When renaming chroms, write renamed file to disk first (bcftools annotate needs indexed input)
+            renamed_bcf = work_task / f"{sample_name}_renamed.bcf"
+            rename_cmd = f"{bcftools} annotate --rename-chrs {self.contig_map} {input_bcf} -o {renamed_bcf} -Ob -W"
+            BcftoolsCommand(rename_cmd, self.logger, work_task).run()
+            # Now annotate the renamed file
+            cmd1 = f"{bcftools} annotate -a {db_bcf} {renamed_bcf} -c INFO -o {step1_bcf} -Ob -W"
+            BcftoolsCommand(cmd1, self.logger, work_task).run()
         else:
-            source = ""
+            # No contig remapping needed, annotate directly
             input_arg = str(input_bcf)
-        cmd1 = (
-            f"{source}{bcftools} annotate -a {db_bcf} {input_arg} -c INFO -o {step1_bcf} -Ob -W"
-        )
-        BcftoolsCommand(cmd1, self.logger, work_task).run()
+            cmd1 = (
+                f"{bcftools} annotate -a {db_bcf} {input_arg} -c INFO -o {step1_bcf} -Ob -W"
+            )
+            BcftoolsCommand(cmd1, self.logger, work_task).run()
 
         # Step 2: Filter to get missing annotations
         self.logger.info("Step 2/4: Identifying variants missing from cache")
