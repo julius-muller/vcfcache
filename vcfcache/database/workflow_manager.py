@@ -551,9 +551,6 @@ class WorkflowManager(WorkflowBase):
         # Use a unique placeholder for stdin when piping
         STDIN_PLACEHOLDER = "__VCFCACHE_STDIN__"
 
-        print(f"\nDEBUG: Before _substitute_variables, original annotation_cmd:")
-        print(f"  First 200 chars: {repr(self.nfa_config_content['annotation_cmd'][:200])}\n")
-
         anno_cmd = self._substitute_variables(
             self.nfa_config_content["annotation_cmd"],
             extra_vars={
@@ -563,18 +560,17 @@ class WorkflowManager(WorkflowBase):
             },
         )
 
-        print(f"\nDEBUG: After _substitute_variables:")
-        print(f"  Has STDIN_PLACEHOLDER: {STDIN_PLACEHOLDER in anno_cmd}")
-        print(f"  First 200 chars: {repr(anno_cmd[:200])}\n")
-
         if self.contig_map:
             # Pipe through contig renaming
             # Save piped stdin to temp file (annotation commands may read INPUT_BCF multiple times)
             anno_cmd_with_temp = anno_cmd.replace(STDIN_PLACEHOLDER, "$TEMP")
-            print(f"\nDEBUG: After replacing STDIN_PLACEHOLDER:")
-            print(f"  Has $TEMP (no backslash): {'$TEMP' in anno_cmd_with_temp and '\\$TEMP' not in anno_cmd_with_temp}")
-            print(f"  Has \\$TEMP (with backslash): {'\\$TEMP' in anno_cmd_with_temp}")
-            print(f"  First 200 chars: {repr(anno_cmd_with_temp[:200])}\n")
+
+            # Remove backslashes that were added by _preprocess_annotation_config for Nextflow compatibility
+            # We need $TEMP to expand properly in bash, not be literal \$TEMP
+            anno_cmd_with_temp = anno_cmd_with_temp.replace("\\$TEMP", "$TEMP")
+            anno_cmd_with_temp = anno_cmd_with_temp.replace("\\${OUTPUT_BCF}", "${OUTPUT_BCF}")
+            anno_cmd_with_temp = anno_cmd_with_temp.replace("\\${AUXILIARY_DIR}", "${AUXILIARY_DIR}")
+
             # Escape single quotes for bash -c
             anno_cmd_escaped = anno_cmd_with_temp.replace("'", "'\"'\"'")
             anno_cmd = (
