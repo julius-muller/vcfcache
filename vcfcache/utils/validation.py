@@ -9,10 +9,14 @@ import logging
 import os
 import subprocess
 import sys
+import shutil
+import re
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 import yaml
-from vcfcache import EXPECTED_BCFTOOLS_VERSION
+
+# Minimum required bcftools version
+MIN_BCFTOOLS_VERSION = "1.20"
 
 def check_duplicate_md5(db_info: dict, new_md5: str) -> bool:
     """Check if a file with the same MD5 was already added."""
@@ -116,159 +120,161 @@ def validate_bcf_header(
         return False, f"Error reading BCF header: {e}"
 
 
-def check_bcftools_installed(params_file: Path = None, workflow_dir: Path = None) -> Path:
-    """Check if bcftools is installed, validate version, and log information.
-
-    This function verifies that bcftools is available on the system and validates
-    that it's the expected version (EXPECTED_BCFTOOLS_VERSION). The function will:
-
-    1. Check if the 'bcftools_cmd' parameter is specified in the YAML config
-       - First tries the provided params_file
-       - If not provided or not found, falls back to workflow_dir/init.yaml
-    2. Verify that the binary exists and is executable
-    3. Check the version against the expected version string
-    4. Raise appropriate warnings or errors based on validation results
-    5. Log information about the binary location and version if checks pass
+def parse_bcftools_version(version_string: str) -> tuple[int, int, int]:
+    """Parse bcftools version string into tuple of integers.
 
     Args:
-        params_file: Path to the params YAML file (optional)
-        workflow_dir: Path to the workflow directory (optional)
-                     Used to find init.yaml if params_file is not provided
+        version_string: Version string like "1.20" or "1.22+htslib-1.22"
+
+    Returns:
+        Tuple of (major, minor, patch) integers
+
+    Examples:
+        >>> parse_bcftools_version("1.20")
+        (1, 20, 0)
+        >>> parse_bcftools_version("1.22+htslib-1.22")
+        (1, 22, 0)
+    """
+    # Extract version numbers from string like "1.20" or "1.22+htslib-1.22"
+    match = re.match(r'(\d+)\.(\d+)(?:\.(\d+))?', version_string)
+    if not match:
+        raise ValueError(f"Could not parse bcftools version: {version_string}")
+
+    major = int(match.group(1))
+    minor = int(match.group(2))
+    patch = int(match.group(3)) if match.group(3) else 0
+
+    return (major, minor, patch)
+
+
+def compare_versions(version1: str, version2: str) -> int:
+    """Compare two version strings.
+
+    Args:
+        version1: First version string
+        version2: Second version string
+
+    Returns:
+        -1 if version1 < version2
+        0 if version1 == version2
+        1 if version1 > version2
+    """
+    v1 = parse_bcftools_version(version1)
+    v2 = parse_bcftools_version(version2)
+
+    if v1 < v2:
+        return -1
+    elif v1 > v2:
+        return 1
+    else:
+        return 0
+
+
+def find_bcftools() -> Optional[str]:
+    """Find bcftools binary in system PATH.
+
+    Returns:
+        Path to bcftools binary if found, None otherwise
+    """
+    return shutil.which("bcftools")
+
+
+def check_bcftools_version(bcftools_path: str) -> str:
+    """Check bcftools version and return it.
+
+    Args:
+        bcftools_path: Path to bcftools binary
+
+    Returns:
+        Version string
 
     Raises:
-        FileNotFoundError: If bcftools binary is not found
-        ValueError: If version check fails
-        RuntimeError: If bcftools execution fails
+        RuntimeError: If version check fails
+    """
+    try:
+        result = subprocess.run(
+            [bcftools_path, "--version-only"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=5
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to get bcftools version: {e}")
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("bcftools version check timed out")
+
+
+def check_bcftools_installed(min_version: str = MIN_BCFTOOLS_VERSION) -> str:
+    """Check if bcftools is installed and meets minimum version requirement.
+
+    This function:
+    1. Looks for bcftools in system PATH using shutil.which()
+    2. Checks the version is >= min_version
+    3. Returns the path to the binary
+
+    Args:
+        min_version: Minimum required version (default: 1.20)
+
+    Returns:
+        Path to bcftools binary
+
+    Raises:
+        FileNotFoundError: If bcftools is not found in PATH
+        RuntimeError: If version is too old or version check fails
+
+    Example:
+        >>> bcftools_path = check_bcftools_installed()
+        >>> print(f"Using bcftools at: {bcftools_path}")
     """
     logger = logging.getLogger("vcfcache")
 
-    repo_root = Path(__file__).resolve().parents[2]
-    default_bcftools = repo_root / "tools" / "bcftools"
+    # Find bcftools in PATH
+    bcftools_path = find_bcftools()
 
-    # Initialize bcftools_cmd as None
-    bcftools_cmd = None
-    params = None
-    params_path = None
+    if not bcftools_path:
+        error_msg = (
+            "bcftools not found in PATH. "
+            f"Please install bcftools >= {min_version}.\n\n"
+            "Installation instructions:\n"
+            "  - Ubuntu/Debian: sudo apt-get install bcftools\n"
+            "  - macOS: brew install bcftools\n"
+            "  - Conda: conda install -c bioconda bcftools\n"
+            "  - From source: http://www.htslib.org/download/"
+        )
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
+    # Check version
     try:
-        # Try to load params from the provided params_file
-        if params_file:
-            params_path = Path(params_file).expanduser().resolve()
-            if params_path.exists():
-                logger.debug(f"Loading bcftools path from params file: {params_path}")
-                with open(params_path, 'r') as f:
-                    params = yaml.safe_load(f)
-            else:
-                logger.warning(f"Params file not found: {params_path}")
+        version = check_bcftools_version(bcftools_path)
+        logger.debug(f"Found bcftools {version} at {bcftools_path}")
 
-        # If params is still None and workflow_dir is provided, try to load from init.yaml
-        if params is None and workflow_dir:
-            init_yaml_path = Path(workflow_dir) / "init.yaml"
-            if init_yaml_path.exists():
-                logger.debug(f"Loading bcftools path from init.yaml: {init_yaml_path}")
-                with open(init_yaml_path, 'r') as f:
-                    params = yaml.safe_load(f)
-            else:
-                logger.warning(f"init.yaml not found in workflow directory: {workflow_dir}")
+        # Compare versions
+        if compare_versions(version, min_version) < 0:
+            error_msg = (
+                f"bcftools version {version} is too old. "
+                f"Minimum required version is {min_version}.\n"
+                f"Found at: {bcftools_path}\n\n"
+                "Please upgrade bcftools:\n"
+                "  - Ubuntu/Debian: sudo apt-get update && sudo apt-get install --only-upgrade bcftools\n"
+                "  - macOS: brew upgrade bcftools\n"
+                "  - Conda: conda update bcftools\n"
+                "  - From source: http://www.htslib.org/download/"
+            )
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
 
-        # If we have params, extract bcftools_cmd
-        if params:
-            bcftools_cmd_raw = params.get('bcftools_cmd')
+        logger.info(f"Using bcftools {version} at {bcftools_path}")
+        return bcftools_path
 
-            if bcftools_cmd_raw:
-                # Handle environment variable expansion
-                if "${VCFCACHE_ROOT}" in bcftools_cmd_raw:
-                    vcfcache_root = os.environ.get("VCFCACHE_ROOT")
-                    if not vcfcache_root:
-                        logger.error("VCFCACHE_ROOT environment variable not set. This is required for bcftools path resolution.")
-                        raise ValueError("VCFCACHE_ROOT environment variable not set. This is required for bcftools path resolution.")
-                    else:
-                        bcftools_cmd = bcftools_cmd_raw.replace("${VCFCACHE_ROOT}", vcfcache_root)
-                else:
-                    bcftools_cmd = bcftools_cmd_raw
-            else:
-                logger.error("bcftools_cmd not specified in params file. A specific bcftools path must be provided in the YAML.")
-                raise ValueError("bcftools_cmd not specified in params file. A specific bcftools path must be provided in the YAML.")
-        else:
-            # Fallback to bundled bcftools if available
-            if default_bcftools.exists():
-                bcftools_cmd = str(default_bcftools)
-                logger.debug(
-                    "No params/init.yaml provided; falling back to bundled bcftools at %s",
-                    bcftools_cmd,
-                )
-            else:
-                logger.error(
-                    "No params file available and bundled bcftools missing at %s",
-                    default_bcftools,
-                )
-                raise ValueError(
-                    "No params file available. A YAML file with bcftools_cmd must be provided."
-                )
-
-        # Check if binary exists
-        if "/" in bcftools_cmd:
-            # It's a path, check if it exists directly
-            bcftools_path = Path(bcftools_cmd)
-            if not bcftools_path.exists():
-                logger.error(f"bcftools binary not found at specified path: {bcftools_cmd}")
-                raise FileNotFoundError(f"bcftools binary not found: {bcftools_cmd}")
-        else:
-            # Try to check with 'which' command
-            try:
-                bcftools_path = subprocess.run(
-                    ["which", bcftools_cmd],
-                    check=True,
-                    capture_output=True,
-                    text=True
-                ).stdout.strip()
-                if not bcftools_path:
-                    logger.error(f"bcftools binary not found in PATH: {bcftools_cmd}")
-                    raise FileNotFoundError(f"bcftools binary not found in PATH: {bcftools_cmd}")
-            except subprocess.CalledProcessError:
-                logger.error(f"bcftools binary not found in PATH: {bcftools_cmd}")
-                raise FileNotFoundError(f"bcftools binary not found in PATH: {bcftools_cmd}")
-
-        # Check version
-        try:
-            version_output = subprocess.run(
-                [bcftools_cmd, "--version-only"],
-                check=True,
-                capture_output=True,
-                text=True
-            ).stdout.strip()
-
-            # Verify version matches expected version
-            if version_output != EXPECTED_BCFTOOLS_VERSION:
-                logger.warning(
-                    f"Warning: You are using bcftools version {version_output}, "
-                    f"but the recommended version is {EXPECTED_BCFTOOLS_VERSION}. "
-                    "Using a different version is risky and is the responsibility of the user."
-                )
-
-            # Get full path for logging
-            if not "/" in bcftools_cmd:
-                bcftools_full_path = subprocess.run(
-                    ["which", bcftools_cmd],
-                    check=True,
-                    capture_output=True,
-                    text=True
-                ).stdout.strip()
-            else:
-                bcftools_full_path = bcftools_cmd
-
-            # Success - log the version and location
-            logger.info(f"Using bcftools version {version_output} located at {bcftools_full_path}")
-
-        except subprocess.CalledProcessError:
-            logger.error("Failed to check bcftools version. The binary might be corrupted or incompatible.")
-            raise ValueError("Failed to check bcftools version. The binary might be corrupted or incompatible.")
-
-        return Path(bcftools_cmd)
-
+    except RuntimeError:
+        raise
     except Exception as e:
-        logger.error(f"Error checking bcftools installation: {str(e)}")
-        raise RuntimeError(f"Error checking bcftools installation: {str(e)}")
+        error_msg = f"Error checking bcftools installation: {e}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
 
 
 

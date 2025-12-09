@@ -6,5 +6,4 @@ cache database and runs VCF annotations only on novel variants not present in th
 significantly reducing annotation time.
 """
 
-# Package-wide constants
-EXPECTED_BCFTOOLS_VERSION = "1.22+htslib-1.22"
+__version__ = "0.3.0"

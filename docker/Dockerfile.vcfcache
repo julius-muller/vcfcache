@@ -5,22 +5,16 @@ ENV VCFCACHE_ROOT=/app
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      libcurl4 \
-      libssl3 \
-      libbz2-1.0 \
-      liblzma5 \
-      libzstd1 \
-      libncursesw6 \
-      ca-certificates \
-      tabix && \
+      bcftools \
+      tabix \
+      ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY pyproject.toml README.md ./ 
+COPY pyproject.toml README.md ./
 COPY vcfcache ./vcfcache
 COPY resources ./resources
-COPY tools ./tools
 COPY public_caches.yaml ./public_caches.yaml
 COPY tests ./tests
 
@@ -29,9 +23,7 @@ RUN python -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip && \
     /opt/venv/bin/pip install --no-cache-dir .
 
-ENV PATH="/app/tools:/opt/venv/bin:${PATH}"
-
-RUN chmod +x /app/tools/bcftools
+ENV PATH="/opt/venv/bin:${PATH}"
 
 ########## Test stage (optional, dev deps only in this stage) ##########
 FROM base AS test

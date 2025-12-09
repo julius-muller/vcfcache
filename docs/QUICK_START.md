@@ -109,6 +109,6 @@ With pre-built caches, annotation performance varies based on cache overlap:
 
 ## Next Steps
 
-- See [recipes/](../recipes/) for more annotation configurations
+- See [recipes/](../vcfcache/recipes/) for more annotation configurations
 - Read [WIKI.md](../WIKI.md) for advanced usage
 - Check [examples/](../examples/) for real-world use cases

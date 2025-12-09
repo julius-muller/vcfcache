@@ -25,33 +25,20 @@ VEP_ANNO_CONFIG = TEST_ROOT / "config" / "example_annotation.config"
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
-    """Set up test environment with correct PATH for bundled tools.
+    """Set up test environment and verify bcftools is available.
 
-    This fixture runs automatically before any tests and ensures that
-    the appropriate bcftools is available in PATH.
-
-    For annotated Docker images with VEP, prioritize compiled bcftools 1.22
-    from /opt/bcftools/bin (which supports --write-index and matches GLIBC).
-    Otherwise, use the bundled bcftools from tools/ directory.
+    This fixture runs automatically before any tests and verifies that
+    bcftools >= 1.20 is available in the system PATH.
     """
-    vcfcache_root = get_vcfcache_root()
-    tools_dir = vcfcache_root / "tools"
-    current_path = os.environ.get("PATH", "")
+    from vcfcache.utils.validation import check_bcftools_installed
 
-    # Check if we're in annotated scenario with compiled bcftools 1.22
-    compiled_bcftools = Path("/opt/bcftools/bin")
-    if compiled_bcftools.exists() and (compiled_bcftools / "bcftools").exists():
-        # Annotated scenario: use compiled bcftools 1.22
-        os.environ["PATH"] = f"{compiled_bcftools}:{current_path}"
-        print(f"\n[Test Setup] Using compiled bcftools 1.22 from {compiled_bcftools}")
-    elif tools_dir.exists() and (tools_dir / "bcftools").exists():
-        # Blueprint/vanilla scenario: use bundled bcftools
-        os.environ["PATH"] = f"{tools_dir}:{current_path}"
-        print(f"\n[Test Setup] Using bundled bcftools from {tools_dir}")
+    try:
+        bcftools_path = check_bcftools_installed()
+        print(f"\n[Test Setup] Using system bcftools at {bcftools_path}")
+    except (FileNotFoundError, RuntimeError) as e:
+        pytest.exit(f"bcftools not available: {e}", returncode=1)
 
     yield
-
-    # Cleanup not needed - PATH changes only affect this process
 
 
 # ============================================================================

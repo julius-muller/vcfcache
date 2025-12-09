@@ -4,6 +4,16 @@ requires = ["hatchling>=1.26", "editables>=0.3"]
 build-backend = "hatchling.build"
 
 [project]
+include-package-data = true
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX :: Linux",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
 name = "vcfcache"
 version = "0.3.0"
 description = "Cache-based VCF annotation accelerator"
@@ -13,11 +23,16 @@ authors = [
     {name = "Julius Müller", email = "julius.mueller@dkfz-heidelberg.de"}
 ]
 dependencies = [
-    "click==8.3.1",
-    "pyyaml==6.0.3",
-    "pysam==0.23.3",
-    "requests>=2.31.0",
+    "click>=8.0.0",
+    "pyyaml>=6.0.0",
+    "pysam>=0.22.0",
+    "requests>=2.20.0",
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/julius-muller/vcfcache"
+"Source" = "https://github.com/julius-muller/vcfcache"
+"Issues" = "https://github.com/julius-muller/vcfcache/issues"
 
 [project.optional-dependencies]
 parquet = [
@@ -52,13 +67,13 @@ markers = [
   "blueprint: marks tests for blueprint image (legacy marker)"
 ]
 
-[tool.hatch.build]
-include = [
-  "vcfcache/**"
-]
+[tool.hatch.build.targets.sdist]
+include = ["vcfcache/**", "tests/**"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["vcfcache"]
+include = ["vcfcache/recipes/**"]
+
 
 [tool.ruff]
 # Same as Black.
