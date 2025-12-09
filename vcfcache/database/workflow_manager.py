@@ -108,6 +108,7 @@ class WorkflowManager(WorkflowBase):
         anno_config_file: Optional[Path] = None,
         params_file: Optional[Path] = None,
         verbosity: int = 0,
+        contig_map: Optional[Path] = None,
     ):
         """Initialize the pure Python workflow manager.
 
@@ -153,7 +154,18 @@ class WorkflowManager(WorkflowBase):
             # Load params with environment variable expansion
             params_content = self.params_file.read_text()
             params_expanded = os.path.expandvars(params_content)
-            self.params_file_content = yaml.safe_load(params_expanded)
+            raw_params = yaml.safe_load(params_expanded) or {}
+
+            def _expand(val):
+                if isinstance(val, str):
+                    return os.path.expanduser(os.path.expandvars(val))
+                if isinstance(val, dict):
+                    return {k: _expand(v) for k, v in val.items()}
+                if isinstance(val, list):
+                    return [_expand(v) for v in val]
+                return val
+
+            self.params_file_content = _expand(raw_params)
 
             self.logger.debug(f"Loaded parameters from: {self.params_file}")
         else:
@@ -178,6 +190,9 @@ class WorkflowManager(WorkflowBase):
             self.logger.debug(f"Loaded annotation config from: {self.nfa_config}")
         else:
             self.nfa_config_content = {}
+
+        # Optional contig rename map for annotation
+        self.contig_map = Path(contig_map).expanduser().resolve() if contig_map else None
 
     def run(
         self,
@@ -292,13 +307,10 @@ class WorkflowManager(WorkflowBase):
         bcftools = self.params_file_content["bcftools_cmd"]
 
         if normalize:
-            # Full normalization pipeline
-            chr_add = self.params_file_content["chr_add"]
-            self.logger.info("Applying full normalization with chromosome renaming")
+            # Normalize multiallelics without forcing contig renames
+            self.logger.info("Applying normalization (splitting multiallelic sites)")
 
             cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
-{bcftools} annotate -x INFO --rename-chrs {chr_add} -Ou | \\
-{bcftools} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]$"' -Ou | \\
 {bcftools} norm -m- -o {output_bcf} -Ob --write-index
 """
         else:
@@ -335,16 +347,13 @@ class WorkflowManager(WorkflowBase):
         input_bcf = self.input_file
 
         if normalize:
-            chr_add = self.params_file_content["chr_add"]
-            self.logger.info("Normalizing new input")
+            self.logger.info("Normalizing new input (splitting multiallelic sites)")
 
             norm_cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
-{bcftools} annotate -x INFO --rename-chrs {chr_add} -Ou | \\
-{bcftools} filter -i 'CHROM ~ "^chr[1-9,X,Y,M]" && CHROM ~ "[0-9,X,Y,M]$"' -Ou | \\
 {bcftools} norm -m- -o {normalized} -Ob --write-index
 """
         else:
-            self.logger.info("Filtering new input")
+            self.logger.info("Filtering new input (drop INFO)")
 
             norm_cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
 {bcftools} annotate -x INFO -o {normalized} -Ob --write-index
@@ -431,8 +440,14 @@ class WorkflowManager(WorkflowBase):
         # Step 1: Add cache annotations
         self.logger.info("Step 1/4: Adding cache annotations")
         step1_bcf = work_task / f"{sample_name}_isecvst.bcf"
+        if self.contig_map:
+            source = f"{bcftools} annotate --rename-chrs {self.contig_map} {input_bcf} -Ou | \\\n"
+            input_arg = "-"
+        else:
+            source = ""
+            input_arg = str(input_bcf)
         cmd1 = (
-            f"{bcftools} annotate -a {db_bcf} {input_bcf} -c INFO -o {step1_bcf} -Ob -W"
+            f"{source}{bcftools} annotate -a {db_bcf} {input_arg} -c INFO -o {step1_bcf} -Ob -W"
         )
         BcftoolsCommand(cmd1, self.logger, work_task).run()
 
@@ -511,15 +526,20 @@ class WorkflowManager(WorkflowBase):
         output_bcf = self.output_dir / f"{sample_name}_vst.bcf"
         aux_dir = self.output_dir / "auxiliary"
         aux_dir.mkdir(exist_ok=True)
+        bcftools = self.params_file_content["bcftools_cmd"]
 
         anno_cmd = self._substitute_variables(
             self.nfa_config_content["annotation_cmd"],
             extra_vars={
-                "INPUT_BCF": str(input_bcf),
+                "INPUT_BCF": "-" if self.contig_map else str(input_bcf),
                 "OUTPUT_BCF": str(output_bcf),
                 "AUXILIARY_DIR": str(aux_dir),
             },
         )
+
+        if self.contig_map:
+            prefix = f"{bcftools} annotate --rename-chrs {self.contig_map} {input_bcf} -Ou | \\\n"
+            anno_cmd = prefix + anno_cmd
 
         result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
 

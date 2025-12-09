@@ -20,7 +20,7 @@ it to PyPI. The flow is:
 
 ## 0. Prerequisites
 
-- Python >= 3.11 installed
+- Python >= 3.11 installed (PEP 668 distros may require `--break-system-packages` if you insist on pip; uv avoids this)
 - `uv` or `pip` to manage the local environment
 - Accounts on:
   - https://pypi.org
@@ -107,10 +107,15 @@ Create a fresh environment and install from TestPyPI:
 uv venv /tmp/vcfcache-test-env
 source /tmp/vcfcache-test-env/bin/activate
 
-# Install from TestPyPI (dependencies from PyPI)
-pip install --index-url https://test.pypi.org/simple/ \
-            --extra-index-url https://pypi.org/simple/ \
-            vcfcache
+# Install from TestPyPI (deps from PyPI)
+# Prefer uv to avoid PEP 668 externally-managed errors on Debian/Ubuntu:
+uv pip install --python /tmp/vcfcache-test-env/bin/python \
+  --index-url https://test.pypi.org/simple/ \
+  --extra-index-url https://pypi.org/simple/ \
+  vcfcache
+
+# If you must use pip, add --break-system-packages on PEP 668 distros:
+# PIP_BREAK_SYSTEM_PACKAGES=1 python -m pip install --index-url ... --extra-index-url ... vcfcache
 
 # Run comprehensive demo
 vcfcache demo

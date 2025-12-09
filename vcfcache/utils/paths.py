@@ -15,8 +15,16 @@ def get_project_root():
     if "VCFCACHE_ROOT" in os.environ:
         return Path(os.environ["VCFCACHE_ROOT"])
 
-    # Otherwise, use development directory structure (project root)
-    return Path(__file__).parent.parent.parent
+    here = Path(__file__).resolve()
+    dev_root = here.parent.parent.parent  # repo root in editable/dev installs
+    pkg_root = here.parent.parent         # installed package root (site-packages/vcfcache)
+
+    # Prefer repo root if we see pyproject.toml (editable/development)
+    if (dev_root / "pyproject.toml").exists():
+        return dev_root
+
+    # Fallback to package root when installed from wheel/sdist
+    return pkg_root
 
 
 # Set VCFCACHE_ROOT if not already set

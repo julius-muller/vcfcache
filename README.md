@@ -139,7 +139,6 @@ Two files, stored with the cache for reproducibility:
 bcftools_cmd: "bcftools"         # bundled bcftools by default
 annotation_tool_cmd: "vep"
 tool_version_command: "vep --version"
-chr_add: "${VCFCACHE_ROOT}/resources/chr_add.txt"
 temp_dir: "/tmp"
 optional_checks: {}
 ```

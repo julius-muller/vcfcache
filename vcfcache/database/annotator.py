@@ -331,6 +331,7 @@ class VCFAnnotator(VCFDatabase):
             )
         self.annotation_db_path = self.cached_annotations.annotation_dir
         self.annotation_name = self.cached_annotations.name
+        self.contig_map_file: Optional[Path] = None
         super().__init__(
             self.cached_annotations.cache_output.root_dir, verbosity, debug, bcftools_path
         )
@@ -396,6 +397,9 @@ class VCFAnnotator(VCFDatabase):
         if not self.cache_file.exists():
             raise FileNotFoundError(f"Cache file not found: {self.cache_file}")
 
+        # Ensure contig compatibility before wiring the workflow
+        self._ensure_contig_compatibility()
+
         # Initialize workflow backend (pure Python)
         from vcfcache.database.base import create_workflow
         self.nx_workflow = create_workflow(
@@ -406,6 +410,7 @@ class VCFAnnotator(VCFDatabase):
             anno_config_file=self.anno_config_file,
             params_file=self.params_file,
             verbosity=self.verbosity,
+            contig_map=self.contig_map_file,
         )
 
         self._validate_inputs()
@@ -415,6 +420,91 @@ class VCFAnnotator(VCFDatabase):
             self.logger.info(f"Initializing annotation of {self.input_vcf.name}")
             self.logger.debug(f"Cache file: {self.cache_file}")
             self.logger.debug(f"Config file: {self.config_file}")
+
+    def _ensure_index(self, bcf: Path) -> None:
+        """Ensure an index exists for the given BCF/VCF."""
+        csi = Path(f"{bcf}.csi")
+        tbi = Path(f"{bcf}.tbi")
+        if csi.exists() or tbi.exists():
+            return
+        subprocess.run(
+            [str(self.bcftools_path), "index", str(bcf)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    def _list_contigs(self, bcf: Path) -> list[str]:
+        """List contigs using bcftools index -s."""
+        self._ensure_index(bcf)
+        res = subprocess.run(
+            [str(self.bcftools_path), "index", "-s", str(bcf)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return [line.split()[0] for line in res.stdout.splitlines() if line.strip()]
+
+    @staticmethod
+    def _canonical_contig(name: str) -> str:
+        """Normalize contig names for comparison."""
+        n = name.lower()
+        if n.startswith("chr"):
+            n = n[3:]
+        if n in ("m", "mt", "chrm"):
+            return "mt"
+        return n
+
+    def _write_contig_map(self, cache_map: dict[str, str]) -> None:
+        """Generate a contig map file for rename-chrs when prefixes differ."""
+        contigs = self._list_contigs(self.input_vcf)
+        mapping_dir = self.output_annotations.root_dir / "work"
+        mapping_dir.mkdir(parents=True, exist_ok=True)
+        map_file = mapping_dir / "contig_map.txt"
+
+        lines = []
+        for contig in contigs:
+            key = self._canonical_contig(contig)
+            target = cache_map.get(key)
+            if not target or contig == target:
+                continue
+            lines.append(f"{contig}\t{target}\n")
+
+        if lines:
+            map_file.write_text("".join(lines))
+            self.contig_map_file = map_file
+
+    def _ensure_contig_compatibility(self) -> None:
+        """Ensure contigs between input and cache are compatible, auto-fixing chr prefixes."""
+        self._ensure_index(self.cache_file)
+        self._ensure_index(self.input_vcf)
+
+        cache_contigs = self._list_contigs(self.cache_file)
+        input_contigs = self._list_contigs(self.input_vcf)
+
+        cache_set = set(cache_contigs)
+        input_set = set(input_contigs)
+        if cache_set == input_set:
+            return
+
+        cache_canon = {self._canonical_contig(c) for c in cache_contigs}
+        input_canon = {self._canonical_contig(c) for c in input_contigs}
+
+        if cache_canon == input_canon:
+            cache_map: dict[str, str] = {}
+            for contig in cache_contigs:
+                cache_map[self._canonical_contig(contig)] = contig
+            # Write a map for rename-chrs (used during workflow)
+            self._write_contig_map(cache_map)
+            return
+
+        missing_in_input = sorted(list(cache_canon - input_canon))[:10]
+        missing_in_cache = sorted(list(input_canon - cache_canon))[:10]
+        raise RuntimeError(
+            "Contig names between cache and input are incompatible.\n"
+            f"In cache but not input (canonical): {missing_in_input}\n"
+            f"In input but not cache (canonical): {missing_in_cache}"
+        )
 
     def _validate_inputs(self) -> None:
         """Validate input files, directories, and YAML parameters."""

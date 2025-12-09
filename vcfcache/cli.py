@@ -22,9 +22,10 @@ import sys
 from importlib.metadata import version as pkg_version
 from pathlib import Path
 
-import yaml
 import requests
+import yaml
 
+from vcfcache import EXPECTED_BCFTOOLS_VERSION
 from vcfcache.integrations.zenodo import download_doi
 from vcfcache.manifest import find_alias, format_manifest, load_manifest
 from vcfcache.database.annotator import DatabaseAnnotator, VCFAnnotator
@@ -32,9 +33,12 @@ from vcfcache.database.initializer import DatabaseInitializer
 from vcfcache.database.updater import DatabaseUpdater
 from vcfcache.utils.logging import log_command, setup_logging
 from vcfcache.utils.archive import extract_cache, tar_cache
+from vcfcache.utils.paths import get_project_root
 from vcfcache.utils.validation import check_bcftools_installed
 
 MANIFEST_DEFAULT = Path(__file__).resolve().parent.parent / "public_caches.yaml"
+# Ensure VCFCACHE_ROOT is set (used by packaged resources/recipes)
+os.environ.setdefault("VCFCACHE_ROOT", str(get_project_root()))
 
 
 def _print_annotation_command(annotation_dir: Path) -> None:

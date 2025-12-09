@@ -98,21 +98,13 @@ def validate_bcf_header(
                     f"Missing required normalization options: {', '.join(missing_options)}",
                 )
 
-        # Check contig format
+        # Check contig presence (allow both with or without chr prefix)
         contig_lines = [
             line for line in header.splitlines() if line.startswith("##contig=")
         ]
 
         if not contig_lines:
             return False, "No contig lines found in header"
-
-        invalid_contigs = [
-            line for line in contig_lines if not line.startswith("##contig=<ID=chr")
-        ]
-
-        if invalid_contigs:
-            example = invalid_contigs[0] if invalid_contigs else ""
-            return False, f"Invalid contig format (should start with 'chr'): {example}"
 
         return True, None
 

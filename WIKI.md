@@ -136,7 +136,6 @@ vcfcache annotate -a cache-hg38-gnomad-4.1joint-AF0100-vep-115.2-basic --show-co
 bcftools_cmd: "bcftools"  # bundled bcftools by default
 annotation_tool_cmd: "vep"
 tool_version_command: "vep --version"
-chr_add: "${VCFCACHE_ROOT}/resources/chr_add.txt"
 temp_dir: "/tmp"
 optional_checks: {}
 ```
