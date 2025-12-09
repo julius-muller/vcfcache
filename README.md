@@ -15,9 +15,34 @@ Cache common variants once, reuse them for every sample. VCFcache builds a norma
 
 ---
 
+## Quick start (pip install)
+
+Requirements: Python >= 3.11, bcftools >= 1.20
+
+```bash
+# Install vcfcache
+pip install vcfcache
+
+# Verify installation
+vcfcache-test
+# or: python -m vcfcache.smoke_test
+
+# Use it
+vcfcache --help
+```
+
+**Note:** bcftools is a runtime dependency and must be installed separately:
+- Ubuntu/Debian: `sudo apt-get install bcftools`
+- macOS: `brew install bcftools`
+- Conda: `conda install -c bioconda bcftools`
+
+The smoke test (`vcfcache-test`) will verify your installation and show helpful messages if dependencies are missing.
+
+---
+
 ## Quick start (from source)
 
-Requirements: Python 3.13+, uv
+Requirements: Python 3.13+, uv, bcftools >= 1.20
 
 ```bash
 git clone https://github.com/julius-muller/vcfcache.git
