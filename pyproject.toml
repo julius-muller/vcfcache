@@ -4,6 +4,8 @@ requires = ["hatchling>=1.26", "editables>=0.3"]
 build-backend = "hatchling.build"
 
 [project]
+name = "vcfcache"
+version = "0.3.1"
 include-package-data = true
 license = { text = "MIT" }
 classifiers = [
@@ -14,8 +16,6 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
-name = "vcfcache"
-version = "0.3.0"
 description = "Cache-based VCF annotation accelerator"
 requires-python = ">=3.11"
 readme = "README.md"
