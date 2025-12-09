@@ -30,8 +30,8 @@ def test_module_imports(test_scenario):
     from vcfcache.database.annotator import DatabaseAnnotator, VCFAnnotator
 
     # Verify constants are set
-    assert hasattr(vcfcache, 'EXPECTED_BCFTOOLS_VERSION')
-    assert isinstance(vcfcache.EXPECTED_BCFTOOLS_VERSION, str)
+    from vcfcache.utils.validation import MIN_BCFTOOLS_VERSION
+    assert isinstance(MIN_BCFTOOLS_VERSION, str)
 
 
 def test_cli_help(test_scenario):
@@ -178,10 +178,10 @@ def test_path_resolution(test_scenario):
 
 
 def test_bcftools_expected_version(test_scenario):
-    """Test that expected bcftools version is defined."""
-    from vcfcache import EXPECTED_BCFTOOLS_VERSION
+    """Test that minimum required bcftools version is defined."""
+    from vcfcache.utils.validation import MIN_BCFTOOLS_VERSION
 
-    assert isinstance(EXPECTED_BCFTOOLS_VERSION, str)
-    assert len(EXPECTED_BCFTOOLS_VERSION) > 0
+    assert isinstance(MIN_BCFTOOLS_VERSION, str)
+    assert len(MIN_BCFTOOLS_VERSION) > 0
     # Should be in format like "1.20" or "1.20.1"
-    assert EXPECTED_BCFTOOLS_VERSION[0].isdigit()
+    assert MIN_BCFTOOLS_VERSION[0].isdigit()

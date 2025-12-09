@@ -212,8 +212,8 @@ def test_python_environment(test_scenario):
     import vcfcache.database
 
     # Verify installation
-    from vcfcache import EXPECTED_BCFTOOLS_VERSION
-    assert EXPECTED_BCFTOOLS_VERSION is not None
+    from vcfcache.utils.validation import MIN_BCFTOOLS_VERSION
+    assert MIN_BCFTOOLS_VERSION is not None
 
-    print(f"VCFcache bcftools version: {EXPECTED_BCFTOOLS_VERSION}")
+    print(f"VCFcache minimum required bcftools version: {MIN_BCFTOOLS_VERSION}")
     print(f"Python path: {sys.path}")

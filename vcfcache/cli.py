@@ -25,7 +25,6 @@ from pathlib import Path
 import yaml
 import requests
 
-from vcfcache import EXPECTED_BCFTOOLS_VERSION
 from vcfcache.integrations.zenodo import download_doi
 from vcfcache.manifest import find_alias, format_manifest, load_manifest
 from vcfcache.database.annotator import DatabaseAnnotator, VCFAnnotator
@@ -361,7 +360,8 @@ def main() -> None:
     # Check bcftools once early (skip for pure manifest ops)
     bcftools_path = None
     if not (show_command_only or list_only or args.command in ["pull", "list", "push"]):
-        logger.debug(f"Expected bcftools version: {EXPECTED_BCFTOOLS_VERSION}")
+        from vcfcache.utils.validation import MIN_BCFTOOLS_VERSION
+        logger.debug(f"Minimum required bcftools version: {MIN_BCFTOOLS_VERSION}")
         workflow_dir = None
         if args.command in ["blueprint-extend", "cache-build"] and args.db:
             workflow_dir = Path(args.db) / "workflow"
