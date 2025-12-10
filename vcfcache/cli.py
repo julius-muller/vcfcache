@@ -356,11 +356,6 @@ def main() -> None:
         help="Run comprehensive smoke test of all 4 commands (blueprint-init, blueprint-extend, cache-build, annotate)",
     )
     demo_parser.add_argument(
-        "--keep-files",
-        action="store_true",
-        help="Keep temporary files for inspection (only for --smoke-test)",
-    )
-    demo_parser.add_argument(
         "-a",
         "--annotation_db",
         type=str,
@@ -371,7 +366,12 @@ def main() -> None:
         type=str,
         help="Path to VCF/BCF file to annotate (for benchmark mode)",
     )
-    # Note: -y/--params inherited from parent_parser
+    demo_parser.add_argument(
+        "--output",
+        type=str,
+        help="Output directory for benchmark results (default: temporary directory in /tmp)",
+    )
+    # Note: -y/--params and --debug inherited from parent_parser
 
     args = parser.parse_args(args=None if sys.argv[1:] else ["--help"])
 
@@ -580,7 +580,7 @@ def main() -> None:
 
             # Run smoke test mode
             if args.smoke_test:
-                exit_code = run_smoke_test(keep_files=args.keep_files)
+                exit_code = run_smoke_test(keep_files=args.debug)
                 sys.exit(exit_code)
 
             # Run benchmark mode
@@ -592,6 +592,8 @@ def main() -> None:
                     cache_dir=args.annotation_db,
                     vcf_file=args.vcf,
                     params_file=args.params,
+                    output_dir=args.output,
+                    keep_files=args.debug,
                 )
                 sys.exit(exit_code)
 

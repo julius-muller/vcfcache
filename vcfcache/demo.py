@@ -8,13 +8,13 @@ This module demonstrates the complete vcfcache workflow with all 5 steps:
 5. validation: Verify cached and uncached outputs match (MD5 comparison)
 
 Usage:
-    vcfcache demo --smoke-test [--keep-files]
-    vcfcache demo -a <cache> --vcf <vcf> -y <params>  # benchmark mode
+    vcfcache demo --smoke-test [--debug]
+    vcfcache demo -a <cache> --vcf <vcf> -y <params> [--output <dir>] [--debug]
 
 Or from Python:
     from vcfcache.demo import run_smoke_test, run_benchmark
-    run_smoke_test()
-    run_benchmark(cache_dir, vcf_file, params_file)
+    run_smoke_test(keep_files=False)
+    run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=False)
 """
 
 import hashlib
@@ -550,13 +550,15 @@ def run_smoke_test(keep_files=False):
                 print(f"⚠ Warning: Could not clean up {temp_dir}: {e}")
 
 
-def run_benchmark(cache_dir, vcf_file, params_file):
+def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=False):
     """Run benchmark comparing cached vs uncached annotation.
 
     Args:
         cache_dir: Path to annotation cache directory
         vcf_file: Path to VCF/BCF file to annotate
         params_file: Path to params YAML file
+        output_dir: Optional output directory (default: temporary directory in /tmp)
+        keep_files: If True, keep temporary files for inspection
 
     Returns:
         int: Exit code (0 for success, 1 for failure)
@@ -595,9 +597,19 @@ def run_benchmark(cache_dir, vcf_file, params_file):
         print("Benchmark cancelled.")
         return 0
 
-    # Create temporary directory for outputs
-    temp_dir = Path(tempfile.mkdtemp(prefix="vcfcache_benchmark_"))
-    print(f"\nWorking directory: {temp_dir}\n")
+    # Create output directory
+    if output_dir:
+        temp_dir = Path(output_dir).expanduser().resolve()
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        created_temp = False  # User-specified directory, don't auto-cleanup
+        print(f"\nOutput directory: {temp_dir}\n")
+    else:
+        temp_dir = Path(tempfile.mkdtemp(prefix="vcfcache_benchmark_"))
+        created_temp = True  # Auto-created temp, cleanup unless keep_files
+        print(f"\nWorking directory: {temp_dir}\n")
+
+    if keep_files:
+        print(f"Note: Files will be kept for inspection\n")
 
     try:
         uncached_dir = temp_dir / "uncached"
@@ -748,6 +760,16 @@ def run_benchmark(cache_dir, vcf_file, params_file):
         print()
         print("# Uncached annotation:")
         print(" \\\n  ".join(cmd_uncached))
+        print()
+
+        # Print output location
+        print(f"Output files location: {temp_dir}")
+        if keep_files:
+            print(f"Working files will be kept for inspection")
+        elif not created_temp:
+            print(f"Output directory will be preserved (user-specified)")
+        else:
+            print(f"Temporary directory will be cleaned up")
 
         return 0
 
@@ -760,13 +782,15 @@ def run_benchmark(cache_dir, vcf_file, params_file):
         traceback.print_exc()
         return 1
     finally:
-        # Cleanup
-        if temp_dir.exists():
+        # Cleanup (only for auto-created temp directories)
+        if created_temp and not keep_files and temp_dir.exists():
             try:
                 shutil.rmtree(temp_dir)
                 print(f"\n✓ Cleaned up temporary directory")
             except Exception as e:
                 print(f"\n⚠ Warning: Could not clean up {temp_dir}: {e}")
+        elif keep_files and temp_dir.exists():
+            print(f"\nWorking files kept at: {temp_dir}")
 
 
 def main():
@@ -782,9 +806,9 @@ def main():
         help="Run comprehensive smoke test"
     )
     parser.add_argument(
-        "--keep-files",
+        "--debug",
         action="store_true",
-        help="Keep temporary files for inspection (smoke test only)"
+        help="Keep temporary files for inspection"
     )
     parser.add_argument(
         "-a", "--annotation_db",
@@ -801,13 +825,24 @@ def main():
         type=str,
         help="Params file (benchmark mode)"
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Output directory for benchmark results (default: temporary directory in /tmp)"
+    )
 
     args = parser.parse_args()
 
     if args.smoke_test:
-        exit_code = run_smoke_test(keep_files=args.keep_files)
+        exit_code = run_smoke_test(keep_files=args.debug)
     elif args.annotation_db and args.vcf and args.params:
-        exit_code = run_benchmark(args.annotation_db, args.vcf, args.params)
+        exit_code = run_benchmark(
+            args.annotation_db,
+            args.vcf,
+            args.params,
+            output_dir=args.output,
+            keep_files=args.debug
+        )
     else:
         parser.print_help()
         exit_code = 1
