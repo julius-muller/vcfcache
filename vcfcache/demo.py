@@ -234,10 +234,10 @@ def run_smoke_test(keep_files=False):
         # Verify annotation tag is present
         header_cmd = ["bcftools", "view", "-h", str(cache_bcf)]
         result = subprocess.run(header_cmd, capture_output=True, text=True)
-        if result.returncode == 0 and "DEMO_TAG" in result.stdout:
-            print(f"✓ Annotation tag DEMO_TAG present in cache")
+        if result.returncode == 0 and "##INFO=<ID=CSQ," in result.stdout:
+            print(f"✓ Annotation tag CSQ present in cache")
         else:
-            print(f"⚠ Warning: DEMO_TAG not found in cache header")
+            print(f"⚠ Warning: CSQ not found in cache header")
 
         # ====================================================================
         # Step 4: annotate
@@ -281,8 +281,8 @@ def run_smoke_test(keep_files=False):
         # Check for annotation tag
         header_cmd = ["bcftools", "view", "-h", str(output_bcf)]
         result = subprocess.run(header_cmd, capture_output=True, text=True)
-        if result.returncode == 0 and "DEMO_TAG" in result.stdout:
-            print(f"✓ Annotation tag DEMO_TAG present in output")
+        if result.returncode == 0 and "##INFO=<ID=CSQ," in result.stdout:
+            print(f"✓ Annotation tag CSQ present in output")
 
         # ====================================================================
         # Validation: Compare cached vs uncached annotation

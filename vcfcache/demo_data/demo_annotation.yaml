@@ -1,21 +1,78 @@
 # Demo Annotation Configuration for VCFcache
-# Uses bcftools to add a mock annotation for demonstration
+# Uses bcftools to add a mock VEP-style CSQ annotation for demonstration
 
-# Annotation command: adds DEMO_TAG to INFO field
+# Annotation command: adds CSQ tag mimicking VEP output
 annotation_cmd: |
-  echo '##INFO=<ID=DEMO_TAG,Number=1,Type=String,Description="Demo annotation tag">' > newheader.txt
-  ${params.bcftools_cmd} query -f '%CHROM\t%POS\tdemo\n' ${INPUT_BCF} > demo.txt
+  echo '##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position">' > newheader.txt
+
+  # Generate realistic VEP-style annotations based on variant properties
+  ${params.bcftools_cmd} query -f '%CHROM\t%POS\t%REF\t%ALT\n' ${INPUT_BCF} | \
+  awk 'BEGIN {OFS="\t"} {
+    chrom=$1; pos=$2; ref=$3; alt=$4;
+
+    # Normalize chromosome name (remove "chr" prefix if present)
+    chrom_clean = chrom;
+    if (chrom ~ /^chr/) {
+      chrom_clean = substr(chrom, 4);
+    }
+
+    # Generate gene symbol based on normalized chromosome
+    if (chrom_clean == "1") gene = "GENE1_" pos % 100;
+    else if (chrom_clean == "2") gene = "GENE2_" pos % 100;
+    else if (chrom_clean == "9") gene = "GENE9_" pos % 100;
+    else gene = "GENE" chrom_clean "_" pos % 100;
+
+    # Determine consequence type based on variant type
+    ref_len = length(ref);
+    alt_len = length(alt);
+    if (ref_len == 1 && alt_len == 1) {
+      consequence = "missense_variant";
+      impact = "MODERATE";
+    } else if (ref_len > alt_len) {
+      consequence = "frameshift_variant";
+      impact = "HIGH";
+    } else if (ref_len < alt_len) {
+      consequence = "inframe_insertion";
+      impact = "MODERATE";
+    } else {
+      consequence = "synonymous_variant";
+      impact = "LOW";
+    }
+
+    # Generate transcript and protein IDs
+    transcript = "ENST000000" (pos % 99999 + 100000);
+    protein = "ENSP000000" (pos % 99999 + 100000);
+    ensg = "ENSG000000" (pos % 99999 + 100000);
+
+    # Generate exon/intron info
+    exon = int(pos / 1000) % 10 + 1 "/" int(pos / 500) % 15 + 5;
+
+    # Generate HGVS notation
+    aa_pos = int(pos / 3) % 500 + 1;
+    hgvsc = transcript ".1:c." aa_pos * 3 ref ">" alt;
+    hgvsp = protein ".1:p.Arg" aa_pos "Ser";
+
+    # Generate positions
+    cdna_pos = aa_pos * 3;
+    cds_pos = aa_pos * 3;
+
+    # Create VEP-style CSQ value
+    csq = alt "|" consequence "|" impact "|" gene "|" ensg "|Transcript|" transcript "|protein_coding|" exon "||" hgvsc "|" hgvsp "|" cdna_pos "|" cds_pos "|" aa_pos;
+
+    print chrom, pos, csq;
+  }' > demo.txt
+
   bgzip -c demo.txt > demo.txt.gz
   tabix -s 1 -b 2 -e 2 demo.txt.gz
   ${params.bcftools_cmd} annotate \
       -a demo.txt.gz \
       -h newheader.txt \
-      -c CHROM,POS,INFO/DEMO_TAG \
+      -c CHROM,POS,INFO/CSQ \
       ${INPUT_BCF} \
       -Ob -o ${OUTPUT_BCF} -W
 
 # Validation: check for this INFO tag in output
-must_contain_info_tag: DEMO_TAG
+must_contain_info_tag: CSQ
 
 # Optional version check (empty = skip)
 required_tool_version: ""
