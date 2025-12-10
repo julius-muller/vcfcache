@@ -96,23 +96,38 @@ def collect_detailed_timings(cache_dir, output_dir):
     return detailed_timings
 
 
-def show_step_timing(log_file):
-    """Display detailed timing for a specific workflow step."""
+def show_step_timing(log_file, shown_lines=None):
+    """Display detailed timing for a specific workflow step.
+
+    Args:
+        log_file: Path to workflow log file
+        shown_lines: Set of line numbers already displayed (to avoid duplicates)
+
+    Returns:
+        Updated set of shown line numbers
+    """
     import re
 
+    if shown_lines is None:
+        shown_lines = set()
+
     if not log_file.exists():
-        return
+        return shown_lines
 
     timing_pattern = re.compile(r'Command completed in ([\d.]+)s: (.+)')
     operations = []
 
     with log_file.open() as f:
-        for line in f:
+        for line_num, line in enumerate(f):
+            if line_num in shown_lines:
+                continue
+
             match = timing_pattern.search(line)
             if match:
                 duration = float(match.group(1))
                 cmd = match.group(2).strip()
                 operations.append((cmd, duration))
+                shown_lines.add(line_num)
 
     if operations:
         print("\n  Detailed timing:")
@@ -122,6 +137,8 @@ def show_step_timing(log_file):
             print(f"    • {cmd:30s}: {format_duration(duration):>10s}  ({pct:5.1f}%)")
         print(f"    {'─' * 55}")
         print(f"    {'Total':30s}: {format_duration(total):>10s}")
+
+    return shown_lines
 
 
 def run_command(cmd, description, cwd=None):
@@ -227,6 +244,9 @@ def run_smoke_test(keep_files=False):
     # Track timing for each step
     timings = {}
 
+    # Track which log lines we've already shown (to avoid duplicates in shared log files)
+    shown_log_lines = {}
+
     try:
         # Define paths
         cache_dir = temp_dir / "cache"
@@ -276,7 +296,10 @@ def run_smoke_test(keep_files=False):
                     break
 
         # Show detailed timing for this step
-        show_step_timing(cache_dir / "blueprint" / "workflow.log")
+        blueprint_log = cache_dir / "blueprint" / "workflow.log"
+        shown_log_lines[str(blueprint_log)] = show_step_timing(
+            blueprint_log, shown_log_lines.get(str(blueprint_log))
+        )
 
         # ====================================================================
         # Step 2: blueprint-extend
@@ -305,8 +328,10 @@ def run_smoke_test(keep_files=False):
                     print(f"  {line.split(':')[1].strip()}")
                     break
 
-        # Show detailed timing for this step
-        show_step_timing(cache_dir / "blueprint" / "workflow.log")
+        # Show detailed timing for this step (reuse same tracker for blueprint log)
+        shown_log_lines[str(blueprint_log)] = show_step_timing(
+            blueprint_log, shown_log_lines.get(str(blueprint_log))
+        )
 
         # ====================================================================
         # Step 3: cache-build
@@ -345,7 +370,10 @@ def run_smoke_test(keep_files=False):
             print(f"⚠ Warning: CSQ not found in cache header")
 
         # Show detailed timing for this step
-        show_step_timing(cache_dir / "cache" / "demo_cache" / "workflow.log")
+        cache_log = cache_dir / "cache" / "demo_cache" / "workflow.log"
+        shown_log_lines[str(cache_log)] = show_step_timing(
+            cache_log, shown_log_lines.get(str(cache_log))
+        )
 
         # ====================================================================
         # Step 4: annotate
@@ -395,7 +423,10 @@ def run_smoke_test(keep_files=False):
             print(f"✓ Annotation tag CSQ present in output")
 
         # Show detailed timing for this step
-        show_step_timing(output_dir / "workflow.log")
+        output_log = output_dir / "workflow.log"
+        shown_log_lines[str(output_log)] = show_step_timing(
+            output_log, shown_log_lines.get(str(output_log))
+        )
 
         # ====================================================================
         # Validation: Compare cached vs uncached annotation
