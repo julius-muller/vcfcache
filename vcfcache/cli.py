@@ -573,21 +573,28 @@ def main() -> None:
         elif args.command == "demo":
             from vcfcache.demo import run_smoke_test, run_benchmark
 
-            # If no arguments provided, show help
-            if not args.smoke_test and not (args.annotation_db and args.vcf):
-                demo_parser.print_help()
-                sys.exit(0)
-
-            # Run smoke test mode
+            # Validate mode selection
             if args.smoke_test:
+                # Smoke test mode
                 exit_code = run_smoke_test(keep_files=args.debug)
                 sys.exit(exit_code)
 
-            # Run benchmark mode
-            if args.annotation_db and args.vcf:
+            elif args.annotation_db or args.vcf:
+                # Benchmark mode - validate required arguments
+                if not args.annotation_db:
+                    print("Error: -a/--annotation_db is required when using --vcf")
+                    print("Usage: vcfcache demo -a <cache> --vcf <file> -y <params> [--output <dir>] [--debug]")
+                    sys.exit(1)
+                if not args.vcf:
+                    print("Error: --vcf is required when using -a/--annotation_db")
+                    print("Usage: vcfcache demo -a <cache> --vcf <file> -y <params> [--output <dir>] [--debug]")
+                    sys.exit(1)
                 if not args.params:
                     print("Error: --params (-y) is required for benchmark mode")
+                    print("Usage: vcfcache demo -a <cache> --vcf <file> -y <params> [--output <dir>] [--debug]")
                     sys.exit(1)
+
+                # All required arguments provided, run benchmark
                 exit_code = run_benchmark(
                     cache_dir=args.annotation_db,
                     vcf_file=args.vcf,
@@ -597,10 +604,10 @@ def main() -> None:
                 )
                 sys.exit(exit_code)
 
-            # Invalid combination
-            print("Error: Use either --smoke-test OR -a/--annotation_db + --vcf for benchmark mode")
-            demo_parser.print_help()
-            sys.exit(1)
+            else:
+                # No mode selected, show help
+                demo_parser.print_help()
+                sys.exit(0)
 
     except Exception as e:
         # Only log the top-level error without traceback - it will be shown by the raise
