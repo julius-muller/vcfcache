@@ -458,6 +458,12 @@ def run_smoke_test(keep_files=False):
             print(f"✗ ERROR: Uncached output not created: {output_bcf_uncached}")
             return 1
 
+        # Show detailed timing for uncached annotation
+        uncached_log = output_dir_uncached / "workflow.log"
+        shown_log_lines[str(uncached_log)] = show_step_timing(
+            uncached_log, shown_log_lines.get(str(uncached_log))
+        )
+
         # Compute MD5 of BCF bodies (without headers)
         def compute_bcf_body_md5(bcf_path):
             """Compute MD5 of BCF body without header."""
