@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vcfcache"
-version = "0.3.4"
+version = "0.3.5"
 include-package-data = true
 license = { text = "MIT" }
 classifiers = [
@@ -73,7 +73,7 @@ include = ["vcfcache/**", "tests/**"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["vcfcache"]
-include = ["vcfcache/recipes/**", "vcfcache/demo_data/**"]
+include = ["vcfcache/recipes/**", "vcfcache/demo_data/**", "vcfcache/public_caches.yaml"]
 
 
 [tool.ruff]

@@ -293,85 +293,41 @@ echo ""
 # Step 5: Docker build and push
 log "Step 5: Build and push Docker image"
 
-# Get latest Docker image version from GHCR
-log "  → Checking GHCR for current version (may take a moment if pulling image)..."
-# Try to pull and get version from the image
-DOCKER_LATEST=""
-if docker pull ghcr.io/julius-muller/vcfcache:latest --quiet 2>/dev/null; then
-  DOCKER_LATEST=$(docker run --rm ghcr.io/julius-muller/vcfcache:latest --version 2>/dev/null | head -1 || echo "")
-fi
-
-# Also check if target version tag exists
-if docker pull "ghcr.io/julius-muller/vcfcache:v$VERSION" --quiet 2>/dev/null; then
-  log "  ✓ Docker image v$VERSION already on GHCR, skipping"
-elif [[ -n "$DOCKER_LATEST" ]]; then
-  set +e
-  version_compare "$VERSION" "$DOCKER_LATEST"
-  COMPARE_RESULT=$?
-  set -e
-  case $COMPARE_RESULT in
-    0)
-      log "  ✓ Docker image v$VERSION matches current (v$DOCKER_LATEST), skipping build"
-      ;;
-    2)
-      log "  ✓ Current Docker version (v$DOCKER_LATEST) >= target (v$VERSION), skipping"
-      ;;
-    1)
-      if ask_yn_skip "Build Docker image for v$VERSION? (current: v$DOCKER_LATEST)"; then
-        # Build image
-        log "  → Building Docker image..."
-        ./scripts/local-build/build-and-push-final.sh --skip-push
-
-        # Tag with version
-        log "  → Tagging as v$VERSION..."
-        docker tag ghcr.io/julius-muller/vcfcache:latest "ghcr.io/julius-muller/vcfcache:v$VERSION"
-
-        # Push
-        if ask_yn_skip "Push Docker images to GHCR?"; then
-          docker push "ghcr.io/julius-muller/vcfcache:v$VERSION"
-          docker push ghcr.io/julius-muller/vcfcache:latest
-          log "  ✓ Pushed Docker images"
-
-          # Verify
-          log "  → Verifying pushed image..."
-          docker pull ghcr.io/julius-muller/vcfcache:latest
-          docker run --rm ghcr.io/julius-muller/vcfcache:latest demo --smoke-test --quiet
-          log "  ✓ Docker image verified"
-        else
-          log "  ⊘ Skipped Docker push (images tagged locally)"
-        fi
-      else
-        log "  ⊘ Skipped Docker build"
-      fi
-      ;;
-  esac
+# Ask user if they want to build/push Docker image
+if ! ask_yn_skip "Build Docker image for v$VERSION?"; then
+  log "  ⊘ Skipped Docker build"
 else
-  # No Docker image found
-  if ask_yn_skip "Build Docker image for v$VERSION? (current: none)"; then
-    # Build image
-    log "  → Building Docker image..."
-    ./scripts/local-build/build-and-push-final.sh --skip-push
-
-    # Tag with version
-    log "  → Tagging as v$VERSION..."
-    docker tag ghcr.io/julius-muller/vcfcache:latest "ghcr.io/julius-muller/vcfcache:v$VERSION"
-
-    # Push
-    if ask_yn_skip "Push Docker images to GHCR?"; then
-      docker push "ghcr.io/julius-muller/vcfcache:v$VERSION"
-      docker push ghcr.io/julius-muller/vcfcache:latest
-      log "  ✓ Pushed Docker images"
-
-      # Verify
-      log "  → Verifying pushed image..."
-      docker pull ghcr.io/julius-muller/vcfcache:latest
-      docker run --rm ghcr.io/julius-muller/vcfcache:latest demo --smoke-test --quiet
-      log "  ✓ Docker image verified"
-    else
-      log "  ⊘ Skipped Docker push (images tagged locally)"
+  # Get latest Docker image version from GHCR (optional, for informational purposes)
+  log "  → Checking GHCR for current version..."
+  DOCKER_LATEST=""
+  if docker pull ghcr.io/julius-muller/vcfcache:latest --quiet 2>/dev/null; then
+    DOCKER_LATEST=$(docker run --rm ghcr.io/julius-muller/vcfcache:latest --version 2>/dev/null | head -1 || echo "")
+    if [[ -n "$DOCKER_LATEST" ]]; then
+      log "  → Current GHCR version: v$DOCKER_LATEST"
     fi
+  fi
+
+  # Build image
+  log "  → Building Docker image..."
+  ./scripts/local-build/build-and-push-final.sh --skip-push
+
+  # Tag with version
+  log "  → Tagging as v$VERSION..."
+  docker tag ghcr.io/julius-muller/vcfcache:latest "ghcr.io/julius-muller/vcfcache:v$VERSION"
+
+  # Push
+  if ask_yn_skip "Push Docker images to GHCR?"; then
+    docker push "ghcr.io/julius-muller/vcfcache:v$VERSION"
+    docker push ghcr.io/julius-muller/vcfcache:latest
+    log "  ✓ Pushed Docker images"
+
+    # Verify
+    log "  → Verifying pushed image..."
+    docker pull ghcr.io/julius-muller/vcfcache:latest --quiet
+    docker run --rm ghcr.io/julius-muller/vcfcache:latest demo --smoke-test --quiet
+    log "  ✓ Docker image verified"
   else
-    log "  ⊘ Skipped Docker build"
+    log "  ⊘ Skipped Docker push (images tagged locally)"
   fi
 fi
 echo ""
@@ -379,106 +335,39 @@ echo ""
 # Step 6: GitHub release
 log "Step 6: Create GitHub release"
 
-# Get latest GitHub release version
-log "  → Checking GitHub for current version..."
-GITHUB_LATEST=$(gh release list --limit 1 2>/dev/null | awk '{print $1}' | sed 's/^v//')
+# Check if release already exists
+if gh release view "v$VERSION" >/dev/null 2>&1; then
+  log "  ✓ GitHub release v$VERSION already exists, skipping"
+  exit 0
+fi
 
-# Check if git tag already exists
+# Ask user if they want to create the release
+if ! ask_yn_skip "Create GitHub release v$VERSION with artifacts?"; then
+  log "  ⊘ Skipped GitHub release creation"
+  exit 0
+fi
+
+# Check if git tag exists
 if git rev-parse "v$VERSION" >/dev/null 2>&1; then
   log "  ✓ Git tag v$VERSION already exists"
-
-  # Check if GitHub release exists
-  if gh release view "v$VERSION" >/dev/null 2>&1; then
-    log "  ✓ GitHub release v$VERSION already exists, skipping"
-  else
-    # Tag exists but release doesn't
-    if [[ -n "$GITHUB_LATEST" ]]; then
-      if ask_yn_skip "Create GitHub release v$VERSION with artifacts? (current: v$GITHUB_LATEST)"; then
-        gh release create "v$VERSION" \
-          --title "vcfcache v$VERSION" \
-          --notes-file CHANGELOG.md \
-          dist/*
-        log "  ✓ GitHub release created"
-        log "  → View at: https://github.com/julius-muller/vcfcache/releases/tag/v$VERSION"
-      else
-        log "  ⊘ Skipped GitHub release creation"
-      fi
-    else
-      if ask_yn_skip "Create GitHub release v$VERSION with artifacts? (current: none)"; then
-        gh release create "v$VERSION" \
-          --title "vcfcache v$VERSION" \
-          --notes-file CHANGELOG.md \
-          dist/*
-        log "  ✓ GitHub release created"
-        log "  → View at: https://github.com/julius-muller/vcfcache/releases/tag/v$VERSION"
-      else
-        log "  ⊘ Skipped GitHub release creation"
-      fi
-    fi
-  fi
 else
-  # Tag doesn't exist - check if we should create it
-  if [[ -n "$GITHUB_LATEST" ]]; then
-    set +e
-    version_compare "$VERSION" "$GITHUB_LATEST"
-    COMPARE_RESULT=$?
-    set -e
-    case $COMPARE_RESULT in
-      0|2)
-        log "  ✓ Current GitHub version (v$GITHUB_LATEST) >= target (v$VERSION), skipping"
-        ;;
-      1)
-        if ask_yn_skip "Create GitHub release for v$VERSION? (current: v$GITHUB_LATEST)"; then
-          # Create and push tag
-          log "  → Creating git tag v$VERSION..."
-          git tag "v$VERSION"
-          git push origin "v$VERSION"
-          log "  ✓ Tag pushed"
-
-          # Create GitHub release
-          if ask_yn_skip "Create GitHub release v$VERSION with artifacts?"; then
-            gh release create "v$VERSION" \
-              --title "vcfcache v$VERSION" \
-              --notes-file CHANGELOG.md \
-              dist/*
-            log "  ✓ GitHub release created"
-            log "  → View at: https://github.com/julius-muller/vcfcache/releases/tag/v$VERSION"
-          else
-            log "  ⊘ Skipped GitHub release creation (tag still pushed)"
-          fi
-        else
-          log "  ⊘ Skipped GitHub release"
-        fi
-        ;;
-    esac
-  else
-    # No GitHub releases yet
-    if ask_yn_skip "Create GitHub release for v$VERSION? (current: none)"; then
-      # Create and push tag
-      log "  → Creating git tag v$VERSION..."
-      git tag "v$VERSION"
-      git push origin "v$VERSION"
-      log "  ✓ Tag pushed"
-
-      # Create GitHub release
-      if ask_yn_skip "Create GitHub release v$VERSION with artifacts?"; then
-        gh release create "v$VERSION" \
-          --title "vcfcache v$VERSION" \
-          --notes-file CHANGELOG.md \
-          dist/*
-        log "  ✓ GitHub release created"
-        log "  → View at: https://github.com/julius-muller/vcfcache/releases/tag/v$VERSION"
-      else
-        log "  ⊘ Skipped GitHub release creation (tag still pushed)"
-      fi
-    else
-      log "  ⊘ Skipped GitHub release"
-    fi
-  fi
+  # Create and push git tag
+  log "  → Creating git tag v$VERSION..."
+  git tag -a "v$VERSION" -m "Release v$VERSION"
+  git push origin "v$VERSION"
+  log "  ✓ Created and pushed git tag v$VERSION"
 fi
-echo ""
 
+# Create GitHub release
+log "  → Creating GitHub release..."
+gh release create "v$VERSION" \
+  --title "vcfcache v$VERSION" \
+  --notes-file CHANGELOG.md \
+  dist/*
+log "  ✓ GitHub release created"
+log "  → View at: https://github.com/julius-muller/vcfcache/releases/tag/v$VERSION"
+
+echo ""
 log "================================================"
-log "Release process complete! 🎉"
-log "Version: $VERSION"
+log "Release v$VERSION complete! 🎉"
 log "================================================"

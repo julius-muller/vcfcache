@@ -36,7 +36,7 @@ from vcfcache.utils.archive import extract_cache, tar_cache
 from vcfcache.utils.paths import get_project_root
 from vcfcache.utils.validation import check_bcftools_installed
 
-MANIFEST_DEFAULT = Path(__file__).resolve().parent.parent / "public_caches.yaml"
+MANIFEST_DEFAULT = Path(__file__).resolve().parent / "public_caches.yaml"
 # Ensure VCFCACHE_ROOT is set (used by packaged resources/recipes)
 os.environ.setdefault("VCFCACHE_ROOT", str(get_project_root()))
 

@@ -6,5 +6,5 @@ cache database and runs VCF annotations only on novel variants not present in th
 significantly reducing annotation time.
 """
 
-__version__ = "0.3.4"
+__version__ = "0.3.5"
 EXPECTED_BCFTOOLS_VERSION = "1.20"

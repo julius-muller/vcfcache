@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.5 (2025-12-11)
+
+### Fixed
+- Fixed packaging issue where `public_caches.yaml` was not included in PyPI wheel distribution
+- Moved `public_caches.yaml` from project root to `vcfcache/` package directory to ensure proper installation
+- `vcfcache list --public-caches` now works correctly when installed from PyPI
+
+## 0.3.4 (2025-12-11)
+
+### Added
+- Added `--quiet/-q` flag to `vcfcache demo` command for minimal output
+- Added automated release script (`scripts/release.sh`) with interactive prompts and smart version checking
+- Added environment variable `VCFCACHE_BCFTOOLS` to override system bcftools location
+
+### Changed
+- Updated minimum bcftools requirement from 1.16 to 1.20 (for `--write-index` flag support)
+- Improved bcftools error messages to mention override option
+
+### Documentation
+- Added bcftools configuration section to README.md, WIKI.md, and CLAUDE.md
+- Updated RELEASE.md with automated release workflow
+
 ## 0.3.3 (2025-12-09)
 
 ### Added
