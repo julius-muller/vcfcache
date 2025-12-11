@@ -481,7 +481,16 @@ def main() -> None:
                 sandbox = os.environ.get("ZENODO_SANDBOX", "0") == "1"
                 download_doi(entry.doi, tar_dest, sandbox=sandbox)
                 cache_dir = extract_cache(tar_dest, cache_store)
-                alias_or_path = cache_dir / "cache" / entry.alias
+                # Find the annotation directory in the stash
+                stash_dir = cache_dir / "stash"
+                if not stash_dir.exists():
+                    raise FileNotFoundError(
+                        f"Invalid cache structure: {stash_dir} not found"
+                    )
+                stash_subdirs = list(stash_dir.iterdir())
+                if not stash_subdirs:
+                    raise FileNotFoundError(f"No cache found in {stash_dir}")
+                alias_or_path = stash_subdirs[0]
                 args.a = str(alias_or_path)
 
             if args.show_command:
