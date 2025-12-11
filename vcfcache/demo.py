@@ -8,13 +8,13 @@ This module demonstrates the complete vcfcache workflow with all 5 steps:
 5. validation: Verify cached and uncached outputs match (MD5 comparison)
 
 Usage:
-    vcfcache demo --smoke-test [--debug]
-    vcfcache demo -a <cache> --vcf <vcf> -y <params> [--output <dir>] [--debug]
+    vcfcache demo --smoke-test [--debug] [--quiet]
+    vcfcache demo -a <cache> --vcf <vcf> -y <params> [--output <dir>] [--debug] [--quiet]
 
 Or from Python:
     from vcfcache.demo import run_smoke_test, run_benchmark
-    run_smoke_test(keep_files=False)
-    run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=False)
+    run_smoke_test(keep_files=False, quiet=False)
+    run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=False, quiet=False)
 """
 
 import hashlib
@@ -25,19 +25,26 @@ import shutil
 import time
 from pathlib import Path
 
+# Module-level quiet mode flag
+_QUIET_MODE = False
+
 
 def print_section(title):
     """Print a section header."""
-    print("\n" + "="*70)
-    print(f"  {title}")
-    print("="*70 + "\n")
+    if not _QUIET_MODE:
+        print("\n" + "="*70)
+        print(f"  {title}")
+        print("="*70 + "\n")
 
 
 def print_step(step_num, description):
     """Print a step header."""
-    print(f"\n{'─'*70}")
-    print(f"Step {step_num}: {description}")
-    print(f"{'─'*70}\n")
+    if _QUIET_MODE:
+        print(".", end="", flush=True)
+    else:
+        print(f"\n{'─'*70}")
+        print(f"Step {step_num}: {description}")
+        print(f"{'─'*70}\n")
 
 
 def format_duration(seconds):
@@ -143,8 +150,9 @@ def show_step_timing(log_file, shown_lines=None):
 
 def run_command(cmd, description, cwd=None):
     """Run a command and check for success."""
-    print(f"Running: {' '.join(cmd)}")
-    print()
+    if not _QUIET_MODE:
+        print(f"Running: {' '.join(cmd)}")
+        print()
 
     start_time = time.time()
 
@@ -160,21 +168,25 @@ def run_command(cmd, description, cwd=None):
         duration = time.time() - start_time
 
         if result.returncode != 0:
-            print(f"✗ {description} FAILED (took {format_duration(duration)})")
+            if _QUIET_MODE:
+                print(f"\n✗ {description} FAILED")
+            else:
+                print(f"✗ {description} FAILED (took {format_duration(duration)})")
             print(f"\nSTDOUT:\n{result.stdout}")
             print(f"\nSTDERR:\n{result.stderr}")
             return False, duration
 
-        print(f"✓ {description} succeeded (took {format_duration(duration)})")
+        if not _QUIET_MODE:
+            print(f"✓ {description} succeeded (took {format_duration(duration)})")
 
-        # Show abbreviated output
-        if result.stdout:
-            lines = result.stdout.strip().split('\n')
-            if len(lines) > 10:
-                print(f"\n[Output truncated, showing last 10 lines]")
-                print('\n'.join(lines[-10:]))
-            else:
-                print(f"\n{result.stdout}")
+            # Show abbreviated output
+            if result.stdout:
+                lines = result.stdout.strip().split('\n')
+                if len(lines) > 10:
+                    print(f"\n[Output truncated, showing last 10 lines]")
+                    print('\n'.join(lines[-10:]))
+                else:
+                    print(f"\n{result.stdout}")
 
         return True, duration
 
@@ -195,22 +207,29 @@ def get_demo_data_dir():
     return package_dir / "demo_data"
 
 
-def run_smoke_test(keep_files=False):
+def run_smoke_test(keep_files=False, quiet=False):
     """Run the complete vcfcache smoke test workflow.
 
     Args:
         keep_files: If True, keep temporary files for inspection
+        quiet: If True, suppress detailed output (show only essential information)
 
     Returns:
         int: Exit code (0 for success, 1 for failure)
     """
-    print_section("VCFcache Complete Workflow Smoke Test")
+    global _QUIET_MODE
+    _QUIET_MODE = quiet
+
+    if quiet:
+        print("Running smoke test...", end="", flush=True)
+    else:
+        print_section("VCFcache Complete Workflow Smoke Test")
 
     # Get demo data directory
     demo_data = get_demo_data_dir()
 
     if not demo_data.exists():
-        print(f"✗ Demo data directory not found: {demo_data}")
+        print(f"\n✗ Demo data directory not found: {demo_data}")
         print("This should not happen with a proper installation.")
         return 1
 
@@ -228,11 +247,12 @@ def run_smoke_test(keep_files=False):
 
     missing_files = [f for f in required_files if not (demo_data / f).exists()]
     if missing_files:
-        print(f"✗ Missing demo files: {', '.join(missing_files)}")
+        print(f"\n✗ Missing demo files: {', '.join(missing_files)}")
         return 1
 
-    print(f"✓ Demo data directory: {demo_data}")
-    print(f"✓ All required files present\n")
+    if not quiet:
+        print(f"✓ Demo data directory: {demo_data}")
+        print(f"✓ All required files present\n")
 
     # Create temporary directory
     temp_dir = Path(tempfile.mkdtemp(prefix="vcfcache_demo_"))
@@ -491,6 +511,11 @@ def run_smoke_test(keep_files=False):
         # ====================================================================
         # Summary
         # ====================================================================
+        if quiet:
+            print(" ✓")
+            print("Smoke test passed!")
+            return 0
+
         print_section("Demo Complete!")
 
         print("✓ All steps executed successfully:\n")
@@ -550,7 +575,7 @@ def run_smoke_test(keep_files=False):
                 print(f"⚠ Warning: Could not clean up {temp_dir}: {e}")
 
 
-def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=False):
+def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=False, quiet=False):
     """Run benchmark comparing cached vs uncached annotation.
 
     Args:
@@ -559,10 +584,14 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
         params_file: Path to params YAML file
         output_dir: Optional output directory (default: temporary directory in /tmp)
         keep_files: If True, keep temporary files for inspection
+        quiet: If True, suppress detailed output (show only essential information)
 
     Returns:
         int: Exit code (0 for success, 1 for failure)
     """
+    global _QUIET_MODE
+    _QUIET_MODE = quiet
+
     print_section("VCFcache Annotation Benchmark")
 
     cache_path = Path(cache_dir).expanduser().resolve()

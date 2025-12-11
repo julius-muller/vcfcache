@@ -24,7 +24,7 @@ Requirements: Python >= 3.11, bcftools >= 1.20
 pip install vcfcache
 
 # Run comprehensive demo (tests all 4 commands)
-vcfcache demo
+vcfcache demo --smoke-test
 
 # Use it
 vcfcache --help

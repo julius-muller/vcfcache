@@ -41,6 +41,32 @@ gh release create v0.3.X --title "vcfcache v0.3.X" --notes-file CHANGELOG.md dis
 
 ---
 
+## Automated Release (Recommended)
+
+Use the release script for streamlined, interactive releases:
+
+```bash
+./scripts/release.sh 0.3.4
+```
+
+The script will walk you through each step with prompts:
+- **y** = Yes, proceed with this step
+- **n** = No, cancel the release and exit
+- **s** = Skip this step and continue
+
+Steps:
+1. Update version in pyproject.toml and __init__.py (interactive)
+2. Prompt you to update CHANGELOG.md manually
+3. Build and test locally - smoke test + full test suite (interactive)
+4. Upload to TestPyPI (interactive)
+5. Upload to PyPI (interactive)
+6. Build and push Docker image (interactive)
+7. Create GitHub release (interactive)
+
+You can skip any step (e.g., skip Docker for a quick PyPI-only release).
+
+---
+
 ## Prerequisites
 
 - Python 3.11+
