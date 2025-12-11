@@ -36,22 +36,25 @@ build_image() {
 }
 
 test_image() {
-  local tag=$1
-  log "Testing $tag"
-  docker run --rm "$tag" python -m pytest tests/test_archive.py tests/test_manifest.py tests/test_cli_alias_and_pull.py tests/test_integration_annotation.py -q
+  local dockerfile=$1 tag=$2
+  log "Testing $tag (using test stage)"
+  # Build and run the test stage which has dev dependencies and runs pytest
+  docker build -f "$dockerfile" --target test -t "$tag-test" --network=host "$PROJECT_ROOT"
+  docker run --rm "$tag-test"
 }
 
 smoke_image() {
   local tag=$1
   log "Smoke testing $tag"
-  docker run --rm "$tag" vcfcache --version
+  docker run --rm "$tag" --version
 }
 
 push_image() { log "Pushing $1"; docker push "$1"; }
 
 LEAN_TAG="ghcr.io/julius-muller/vcfcache:latest"
 build_image docker/Dockerfile.vcfcache "$LEAN_TAG"
-if ! $SKIP_TESTS; then test_image "$LEAN_TAG"; fi
+smoke_image "$LEAN_TAG"
+if ! $SKIP_TESTS; then test_image docker/Dockerfile.vcfcache "$LEAN_TAG"; fi
 if ! $SKIP_PUSH;  then push_image "$LEAN_TAG"; fi
 
 log "Done. Built: $LEAN_TAG"
