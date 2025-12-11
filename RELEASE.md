@@ -1,267 +1,240 @@
 # Releasing `vcfcache`
 
-This document describes the steps to create a new `vcfcache` release and publish
-it to PyPI. The flow is:
-
-1. Bump version
-2. Update changelog & docs
-3. Build & upload to **TestPyPI**
-4. Smoke-test from TestPyPI
-5. Upload to **PyPI**
-6. Tag and create a GitHub release
-
-> Notes:
-> - The project is built with `hatchling` via `pyproject.toml`.
-> - Distributions are built with `python -m build`.
-> - Uploads are done with `twine`.
-> - Python version and metadata live in `pyproject.toml`. :contentReference[oaicite:0]{index=0}
-
----
-
-## 0. Prerequisites
-
-- Python >= 3.11 installed (PEP 668 distros may require `--break-system-packages` if you insist on pip; uv avoids this)
-- `uv` or `pip` to manage the local environment
-- Accounts on:
-  - https://pypi.org
-  - https://test.pypi.org
-- API tokens created on both:
-  - Go to “Account settings → API tokens”
-  - Scope: whole account is fine for this project
-- Locally:
-  ```bash
-  uv venv .venv
-  source .venv/bin/activate
-  uv pip install build twine
-  # or: pip install build twine
-  ```
-
----
-
-## 1. Bump Version
-
-Update the version in `pyproject.toml`:
-
-```toml
-[project]
-version = "0.3.2"  # or whatever the new version is
-```
-
-Update `vcfcache/__init__.py`:
-
-```python
-__version__ = "0.3.2"
-```
-
----
-
-## 2. Update Changelog & Docs
-
-Update `CHANGELOG.md` with the new version and release notes.
-
----
-
-## 3. Build Package
-
-Clean old builds and create new distributions:
-
-```bash
-rm -rf dist/ build/ *.egg-info
-python -m build
-```
-
-This creates:
-- `dist/vcfcache-X.Y.Z.tar.gz` (source distribution)
-- `dist/vcfcache-X.Y.Z-py3-none-any.whl` (wheel)
-
-Verify the contents:
-
-```bash
-# Check what's in the wheel
-unzip -l dist/vcfcache-*.whl
-
-# Check what's in the sdist
-tar -tzf dist/vcfcache-*.tar.gz
-```
-
----
-
-## 4. Upload to TestPyPI
-
-Test the release process on TestPyPI first:
-
-```bash
-python -m twine upload --repository testpypi dist/*
-```
-
-You'll be prompted for your TestPyPI API token.
-
----
-
-## 5. Smoke Test from TestPyPI
-
-Create a fresh environment and install from TestPyPI:
-
-```bash
-# Create test environment
-uv venv /tmp/vcfcache-test-env
-source /tmp/vcfcache-test-env/bin/activate
-
-# Install from TestPyPI (deps from PyPI)
-# Prefer uv to avoid PEP 668 externally-managed errors on Debian/Ubuntu:
-uv pip install --python /tmp/vcfcache-test-env/bin/python \
-  --index-url https://test.pypi.org/simple/ \
-  --extra-index-url https://pypi.org/simple/ \
-  vcfcache
-
-# If you must use pip, add --break-system-packages on PEP 668 distros:
-# PIP_BREAK_SYSTEM_PACKAGES=1 python -m pip install --index-url ... --extra-index-url ... vcfcache
-
-# Run comprehensive demo
-vcfcache demo
-
-# Test basic functionality
-vcfcache --help
-vcfcache --version
-
-# Clean up
-deactivate
-rm -rf /tmp/vcfcache-test-env
-```
-
-**Expected demo results:**
-- ✓ Step 1: blueprint-init - Creates initial cache
-- ✓ Step 2: blueprint-extend - Adds more variants
-- ✓ Step 3: cache-build - Annotates the blueprint
-- ✓ Step 4: annotate - Uses cache to annotate sample
-- Shows variant counts and validates annotation tags
-
-**If bcftools is not installed**, the demo will fail with instructions:
-```
-Install bcftools >= 1.20:
-  Ubuntu/Debian: sudo apt-get install bcftools
-  macOS: brew install bcftools
-  Conda: conda install -c bioconda bcftools
-```
-
----
-
-## 6. Upload to PyPI
-
-If TestPyPI testing passes, upload to the real PyPI:
-
-```bash
-python -m twine upload dist/*
-```
-
-You'll be prompted for your PyPI API token.
-
----
-
-## 7. Verify PyPI Installation
-
-Test installation from the real PyPI:
-
-```bash
-# Fresh environment
-uv venv /tmp/vcfcache-pypi-test
-source /tmp/vcfcache-pypi-test/bin/activate
-
-# Install from PyPI
-pip install vcfcache
-
-# Run comprehensive demo
-vcfcache demo
-
-# Clean up
-deactivate
-rm -rf /tmp/vcfcache-pypi-test
-```
-
----
-
-## 8. Tag and Create GitHub Release
-
-After successful PyPI upload:
-
-```bash
-# Create and push git tag
-git tag v0.3.2  # match the version
-git push origin v0.3.2
-
-# Create GitHub release
-gh release create v0.3.2 \
-  --title "v0.3.2" \
-  --notes "See CHANGELOG.md for details" \
-  dist/*
-```
-
-Or create the release manually on GitHub:
-1. Go to https://github.com/julius-muller/vcfcache/releases/new
-2. Choose the tag `v0.3.2`
-3. Add release notes from CHANGELOG.md
-4. Attach `dist/*.whl` and `dist/*.tar.gz` files
-5. Publish release
+Internal release checklist for publishing to PyPI.
 
 ---
 
 ## Quick Reference
 
-**Full release workflow:**
+**For a new release:**
 
 ```bash
-# 1. Update version in pyproject.toml and vcfcache/__init__.py
-# 2. Update CHANGELOG.md
+# 1. Update version: pyproject.toml, __init__.py, CHANGELOG.md
 
-# 3. Build
+# 2. Build & test locally
+rm -rf dist/ build/ *.egg-info && python -m build
+uv venv /tmp/t && source /tmp/t/bin/activate
+uv pip install dist/vcfcache-*.whl
+vcfcache demo --smoke-test && python -m pytest tests -q
+deactivate && rm -rf /tmp/t
+
+# 3. Upload to TestPyPI & verify
+python -m twine upload --repository testpypi dist/*
+
+# 4. Upload to PyPI
+python -m twine upload dist/*
+
+# 5. Build, tag & push Docker image
+./scripts/local-build/build-and-push-final.sh --skip-push
+docker tag ghcr.io/julius-muller/vcfcache:latest ghcr.io/julius-muller/vcfcache:v0.3.X
+docker push ghcr.io/julius-muller/vcfcache:v0.3.X
+docker push ghcr.io/julius-muller/vcfcache:latest
+
+# 6. Tag & create GitHub release
+git tag v0.3.X && git push origin v0.3.X
+gh release create v0.3.X --title "vcfcache v0.3.X" --notes-file CHANGELOG.md dist/*
+```
+
+**For a patch bump without release:**
+- Update version numbers, commit and push
+- No PyPI upload, no Docker rebuild, no GitHub release
+
+---
+
+## Prerequisites
+
+- Python 3.11+
+- `uv pip install build twine`
+- API tokens for https://pypi.org and https://test.pypi.org
+- Docker installed + logged in to GHCR: `echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin`
+- GitHub CLI (`gh`) installed
+
+---
+
+## Detailed Release Workflow
+
+### 1. Bump Version & Update Docs
+
+Update version in **3 places**:
+```bash
+# pyproject.toml
+version = "0.3.X"
+
+# vcfcache/__init__.py
+__version__ = "0.3.X"
+
+# CHANGELOG.md
+## [0.3.X] - 2025-MM-DD
+### Added/Changed/Fixed
+- ...
+```
+
+### 2. Build Package
+
+```bash
 rm -rf dist/ build/ *.egg-info
 python -m build
 
-# 4. Test on TestPyPI
-python -m twine upload --repository testpypi dist/*
-
-# 5. Demo from TestPyPI
-uv venv /tmp/test-env && source /tmp/test-env/bin/activate
-pip install --index-url https://test.pypi.org/simple/ \
-            --extra-index-url https://pypi.org/simple/ vcfcache
-vcfcache demo
-deactivate && rm -rf /tmp/test-env
-
-# 6. Upload to PyPI
-python -m twine upload dist/*
-
-# 7. Create git tag and GitHub release
-git tag v0.3.2 && git push origin v0.3.2
-gh release create v0.3.2 --title "v0.3.2" --notes-file CHANGELOG.md dist/*
+# Verify contents
+unzip -l dist/vcfcache-*.whl
+tar -tzf dist/vcfcache-*.tar.gz
 ```
+
+### 3. Upload to TestPyPI
+
+```bash
+python -m twine upload --repository testpypi dist/*
+```
+
+### 4. Test from TestPyPI
+
+```bash
+uv venv /tmp/test-env
+source /tmp/test-env/bin/activate
+
+uv pip install --python /tmp/test-env/bin/python \
+  --index-url https://test.pypi.org/simple/ \
+  --extra-index-url https://pypi.org/simple/ \
+  'vcfcache[dev]'
+
+# Run smoke test
+vcfcache demo --smoke-test
+
+# Run test suite
+python -m pytest tests -q
+
+# Verify
+vcfcache --version
+vcfcache --help
+
+# Cleanup
+deactivate && rm -rf /tmp/test-env
+```
+
+**Expected results:**
+- ✓ Demo completes all 4 steps
+- ✓ All tests pass
+- ✓ Version matches release
+
+### 5. Upload to PyPI
+
+```bash
+python -m twine upload dist/*
+```
+
+### 6. Verify from PyPI
+
+```bash
+uv venv /tmp/pypi-test && source /tmp/pypi-test/bin/activate
+pip install 'vcfcache[dev]'
+vcfcache demo --smoke-test
+python -m pytest tests -q
+deactivate && rm -rf /tmp/pypi-test
+```
+
+### 7. Build & Push Docker Image
+
+**Use the build script:**
+```bash
+# Build and test (but don't push yet)
+./scripts/local-build/build-and-push-final.sh --skip-push
+```
+
+This script:
+- Builds `docker/Dockerfile.vcfcache`
+- Tags as `ghcr.io/julius-muller/vcfcache:latest`
+- Runs tests inside the container
+- Smoke tests with `vcfcache --version`
+
+**Tag with version and push:**
+```bash
+# Tag with release version
+docker tag ghcr.io/julius-muller/vcfcache:latest \
+  ghcr.io/julius-muller/vcfcache:v0.3.X
+
+# Push both tags
+docker push ghcr.io/julius-muller/vcfcache:v0.3.X
+docker push ghcr.io/julius-muller/vcfcache:latest
+```
+
+**Script options:**
+- `--skip-tests`: Skip container tests (not recommended)
+- `--skip-push`: Don't push after building (use for manual tagging)
+- `--force`: Force rebuild even if image exists
+
+### 8. Tag & Create GitHub Release
+
+```bash
+# Create and push tag
+git tag v0.3.X
+git push origin v0.3.X
+
+# Create GitHub release with artifacts
+gh release create v0.3.X \
+  --title "vcfcache v0.3.X" \
+  --notes-file CHANGELOG.md \
+  dist/*
+```
+
+This creates a release with:
+- Release notes from CHANGELOG.md
+- Wheel and source distribution as downloadable artifacts
+
+---
+
+## Optional: Blueprint & Annotated Docker Images
+
+**These are only needed for major releases with significant changes.**
+
+### Blueprint Image (lightweight demo, no VEP)
+
+```bash
+./scripts/local-build/03-build-blueprint.sh \
+  path/to/gnomad_subset.bcf \
+  --push
+
+# Tags and pushes to:
+# ghcr.io/julius-muller/vcfcache-blueprint:gnomad-grch38-joint-chry-af010
+```
+
+### Annotated Image (full VEP + pre-annotated cache)
+
+```bash
+# Step 1: Build base image with VEP
+./scripts/local-build/04a-build-base-image.sh \
+  path/to/gnomad.bcf \
+  --yes
+
+# Step 2: Run annotation and commit (requires VEP cache mounted)
+./scripts/local-build/04b-annotate-and-commit.sh \
+  --base-image <image-from-step-1> \
+  --vep-cache-dir /path/to/vep/cache \
+  --yes
+```
+
+**When to rebuild these:**
+- Major version changes (1.0.0, 2.0.0)
+- Significant workflow changes affecting caching
+- Updated gnomAD version
+- **Skip for patch releases**
 
 ---
 
 ## Troubleshooting
 
-### Demo fails: "bcftools not found"
+**Demo fails: "bcftools not found"**
+- Install bcftools >= 1.20: `apt install bcftools` or `brew install bcftools`
 
-The demo requires bcftools >= 1.20 to be installed. This is a runtime dependency of vcfcache.
+**Tests fail: "No module named pytest"**
+- Install dev dependencies: `pip install 'vcfcache[dev]'`
 
-Users should install bcftools before using vcfcache:
-- Ubuntu/Debian: `sudo apt-get install bcftools`
-- macOS: `brew install bcftools`
-- Conda: `conda install -c bioconda bcftools`
+**Upload fails: "File already exists"**
+- Cannot overwrite PyPI versions. Bump version, rebuild, re-upload.
 
-### Upload fails: "File already exists"
+**Docker push fails: "authentication required"**
+- Login: `echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin`
+- Token needs `write:packages` scope
 
-You cannot overwrite a version on PyPI once uploaded. You need to:
-1. Bump the version number
-2. Rebuild: `python -m build`
-3. Upload the new version
-
-### Wheel doesn't include expected files
-
-Check `pyproject.toml` build configuration:
-```toml
-[tool.hatch.build.targets.wheel]
-packages = ["vcfcache"]
-include = ["vcfcache/recipes/**"]
-```
-
-Verify with: `unzip -l dist/vcfcache-*.whl`
+**Docker build fails**
+- Try with `--force` flag: `./scripts/local-build/build-and-push-final.sh --force --skip-push`
+- Check Dockerfile syntax: `docker build -f docker/Dockerfile.vcfcache .`

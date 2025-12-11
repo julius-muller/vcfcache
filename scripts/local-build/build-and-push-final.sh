@@ -32,7 +32,7 @@ build_image() {
     log "Image $tag exists, skip (use --force to rebuild)"; return
   fi
   log "Building $tag from $dockerfile"
-  (cd "$PROJECT_ROOT" && docker build -f "$dockerfile" -t "$tag" .)
+  (cd "$PROJECT_ROOT" && docker build -f "$dockerfile" -t "$tag" --network=host .)
 }
 
 test_image() {
