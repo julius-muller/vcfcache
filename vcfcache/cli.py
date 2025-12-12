@@ -706,7 +706,8 @@ def main() -> None:
             )
 
             if not records:
-                print(f"No {item_type} found on Zenodo.")
+                zenodo_msg = f"Zenodo Sandbox" if args.debug else "Zenodo"
+                print(f"No {item_type} found on {zenodo_msg}.")
                 return
 
             # Display results
@@ -754,13 +755,20 @@ def main() -> None:
                 raise FileNotFoundError(f"Cache directory not found: {cache_dir}")
 
             # Auto-detect blueprint vs cache and generate appropriate name
-            is_blueprint = (cache_dir / "blueprint").is_dir() and not (cache_dir / "cache").is_dir()
-            is_cache = (cache_dir / "cache").is_dir()
+            # Blueprint: has blueprint/ dir with vcfcache.bcf, cache/ dir is empty or absent
+            # Cache: has cache/ dir with subdirectories (named annotation caches)
+            has_blueprint_dir = (cache_dir / "blueprint").is_dir()
+            has_blueprint_file = (cache_dir / "blueprint" / "vcfcache.bcf").exists()
+            cache_subdir = cache_dir / "cache"
+            has_cache_content = cache_subdir.is_dir() and any(cache_subdir.iterdir())
+
+            is_blueprint = has_blueprint_dir and has_blueprint_file and not has_cache_content
+            is_cache = has_cache_content
 
             if not is_blueprint and not is_cache:
                 raise ValueError(
                     f"Directory {cache_dir} does not appear to be a valid blueprint or cache. "
-                    "Expected 'blueprint/' or 'cache/' subdirectory."
+                    "Expected 'blueprint/vcfcache.bcf' (blueprint) or non-empty 'cache/' directory (cache)."
                 )
 
             dir_name = cache_dir.name
