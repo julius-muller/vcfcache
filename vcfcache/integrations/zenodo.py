@@ -81,3 +81,86 @@ def publish_deposit(deposition: dict, token: str, sandbox: bool = False) -> dict
     resp = requests.post(url, params={"access_token": token}, timeout=30)
     resp.raise_for_status()
     return resp.json()
+
+
+def search_zenodo_records(
+    item_type: str = "blueprints",
+    genome: Optional[str] = None,
+    source: Optional[str] = None,
+    sandbox: bool = False
+) -> list:
+    """Search Zenodo for vcfcache blueprints or caches.
+
+    Args:
+        item_type: Type of item to search for ("blueprints" or "caches")
+        genome: Optional genome build filter (e.g., "GRCh38", "GRCh37")
+        source: Optional data source filter (e.g., "gnomad")
+        sandbox: If True, search sandbox Zenodo
+
+    Returns:
+        List of record dictionaries with metadata
+    """
+    # Build search query using Elasticsearch query string syntax
+    # Search in keywords field using field-specific syntax
+    query_parts = ["keywords:vcfcache"]
+
+    if item_type == "blueprints":
+        query_parts.append("keywords:blueprint")
+    else:
+        query_parts.append("keywords:cache")
+
+    if genome:
+        query_parts.append(f"keywords:{genome}")
+    if source:
+        query_parts.append(f"keywords:{source}")
+
+    # Combine with AND to require all terms
+    query = " AND ".join(query_parts)
+
+    # Zenodo search API
+    search_url = f"{_api_base(sandbox)}/records/"
+
+    try:
+        # Note: unauthenticated requests limited to 25 results
+        # Could be increased to 100 with authentication if needed
+        resp = requests.get(
+            search_url,
+            params={"q": query, "size": 25},
+            timeout=30
+        )
+
+        # Better error handling - show actual response
+        if not resp.ok:
+            error_detail = ""
+            try:
+                error_detail = f" - {resp.json()}"
+            except Exception:
+                error_detail = f" - {resp.text[:200]}"
+            raise ZenodoError(
+                f"Zenodo API error ({resp.status_code}): {resp.reason}{error_detail}"
+            )
+
+        data = resp.json()
+
+        records = []
+        for hit in data.get("hits", {}).get("hits", []):
+            metadata = hit.get("metadata", {})
+
+            # Calculate total size
+            files = hit.get("files", [])
+            total_size = sum(f.get("size", 0) for f in files)
+
+            records.append({
+                "title": metadata.get("title", "Unknown"),
+                "doi": hit.get("doi", "Unknown"),
+                "created": metadata.get("publication_date", "Unknown"),
+                "description": metadata.get("description", ""),
+                "keywords": metadata.get("keywords", []),
+                "size_mb": total_size / (1024 * 1024),
+                "creators": metadata.get("creators", []),
+            })
+
+        return records
+
+    except requests.exceptions.RequestException as e:
+        raise ZenodoError(f"Failed to search Zenodo: {e}") from e

@@ -182,24 +182,38 @@ def main() -> None:
         "--debug",
         action="store_true",
         default=False,
-        help="(optional) Keep intermediate work directory for debugging",
+        help="(optional) Keep intermediate work directory for debugging. "
+             "Also uses Zenodo sandbox instead of production for list/download operations.",
     )
 
     # init command
     init_parser = subparsers.add_parser(
         "blueprint-init",
-        help="Initialize VCF cache blueprint",
+        help="Initialize blueprint from VCF or Zenodo",
         parents=[init_parent_parser],
-        description="Create a normalized blueprint from input VCF/BCF by removing genotypes, INFO fields, and splitting multiallelic sites."
+        description=(
+            "Initialize a blueprint from either a local VCF/BCF file or by downloading from Zenodo. "
+            "When creating from VCF: removes genotypes and INFO fields, splits multiallelic sites. "
+            "When downloading from Zenodo: extracts blueprint to specified directory."
+        )
     )
-    init_parser.add_argument(
+
+    # Create mutually exclusive group for source
+    source_group = init_parser.add_mutually_exclusive_group(required=True)
+    source_group.add_argument(
         "-i",
         "--vcf",
         dest="i",
-        required=True,
         metavar="VCF",
-        help="Input VCF/BCF file (must be indexed with .csi)"
+        help="Input VCF/BCF file to create blueprint from (must be indexed with .csi)"
     )
+    source_group.add_argument(
+        "--doi",
+        dest="doi",
+        metavar="DOI",
+        help="Zenodo DOI to download blueprint from (e.g., 10.5281/zenodo.XXXXX)"
+    )
+
     init_parser.add_argument(
         "-o",
         "--output",
@@ -215,7 +229,7 @@ def main() -> None:
         type=int,
         default=1,
         metavar="N",
-        help="(optional) Number of threads for bcftools (default: 1)"
+        help="(optional) Number of threads for bcftools when creating from VCF (default: 1)"
     )
     init_parser.add_argument(
         "-f",
@@ -259,36 +273,66 @@ def main() -> None:
         help="(optional) Number of threads for bcftools (default: 1)"
     )
 
-    # annotate command
-    annotate_parser = subparsers.add_parser(
+    # cache-build command
+    cache_build_parser = subparsers.add_parser(
         "cache-build",
-        help="Run annotation workflow on blueprint and instantiate a cache",
-        parents=[parent_parser],
+        help="Annotate blueprint to create cache",
+        parents=[init_parent_parser],
+        description=(
+            "Run annotation workflow on a blueprint to create an annotated cache. "
+            "Requires an annotation configuration YAML file that defines the annotation "
+            "command (e.g., VEP, SnpEff, bcftools +split-vep) to apply to the blueprint. "
+            "The resulting cache can be used for rapid sample annotation."
+        )
     )
-    annotate_parser.add_argument(
+    cache_build_parser.add_argument(
+        "-d",
+        "--db",
+        dest="db",
+        required=True,
+        metavar="DIR",
+        help="Path to existing blueprint directory"
+    )
+    cache_build_parser.add_argument(
         "-n",
         "--name",
         dest="name",
         required=True,
-        help="Name of the cache instance, will be the directory name",
+        metavar="NAME",
+        help="Name for the cache (will create cache/{name}/ subdirectory)"
     )
-    annotate_parser.add_argument(
-        "-d", "--db", required=True, help="Path to the existing database directory"
+    cache_build_parser.add_argument(
+        "-a",
+        "--anno-config",
+        dest="anno_config",
+        required=True,
+        metavar="YAML",
+        help="Annotation config YAML file (defines annotation_cmd and must_contain_info_tag)"
     )
-    annotate_parser.add_argument(
+    cache_build_parser.add_argument(
+        "-y",
+        "--params",
+        dest="params",
+        required=False,
+        metavar="YAML",
+        help="(optional) Params YAML file with tool paths and resources. Auto-generated if not provided."
+    )
+    cache_build_parser.add_argument(
+        "-t",
+        "--threads",
+        dest="threads",
+        type=int,
+        default=1,
+        metavar="N",
+        help="(optional) Number of threads for bcftools (default: 1)"
+    )
+    cache_build_parser.add_argument(
         "-f",
         "--force",
         dest="force",
         action="store_true",
-        help="Force overwrite of existing cache directory",
         default=False,
-    )
-    annotate_parser.add_argument(
-        "-a",
-        "--anno_config",
-        dest="anno_config",
-        required=True,
-        help="Path to an annotation config file containing the annotation commands to run",
+        help="(optional) Force overwrite if cache already exists"
     )
 
     # Main functionality, apply to user vcf
@@ -344,26 +388,29 @@ def main() -> None:
         ),
     )
 
-    pull_parser = subparsers.add_parser(
-        "pull",
-        help="Download and extract a cache tarball from Zenodo",
-        parents=[parent_parser],
-    )
-    pull_parser.add_argument("--doi", required=True, help="Zenodo DOI of the cache")
-    pull_parser.add_argument("--dest", required=True, help="Destination directory")
-    pull_parser.add_argument(
-        "--filename",
-        required=False,
-        help="Optional filename for the downloaded tarball (default: cache.tar.gz)",
-    )
-
+    # list command
     list_parser = subparsers.add_parser(
-        "list", help="List public caches from manifest", parents=[parent_parser]
+        "list",
+        help="List available blueprints and caches from Zenodo",
+        parents=[init_parent_parser],
+        description="Query Zenodo to discover available vcfcache blueprints and caches."
     )
     list_parser.add_argument(
-        "--public-caches",
-        action="store_true",
-        help="Show public caches defined in the manifest",
+        "item_type",
+        nargs="?",
+        choices=["blueprints", "caches"],
+        default="blueprints",
+        help="Type of items to list: blueprints or caches (default: blueprints)"
+    )
+    list_parser.add_argument(
+        "--genome",
+        metavar="GENOME",
+        help="(optional) Filter by genome build (e.g., GRCh38, GRCh37)"
+    )
+    list_parser.add_argument(
+        "--source",
+        metavar="SOURCE",
+        help="(optional) Filter by data source (e.g., gnomad)"
     )
 
     # push command
@@ -486,20 +533,47 @@ def main() -> None:
 
     try:
         if args.command == "blueprint-init":
-            logger.debug(f"Initializing blueprint: {Path(args.output)}")
+            if args.doi:
+                # Download blueprint from Zenodo
+                zenodo_env = "sandbox" if args.debug else "production"
+                logger.info(f"Downloading blueprint from Zenodo ({zenodo_env}) DOI: {args.doi}")
+                from vcfcache.integrations.cache_store import download_doi, extract_cache
 
-            initializer = DatabaseInitializer(
-                input_file=Path(args.i),
-                config_file=None,
-                params_file=None,
-                output_dir=Path(args.output),
-                verbosity=args.verbose,
-                force=args.force,
-                debug=args.debug,
-                bcftools_path=bcftools_path,
-                threads=args.threads,
-            )
-            initializer.initialize()
+                output_dir = Path(args.output).expanduser().resolve()
+                output_dir.mkdir(parents=True, exist_ok=True)
+
+                # Download to temporary tarball
+                import tempfile
+                with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp:
+                    tar_path = Path(tmp.name)
+
+                # Use sandbox if --debug is provided
+                download_doi(args.doi, tar_path, sandbox=args.debug)
+                logger.info(f"Downloaded to: {tar_path}")
+
+                # Extract
+                extracted = extract_cache(tar_path, output_dir)
+                logger.info(f"Blueprint extracted to: {extracted}")
+
+                # Clean up tarball
+                tar_path.unlink()
+
+            else:
+                # Create blueprint from VCF
+                logger.debug(f"Creating blueprint from VCF: {Path(args.output)}")
+
+                initializer = DatabaseInitializer(
+                    input_file=Path(args.i),
+                    config_file=None,
+                    params_file=None,
+                    output_dir=Path(args.output),
+                    verbosity=args.verbose,
+                    force=args.force,
+                    debug=args.debug,
+                    bcftools_path=bcftools_path,
+                    threads=args.threads,
+                )
+                initializer.initialize()
 
         elif args.command == "blueprint-extend":
             logger.debug(f"Adding to blueprint: {args.db}")
@@ -615,20 +689,46 @@ def main() -> None:
 
             vcf_annotator.annotate(uncached=args.uncached, convert_parquet=args.parquet)
 
-        elif args.command == "pull":
-            tar_name = args.filename or "cache.tar.gz"
-            tar_path = Path(args.dest).expanduser().resolve() / tar_name
-            print(f"Downloading cache from DOI {args.doi} -> {tar_path}")
-            sandbox = os.environ.get("ZENODO_SANDBOX", "0") == "1"
-            download_doi(args.doi, tar_path, sandbox=sandbox)
-            extracted = extract_cache(tar_path, Path(args.dest))
-            print(f"Extracted to {extracted}")
-
         elif args.command == "list":
-            if not args.public_caches:
-                parser.error("list currently supports only --public-caches")
-            manifest_entries = load_manifest(str(args.manifest or MANIFEST_DEFAULT))
-            print(format_manifest(manifest_entries))
+            # Query Zenodo for vcfcache items
+            from vcfcache.integrations.zenodo import search_zenodo_records
+
+            item_type = args.item_type
+            zenodo_env = "sandbox" if args.debug else "production"
+            logger.info(f"Searching Zenodo ({zenodo_env}) for vcfcache {item_type}...")
+
+            # Search Zenodo (use sandbox if --debug is provided)
+            records = search_zenodo_records(
+                item_type=item_type,
+                genome=args.genome if hasattr(args, 'genome') else None,
+                source=args.source if hasattr(args, 'source') else None,
+                sandbox=args.debug
+            )
+
+            if not records:
+                print(f"No {item_type} found on Zenodo.")
+                return
+
+            # Display results
+            print(f"\nAvailable vcfcache {item_type} on Zenodo:")
+            print("=" * 80)
+
+            for record in records:
+                title = record.get('title', 'Unknown')
+                doi = record.get('doi', 'Unknown')
+                created = record.get('created', 'Unknown')
+                size_mb = record.get('size_mb', 0)
+
+                print(f"\n{title}")
+                print(f"  DOI: {doi}")
+                print(f"  Created: {created}")
+                print(f"  Size: {size_mb:.1f} MB")
+
+                # Show download command
+                print(f"  Download: vcfcache blueprint-init --doi {doi} -o ./blueprints")
+
+            print(f"\n{'=' * 80}")
+            print(f"Total: {len(records)} {item_type} found\n")
 
         elif args.command == "push":
             from vcfcache.integrations import zenodo
