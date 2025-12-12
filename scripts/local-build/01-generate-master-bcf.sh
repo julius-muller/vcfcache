@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 #===============================================================================
 # Generate Master BCF from gnomAD with minimal AF filtering
 #===============================================================================
@@ -113,7 +116,7 @@ echo ""
 
 START_TIME=$(date +%s)
 
-python3 scripts/export_gnomad_hail.py \
+python3 "${SCRIPT_DIR}/../export_gnomad_hail.py" \
   --output "${OUTPUT_FILE}" \
   --af "${MASTER_AF}" \
   --genome "${GENOME}" \
