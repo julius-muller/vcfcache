@@ -168,15 +168,33 @@ def main() -> None:
         dest="command", required=True, title="Available commands", metavar="command"
     )
 
+    # Minimal parent parser for blueprint-init (no config/yaml/manifest)
+    init_parent_parser = argparse.ArgumentParser(add_help=False)
+    init_parent_parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
+        action="count",
+        default=0,
+        help="(optional) Increase verbosity: -v for INFO, -vv for DEBUG",
+    )
+    init_parent_parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="(optional) Keep intermediate work directory for debugging",
+    )
+
     # init command
     init_parser = subparsers.add_parser(
         "blueprint-init",
         help="Initialize VCF cache blueprint",
-        parents=[parent_parser],
+        parents=[init_parent_parser],
         description="Create a normalized blueprint from input VCF/BCF by removing genotypes, INFO fields, and splitting multiallelic sites."
     )
     init_parser.add_argument(
-        "-i", "--vcf",
+        "-i",
+        "--vcf",
         dest="i",
         required=True,
         metavar="VCF",
@@ -188,7 +206,7 @@ def main() -> None:
         dest="output",
         default="./cache",
         metavar="DIR",
-        help="Output directory (default: ./cache)"
+        help="(optional) Output directory (default: ./cache)"
     )
     init_parser.add_argument(
         "-t",
@@ -197,7 +215,7 @@ def main() -> None:
         type=int,
         default=1,
         metavar="N",
-        help="Number of threads for bcftools (default: 1)"
+        help="(optional) Number of threads for bcftools (default: 1)"
     )
     init_parser.add_argument(
         "-f",
@@ -205,15 +223,7 @@ def main() -> None:
         dest="force",
         action="store_true",
         default=False,
-        help="Force overwrite if output directory exists"
-    )
-    init_parser.add_argument(
-        "-n",
-        "--normalize",
-        dest="normalize",
-        action="store_true",
-        default=False,
-        help="Apply normalization (add chr prefix, filter chromosomes, split multiallelic) [DEPRECATED - always splits multiallelic]"
+        help="(optional) Force overwrite if output directory exists"
     )
 
     # add command
@@ -431,14 +441,14 @@ def main() -> None:
 
             initializer = DatabaseInitializer(
                 input_file=Path(args.i),
-                config_file=Path(args.config) if args.config else None,
-                params_file=Path(args.params) if args.params else None,
+                config_file=None,
+                params_file=None,
                 output_dir=Path(args.output),
                 verbosity=args.verbose,
                 force=args.force,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
-                normalize=args.normalize,
+                normalize=False,
                 threads=args.threads,
             )
             initializer.initialize()
