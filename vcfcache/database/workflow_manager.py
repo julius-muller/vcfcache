@@ -254,28 +254,16 @@ class WorkflowManager(WorkflowBase):
         # Create work directory
         self._create_work_dir(self.output_dir, dirname="work")
 
-        # Parse normalize flag from nextflow_args
-        normalize = False
-        if nextflow_args:
-            for arg in nextflow_args:
-                if arg.startswith("--normalize"):
-                    if "=" in arg:
-                        normalize = arg.split("=")[1].lower() == "true"
-                    else:
-                        normalize = True
-
         self.logger.info(f"Running workflow in mode: {db_mode}")
-        if normalize:
-            self.logger.info("Normalization enabled")
 
         try:
             # Route to appropriate workflow method
             if db_mode == "blueprint-init":
-                result = self._run_blueprint_init(normalize)
+                result = self._run_blueprint_init()
             elif db_mode == "blueprint-extend":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for blueprint-extend mode")
-                result = self._run_blueprint_extend(db_bcf, normalize)
+                result = self._run_blueprint_extend(db_bcf)
             elif db_mode == "cache-build":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for cache-build mode")

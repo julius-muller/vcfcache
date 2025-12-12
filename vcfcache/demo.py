@@ -288,9 +288,9 @@ def run_smoke_test(keep_files=False, quiet=False):
             "blueprint-init",
             "--vcf", str(bp_init_file),
             "--output", str(cache_dir),
-            "-y", str(params_file),
             "--force",
             # Note: Multiallelic splitting is now always performed
+            # Params file is auto-generated internally
         ]
 
         success, duration = run_command(cmd, "Blueprint initialization")

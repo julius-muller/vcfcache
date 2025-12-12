@@ -448,7 +448,6 @@ def main() -> None:
                 force=args.force,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
-                normalize=False,
                 threads=args.threads,
             )
             initializer.initialize()

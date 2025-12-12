@@ -39,7 +39,6 @@ class DatabaseInitializer(VCFDatabase):
         verbosity: int = 0,
         force: bool = False,
         debug: bool = False,
-        normalize: bool = False,
         threads: int = 1,
     ) -> None:
         """Initialize the database creator.
@@ -52,7 +51,6 @@ class DatabaseInitializer(VCFDatabase):
             output_dir: Output directory (default: current directory)
             verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
             force: Force overwrite of existing database (default: False)
-            normalize: Apply normalization steps (default: False, always splits multiallelic)
             threads: Number of threads for bcftools (default: 1)
 
         """
@@ -63,7 +61,6 @@ class DatabaseInitializer(VCFDatabase):
             debug,
             bcftools_path,
         )
-        self.normalize = normalize
         self._setup_cache(force=force)
         self.logger = self.connect_loggers()
 
@@ -261,11 +258,8 @@ class DatabaseInitializer(VCFDatabase):
                 self.logger.info("Starting the workflow execution...")
             # Log contig preview
             self._log_contigs()
-            # Pass the normalize parameter to the workflow
-            nextflow_args = ["--normalize", str(self.normalize).lower()]
             self.nx_workflow.run(
                 db_mode="blueprint-init",
-                nextflow_args=nextflow_args,
                 trace=True,
                 dag=True,
                 report=True,
