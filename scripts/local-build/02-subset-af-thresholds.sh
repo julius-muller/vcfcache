@@ -114,13 +114,9 @@ for AF in ${AF_THRESHOLDS}; do
   bcftools view \
     --threads "${THREADS}" \
     -i "INFO/AF>=${AF}" \
-    -Ob \
+    -Ob -W \
     -o "${OUTPUT_FILE}" \
     "${MASTER_BCF}"
-
-  # Index the output
-  echo "Indexing..."
-  bcftools index "${OUTPUT_FILE}"
 
   END_TIME=$(date +%s)
   DURATION=$((END_TIME - START_TIME))

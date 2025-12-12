@@ -76,7 +76,7 @@ Helper commands:
 └── work/ (temp, safe to delete)
 ```
 
-No Nextflow/JVM artifacts are required; bcftools 1.22 is bundled.
+Pure Python implementation - no Nextflow/JVM required. Docker image includes bcftools; for pip install, bcftools >= 1.20 must be installed separately.
 
 ---
 
@@ -133,7 +133,7 @@ vcfcache annotate -a cache-hg38-gnomad-4.1joint-AF0100-vep-115.2-basic --show-co
 
 `params.yaml` (tools/resources):
 ```yaml
-bcftools_cmd: "bcftools"  # bundled bcftools by default
+bcftools_cmd: "bcftools"
 annotation_tool_cmd: "vep"
 tool_version_command: "vep --version"
 temp_dir: "/tmp"
@@ -191,8 +191,7 @@ Multi-stage Dockerfile: `docker/Dockerfile.vcfcache`
 
 ## 8) Troubleshooting
 
-- **bcftools not found or too old**: Install bcftools >= 1.20, or set `VCFCACHE_BCFTOOLS=/path/to/newer/bcftools` to override system version.
-- **bcftools errors in Docker**: Ensure `PATH` includes `/app/tools` (bundled) and tabix is available (already installed in the image).
-- **Manifest alias not found**: Check `public_caches.yaml` path or pass `--manifest <path>`.
+- **bcftools not found or too old** (pip install): Install bcftools >= 1.20, or set `VCFCACHE_BCFTOOLS=/path/to/newer/bcftools` to override system version. Docker image already includes bcftools.
+- **Manifest alias not found**: Check `vcfcache/public_caches.yaml` path or pass `--manifest <path>`.
 - **Zenodo upload**: Export `ZENODO_TOKEN`; set `ZENODO_SANDBOX=1` to target the sandbox API.
-- **Large images**: Use `--target final` for runtime; `--target test` is only for CI/dev. 
+- **Large Docker images**: Use `--target final` for runtime; `--target test` is only for CI/dev. 
