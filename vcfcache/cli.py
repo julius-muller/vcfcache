@@ -366,23 +366,42 @@ def main() -> None:
         help="Show public caches defined in the manifest",
     )
 
+    # push command
     push_parser = subparsers.add_parser(
         "push",
-        help="Tar and upload a cache directory to Zenodo (requires token)",
-        parents=[parent_parser],
+        help="Upload cache to Zenodo",
+        parents=[init_parent_parser],
+        description=(
+            "Upload a cache directory to Zenodo as a versioned, citable dataset. "
+            "Creates a tarball of the cache and uploads it to Zenodo with metadata. "
+            "Requires ZENODO_TOKEN environment variable. "
+            "Use ZENODO_SANDBOX=1 for testing (requires ZENODO_SANDBOX_TOKEN)."
+        )
     )
     push_parser.add_argument(
-        "--cache-dir", required=True, help="Cache directory to upload"
+        "--cache-dir",
+        required=True,
+        metavar="DIR",
+        help="Cache directory to upload (blueprint or annotated cache)"
     )
     push_parser.add_argument(
         "--metadata",
         required=False,
-        help="Path to YAML/JSON with Zenodo metadata (title, creators, etc.)",
+        metavar="FILE",
+        help=(
+            "(optional) Path to YAML/JSON file with Zenodo metadata. "
+            "Should contain: title, description, creators (name, affiliation, orcid), "
+            "keywords, upload_type. If not provided, minimal metadata will be auto-generated."
+        )
     )
     push_parser.add_argument(
         "--publish",
         action="store_true",
-        help="Publish the deposit after upload (otherwise leave draft)",
+        help=(
+            "(optional) Publish the dataset immediately after upload. "
+            "If not set, upload will remain as a draft for manual review. "
+            "WARNING: Published datasets cannot be deleted, only versioned."
+        )
     )
 
     # demo command
