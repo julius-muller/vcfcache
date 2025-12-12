@@ -29,7 +29,7 @@ def test_cli_pull_downloads_and_extracts(tmp_path, monkeypatch, capsys):
     tar_path = tmp_path / "dummy.tar.gz"
     tar_cache(cache_root, tar_path)
 
-    def fake_download(doi, dest):
+    def fake_download(doi, dest, sandbox=False):
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(tar_path.read_bytes())
         return dest
@@ -59,7 +59,7 @@ def test_cli_annotate_alias_resolves_and_prints_command(tmp_path, monkeypatch, c
     tar_path = tmp_path / "dummy.tar.gz"
     tar_cache(cache_root, tar_path)
 
-    def fake_download(doi, dest):
+    def fake_download(doi, dest, sandbox=False):
         dest.write_bytes(tar_path.read_bytes())
         return dest
 

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed cache path resolution when using `vcfcache annotate -a <alias>` with downloaded caches
-- Correctly locate `annotation.yaml` in `stash/<cache_name>/` directory structure after extraction
+- Correctly locate `annotation.yaml` in extracted cache directory structure
 
 ## 0.3.5 (2025-12-11)
 

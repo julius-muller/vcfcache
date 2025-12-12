@@ -481,16 +481,31 @@ def main() -> None:
                 sandbox = os.environ.get("ZENODO_SANDBOX", "0") == "1"
                 download_doi(entry.doi, tar_dest, sandbox=sandbox)
                 cache_dir = extract_cache(tar_dest, cache_store)
-                # Find the annotation directory in the stash
-                stash_dir = cache_dir / "stash"
-                if not stash_dir.exists():
-                    raise FileNotFoundError(
-                        f"Invalid cache structure: {stash_dir} not found"
-                    )
-                stash_subdirs = list(stash_dir.iterdir())
-                if not stash_subdirs:
-                    raise FileNotFoundError(f"No cache found in {stash_dir}")
-                alias_or_path = stash_subdirs[0]
+                # Support multiple extracted layouts:
+                # 1) Canonical cache root: <root>/cache/<alias>
+                # 2) Direct annotation dir: <root>/annotation.yaml
+                candidate = cache_dir / "cache" / entry.alias
+                if candidate.exists():
+                    alias_or_path = candidate
+                else:
+                    if (cache_dir / "annotation.yaml").exists():
+                        alias_or_path = cache_dir
+                    elif (cache_dir / "cache").exists():
+                        subdirs = [
+                            p for p in (cache_dir / "cache").iterdir() if p.is_dir()
+                        ]
+                        if len(subdirs) == 1:
+                            alias_or_path = subdirs[0]
+                        else:
+                            raise FileNotFoundError(
+                                f"Could not locate extracted annotation cache for alias '{entry.alias}' "
+                                f"under {cache_dir}"
+                            )
+                    else:
+                        raise FileNotFoundError(
+                            f"Could not locate extracted annotation cache for alias '{entry.alias}' "
+                            f"under {cache_dir}"
+                        )
                 args.a = str(alias_or_path)
 
             if args.show_command:
