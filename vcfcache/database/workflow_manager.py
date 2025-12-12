@@ -331,13 +331,16 @@ class WorkflowManager(WorkflowBase):
         output_bcf = self.output_dir / "vcfcache.bcf"
         bcftools = self.params_file_content["bcftools_cmd"]
 
+        # Get thread count from params
+        threads = self.params_file_content.get("threads", 1)
+
         # Always split multiallelic variants for user-provided VCF files
         self.logger.info("Removing GT and INFO fields, splitting multiallelic sites")
 
-        cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
-{bcftools} annotate -x INFO -Ou | \\
-{bcftools} norm -m- -o {output_bcf} -Ob --write-index
-"""
+        cmd = f"""{bcftools} view -G -Ou --threads {threads} {input_bcf} | \\
+                {bcftools} annotate -x INFO -Ou --threads {threads} | \\
+                {bcftools} norm -m- -o {output_bcf} -Ob --write-index --threads {threads}
+            """
 
         return BcftoolsCommand(cmd, self.logger, work_task).run()
 
@@ -360,15 +363,18 @@ class WorkflowManager(WorkflowBase):
 
         bcftools = self.params_file_content["bcftools_cmd"]
 
+        # Get thread count from params
+        threads = self.params_file_content.get("threads", 1)
+
         # Step 1: Normalize/filter new input (always split multiallelics)
         normalized = work_task / "normalized.bcf"
         input_bcf = self.input_file
 
         self.logger.info("Filtering new input (drop INFO) and splitting multiallelic sites")
 
-        norm_cmd = f"""{bcftools} view -G -Ou {input_bcf} | \\
-{bcftools} annotate -x INFO -Ou | \\
-{bcftools} norm -m- -o {normalized} -Ob --write-index
+        norm_cmd = f"""{bcftools} view -G -Ou --threads {threads} {input_bcf} | \\
+{bcftools} annotate -x INFO -Ou --threads {threads} | \\
+{bcftools} norm -m- -o {normalized} -Ob --write-index --threads {threads}
 """
 
         BcftoolsCommand(norm_cmd, self.logger, work_task).run()
@@ -378,7 +384,7 @@ class WorkflowManager(WorkflowBase):
         self.logger.info(f"Merging with existing blueprint: {db_bcf}")
 
         merge_cmd = (
-            f"{bcftools} merge -m none {db_bcf} {normalized} -o {output_bcf} -Ob --write-index"
+            f"{bcftools} merge -m none --threads {threads} {db_bcf} {normalized} -o {output_bcf} -Ob --write-index"
         )
 
         return BcftoolsCommand(merge_cmd, self.logger, work_task).run()

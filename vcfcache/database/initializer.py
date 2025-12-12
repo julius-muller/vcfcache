@@ -32,24 +32,28 @@ class DatabaseInitializer(VCFDatabase):
     def __init__(
         self,
         input_file: Path | str,
-        params_file: Path | str,
         bcftools_path: Path,
+        params_file: Optional[Path | str] = None,
         config_file: Optional[Path | str] = None,
         output_dir: Path | str = Path("."),
         verbosity: int = 0,
         force: bool = False,
         debug: bool = False,
         normalize: bool = False,
+        threads: int = 1,
     ) -> None:
         """Initialize the database creator.
 
         Args:
             input_file: Path to input BCF/VCF file (required)
-            config_file: Path to Nextflow config file (required)
+            bcftools_path: Path to bcftools binary
+            params_file: Path to params YAML file (optional, will auto-generate if not provided)
+            config_file: Path to Nextflow config file (optional, deprecated)
             output_dir: Output directory (default: current directory)
             verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
             force: Force overwrite of existing database (default: False)
-            normalize: Apply normalization steps (add chr prefix, filter chromosomes, split multiallelic sites) (default: False)
+            normalize: Apply normalization steps (default: False, always splits multiallelic)
+            threads: Number of threads for bcftools (default: 1)
 
         """
         # Initialize the parent class
@@ -80,13 +84,24 @@ class DatabaseInitializer(VCFDatabase):
             )
             shutil.copyfile(config_path.expanduser().resolve(), self.config_file)
 
+        # Handle params file - create minimal one if not provided
         self.config_yaml = self.workflow_dir / "init.yaml"
-        shutil.copyfile(Path(params_file).expanduser().resolve(), self.config_yaml)
+        if params_file:
+            shutil.copyfile(Path(params_file).expanduser().resolve(), self.config_yaml)
+            params_path = Path(params_file) if isinstance(params_file, str) else params_file
+        else:
+            # Create minimal params file with just bcftools and threads
+            import yaml
+            minimal_params = {
+                "bcftools_cmd": str(bcftools_path),
+                "threads": threads,
+            }
+            self.config_yaml.write_text(yaml.dump(minimal_params))
+            params_path = self.config_yaml
 
         # Initialize workflow backend (pure Python)
         if self.logger:
             self.logger.info("Initializing pure Python workflow...")
-        params_path = Path(params_file) if isinstance(params_file, str) else params_file
 
         from vcfcache.database.base import create_workflow
 

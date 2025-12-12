@@ -170,33 +170,50 @@ def main() -> None:
 
     # init command
     init_parser = subparsers.add_parser(
-        "blueprint-init", help="Initialize VCF cache blueprint", parents=[parent_parser]
+        "blueprint-init",
+        help="Initialize VCF cache blueprint",
+        parents=[parent_parser],
+        description="Create a normalized blueprint from input VCF/BCF by removing genotypes, INFO fields, and splitting multiallelic sites."
     )
     init_parser.add_argument(
-        "-i", "--vcf", dest="i", required=True, help="CSI-indexed BCF file"
+        "-i", "--vcf",
+        dest="i",
+        required=True,
+        metavar="VCF",
+        help="Input VCF/BCF file (must be indexed with .csi)"
     )
     init_parser.add_argument(
         "-o",
         "--output",
         dest="output",
-        default=".",
-        help="Output directory, the name of the database will be the top level directory",
+        default="./cache",
+        metavar="DIR",
+        help="Output directory (default: ./cache)"
+    )
+    init_parser.add_argument(
+        "-t",
+        "--threads",
+        dest="threads",
+        type=int,
+        default=1,
+        metavar="N",
+        help="Number of threads for bcftools (default: 1)"
     )
     init_parser.add_argument(
         "-f",
         "--force",
         dest="force",
         action="store_true",
-        help="Force overwrite of existing database directory",
         default=False,
+        help="Force overwrite if output directory exists"
     )
     init_parser.add_argument(
         "-n",
         "--normalize",
         dest="normalize",
         action="store_true",
-        help="Apply normalization steps (add chr prefix, filter chromosomes, split multiallelic sites)",
         default=False,
+        help="Apply normalization (add chr prefix, filter chromosomes, split multiallelic) [DEPRECATED - always splits multiallelic]"
     )
 
     # add command
@@ -395,9 +412,7 @@ def main() -> None:
                 "annotate command requires -i/--vcf and -o/--output unless --show-command is used"
             )
 
-    # Check if required args exists based on command
-    if args.command == "blueprint-init" and not args.params:
-        parser.error("blueprint-init command requires -y/--yaml parameter")
+    # blueprint-init no longer requires params file (uses env var for bcftools)
 
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)
@@ -412,18 +427,19 @@ def main() -> None:
 
     try:
         if args.command == "blueprint-init":
-            logger.debug(f"Initializing blueprint: {Path(args.output).parent}")
+            logger.debug(f"Initializing blueprint: {Path(args.output)}")
 
             initializer = DatabaseInitializer(
                 input_file=Path(args.i),
                 config_file=Path(args.config) if args.config else None,
-                params_file=Path(args.params),
+                params_file=Path(args.params) if args.params else None,
                 output_dir=Path(args.output),
                 verbosity=args.verbose,
                 force=args.force,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
                 normalize=args.normalize,
+                threads=args.threads,
             )
             initializer.initialize()
 
