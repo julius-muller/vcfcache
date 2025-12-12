@@ -313,11 +313,8 @@ class WorkflowManager(WorkflowBase):
             self.logger.error(f"Unexpected error: {e}")
             raise
 
-    def _run_blueprint_init(self, normalize: bool) -> subprocess.CompletedProcess:
+    def _run_blueprint_init(self) -> subprocess.CompletedProcess:
         """Initialize database blueprint.
-
-        Args:
-            normalize: If True, apply full normalization pipeline
 
         Returns:
             subprocess.CompletedProcess with results
@@ -345,13 +342,12 @@ class WorkflowManager(WorkflowBase):
         return BcftoolsCommand(cmd, self.logger, work_task).run()
 
     def _run_blueprint_extend(
-        self, db_bcf: Path, normalize: bool
+        self, db_bcf: Path
     ) -> subprocess.CompletedProcess:
         """Add variants to existing blueprint.
 
         Args:
             db_bcf: Path to existing blueprint BCF
-            normalize: If True, normalize new input before merging
 
         Returns:
             subprocess.CompletedProcess with results
@@ -373,9 +369,9 @@ class WorkflowManager(WorkflowBase):
         self.logger.info("Filtering new input (drop INFO) and splitting multiallelic sites")
 
         norm_cmd = f"""{bcftools} view -G -Ou --threads {threads} {input_bcf} | \\
-{bcftools} annotate -x INFO -Ou --threads {threads} | \\
-{bcftools} norm -m- -o {normalized} -Ob --write-index --threads {threads}
-"""
+            {bcftools} annotate -x INFO -Ou --threads {threads} | \\
+            {bcftools} norm -m- -o {normalized} -Ob --write-index --threads {threads}
+        """
 
         BcftoolsCommand(norm_cmd, self.logger, work_task).run()
 
