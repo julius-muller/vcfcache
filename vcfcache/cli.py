@@ -537,7 +537,8 @@ def main() -> None:
                 # Download blueprint from Zenodo
                 zenodo_env = "sandbox" if args.debug else "production"
                 logger.info(f"Downloading blueprint from Zenodo ({zenodo_env}) DOI: {args.doi}")
-                from vcfcache.integrations.cache_store import download_doi, extract_cache
+                from vcfcache.integrations.zenodo import download_doi
+                from vcfcache.utils.archive import extract_cache
 
                 output_dir = Path(args.output).expanduser().resolve()
                 output_dir.mkdir(parents=True, exist_ok=True)
