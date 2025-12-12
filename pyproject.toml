@@ -47,7 +47,9 @@ dev = [
     "black>=25.12.0", # black vcfcache
     "mypy>=1.19.0", # mypy vcfcache
     "twine>=4.0.0", # twine upload dist/*
-    "hail>=0.2.0" # for pulling from gnomAD via scripts/export_gnomad_hail.py
+]
+gnomad = [
+   "hail>=0.2.0" # for pulling from gnomAD via scripts/export_gnomad_hail.py - HUGE number of deps, increases docker by 1GB!
 ]
 
 [project.scripts]

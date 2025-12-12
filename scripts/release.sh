@@ -309,7 +309,7 @@ else
 
   # Build image
   log "  → Building Docker image..."
-  ./scripts/local-build/build-and-push-final.sh --skip-push
+  ./scripts/local-build/build-and-push-final.sh --skip-push --force
 
   # Tag with version
   log "  → Tagging as v$VERSION..."
