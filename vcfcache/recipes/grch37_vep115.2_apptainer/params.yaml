@@ -12,12 +12,9 @@ temp_dir: "/tmp"
 
 # Set this to your VEP cache base directory (must contain `homo_sapiens/` for GRCh37)
 # Example: /mnt/data/vep_cache/115
-vep_cache: "/mnt/data/vep_cache/115"
+vep_cache: "/mnt/data/apps/ensembl-vep/115/cachedir"
 
 # Optional performance knobs
 vep_buffer: 500000
 vep_forks: 8
 
-optional_checks:
-  vep_cache_version: "115"
-  genome_build: "GRCh37"
