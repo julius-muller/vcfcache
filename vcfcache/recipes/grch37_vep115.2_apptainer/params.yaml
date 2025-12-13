@@ -10,13 +10,14 @@ tool_version_command: "apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ense
 bcftools_cmd: "bcftools"
 temp_dir: "/tmp"
 
-# Set this to your VEP cache directory (GRCh37, cache version 115 recommended)
-vep_cache: "/mnt/data/apps/ensembl-vep/115"
+# Set this to your VEP cache base directory (must contain `homo_sapiens/` for GRCh37)
+# Example: /mnt/data/vep_cache/115
+vep_cache: "/mnt/data/vep_cache/115"
 
 # Optional performance knobs
 vep_buffer: 500000
 vep_forks: 8
 
 optional_checks:
-  vep_cache_version: "115.2"
+  vep_cache_version: "115"
   genome_build: "GRCh37"

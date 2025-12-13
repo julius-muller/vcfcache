@@ -12,8 +12,8 @@ annotation_cmd: |
     --format vcf \
     --vcf \
     --force_overwrite \
-    -i STDIN \
-    -o STDOUT \
+    -i stdin \
+    -o stdout \
     -a GRCh37 \
     --symbol \
     --hgvs \
