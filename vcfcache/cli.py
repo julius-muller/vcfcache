@@ -83,11 +83,13 @@ def _print_annotation_command(path_hint: Path) -> None:
             )
 
     params = yaml.safe_load(params_file.read_text()) or {}
-    command = params.get("annotation_cmd")
+
+    # Try new format (annotation_cmd) first, then fall back to old format (annotation_tool_cmd)
+    command = params.get("annotation_cmd") or params.get("annotation_tool_cmd")
 
     if not command:
         raise ValueError(
-            "annotation_cmd not found in annotation.yaml; cache may be incomplete"
+            "annotation_cmd or annotation_tool_cmd not found in annotation.yaml; cache may be incomplete"
         )
 
     print("Annotation command recorded in cache:")
@@ -673,18 +675,28 @@ def main() -> None:
         elif args.command == "cache-build":
             # Helper to detect if directory is blueprint or cache
             def is_blueprint(directory: Path) -> bool:
-                """Return True if directory is a blueprint, False if cache."""
+                """Return True if directory is a blueprint, False if cache.
+
+                A cache has both blueprint/ and cache/ with annotation subdirectories.
+                A blueprint has only blueprint/ (cache/ is empty or absent).
+                """
                 blueprint_marker = directory / "blueprint" / "vcfcache.bcf"
                 cache_dir = directory / "cache"
 
-                # Blueprint: has blueprint/vcfcache.bcf
-                if blueprint_marker.exists():
+                has_blueprint = blueprint_marker.exists()
+                has_cache = cache_dir.exists() and cache_dir.is_dir() and any(cache_dir.iterdir())
+
+                # If has both blueprint and cache → it's an annotated cache
+                if has_blueprint and has_cache:
+                    return False
+
+                # If has only blueprint → it's a blueprint
+                if has_blueprint:
                     return True
 
-                # Cache: has cache/ with subdirectories (annotation caches)
-                if cache_dir.exists() and cache_dir.is_dir():
-                    if any(cache_dir.iterdir()):
-                        return False
+                # If has only cache → it's a cache
+                if has_cache:
+                    return False
 
                 # If neither, assume blueprint (for error messaging)
                 return True

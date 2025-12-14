@@ -151,6 +151,7 @@ def test_push_and_pull_roundtrip_via_sandbox(tmp_path: Path):
                 "push",
                 "--cache-dir",
                 str(cache_root),
+                "--test",
                 "--publish",
             ],
             env=env,
@@ -165,20 +166,36 @@ def test_push_and_pull_roundtrip_via_sandbox(tmp_path: Path):
         doi = m.group(1)
 
         # Pull back from sandbox and validate structure
+        # cache-build --doi downloads to ~/.cache/vcfcache/caches/ or blueprints/
+        # --debug flag uses sandbox mode for Zenodo operations
         _run(
             [
                 "vcfcache",
-                "pull",
+                "cache-build",
+                "--debug",
                 "--doi",
                 doi,
-                "--dest",
-                str(pulled_dir),
             ],
             env=env,
             cwd=work_dir,
         )
 
-        extracted_root = pulled_dir / cache_root.name
+        # Check if downloaded to caches or blueprints directory
+        caches_dir = home_dir / ".cache" / "vcfcache" / "caches"
+        blueprints_dir = home_dir / ".cache" / "vcfcache" / "blueprints"
+
+        # Should be in caches (since we pushed a cache)
+        if caches_dir.exists():
+            extracted_roots = list(caches_dir.iterdir())
+            assert len(extracted_roots) > 0, f"No cache found in {caches_dir}"
+            extracted_root = extracted_roots[0]
+        elif blueprints_dir.exists():
+            extracted_roots = list(blueprints_dir.iterdir())
+            assert len(extracted_roots) > 0, f"No blueprint found in {blueprints_dir}"
+            extracted_root = extracted_roots[0]
+        else:
+            raise AssertionError("Downloaded cache not found in expected locations")
+
         assert extracted_root.exists()
         assert (extracted_root / "blueprint" / "vcfcache.bcf").exists()
         annotation_dir = extracted_root / "cache" / "test_anno"

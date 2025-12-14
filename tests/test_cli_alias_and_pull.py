@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
+import pytest
 import sys
 
 import vcfcache.cli as cli
@@ -23,6 +24,10 @@ def make_dummy_cache(tmp_path: Path, alias: str) -> Path:
     return cache_root
 
 
+@pytest.mark.skip(
+    reason="Annotate command no longer resolves Zenodo aliases. "
+    "Use 'vcfcache cache-build --doi' to download caches instead."
+)
 def test_cli_annotate_alias_resolves_and_prints_command(tmp_path, monkeypatch, capsys):
     alias = "cache-hg38-gnomad-4.1wgs-AF0100-vep-115.2-basic"
     cache_root = make_dummy_cache(tmp_path, alias)
