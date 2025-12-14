@@ -333,18 +333,26 @@ def main() -> None:
         parents=[init_parent_parser],
         description=(
             "Run annotation workflow on a blueprint to create an annotated cache. "
+            "Blueprint can be provided as a local directory or downloaded from Zenodo. "
             "Requires an annotation configuration YAML file that defines the annotation "
             "command (e.g., VEP, SnpEff, bcftools +split-vep) to apply to the blueprint. "
             "The resulting cache can be used for rapid sample annotation."
         )
     )
-    cache_build_parser.add_argument(
+    # Blueprint source: local directory OR Zenodo DOI
+    blueprint_source = cache_build_parser.add_mutually_exclusive_group(required=True)
+    blueprint_source.add_argument(
         "-d",
         "--db",
         dest="db",
-        required=True,
         metavar="DIR",
         help="Path to existing blueprint directory"
+    )
+    blueprint_source.add_argument(
+        "--doi",
+        dest="doi",
+        metavar="DOI",
+        help="Zenodo DOI to download blueprint from (e.g., 10.5281/zenodo.XXXXX)"
     )
     cache_build_parser.add_argument(
         "-n",
@@ -406,7 +414,7 @@ def main() -> None:
         required=True,
         metavar="DIR",
         help=(
-            "Path to annotation cache directory, cache root, or Zenodo alias/DOI. "
+            "Path to annotation cache directory or cache root. "
             "Use --list to see available caches."
         ),
     )
@@ -663,11 +671,39 @@ def main() -> None:
             updater.add()
 
         elif args.command == "cache-build":
-            logger.debug(f"Running annotation workflow on blueprint: {args.db}")
+            # Handle blueprint source: local directory or Zenodo DOI
+            if args.doi:
+                # Download blueprint from Zenodo
+                zenodo_env = "sandbox" if args.debug else "production"
+                logger.info(f"Downloading blueprint from Zenodo ({zenodo_env}) DOI: {args.doi}")
+
+                # Download to temporary location
+                blueprint_store = Path.home() / ".cache/vcfcache/blueprints"
+                blueprint_store.mkdir(parents=True, exist_ok=True)
+
+                import tempfile
+                with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp:
+                    tar_path = Path(tmp.name)
+
+                download_doi(args.doi, tar_path, sandbox=args.debug)
+                logger.info(f"Downloaded blueprint to: {tar_path}")
+
+                # Extract blueprint
+                blueprint_dir = extract_cache(tar_path, blueprint_store)
+                tar_path.unlink()
+
+                logger.info(f"Using downloaded blueprint: {blueprint_dir}")
+                db_path = blueprint_dir
+            else:
+                # Use local blueprint directory
+                db_path = args.db
+                logger.debug(f"Using local blueprint: {db_path}")
+
+            logger.debug(f"Running annotation workflow on blueprint: {db_path}")
 
             annotator = DatabaseAnnotator(
                 annotation_name=args.name,
-                db_path=args.db,
+                db_path=db_path,
                 anno_config_file=Path(args.anno_config),
                 params_file=Path(args.params) if args.params else None,
                 verbosity=args.verbose,
@@ -678,46 +714,6 @@ def main() -> None:
             annotator.annotate()
 
         elif args.command == "annotate":
-            # If annotation_db isn't a path, treat it as a Zenodo alias or DOI.
-            alias_or_path = Path(args.a)
-            if not alias_or_path.exists():
-                sandbox = os.environ.get("ZENODO_SANDBOX", "0") == "1"
-                doi, resolved_alias = resolve_zenodo_alias(
-                    args.a, item_type="caches", sandbox=sandbox
-                )
-
-                cache_store = Path.home() / ".cache/vcfcache/caches"
-                cache_store.mkdir(parents=True, exist_ok=True)
-                tar_dest = cache_store / f"{resolved_alias}.tar.gz"
-                print(
-                    f"Downloading cache for alias '{resolved_alias}' from DOI {doi}..."
-                )
-                download_doi(doi, tar_dest, sandbox=sandbox)
-                cache_dir = extract_cache(tar_dest, cache_store)
-
-                # Canonical layout: <root>/cache/<alias>
-                candidate = cache_dir / "cache" / resolved_alias
-                if candidate.exists():
-                    alias_or_path = candidate
-                elif (cache_dir / "annotation.yaml").exists():
-                    alias_or_path = cache_dir
-                elif (cache_dir / "cache").exists():
-                    subdirs = [p for p in (cache_dir / "cache").iterdir() if p.is_dir()]
-                    if len(subdirs) == 1:
-                        alias_or_path = subdirs[0]
-                    else:
-                        raise FileNotFoundError(
-                            f"Could not locate extracted annotation cache for alias '{resolved_alias}' "
-                            f"under {cache_dir}"
-                        )
-                else:
-                    raise FileNotFoundError(
-                        f"Could not locate extracted annotation cache for alias '{resolved_alias}' "
-                        f"under {cache_dir}"
-                    )
-
-                args.a = str(alias_or_path)
-
             if args.show_command:
                 _print_annotation_command(Path(args.a))
                 return
