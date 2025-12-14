@@ -43,25 +43,51 @@ from vcfcache.utils.validation import check_bcftools_installed
 os.environ.setdefault("VCFCACHE_ROOT", str(get_project_root()))
 
 
-def _print_annotation_command(annotation_dir: Path) -> None:
+def _print_annotation_command(path_hint: Path) -> None:
     """Print the stored annotation_tool_cmd from an annotation cache.
 
     Args:
-        annotation_dir: Path to the cache/<annotation_name> directory.
+        path_hint: Path to cache root, cache directory, or specific annotation directory.
     """
+    # Try to find the annotation.yaml file
+    # First check if path_hint itself has annotation.yaml (specific cache directory)
+    params_file = path_hint / "annotation.yaml"
 
-    params_file = annotation_dir / "annotation.yaml"
     if not params_file.exists():
-        raise FileNotFoundError(
-            f"Params file not found in annotation cache: {params_file}"
-        )
+        # Try to find cache directory and list available caches
+        try:
+            cache_dir = _find_cache_dir(path_hint)
+            caches = [c for c in cache_dir.iterdir() if c.is_dir()]
+
+            if not caches:
+                raise FileNotFoundError(f"No annotation caches found under {cache_dir}")
+
+            if len(caches) == 1:
+                # Only one cache, use it
+                params_file = caches[0] / "annotation.yaml"
+                if not params_file.exists():
+                    raise FileNotFoundError(
+                        f"Annotation config not found: {params_file} (cache may be incomplete)"
+                    )
+            else:
+                # Multiple caches, ask user to specify
+                print(f"Multiple caches found. Please specify which one:")
+                for cache in sorted(caches):
+                    status = "" if (cache / "vcfcache_annotated.bcf").exists() else " (incomplete)"
+                    print(f"  vcfcache annotate --show-command -a {cache}{status}")
+                return
+        except Exception as e:
+            raise FileNotFoundError(
+                f"Could not find annotation.yaml in {path_hint}. "
+                f"Please provide path to a specific cache directory. Error: {e}"
+            )
 
     params = yaml.safe_load(params_file.read_text()) or {}
-    command = params.get("annotation_tool_cmd")
+    command = params.get("annotation_cmd")
 
     if not command:
         raise ValueError(
-            "annotation_tool_cmd not found in annotation.yaml; cache may be incomplete"
+            "annotation_cmd not found in annotation.yaml; cache may be incomplete"
         )
 
     print("Annotation command recorded in cache:")
@@ -93,15 +119,21 @@ def _find_cache_dir(path_hint: Path) -> Path:
 
 
 def _list_annotation_caches(path_hint: Path) -> list[str]:
-    """Return sorted annotation cache names under the given path hint."""
+    """Return sorted annotation cache names under the given path hint.
 
+    Marks incomplete caches (still building) with ' (incomplete)' suffix.
+    """
     cache_dir = _find_cache_dir(path_hint)
     names = []
     for child in cache_dir.iterdir():
         if not child.is_dir():
             continue
-        if (child / "vcfcache_annotated.bcf").exists():
-            names.append(child.name)
+        # Check if cache is complete (has annotated BCF file index)
+        is_complete = (child / "vcfcache_annotated.bcf.csi").exists()
+        cache_name = child.name
+        if not is_complete:
+            cache_name += " (incomplete)"
+        names.append(cache_name)
     return sorted(names)
 
 
@@ -358,54 +390,79 @@ def main() -> None:
 
     # Main functionality, apply to user vcf
     vcf_parser = subparsers.add_parser(
-        "annotate", help="Run a cached VCF annotation", parents=[parent_parser]
+        "annotate",
+        help="Annotate VCF using pre-built cache",
+        parents=[parent_parser],
+        description=(
+            "Annotate a sample VCF file using a pre-built annotation cache. "
+            "The cache enables rapid annotation by reusing annotations from common variants "
+            "and only annotating novel variants not found in the cache."
+        ),
     )
     vcf_parser.add_argument(
         "-a",
         "--annotation_db",
         dest="a",
         required=True,
-        help="Path to the annotation database directory",
+        metavar="DIR",
+        help=(
+            "Path to annotation cache directory, cache root, or Zenodo alias/DOI. "
+            "Use --list to see available caches."
+        ),
     )
     vcf_parser.add_argument(
-        "-i", "--vcf", dest="i", required=False, help="Input VCF file to annotate"
+        "-i",
+        "--vcf",
+        dest="i",
+        required=False,
+        metavar="VCF",
+        help="Input VCF/BCF file to annotate (required unless using --list or --show-command)",
     )
-    vcf_parser.add_argument("-o", "--output", required=False, help="Output directory")
+    vcf_parser.add_argument(
+        "-o",
+        "--output",
+        required=False,
+        metavar="DIR",
+        help="Output directory for annotated VCF (required unless using --list or --show-command)",
+    )
     vcf_parser.add_argument(
         "--uncached",
         action="store_true",
-        help="Do not use the database (makes only sense for benchmarking)",
+        default=False,
+        help="(optional) Skip cache, annotate all variants directly. For benchmarking only (default: False)",
     )
     vcf_parser.add_argument(
         "-f",
         "--force",
         dest="force",
         action="store_true",
-        help="Force overwrite of existing annotation directory",
         default=False,
+        help="(optional) Force overwrite if output directory exists (default: False)",
     )
     vcf_parser.add_argument(
         "-p",
         "--parquet",
         dest="parquet",
         action="store_true",
-        help="Convert the final bcf file to parquet format optimized for duck.db access",
         default=False,
+        help="(optional) Also convert output to Parquet format for DuckDB access (default: False)",
     )
     vcf_parser.add_argument(
         "--show-command",
         action="store_true",
+        default=False,
         help=(
-            "Show the annotation_tool_cmd recorded in the annotation cache and exit. "
-            "Skips running any annotation jobs."
+            "(optional) Display the annotation command stored in the cache and exit. "
+            "Does not run annotation."
         ),
     )
     vcf_parser.add_argument(
         "--list",
         action="store_true",
+        default=False,
         help=(
-            "List available cached annotation names. Provide -a pointing to a cache root, "
-            "a cache directory, or an annotation directory."
+            "(optional) List available annotation caches in the specified directory. "
+            "Incomplete caches are marked."
         ),
     )
 

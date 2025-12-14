@@ -422,22 +422,20 @@ class WorkflowManager(WorkflowBase):
 
         # Copy annotation logs to cache directory for posterity
         # These logs contain the full output from the annotation tool (VEP, SnpEff, etc.)
-        annotation_log = self.output_dir / "annotation_tool.log"
         stdout_file = work_task / "stdout.txt"
         stderr_file = work_task / "stderr.txt"
 
-        with annotation_log.open("w") as log:
-            log.write("=== Annotation Tool Output ===\n\n")
-            if stdout_file.exists():
-                log.write("STDOUT:\n")
-                log.write(stdout_file.read_text())
-                log.write("\n\n")
-            if stderr_file.exists():
-                log.write("STDERR:\n")
-                log.write(stderr_file.read_text())
-                log.write("\n")
+        # Save stdout to annotation_tool.log
+        annotation_log = self.output_dir / "annotation_tool.log"
+        if stdout_file.exists() and stdout_file.stat().st_size > 0:
+            annotation_log.write_text(stdout_file.read_text())
+            self.logger.info(f"Annotation output saved to: {annotation_log}")
 
-        self.logger.info(f"Annotation logs saved to: {annotation_log}")
+        # Save stderr to annotation_tool_err.log (only if non-empty)
+        annotation_err_log = self.output_dir / "annotation_tool_err.log"
+        if stderr_file.exists() and stderr_file.stat().st_size > 0:
+            annotation_err_log.write_text(stderr_file.read_text())
+            self.logger.info(f"Annotation errors saved to: {annotation_err_log}")
 
         # Remove auxiliary directory if empty (some annotation tools don't use it)
         if aux_dir.exists() and not any(aux_dir.iterdir()):
@@ -533,6 +531,25 @@ class WorkflowManager(WorkflowBase):
                 },
             )
             BcftoolsCommand(anno_cmd, self.logger, work_task).run()
+
+            # Save annotation tool logs for novel variants
+            stdout_file = work_task / "stdout.txt"
+            stderr_file = work_task / "stderr.txt"
+
+            annotation_log = self.output_dir / "annotation_tool.log"
+            if stdout_file.exists() and stdout_file.stat().st_size > 0:
+                annotation_log.write_text(stdout_file.read_text())
+                self.logger.info(f"Annotation output saved to: {annotation_log}")
+
+            annotation_err_log = self.output_dir / "annotation_tool_err.log"
+            if stderr_file.exists() and stderr_file.stat().st_size > 0:
+                annotation_err_log.write_text(stderr_file.read_text())
+                self.logger.info(f"Annotation errors saved to: {annotation_err_log}")
+
+            # Remove auxiliary directory if empty
+            if aux_dir.exists() and not any(aux_dir.iterdir()):
+                aux_dir.rmdir()
+                self.logger.debug("Removed empty auxiliary directory")
         else:
             self.logger.info("Step 3/4: Skipped (all variants found in cache)")
             # Create empty file for step 4
