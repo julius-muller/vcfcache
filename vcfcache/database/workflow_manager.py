@@ -420,6 +420,30 @@ class WorkflowManager(WorkflowBase):
         # Execute annotation command
         result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
 
+        # Copy annotation logs to cache directory for posterity
+        # These logs contain the full output from the annotation tool (VEP, SnpEff, etc.)
+        annotation_log = self.output_dir / "annotation_tool.log"
+        stdout_file = work_task / "stdout.txt"
+        stderr_file = work_task / "stderr.txt"
+
+        with annotation_log.open("w") as log:
+            log.write("=== Annotation Tool Output ===\n\n")
+            if stdout_file.exists():
+                log.write("STDOUT:\n")
+                log.write(stdout_file.read_text())
+                log.write("\n\n")
+            if stderr_file.exists():
+                log.write("STDERR:\n")
+                log.write(stderr_file.read_text())
+                log.write("\n")
+
+        self.logger.info(f"Annotation logs saved to: {annotation_log}")
+
+        # Remove auxiliary directory if empty (some annotation tools don't use it)
+        if aux_dir.exists() and not any(aux_dir.iterdir()):
+            aux_dir.rmdir()
+            self.logger.debug("Removed empty auxiliary directory")
+
         # Validate output has required INFO tag
         tag = self.nfa_config_content["must_contain_info_tag"]
         self._validate_info_tag(output_bcf, tag)
