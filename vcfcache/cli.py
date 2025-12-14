@@ -329,46 +329,46 @@ def main() -> None:
     # cache-build command
     cache_build_parser = subparsers.add_parser(
         "cache-build",
-        help="Annotate blueprint to create cache",
+        help="Build or download annotated cache",
         parents=[init_parent_parser],
         description=(
-            "Run annotation workflow on a blueprint to create an annotated cache. "
-            "Blueprint can be provided as a local directory or downloaded from Zenodo. "
-            "Requires an annotation configuration YAML file that defines the annotation "
-            "command (e.g., VEP, SnpEff, bcftools +split-vep) to apply to the blueprint. "
-            "The resulting cache can be used for rapid sample annotation."
+            "Build an annotated cache from a blueprint, or download a pre-built cache from Zenodo. "
+            "\n\n"
+            "Two modes:\n"
+            "1. Build from blueprint (local or Zenodo): Requires -a/--anno-config to define annotation workflow.\n"
+            "2. Download pre-built cache from Zenodo: DOI points to cache, -a forbidden, -n optional."
         )
     )
-    # Blueprint source: local directory OR Zenodo DOI
-    blueprint_source = cache_build_parser.add_mutually_exclusive_group(required=True)
-    blueprint_source.add_argument(
+    # Source: local blueprint directory OR Zenodo DOI (blueprint or cache)
+    source = cache_build_parser.add_mutually_exclusive_group(required=True)
+    source.add_argument(
         "-d",
         "--db",
         dest="db",
         metavar="DIR",
-        help="Path to existing blueprint directory"
+        help="Path to existing blueprint directory (requires -a)"
     )
-    blueprint_source.add_argument(
+    source.add_argument(
         "--doi",
         dest="doi",
         metavar="DOI",
-        help="Zenodo DOI to download blueprint from (e.g., 10.5281/zenodo.XXXXX)"
+        help="Zenodo DOI (blueprint or cache). If blueprint: requires -a. If cache: forbids -a."
     )
     cache_build_parser.add_argument(
         "-n",
         "--name",
         dest="name",
-        required=True,
+        required=False,
         metavar="NAME",
-        help="Name for the cache (will create cache/{name}/ subdirectory)"
+        help="(Optional) Name for the cache. Required when building from blueprint. Ignored when downloading pre-built cache."
     )
     cache_build_parser.add_argument(
         "-a",
         "--anno-config",
         dest="anno_config",
-        required=True,
+        required=False,
         metavar="YAML",
-        help="Annotation config YAML file (defines annotation_cmd and must_contain_info_tag)"
+        help="(Optional) Annotation config YAML. Required when source is blueprint. Forbidden when source is pre-built cache."
     )
     cache_build_parser.add_argument(
         "-y",
@@ -671,34 +671,111 @@ def main() -> None:
             updater.add()
 
         elif args.command == "cache-build":
-            # Handle blueprint source: local directory or Zenodo DOI
+            # Helper to detect if directory is blueprint or cache
+            def is_blueprint(directory: Path) -> bool:
+                """Return True if directory is a blueprint, False if cache."""
+                blueprint_marker = directory / "blueprint" / "vcfcache.bcf"
+                cache_dir = directory / "cache"
+
+                # Blueprint: has blueprint/vcfcache.bcf
+                if blueprint_marker.exists():
+                    return True
+
+                # Cache: has cache/ with subdirectories (annotation caches)
+                if cache_dir.exists() and cache_dir.is_dir():
+                    if any(cache_dir.iterdir()):
+                        return False
+
+                # If neither, assume blueprint (for error messaging)
+                return True
+
+            # Handle source: local directory or Zenodo DOI
             if args.doi:
-                # Download blueprint from Zenodo
                 zenodo_env = "sandbox" if args.debug else "production"
-                logger.info(f"Downloading blueprint from Zenodo ({zenodo_env}) DOI: {args.doi}")
+                logger.info(f"Downloading from Zenodo ({zenodo_env}) DOI: {args.doi}")
 
-                # Download to temporary location
-                blueprint_store = Path.home() / ".cache/vcfcache/blueprints"
-                blueprint_store.mkdir(parents=True, exist_ok=True)
-
+                # Download to appropriate cache directory
                 import tempfile
                 with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp:
                     tar_path = Path(tmp.name)
 
                 download_doi(args.doi, tar_path, sandbox=args.debug)
-                logger.info(f"Downloaded blueprint to: {tar_path}")
 
-                # Extract blueprint
-                blueprint_dir = extract_cache(tar_path, blueprint_store)
+                # Extract to temporary location to detect type
+                temp_extract = Path.home() / ".cache/vcfcache/temp"
+                temp_extract.mkdir(parents=True, exist_ok=True)
+                extracted_dir = extract_cache(tar_path, temp_extract)
                 tar_path.unlink()
 
-                logger.info(f"Using downloaded blueprint: {blueprint_dir}")
-                db_path = blueprint_dir
+                # Detect if blueprint or cache
+                if is_blueprint(extracted_dir):
+                    logger.info(f"Downloaded blueprint: {extracted_dir}")
+
+                    # Blueprint: requires -a and -n
+                    if not args.anno_config:
+                        raise ValueError(
+                            "DOI points to a blueprint. -a/--anno-config is required to build cache."
+                        )
+                    if not args.name:
+                        raise ValueError(
+                            "DOI points to a blueprint. -n/--name is required to name the cache."
+                        )
+
+                    # Move to blueprints cache
+                    blueprint_store = Path.home() / ".cache/vcfcache/blueprints"
+                    blueprint_store.mkdir(parents=True, exist_ok=True)
+                    final_dir = blueprint_store / extracted_dir.name
+                    if final_dir.exists():
+                        import shutil
+                        shutil.rmtree(final_dir)
+                    extracted_dir.rename(final_dir)
+                    temp_extract.rmdir()
+
+                    db_path = final_dir
+                    is_prebuilt_cache = False
+                else:
+                    logger.info(f"Downloaded pre-built cache: {extracted_dir}")
+
+                    # Pre-built cache: forbid -a
+                    if args.anno_config:
+                        raise ValueError(
+                            "DOI points to a pre-built cache. -a/--anno-config must not be provided. "
+                            "The cache is already annotated and ready to use."
+                        )
+
+                    # Move to caches directory
+                    cache_store = Path.home() / ".cache/vcfcache/caches"
+                    cache_store.mkdir(parents=True, exist_ok=True)
+                    final_dir = cache_store / extracted_dir.name
+                    if final_dir.exists():
+                        import shutil
+                        shutil.rmtree(final_dir)
+                    extracted_dir.rename(final_dir)
+                    temp_extract.rmdir()
+
+                    logger.info(f"Pre-built cache ready at: {final_dir}")
+                    logger.info(f"Use with: vcfcache annotate -a {final_dir} -i sample.vcf -o output/")
+                    is_prebuilt_cache = True
             else:
-                # Use local blueprint directory
+                # Local blueprint directory: always requires -a and -n
+                if not args.anno_config:
+                    raise ValueError(
+                        "Local blueprint directory requires -a/--anno-config to build cache."
+                    )
+                if not args.name:
+                    raise ValueError(
+                        "Local blueprint directory requires -n/--name to name the cache."
+                    )
+
                 db_path = args.db
                 logger.debug(f"Using local blueprint: {db_path}")
+                is_prebuilt_cache = False
 
+            # If pre-built cache, we're done
+            if is_prebuilt_cache:
+                return
+
+            # Build cache from blueprint
             logger.debug(f"Running annotation workflow on blueprint: {db_path}")
 
             annotator = DatabaseAnnotator(
@@ -779,7 +856,14 @@ def main() -> None:
 
             print(f"\n{'=' * 80}")
             print(f"Total: {len(records)} {item_type} found")
-            print(f"Download: vcfcache blueprint-init --doi <DOI> -o ./blueprints\n")
+
+            # Show appropriate download instructions based on type
+            if item_type == "blueprints":
+                print(f"Download: vcfcache blueprint-init --doi <DOI> -o <output_dir>")
+                print(f"Or build cache: vcfcache cache-build --doi <DOI> -a <annotation.yaml> -n <name>\n")
+            else:  # caches
+                print(f"Download: vcfcache cache-build --doi <DOI>")
+                print(f"Then use: vcfcache annotate -a ~/.cache/vcfcache/caches/<cache_name> -i sample.vcf -o output/\n")
 
         elif args.command == "push":
             from vcfcache.integrations import zenodo

@@ -25,8 +25,8 @@ annotation_cmd: |
     --sift b \
     --polyphen b \
     --stats_file ${AUXILIARY_DIR}/vep_stats.html \
-    --warning_file ${AUXILIARY_DIR}/vep_warnings.txt 2>&1 | \
-      tee ${AUXILIARY_DIR}/vep_output.txt | \
+    --warning_file ${AUXILIARY_DIR}/vep_warnings.txt \
+    --verbose 2> ${AUXILIARY_DIR}/vep_stderr.txt | \
   ${params.bcftools_cmd} view -o ${OUTPUT_BCF} -Ob --write-index
 
 must_contain_info_tag: CSQ
