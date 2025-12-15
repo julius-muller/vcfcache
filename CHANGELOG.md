@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.0 (Unreleased)
+
+### Added
+- Added tag-based GitHub Actions release workflow (`.github/workflows/release.yml`) to build/test, publish to (Test)PyPI, create GitHub Releases, and build/push Docker images.
+- Updated `scripts/release.sh` to support PEP 440 pre-releases (e.g. `0.4.0b0`, `0.4.0rc1`) and mark GitHub releases as pre-release accordingly.
+- Documented pre-release (beta/rc) guidance in `RELEASE.md`.
+
+### Fixed
+- Removed dependency on external `md5sum` binary by switching MD5 computation to pure Python (`hashlib`).
+- Made Zenodo sandbox integration test robust to a globally set `VCFCACHE_DIR` by forcing an isolated cache dir under the test HOME.
+- Fixed CI `PATH` handling so system tools remain available while still preferring the locally built `bcftools` binaries.
+
 ## 0.3.6 (2025-12-11)
 
 ### Fixed

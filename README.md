@@ -80,6 +80,11 @@ Override system bcftools (if needed):
 export VCFCACHE_BCFTOOLS=/path/to/bcftools-1.22
 ```
 
+Change where downloaded caches/blueprints are stored (default: `~/.cache/vcfcache`):
+```bash
+export VCFCACHE_DIR=/path/to/vcfcache_cache_dir
+```
+
 Or in `params.yaml`:
 ```yaml
 bcftools_cmd: "/path/to/bcftools"

@@ -9,6 +9,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Parse arguments
 VERSION=""
+FORCE_GH_PRERELEASE=0
 
 show_help() {
   cat << EOF
@@ -18,13 +19,16 @@ Release automation script for vcfcache.
 After each step, you'll be prompted to continue, skip, or cancel.
 
 Arguments:
-  <version>        Version to release (e.g., 0.3.4)
+  <version>        Version to release (e.g., 0.4.0, 0.4.0b0, 0.4.0rc1)
 
 Options:
   -h, --help       Show this help message
+  --github-prerelease  Mark the GitHub Release as pre-release (even if version is not a PEP 440 pre-release)
 
 Examples:
   $0 0.3.4
+  $0 0.4.0b0
+  $0 0.4.0 --github-prerelease
 
 Interactive prompts:
   y - Yes, proceed with this step
@@ -38,6 +42,10 @@ while [[ $# -gt 0 ]]; do
     -h|--help)
       show_help
       exit 0
+      ;;
+    --github-prerelease)
+      FORCE_GH_PRERELEASE=1
+      shift
       ;;
     -*)
       echo "Unknown option: $1"
@@ -65,36 +73,18 @@ fi
 
 log() { echo "[$(date +%H:%M:%S)] $*"; }
 
-version_compare() {
-  # Compare two semantic versions (format: X.Y.Z)
-  # Returns: 0 if equal, 1 if $1 > $2, 2 if $1 < $2
-  local ver1=$1
-  local ver2=$2
-
-  if [[ "$ver1" == "$ver2" ]]; then
+is_pep440_prerelease() {
+  # Prefer a real PEP 440 check (packaging); fall back to a heuristic.
+  local v="$1"
+  if python -c "from packaging.version import Version; import sys; print('1' if Version(sys.argv[1]).is_prerelease else '0')" "$v" >/dev/null 2>&1; then
+    python -c "from packaging.version import Version; import sys; print('1' if Version(sys.argv[1]).is_prerelease else '0')" "$v"
     return 0
   fi
-
-  local IFS=.
-  local i ver1_arr=($ver1) ver2_arr=($ver2)
-
-  # Fill empty positions with zeros
-  for ((i=${#ver1_arr[@]}; i<${#ver2_arr[@]}; i++)); do
-    ver1_arr[i]=0
-  done
-  for ((i=${#ver2_arr[@]}; i<${#ver1_arr[@]}; i++)); do
-    ver2_arr[i]=0
-  done
-
-  for ((i=0; i<${#ver1_arr[@]}; i++)); do
-    if ((10#${ver1_arr[i]} > 10#${ver2_arr[i]})); then
-      return 1
-    elif ((10#${ver1_arr[i]} < 10#${ver2_arr[i]})); then
-      return 2
-    fi
-  done
-
-  return 0
+  if [[ "$v" =~ (a|b|rc)[0-9]+$ ]]; then
+    echo "1"
+  else
+    echo "0"
+  fi
 }
 
 ask_yn_skip() {
@@ -125,9 +115,20 @@ cd "$PROJECT_ROOT"
 # Get current versions from files
 CURRENT_VERSION_PYPROJECT=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
 CURRENT_VERSION_INIT=$(grep '^__version__ = ' vcfcache/__init__.py | sed 's/__version__ = "\(.*\)"/\1/')
+IS_PRERELEASE="$(is_pep440_prerelease "$VERSION")"
+GH_PRERELEASE_FLAG=""
+if [[ "$IS_PRERELEASE" == "1" ]] || [[ "$FORCE_GH_PRERELEASE" == "1" ]]; then
+  GH_PRERELEASE_FLAG="--prerelease"
+fi
 
 log "Starting release process for version $VERSION"
 log "Current versions: pyproject.toml=$CURRENT_VERSION_PYPROJECT, __init__.py=$CURRENT_VERSION_INIT"
+if [[ "$IS_PRERELEASE" == "1" ]]; then
+  log "Detected pre-release version (PEP 440): $VERSION"
+fi
+if [[ "$FORCE_GH_PRERELEASE" == "1" ]] && [[ "$IS_PRERELEASE" != "1" ]]; then
+  log "GitHub Release will be marked as pre-release (--github-prerelease)"
+fi
 echo ""
 
 # Step 1: Update version in files
@@ -207,86 +208,32 @@ echo ""
 # Step 3: Upload to TestPyPI
 log "Step 3: Upload to TestPyPI"
 
-# Get latest version from TestPyPI
-log "  → Checking TestPyPI for current version..."
-TESTPYPI_LATEST=$(curl -s --max-time 10 "https://test.pypi.org/pypi/vcfcache/json" 2>/dev/null | grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4 || echo "")
-
-if [[ -n "$TESTPYPI_LATEST" ]]; then
-  set +e
-  version_compare "$VERSION" "$TESTPYPI_LATEST"
-  COMPARE_RESULT=$?
-  set -e
-  case $COMPARE_RESULT in
-    0)
-      log "  ✓ Version v$VERSION already on TestPyPI, skipping"
-      ;;
-    2)
-      log "  ✓ Current TestPyPI version (v$TESTPYPI_LATEST) >= target (v$VERSION), skipping"
-      ;;
-    1)
-      if ask_yn_skip "Upload v$VERSION to TestPyPI? (current: v$TESTPYPI_LATEST)"; then
-        python -m twine upload --repository testpypi dist/*
-        log "  ✓ Uploaded to TestPyPI"
-        log "  → Verify at: https://test.pypi.org/project/vcfcache/$VERSION/"
-        echo ""
-        read -p "Press Enter once TestPyPI verification is complete..."
-      else
-        log "  ⊘ Skipped TestPyPI upload"
-      fi
-      ;;
-  esac
+if [[ "$IS_PRERELEASE" == "1" ]]; then
+  log "  → Pre-release detected: TestPyPI is recommended for betas/RCs"
+fi
+if ask_yn_skip "Upload v$VERSION to TestPyPI?"; then
+  python -m twine upload --repository testpypi dist/*
+  log "  ✓ Uploaded to TestPyPI"
+  log "  → Verify at: https://test.pypi.org/project/vcfcache/$VERSION/"
+  echo ""
+  read -p "Press Enter once TestPyPI verification is complete..."
 else
-  # No version on TestPyPI yet
-  if ask_yn_skip "Upload v$VERSION to TestPyPI? (current: none)"; then
-    python -m twine upload --repository testpypi dist/*
-    log "  ✓ Uploaded to TestPyPI"
-    log "  → Verify at: https://test.pypi.org/project/vcfcache/$VERSION/"
-    echo ""
-    read -p "Press Enter once TestPyPI verification is complete..."
-  else
-    log "  ⊘ Skipped TestPyPI upload"
-  fi
+  log "  ⊘ Skipped TestPyPI upload"
 fi
 echo ""
 
 # Step 4: Upload to PyPI
 log "Step 4: Upload to PyPI"
 
-# Get latest version from PyPI
-log "  → Checking PyPI for current version..."
-PYPI_LATEST=$(curl -s --max-time 10 "https://pypi.org/pypi/vcfcache/json" 2>/dev/null | grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4 || echo "")
-
-if [[ -n "$PYPI_LATEST" ]]; then
-  set +e
-  version_compare "$VERSION" "$PYPI_LATEST"
-  COMPARE_RESULT=$?
-  set -e
-  case $COMPARE_RESULT in
-    0)
-      log "  ✓ Version v$VERSION already on PyPI, skipping"
-      ;;
-    2)
-      log "  ✓ Current PyPI version (v$PYPI_LATEST) >= target (v$VERSION), skipping"
-      ;;
-    1)
-      if ask_yn_skip "Upload v$VERSION to PyPI? (current: v$PYPI_LATEST)"; then
-        python -m twine upload dist/*
-        log "  ✓ Uploaded to PyPI"
-        log "  → Live at: https://pypi.org/project/vcfcache/$VERSION/"
-      else
-        log "  ⊘ Skipped PyPI upload"
-      fi
-      ;;
-  esac
+if [[ "$IS_PRERELEASE" == "1" ]]; then
+  log "  ⚠ Pre-release detected: skipping PyPI upload is usually recommended"
+fi
+if ask_yn_skip "Upload v$VERSION to PyPI?"; then
+  python -m twine upload dist/*
+  log "  ✓ Uploaded to PyPI"
+  log "  → Live at: https://pypi.org/project/vcfcache/$VERSION/"
 else
-  # No version on PyPI yet
-  if ask_yn_skip "Upload v$VERSION to PyPI? (current: none)"; then
-    python -m twine upload dist/*
-    log "  ✓ Uploaded to PyPI"
-    log "  → Live at: https://pypi.org/project/vcfcache/$VERSION/"
-  else
-    log "  ⊘ Skipped PyPI upload"
-  fi
+  log "  ⊘ Skipped PyPI upload"
 fi
 echo ""
 
@@ -318,13 +265,17 @@ else
   # Push
   if ask_yn_skip "Push Docker images to GHCR?"; then
     docker push "ghcr.io/julius-muller/vcfcache:v$VERSION"
-    docker push ghcr.io/julius-muller/vcfcache:latest
+    if [[ "$IS_PRERELEASE" != "1" ]]; then
+      docker push ghcr.io/julius-muller/vcfcache:latest
+    else
+      log "  → Pre-release detected: not pushing :latest"
+    fi
     log "  ✓ Pushed Docker images"
 
     # Verify
     log "  → Verifying pushed image..."
-    docker pull ghcr.io/julius-muller/vcfcache:latest --quiet
-    docker run --rm ghcr.io/julius-muller/vcfcache:latest demo --smoke-test --quiet
+    docker pull "ghcr.io/julius-muller/vcfcache:v$VERSION" --quiet
+    docker run --rm "ghcr.io/julius-muller/vcfcache:v$VERSION" demo --smoke-test --quiet
     log "  ✓ Docker image verified"
   else
     log "  ⊘ Skipped Docker push (images tagged locally)"
@@ -362,6 +313,7 @@ fi
 log "  → Creating GitHub release..."
 gh release create "v$VERSION" \
   --title "vcfcache v$VERSION" \
+  $GH_PRERELEASE_FLAG \
   --notes-file CHANGELOG.md \
   dist/*
 log "  ✓ GitHub release created"

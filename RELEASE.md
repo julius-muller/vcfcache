@@ -49,6 +49,18 @@ Use the release script for streamlined, interactive releases:
 ./scripts/release.sh 0.3.4
 ```
 
+### Pre-releases (beta/rc)
+
+Use a PEP 440 pre-release version so PyPI/Docker/GitHub stay consistent:
+- Beta: `0.4.0b0`, `0.4.0b1`, ...
+- Release candidate: `0.4.0rc1`, `0.4.0rc2`, ...
+
+The release script will mark GitHub Releases as pre-releases for `bN/rcN` versions and will avoid pushing the Docker `:latest` tag for pre-releases.
+If you need to mark a GitHub release as pre-release without using a PEP 440 pre-release version, run:
+```bash
+./scripts/release.sh 0.4.0 --github-prerelease
+```
+
 The script will walk you through each step with prompts:
 - **y** = Yes, proceed with this step
 - **n** = No, cancel the release and exit
