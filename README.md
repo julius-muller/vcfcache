@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17943998.svg)](https://doi.org/10.5281/zenodo.17943998)
+
 # VCFcache – Cache once, annotate fast
 
 Cache common variants once, reuse them for every sample. VCFcache builds a normalized blueprint, annotates it once, and reuses those results so only rare/novel variants are annotated at runtime.
