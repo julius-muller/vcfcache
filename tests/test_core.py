@@ -11,7 +11,10 @@ TEST_ROOT = get_vcfcache_root() / "tests"
 TEST_DATA_DIR = TEST_ROOT / "data" / "nodata"
 TEST_VCF = TEST_DATA_DIR / "crayz_db.bcf"
 TEST_VCF2 = TEST_DATA_DIR / "crayz_db2.bcf"
-VCFCACHE_CMD = "vcfcache"
+import sys
+
+# Use python -m vcfcache to ensure we use the installed package
+VCFCACHE_CMD = [sys.executable, "-m", "vcfcache"]
 
 
 def test_error_handling(test_output_dir, params_file, test_scenario):
@@ -47,7 +50,7 @@ def test_error_handling(test_output_dir, params_file, test_scenario):
     assert result.returncode != 0, "Should fail with invalid yaml"
 
     # Test add without init
-    add_cmd = [VCFCACHE_CMD, "blueprint-extend", "--db", test_output_dir, "-i", str(TEST_VCF)]
+    add_cmd = VCFCACHE_CMD + [ "blueprint-extend", "--db", test_output_dir, "-i", str(TEST_VCF)]
     result = subprocess.run(add_cmd, capture_output=True, text=True)
     assert result.returncode != 0, "Should fail without initialization"
 

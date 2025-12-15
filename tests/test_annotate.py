@@ -16,7 +16,10 @@ TEST_VCF2 = TEST_DATA_DIR / "crayz_db2.bcf"
 TEST_SAMPLE = TEST_DATA_DIR / "sample4.bcf"
 TEST_PARAMS = TEST_ROOT / "config" / "test_params.yaml"
 TEST_ANNO_CONFIG = TEST_ROOT / "config" / "test_annotation.yaml"
-VCFCACHE_CMD = "vcfcache"
+import sys
+
+# Use python -m vcfcache to ensure we use the installed package
+VCFCACHE_CMD = [sys.executable, "-m", "vcfcache"]
 VCFCACHE_ROOT = get_vcfcache_root()
 
 
@@ -176,8 +179,7 @@ def run_blueprint_init(input_vcf, output_dir, force=False, normalize=False):
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
 
-    cmd = [
-        str(VCFCACHE_CMD),
+    cmd = VCFCACHE_CMD + [
         "blueprint-init",
         "--vcf", str(input_vcf),
         "--output", str(output_dir),
@@ -202,8 +204,7 @@ def run_blueprint_init(input_vcf, output_dir, force=False, normalize=False):
 
 def run_blueprint_extend(db_dir, input_vcf, normalize=False):
     """Run the blueprint-extend command and return the process result."""
-    cmd = [
-        str(VCFCACHE_CMD),
+    cmd = VCFCACHE_CMD + [
         "blueprint-extend",
         "--db", str(db_dir),
         "-i", str(input_vcf)
@@ -225,8 +226,7 @@ def run_blueprint_extend(db_dir, input_vcf, normalize=False):
 def run_cache_build(db_dir, name, force=False):
     """Run the cache-build command and return the process result."""
 
-    cmd = [
-        str(VCFCACHE_CMD),
+    cmd = VCFCACHE_CMD + [
         "cache-build",
         "--name", name,
         "-a", str(TEST_ANNO_CONFIG),
@@ -256,8 +256,7 @@ def run_cache_build(db_dir, name, force=False):
 def run_annotate(annotation_db, input_vcf, output_dir, force=False):
     """Run the annotate command and return the process result."""
 
-    cmd = [
-        str(VCFCACHE_CMD),
+    cmd = VCFCACHE_CMD + [
         "annotate",
         "-a", str(annotation_db),
         "--vcf", str(input_vcf),
@@ -285,7 +284,8 @@ def test_sample_file_validity(test_output_dir, test_scenario):
     # Use bcftools from PATH (respects setup_test_environment fixture)
     # In annotated images, this will be /opt/bcftools/bin/bcftools (compiled 1.22)
     # In other scenarios, this will be the bundled or system bcftools
-    bcftools_path = 'bcftools'
+    from tests.conftest import get_bcftools_cmd
+    bcftools_path = get_bcftools_cmd()
 
     # Check if the sample BCF file exists
     assert TEST_SAMPLE.exists(), f"Sample BCF file not found: {TEST_SAMPLE}"
@@ -376,7 +376,8 @@ def test_full_annotation_workflow(test_output_dir, test_scenario, prebuilt_cache
     # Use bcftools from PATH (respects setup_test_environment fixture)
     # In annotated images, this will be /opt/bcftools/bin/bcftools (compiled 1.22)
     # In other scenarios, this will be the bundled or system bcftools
-    bcftools_path = 'bcftools'
+    from tests.conftest import get_bcftools_cmd
+    bcftools_path = get_bcftools_cmd()
 
     # Step 4: Verify the annotation directory was created
     cache_dir = Path(test_output_dir) / "cache"
@@ -467,7 +468,7 @@ def test_cached_vs_uncached_annotation(test_output_dir, params_file, test_scenar
 
     # Step 1: Create a database
     print("Creating database...")
-    init_cmd = [VCFCACHE_CMD, "blueprint-init", "-i", str(TEST_VCF),
+    init_cmd = VCFCACHE_CMD + [ "blueprint-init", "-i", str(TEST_VCF),
                 "-o", str(test_output_dir), "-y", str(params_file), "-f"]
     init_result = subprocess.run(init_cmd, capture_output=True, text=True)
     assert init_result.returncode == 0, f"blueprint-init failed: {init_result.stderr}"
@@ -475,7 +476,7 @@ def test_cached_vs_uncached_annotation(test_output_dir, params_file, test_scenar
     # Step 2: Run cache-build to create the annotation cache
     print("Creating annotation cache...")
     annotate_name = "test_annotation"
-    cache_build_cmd = [VCFCACHE_CMD, "cache-build", "--name", annotate_name,
+    cache_build_cmd = VCFCACHE_CMD + [ "cache-build", "--name", annotate_name,
                           "--db", str(test_output_dir), "-a", str(TEST_ANNO_CONFIG),
                           "-y", str(params_file), "-f"]
     cache_build_result = subprocess.run(cache_build_cmd, capture_output=True, text=True)
@@ -484,7 +485,7 @@ def test_cached_vs_uncached_annotation(test_output_dir, params_file, test_scenar
     # Step 3: Run annotation with caching
     print("Running cached annotation...")
     cached_output = Path(test_output_dir) / "cached_output"
-    cached_cmd = [VCFCACHE_CMD, "annotate", "-a", str(Path(test_output_dir) / "cache" / annotate_name),
+    cached_cmd = VCFCACHE_CMD + [ "annotate", "-a", str(Path(test_output_dir) / "cache" / annotate_name),
                   "-i", str(TEST_SAMPLE), "-o", str(cached_output),
                   "-y", str(params_file), "-f"]
     cached_result = subprocess.run(cached_cmd, capture_output=True, text=True)
@@ -493,7 +494,7 @@ def test_cached_vs_uncached_annotation(test_output_dir, params_file, test_scenar
     # Step 4: Run annotation without caching
     print("Running uncached annotation...")
     uncached_output = Path(test_output_dir) / "uncached_output"
-    uncached_cmd = [VCFCACHE_CMD, "annotate", "-a", str(Path(test_output_dir) / "cache" / annotate_name),
+    uncached_cmd = VCFCACHE_CMD + [ "annotate", "-a", str(Path(test_output_dir) / "cache" / annotate_name),
                     "-i", str(TEST_SAMPLE), "-o", str(uncached_output),
                     "-y", str(params_file), "--uncached", "-f"]
     uncached_result = subprocess.run(uncached_cmd, capture_output=True, text=True)
@@ -503,7 +504,8 @@ def test_cached_vs_uncached_annotation(test_output_dir, params_file, test_scenar
     print("Comparing outputs...")
 
     # Use bcftools from PATH (respects setup_test_environment fixture)
-    bcftools_path = 'bcftools'
+    from tests.conftest import get_bcftools_cmd
+    bcftools_path = get_bcftools_cmd()
 
     # Compare headers
     cached_header = subprocess.run(
@@ -546,7 +548,7 @@ def test_input_not_modified_during_annotation(test_output_dir, params_file, test
 
     # Step 1: Create a database
     print("Creating database...")
-    init_cmd = [VCFCACHE_CMD, "blueprint-init", "-i", str(TEST_VCF),
+    init_cmd = VCFCACHE_CMD + [ "blueprint-init", "-i", str(TEST_VCF),
                 "-o", str(test_output_dir), "-y", str(params_file), "-f"]
     init_result = subprocess.run(init_cmd, capture_output=True, text=True)
     assert init_result.returncode == 0, f"blueprint-init failed: {init_result.stderr}"
@@ -554,7 +556,7 @@ def test_input_not_modified_during_annotation(test_output_dir, params_file, test
     # Step 2: Run cache-build to create the annotation cache
     print("Creating annotation cache...")
     annotate_name = "test_annotation"
-    cache_build_cmd = [VCFCACHE_CMD, "cache-build", "--name", annotate_name,
+    cache_build_cmd = VCFCACHE_CMD + [ "cache-build", "--name", annotate_name,
                           "--db", str(test_output_dir), "-a", str(TEST_ANNO_CONFIG),
                           "-y", str(params_file), "-f"]
     cache_build_result = subprocess.run(cache_build_cmd, capture_output=True, text=True)
@@ -580,7 +582,7 @@ def test_input_not_modified_during_annotation(test_output_dir, params_file, test
     # Step 4: Run annotation with caching
     print("Running annotation...")
     output_dir = Path(test_output_dir) / "annotation_output"
-    annotate_cmd = [VCFCACHE_CMD, "annotate", "-a", str(Path(test_output_dir) / "cache" / annotate_name),
+    annotate_cmd = VCFCACHE_CMD + [ "annotate", "-a", str(Path(test_output_dir) / "cache" / annotate_name),
                   "-i", str(TEST_SAMPLE), "-o", str(output_dir),
                   "-y", str(params_file), "-f"]
     annotate_result = subprocess.run(annotate_cmd, capture_output=True, text=True)
@@ -602,7 +604,8 @@ def test_input_not_modified_during_annotation(test_output_dir, params_file, test
     print("Verifying output file...")
 
     # Use bcftools from PATH (respects setup_test_environment fixture)
-    bcftools_path = 'bcftools'
+    from tests.conftest import get_bcftools_cmd
+    bcftools_path = get_bcftools_cmd()
 
     # Check if the output file exists
     # The output file is named after the input file with _vst.bcf suffix
@@ -651,7 +654,8 @@ def test_normalization_flag(test_output_dir, params_file, test_scenario):
     print("Comparing output files...")
 
     # Use bcftools from PATH (respects setup_test_environment fixture)
-    bcftools_path = 'bcftools'
+    from tests.conftest import get_bcftools_cmd
+    bcftools_path = get_bcftools_cmd()
 
     # Compare the headers of the normalized and non-normalized files
     norm_header = subprocess.run(
@@ -750,7 +754,7 @@ def test_canary_validation(test_output_dir, params_file, test_scenario):
 
     # Step 1: Create a database and cache
     print("Creating database and cache...")
-    init_cmd = [VCFCACHE_CMD, "blueprint-init", "-i", str(TEST_VCF),
+    init_cmd = VCFCACHE_CMD + [ "blueprint-init", "-i", str(TEST_VCF),
                 "-o", str(test_output_dir), "-y", str(params_file), "-f"]
     init_result = subprocess.run(init_cmd, capture_output=True, text=True)
     assert init_result.returncode == 0, f"blueprint-init failed: {init_result.stderr}"
@@ -758,7 +762,7 @@ def test_canary_validation(test_output_dir, params_file, test_scenario):
     # Step 2: Run cache-build to create the annotation cache
     print("Creating annotation cache...")
     annotate_name = "canary_test_annotation"
-    cache_build_cmd = [VCFCACHE_CMD, "cache-build", "--name", annotate_name,
+    cache_build_cmd = VCFCACHE_CMD + [ "cache-build", "--name", annotate_name,
                        "--db", str(test_output_dir), "-a", str(TEST_ANNO_CONFIG),
                        "-y", str(params_file), "-f"]
     cache_build_result = subprocess.run(cache_build_cmd, capture_output=True, text=True)
