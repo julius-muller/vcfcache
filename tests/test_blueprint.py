@@ -8,7 +8,17 @@ These tests validate cache structure when available. They adapt based on scenari
 
 import pytest
 import subprocess
+import sys
 from pathlib import Path
+from tests.conftest import get_bcftools_cmd
+
+# Command helpers
+VCFCACHE_CMD = [sys.executable, "-m", "vcfcache"]
+
+
+def get_bcftools():
+    """Get bcftools command."""
+    return get_bcftools_cmd()
 
 
 def _skip_if_vanilla(test_scenario):
@@ -61,7 +71,7 @@ def test_blueprint_cache_file(test_scenario):
 
     # Verify it's a valid BCF file using bcftools
     result = subprocess.run(
-        ["bcftools", "view", "-h", str(cache_bcf)],
+        [get_bcftools(), "view", "-h", str(cache_bcf)],
         capture_output=True,
         text=True
     )
@@ -78,7 +88,7 @@ def test_blueprint_has_variants(test_scenario):
 
     # Get variant count
     result = subprocess.run(
-        ["bcftools", "view", "-H", str(cache_bcf)],
+        [get_bcftools(), "view", "-H", str(cache_bcf)],
         capture_output=True,
         text=True
     )
@@ -127,7 +137,7 @@ def test_workflow_directory(test_scenario):
 def test_bcftools_version(test_scenario):
     """Test that bcftools is available and reports version."""
     result = subprocess.run(
-        ["bcftools", "--version"],
+        [get_bcftools(), "--version"],
         capture_output=True,
         text=True
     )
@@ -143,7 +153,7 @@ def test_bcftools_version(test_scenario):
 def test_vcfcache_cli_available(test_scenario):
     """Test that vcfcache CLI is available."""
     result = subprocess.run(
-        ["vcfcache", "--version"],
+        VCFCACHE_CMD + [ "--version"],
         capture_output=True,
         text=True
     )
@@ -164,7 +174,7 @@ def test_cache_query_performance(test_scenario):
 
     # Query a specific region (should be fast)
     result = subprocess.run(
-        ["bcftools", "view", "-H", "-r", "chr1:1-100000", str(cache_bcf)],
+        [get_bcftools(), "view", "-H", "-r", "chr1:1-100000", str(cache_bcf)],
         capture_output=True,
         text=True,
         timeout=10  # Should complete in under 10 seconds
@@ -183,7 +193,7 @@ def test_cache_contig_format(test_scenario):
 
     # Get header
     result = subprocess.run(
-        ["bcftools", "view", "-h", str(cache_bcf)],
+        [get_bcftools(), "view", "-h", str(cache_bcf)],
         capture_output=True,
         text=True
     )

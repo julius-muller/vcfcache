@@ -6,8 +6,12 @@ cache files or annotation tools.
 
 import pytest
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
+
+# Command helper
+VCFCACHE_CMD = [sys.executable, "-m", "vcfcache"]
 
 
 def test_module_imports(test_scenario):
@@ -37,7 +41,7 @@ def test_module_imports(test_scenario):
 def test_cli_help(test_scenario):
     """Test that CLI help command works."""
     result = subprocess.run(
-        ["vcfcache", "--help"],
+        VCFCACHE_CMD + [ "--help"],
         capture_output=True,
         text=True
     )
@@ -54,7 +58,7 @@ def test_cli_help(test_scenario):
 def test_cli_version(test_scenario):
     """Test that CLI version command works."""
     result = subprocess.run(
-        ["vcfcache", "--version"],
+        VCFCACHE_CMD + [ "--version"],
         capture_output=True,
         text=True
     )
@@ -69,7 +73,7 @@ def test_cli_version(test_scenario):
 def test_blueprint_init_help(test_scenario):
     """Test blueprint-init help command."""
     result = subprocess.run(
-        ["vcfcache", "blueprint-init", "--help"],
+        VCFCACHE_CMD + [ "blueprint-init", "--help"],
         capture_output=True,
         text=True
     )
@@ -82,7 +86,7 @@ def test_blueprint_init_help(test_scenario):
 def test_error_handling_missing_vcf(test_scenario):
     """Test error handling for missing VCF file."""
     result = subprocess.run(
-        ["vcfcache", "blueprint-init",
+        VCFCACHE_CMD + [ "blueprint-init",
          "--vcf", "nonexistent.bcf",
          "--output", "/tmp/test",
          "-y", "nonexistent.yaml"],
@@ -97,7 +101,7 @@ def test_error_handling_missing_params(test_scenario):
     """Test error handling for missing params file."""
     # Create a temporary VCF path (doesn't need to exist for this test)
     result = subprocess.run(
-        ["vcfcache", "blueprint-init",
+        VCFCACHE_CMD + [ "blueprint-init",
          "--vcf", "test.bcf",
          "--output", "/tmp/test",
          "-y", "definitely_nonexistent_file.yaml"],
