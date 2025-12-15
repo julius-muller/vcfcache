@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: pytest (host)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv pip install -e ".[dev]"
+
+      - name: Ensure bundled bcftools is executable
+        run: |
+          if [ -f "./tools/bcftools" ]; then
+            chmod +x ./tools/bcftools
+          fi
+
+      - name: Run tests
+        env:
+          # Prefer bundled bcftools to avoid distro-version drift.
+          VCFCACHE_BCFTOOLS: ${{ github.workspace }}/tools/bcftools
+        run: python -m pytest -q
+
+  docker-tests:
+    name: pytest (docker test stage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build test image
+        run: docker build --target test -f docker/Dockerfile.vcfcache -t vcfcache:test .
+
+      - name: Run tests in container
+        run: docker run --rm vcfcache:test /opt/venv/bin/python -m pytest tests -q
+
