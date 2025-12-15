@@ -43,6 +43,35 @@ from vcfcache.utils.validation import check_bcftools_installed
 os.environ.setdefault("VCFCACHE_ROOT", str(get_project_root()))
 
 
+def _load_dotenv() -> None:
+    """Load environment variables from .env file if present.
+
+    Checks for .env in:
+    1. User's home directory (~/.env)
+    2. Current working directory (./.env) - takes precedence
+
+    Only sets variables that aren't already in os.environ.
+    """
+    env_files = [
+        Path.home() / ".env",
+        Path.cwd() / ".env",
+    ]
+
+    for env_path in env_files:
+        if not env_path.exists():
+            continue
+
+        for line in env_path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            key = key.strip()
+            val = val.strip().strip("'").strip('"')
+            if key and key not in os.environ:
+                os.environ[key] = val
+
+
 def _print_annotation_command(path_hint: Path) -> None:
     """Print the stored annotation_tool_cmd from an annotation cache.
 
@@ -144,6 +173,9 @@ def main() -> None:
 
     Parses command-line arguments and executes the appropriate command.
     """
+    # Load .env file if present (for VCFCACHE_DIR, ZENODO_TOKEN, etc.)
+    _load_dotenv()
+
     parser = argparse.ArgumentParser(
         description="Speed up VCF annotation by using pre-cached common variants.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -713,8 +745,16 @@ def main() -> None:
 
                 download_doi(args.doi, tar_path, sandbox=args.debug)
 
+                # Determine cache root from environment variable or default
+                vcfcache_root = os.environ.get("VCFCACHE_DIR")
+                if vcfcache_root:
+                    cache_base = Path(vcfcache_root)
+                    logger.info(f"Using VCFCACHE_DIR: {cache_base}")
+                else:
+                    cache_base = Path.home() / ".cache/vcfcache"
+
                 # Extract to temporary location to detect type
-                temp_extract = Path.home() / ".cache/vcfcache/temp"
+                temp_extract = cache_base / "temp"
                 temp_extract.mkdir(parents=True, exist_ok=True)
                 extracted_dir = extract_cache(tar_path, temp_extract)
                 tar_path.unlink()
@@ -734,7 +774,7 @@ def main() -> None:
                         )
 
                     # Move to blueprints cache
-                    blueprint_store = Path.home() / ".cache/vcfcache/blueprints"
+                    blueprint_store = cache_base / "blueprints"
                     blueprint_store.mkdir(parents=True, exist_ok=True)
                     final_dir = blueprint_store / extracted_dir.name
                     if final_dir.exists():
@@ -756,7 +796,7 @@ def main() -> None:
                         )
 
                     # Move to caches directory
-                    cache_store = Path.home() / ".cache/vcfcache/caches"
+                    cache_store = cache_base / "caches"
                     cache_store.mkdir(parents=True, exist_ok=True)
                     final_dir = cache_store / extracted_dir.name
                     if final_dir.exists():
@@ -870,12 +910,16 @@ def main() -> None:
             print(f"Total: {len(records)} {item_type} found")
 
             # Show appropriate download instructions based on type
+            cache_location = os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")
             if item_type == "blueprints":
                 print(f"Download: vcfcache blueprint-init --doi <DOI> -o <output_dir>")
-                print(f"Or build cache: vcfcache cache-build --doi <DOI> -a <annotation.yaml> -n <name>\n")
+                print(f"Or build cache: vcfcache cache-build --doi <DOI> -a <annotation.yaml> -n <name>")
+                print(f"  (downloads to {cache_location}/blueprints/)\n")
             else:  # caches
                 print(f"Download: vcfcache cache-build --doi <DOI>")
-                print(f"Then use: vcfcache annotate -a ~/.cache/vcfcache/caches/<cache_name> -i sample.vcf -o output/\n")
+                print(f"  (downloads to {cache_location}/caches/)")
+                print(f"Then use: vcfcache annotate -a {cache_location}/caches/<cache_name> -i sample.vcf -o output/")
+                print(f"\nTip: Set VCFCACHE_DIR=/path/to/large/disk to change download location\n")
 
         elif args.command == "push":
             from vcfcache.integrations import zenodo
