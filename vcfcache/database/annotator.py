@@ -433,43 +433,35 @@ class VCFAnnotator(VCFDatabase):
         if cache_set == input_set:
             return (True, False)
 
-        # Check if cache or input has short contig names (1-2 chars)
-        cache_has_short_names = all(len(c) <= 2 for c in cache_contigs)
-        input_has_short_names = all(len(c) <= 2 for c in input_contigs)
-        cache_has_chr_prefix = any(c.startswith("chr") and len(c) >= 4 for c in cache_contigs)
-        input_has_chr_prefix = any(c.startswith("chr") and len(c) >= 4 for c in input_contigs)
-
         # Check overlap without any prefix changes
         direct_overlap = cache_set & input_set
 
-        # Check overlap if we add/remove "chr" prefix
-        needs_rename = False
-        rename_type = None  # "add_chr" or "remove_chr"
+        # Always try both chr transformations to handle mixed contig naming
+        # (e.g., "1,2,3,X,Y,MT,GL000191.1" vs "chr1,chr2,chr3,chrX,chrY,chrM,GL000191.1")
 
-        if cache_has_short_names and input_has_chr_prefix:
-            # Cache has short names (1, 2), input has chr prefix (chr1, chr2)
-            # Try adding "chr" prefix to cache
-            cache_with_chr = {f"chr{c}" for c in cache_contigs}
-            chr_overlap = cache_with_chr & input_set
-            if len(chr_overlap) > len(direct_overlap):
-                needs_rename = True
-                rename_type = "add_chr"
-                overlap_count = len(chr_overlap)
-            else:
-                overlap_count = len(direct_overlap)
-        elif cache_has_chr_prefix and input_has_short_names:
-            # Cache has chr prefix (chr1, chr2), input has short names (1, 2)
-            # Try removing "chr" prefix from cache
-            cache_without_chr = {c[3:] if c.startswith("chr") else c for c in cache_contigs}
-            no_chr_overlap = cache_without_chr & input_set
-            if len(no_chr_overlap) > len(direct_overlap):
-                needs_rename = True
-                rename_type = "remove_chr"
-                overlap_count = len(no_chr_overlap)
-            else:
-                overlap_count = len(direct_overlap)
-        else:
-            overlap_count = len(direct_overlap)
+        # Try removing "chr" prefix from cache contigs
+        cache_without_chr = {c[3:] if c.startswith("chr") else c for c in cache_contigs}
+        no_chr_overlap = cache_without_chr & input_set
+
+        # Try adding "chr" prefix to cache contigs (only to short names)
+        cache_with_chr = {f"chr{c}" if len(c) <= 2 else c for c in cache_contigs}
+        chr_overlap = cache_with_chr & input_set
+
+        # Choose the transformation that gives the best overlap
+        needs_rename = False
+        rename_type = None
+        overlap_count = len(direct_overlap)
+
+        if len(no_chr_overlap) > overlap_count:
+            # Removing "chr" gives better overlap
+            needs_rename = True
+            rename_type = "remove_chr"
+            overlap_count = len(no_chr_overlap)
+        elif len(chr_overlap) > overlap_count:
+            # Adding "chr" gives better overlap
+            needs_rename = True
+            rename_type = "add_chr"
+            overlap_count = len(chr_overlap)
 
         if overlap_count == 0:
             raise RuntimeError(
