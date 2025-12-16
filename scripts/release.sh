@@ -10,6 +10,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # Parse arguments
 VERSION=""
 FORCE_GH_PRERELEASE=0
+SKIP_WIKI_SYNC=0
 
 show_help() {
   cat << EOF
@@ -24,6 +25,7 @@ Arguments:
 Options:
   -h, --help       Show this help message
   --github-prerelease  Mark the GitHub Release as pre-release (even if version is not a PEP 440 pre-release)
+  --skip-wiki      Skip syncing GitHub Wiki from WIKI.md (can also set SKIP_WIKI_SYNC=1)
 
 Examples:
   $0 0.3.4
@@ -45,6 +47,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --github-prerelease)
       FORCE_GH_PRERELEASE=1
+      shift
+      ;;
+    --skip-wiki)
+      SKIP_WIKI_SYNC=1
       shift
       ;;
     -*)
@@ -236,6 +242,42 @@ docker_login_ghcr() {
   return 0
 }
 
+github_token() {
+  # Prefer explicit env vars; fall back to gh auth token.
+  if [[ -n "${GH_TOKEN:-}" ]]; then
+    echo "$GH_TOKEN"
+    return 0
+  fi
+  if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    echo "$GITHUB_TOKEN"
+    return 0
+  fi
+  if command -v gh >/dev/null 2>&1; then
+    gh auth token 2>/dev/null || true
+    return 0
+  fi
+  echo ""
+}
+
+github_git_extraheader() {
+  # Print a git http.extraheader value for GitHub auth (or empty if unavailable).
+  local token
+  token="$(github_token)"
+  if [[ -z "$token" ]]; then
+    echo ""
+    return 0
+  fi
+
+  # GitHub supports Basic auth where username is "x-access-token" and password is the token.
+  # We avoid embedding tokens in URLs to prevent leakage to process lists/logs.
+  python - <<PY
+import base64
+token = ${token@Q}
+raw = f"x-access-token:{token}".encode("utf-8")
+print("AUTHORIZATION: basic " + base64.b64encode(raw).decode("ascii"))
+PY
+}
+
 derive_wiki_repo_url() {
   # Derive https URL for the GitHub wiki repo from origin remote.
   # Returns: prints URL or empty string.
@@ -284,12 +326,21 @@ sync_github_wiki_from_file() {
     return 1
   fi
 
+  local extraheader
+  extraheader="$(github_git_extraheader)"
+  if [[ -z "$extraheader" ]]; then
+    log "  ✗ No GitHub auth token available for wiki push."
+    log "    Run: gh auth login"
+    log "    Or set: GH_TOKEN / GITHUB_TOKEN"
+    return 1
+  fi
+
   local tmp
   tmp="$(mktemp -d -t vcfcache-wiki.XXXXXX)"
   log "  → Cloning wiki repo: $wiki_url"
-  if ! git clone --depth 1 "$wiki_url" "$tmp" >/dev/null 2>&1; then
+  if ! GIT_TERMINAL_PROMPT=0 git -c "http.https://github.com/.extraheader=$extraheader" clone --depth 1 "$wiki_url" "$tmp" >/dev/null 2>&1; then
     log "  ✗ Failed to clone wiki repo."
-    log "    If the wiki is disabled, enable it in GitHub repo settings (Features → Wikis), or skip this step."
+    log "    If the wiki is disabled, enable it in GitHub repo settings (Features → Wikis)."
     log "    If auth fails, ensure you can push to the wiki repo: $wiki_url"
     rm -rf "$tmp"
     return 1
@@ -304,7 +355,7 @@ sync_github_wiki_from_file() {
     fi
     git add Home.md
     git commit -m "Sync wiki from WIKI.md (v$VERSION)" >/dev/null
-    git push >/dev/null
+    GIT_TERMINAL_PROMPT=0 git -c "http.https://github.com/.extraheader=$extraheader" push >/dev/null
     log "  ✓ Updated GitHub Wiki Home.md"
   )
   rm -rf "$tmp"
@@ -540,10 +591,10 @@ echo ""
 # Step 6: Tag + GitHub release
 log "Step 6: Tag and create GitHub release"
 
-# Check if release already exists
+release_exists=0
 if gh release view "v$VERSION" >/dev/null 2>&1; then
-  log "  ✓ GitHub release v$VERSION already exists, skipping"
-  exit 0
+  release_exists=1
+  log "  ✓ GitHub release v$VERSION already exists, skipping release creation"
 fi
 
 # Ensure tag exists and is pushed (tag should always point at the version bump commit)
@@ -553,37 +604,38 @@ else
   log "  ⊘ Skipped tag creation"
 fi
 
-# Ask user if they want to create the release
-if ! ask_yn_skip "Create GitHub release v$VERSION with artifacts?"; then
-  log "  ⊘ Skipped GitHub release creation"
-  exit 0
-fi
+if [[ "$release_exists" -eq 0 ]]; then
+  # Ask user if they want to create the release
+  if ! ask_yn_skip "Create GitHub release v$VERSION with artifacts?"; then
+    log "  ⊘ Skipped GitHub release creation"
+  else
+    if ! git rev-parse "v$VERSION" >/dev/null 2>&1; then
+      log "  ✗ Git tag v$VERSION does not exist. Create it first."
+      exit 1
+    fi
 
-if ! git rev-parse "v$VERSION" >/dev/null 2>&1; then
-  log "  ✗ Git tag v$VERSION does not exist. Create it first."
-  exit 1
+    # Create GitHub release
+    log "  → Creating GitHub release..."
+    NOTES_FILE="$(release_notes_file)"
+    gh release create "v$VERSION" \
+      --title "vcfcache v$VERSION" \
+      $GH_PRERELEASE_FLAG \
+      --notes-file "$NOTES_FILE" \
+      dist/*
+    log "  ✓ GitHub release created"
+    log "  → View at: https://github.com/julius-muller/vcfcache/releases/tag/v$VERSION"
+  fi
 fi
-
-# Create GitHub release
-log "  → Creating GitHub release..."
-NOTES_FILE="$(release_notes_file)"
-gh release create "v$VERSION" \
-  --title "vcfcache v$VERSION" \
-  $GH_PRERELEASE_FLAG \
-  --notes-file "$NOTES_FILE" \
-  dist/*
-log "  ✓ GitHub release created"
-log "  → View at: https://github.com/julius-muller/vcfcache/releases/tag/v$VERSION"
 
 echo ""
 
-# Step 7: Sync GitHub Wiki (optional)
-log "Step 7: Sync GitHub Wiki (optional)"
-log "  → This updates the GitHub Wiki homepage (Home.md) from repo WIKI.md."
-if ask_yn_skip "Sync GitHub Wiki from WIKI.md now?"; then
-  sync_github_wiki_from_file || log "  ⚠ Wiki sync failed (non-fatal)."
+# Step 7: Sync GitHub Wiki (required by default)
+log "Step 7: Sync GitHub Wiki"
+log "  → Updating the GitHub Wiki homepage (Home.md) from repo WIKI.md."
+if [[ "${SKIP_WIKI_SYNC:-0}" == "1" ]]; then
+  log "  ⊘ Skipped wiki sync (SKIP_WIKI_SYNC)"
 else
-  log "  ⊘ Skipped wiki sync"
+  sync_github_wiki_from_file
 fi
 
 echo ""

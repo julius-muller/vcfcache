@@ -196,8 +196,9 @@ def test_caches_local_lists_from_path(tmp_path: Path):
     cache_root = base / "caches" / "cache-GRCh37-gnomad-4.1joint-AF0100-vep-115.2-basic"
     (cache_root / "blueprint").mkdir(parents=True)
     (cache_root / "cache" / "test_anno").mkdir(parents=True)
-    (cache_root / "blueprint" / "vcfcache.bcf").write_text("dummy")
-    (cache_root / "cache" / "test_anno" / "vcfcache_annotated.bcf").write_text("dummy")
+    # Ensure size >= 1MB so it is listed (local listing ignores tiny/placeholder dirs).
+    (cache_root / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+    (cache_root / "cache" / "test_anno" / "vcfcache_annotated.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
     (cache_root / "cache" / "test_anno" / "annotation.yaml").write_text("annotation_cmd: echo\n", encoding="utf-8")
 
     result = subprocess.run(
@@ -208,3 +209,57 @@ def test_caches_local_lists_from_path(tmp_path: Path):
     assert result.returncode == 0, result.stderr
     assert "Local vcfcache caches" in result.stdout
     assert "gnomAD v4.1 joint GRCh37" in result.stdout
+
+
+def test_list_local_accepts_path_positional(tmp_path: Path):
+    base = tmp_path / "blueprints"
+    bp1 = base / "bp-GRCh37-gnomad-4.1joint-AF0100"
+    (bp1 / "blueprint").mkdir(parents=True)
+    (bp1 / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+
+    result = subprocess.run(
+        VCFCACHE_CMD + ["list", "--local", str(base)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "Local vcfcache blueprints" in result.stdout
+    assert "gnomAD v4.1 joint GRCh37" in result.stdout
+
+
+def test_list_local_does_not_append_item_type_when_dir_is_already_items(tmp_path: Path):
+    # Path directly contains blueprint roots (no blueprints/ subdir).
+    root = tmp_path / "my_blueprints_dir"
+    bp1 = root / "bp-GRCh37-gnomad-4.1joint-AF0100"
+    (bp1 / "blueprint").mkdir(parents=True)
+    (bp1 / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+
+    result = subprocess.run(
+        VCFCACHE_CMD + ["list", "blueprints", "--local", str(root)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "Local vcfcache blueprints" in result.stdout
+    assert "bp-GRCh37-gnomad-4.1joint-AF0100" in result.stdout
+
+
+def test_list_local_filters_invalid_dirs(tmp_path: Path):
+    base = tmp_path / "mixed"
+    base.mkdir()
+    (base / ".git").mkdir()
+    (base / ".venv").mkdir()
+
+    bp = base / "bp-GRCh37-gnomad-4.1joint-AF0100"
+    (bp / "blueprint").mkdir(parents=True)
+    (bp / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+
+    result = subprocess.run(
+        VCFCACHE_CMD + ["list", "blueprints", "--local", str(base)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert ".git" not in result.stdout
+    assert ".venv" not in result.stdout
+    assert "bp-GRCh37-gnomad-4.1joint-AF0100" in result.stdout

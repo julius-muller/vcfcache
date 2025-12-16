@@ -122,10 +122,39 @@ def test_resolve_zenodo_alias_queries_keywords_and_honors_sandbox():
 
         called_url = get_mock.call_args.args[0]
         called_params = get_mock.call_args.kwargs["params"]
+        called_timeout = get_mock.call_args.kwargs["timeout"]
         assert called_url == f"{zenodo.ZENODO_SANDBOX_API}/records/"
         assert "keywords:vcfcache" in called_params["q"]
         assert "keywords:cache" in called_params["q"]
         assert 'keywords:"cache-hg38-gnomad-4.1joint-AF0100-vep-115.2-basic"' in called_params["q"]
+        assert called_timeout == zenodo.DEFAULT_HTTP_TIMEOUT
+
+
+def test_search_zenodo_records_uses_timeout_and_filters_small_records():
+    resp = MagicMock()
+    resp.ok = True
+    resp.json.return_value = {
+        "hits": {
+            "hits": [
+                {
+                    "metadata": {"title": "tiny", "publication_date": "2025-01-01", "keywords": []},
+                    "doi": "10.5072/zenodo.tiny",
+                    "files": [{"size": 10}],
+                },
+                {
+                    "metadata": {"title": "big", "publication_date": "2025-01-01", "keywords": []},
+                    "doi": "10.5072/zenodo.big",
+                    "files": [{"size": 2 * 1024 * 1024}],
+                },
+            ]
+        }
+    }
+
+    with patch("vcfcache.integrations.zenodo.requests.get", return_value=resp) as get_mock:
+        out = zenodo.search_zenodo_records(item_type="caches", sandbox=True, min_size_mb=1.0)
+        assert len(out) == 1
+        assert out[0]["doi"] == "10.5072/zenodo.big"
+        assert get_mock.call_args.kwargs["timeout"] == zenodo.DEFAULT_HTTP_TIMEOUT
 
 
 def test_resolve_zenodo_alias_raises_on_missing_hits():
@@ -140,3 +169,25 @@ def test_resolve_zenodo_alias_raises_on_missing_hits():
                 item_type="caches",
                 sandbox=False,
             )
+
+
+def test_search_zenodo_records_uses_hard_timeout_wrapper(monkeypatch: pytest.MonkeyPatch):
+    resp = MagicMock()
+    resp.ok = True
+    resp.json.return_value = {"hits": {"hits": []}}
+
+    entered: dict[str, bool] = {"ok": False}
+
+    class _NoOpCtx:
+        def __enter__(self):
+            entered["ok"] = True
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setenv("VCFCACHE_ZENODO_HARD_TIMEOUT", "1")
+    with patch("vcfcache.integrations.zenodo._hard_timeout", return_value=_NoOpCtx()):
+        with patch("vcfcache.integrations.zenodo.requests.get", return_value=resp):
+            zenodo.search_zenodo_records(item_type="caches", sandbox=True, min_size_mb=1.0)
+
+    assert entered["ok"] is True

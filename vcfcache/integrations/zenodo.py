@@ -1,10 +1,15 @@
 """Minimal Zenodo REST client helpers for cache upload/download."""
 
 import os
+import threading
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional
 
 import requests
+
+DEFAULT_HTTP_TIMEOUT = (10, 30)  # (connect, read) seconds
+DEFAULT_ZENODO_HARD_TIMEOUT_S = 60  # wall-clock seconds (best-effort; prevents DNS stalls)
 
 ZENODO_API = "https://zenodo.org/api"
 ZENODO_SANDBOX_API = "https://sandbox.zenodo.org/api"
@@ -12,6 +17,51 @@ ZENODO_SANDBOX_API = "https://sandbox.zenodo.org/api"
 
 class ZenodoError(RuntimeError):
     pass
+
+
+def _zenodo_hard_timeout_seconds() -> int:
+    raw = os.environ.get("VCFCACHE_ZENODO_HARD_TIMEOUT", "").strip()
+    if not raw:
+        return DEFAULT_ZENODO_HARD_TIMEOUT_S
+    try:
+        seconds = int(raw)
+    except ValueError:
+        raise ZenodoError(
+            f"Invalid VCFCACHE_ZENODO_HARD_TIMEOUT={raw!r}; must be an integer seconds value."
+        )
+    return max(0, seconds)
+
+
+@contextmanager
+def _hard_timeout(seconds: int, *, message: str):
+    """Best-effort wall-clock timeout for Zenodo calls.
+
+    Requests' connect/read timeouts do not reliably bound DNS resolution time in
+    some environments. On POSIX and the main thread, we use SIGALRM to interrupt
+    long waits; elsewhere, this becomes a no-op.
+    """
+    if (
+        seconds <= 0
+        or os.name != "posix"
+        or threading.current_thread() is not threading.main_thread()
+    ):
+        yield
+        return
+
+    import signal
+
+    old_handler = signal.getsignal(signal.SIGALRM)
+
+    def _handler(_signum, _frame):
+        raise ZenodoError(message)
+
+    signal.signal(signal.SIGALRM, _handler)
+    signal.setitimer(signal.ITIMER_REAL, float(seconds))
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0.0)
+        signal.signal(signal.SIGALRM, old_handler)
 
 
 def _api_base(sandbox: bool) -> str:
@@ -124,11 +174,32 @@ def search_zenodo_records(
     try:
         # Note: unauthenticated requests limited to 25 results
         # Could be increased to 100 with authentication if needed
-        resp = requests.get(
-            search_url,
-            params={"q": query, "size": 25},
-            timeout=30
-        )
+        resp = None
+        last_err: Exception | None = None
+        for attempt in range(3):
+            try:
+                hard = _zenodo_hard_timeout_seconds()
+                with _hard_timeout(
+                    hard,
+                    message=(
+                        f"Zenodo request exceeded {hard}s (DNS/network stall?). "
+                        "Try again, or use `vcfcache list --local`."
+                    ),
+                ):
+                    resp = requests.get(
+                        search_url,
+                        params={"q": query, "size": 25},
+                        timeout=DEFAULT_HTTP_TIMEOUT,
+                    )
+                last_err = None
+                break
+            except requests.exceptions.RequestException as e:
+                last_err = e
+                if attempt < 2:
+                    import time
+                    time.sleep(1 + attempt)
+        if resp is None:
+            raise ZenodoError(f"Failed to search Zenodo after retries: {last_err}")
 
         # Better error handling - show actual response
         if not resp.ok:
@@ -199,7 +270,19 @@ def resolve_zenodo_alias(
 
     search_url = f"{_api_base(sandbox)}/records/"
     try:
-        resp = requests.get(search_url, params={"q": query, "size": 1}, timeout=30)
+        hard = _zenodo_hard_timeout_seconds()
+        with _hard_timeout(
+            hard,
+            message=(
+                f"Zenodo request exceeded {hard}s (DNS/network stall?). "
+                "Try again, or pass a DOI directly."
+            ),
+        ):
+            resp = requests.get(
+                search_url,
+                params={"q": query, "size": 1},
+                timeout=DEFAULT_HTTP_TIMEOUT,
+            )
         if not resp.ok:
             error_detail = ""
             try:

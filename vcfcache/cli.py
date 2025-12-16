@@ -30,6 +30,7 @@ from vcfcache.integrations.zenodo import (
     download_doi,
     resolve_zenodo_alias,
     search_zenodo_records,
+    ZenodoError,
 )
 from vcfcache.database.annotator import DatabaseAnnotator, VCFAnnotator
 from vcfcache.database.initializer import DatabaseInitializer
@@ -526,11 +527,13 @@ def main() -> None:
         description="Query Zenodo to discover available vcfcache blueprints and caches.",
     )
     list_parser.add_argument(
-        "item_type",
+        "selector",
         nargs="?",
-        choices=["blueprints", "caches"],
         default="blueprints",
-        help="Type of items to list: blueprints or caches (default: blueprints)",
+        help=(
+            "What to list. Use 'blueprints' or 'caches' (default: blueprints). "
+            "With --local, you can also pass a path here (equivalent to --path)."
+        ),
     )
     list_parser.add_argument(
         "--genome",
@@ -551,6 +554,7 @@ def main() -> None:
         ),
     )
     list_parser.add_argument(
+        "-l",
         "--local",
         action="store_true",
         default=False,
@@ -560,6 +564,13 @@ def main() -> None:
         ),
     )
     list_parser.add_argument(
+        "local_path",
+        nargs="?",
+        metavar="PATH",
+        help="(optional) For --local: path to search (equivalent to --path).",
+    )
+    list_parser.add_argument(
+        "-p",
         "--path",
         metavar="DIR",
         help=(
@@ -577,8 +588,9 @@ def main() -> None:
     )
     caches_parser.add_argument("--genome", metavar="GENOME", help="(optional) Filter by genome build")
     caches_parser.add_argument("--source", metavar="SOURCE", help="(optional) Filter by data source")
-    caches_parser.add_argument("--local", action="store_true", default=False, help="(optional) List local caches")
-    caches_parser.add_argument("--path", metavar="DIR", help="(optional) Base directory for --local")
+    caches_parser.add_argument("-l", "--local", action="store_true", default=False, help="(optional) List local caches")
+    caches_parser.add_argument("local_path", nargs="?", metavar="PATH", help="(optional) For --local: path to search")
+    caches_parser.add_argument("-p", "--path", metavar="DIR", help="(optional) Base directory for --local")
     caches_parser.add_argument(
         "--inspect",
         metavar="PATH_OR_ALIAS",
@@ -593,8 +605,9 @@ def main() -> None:
     )
     blueprints_parser.add_argument("--genome", metavar="GENOME", help="(optional) Filter by genome build")
     blueprints_parser.add_argument("--source", metavar="SOURCE", help="(optional) Filter by data source")
-    blueprints_parser.add_argument("--local", action="store_true", default=False, help="(optional) List local blueprints")
-    blueprints_parser.add_argument("--path", metavar="DIR", help="(optional) Base directory for --local")
+    blueprints_parser.add_argument("-l", "--local", action="store_true", default=False, help="(optional) List local blueprints")
+    blueprints_parser.add_argument("local_path", nargs="?", metavar="PATH", help="(optional) For --local: path to search")
+    blueprints_parser.add_argument("-p", "--path", metavar="DIR", help="(optional) Base directory for --local")
     blueprints_parser.add_argument(
         "--inspect",
         metavar="PATH_OR_ALIAS",
@@ -949,9 +962,25 @@ def main() -> None:
             vcf_annotator.annotate(uncached=args.uncached, convert_parquet=args.parquet)
 
         elif args.command in ("list", "caches", "blueprints"):
-            item_type = getattr(args, "item_type", None) or args.command
-            if item_type not in ("blueprints", "caches"):
-                item_type = "blueprints"
+            # Determine what to list.
+            selector = getattr(args, "selector", None)
+            if selector is None:
+                selector = args.command
+
+            local_path = getattr(args, "path", None) or getattr(args, "local_path", None)
+
+            if selector in ("blueprints", "caches"):
+                item_type = selector
+            else:
+                # Convenience: with --local, accept a path in place of the selector.
+                if getattr(args, "local", False):
+                    item_type = "blueprints"
+                    local_path = selector
+                else:
+                    raise ValueError(
+                        f"Invalid item type: {selector}. Choose 'blueprints' or 'caches', "
+                        "or use --local with a path."
+                    )
 
             def _inspect_local(path_or_alias: str) -> None:
                 import re
@@ -1089,17 +1118,93 @@ def main() -> None:
                         continue
                 return total / (1024 * 1024)
 
+            def _is_valid_blueprint_root(root: Path) -> bool:
+                return (root / "blueprint" / "vcfcache.bcf").exists() and not (
+                    (root / "cache").is_dir() and any((root / "cache").iterdir())
+                )
+
+            def _is_valid_cache_root(root: Path) -> bool:
+                if not (root / "blueprint" / "vcfcache.bcf").exists():
+                    return False
+                cache_dir = root / "cache"
+                if not cache_dir.is_dir():
+                    return False
+                for p in cache_dir.iterdir():
+                    if not p.is_dir():
+                        continue
+                    if (p / "vcfcache_annotated.bcf").exists() and (p / "annotation.yaml").exists():
+                        return True
+                return False
+
+            def _cache_relevant_size_mb(root: Path) -> float:
+                # Cheap “semantic size” to avoid crawling arbitrary large folders.
+                files: list[Path] = []
+                files.extend(
+                    [
+                        root / "blueprint" / "vcfcache.bcf",
+                        root / "blueprint" / "vcfcache.bcf.csi",
+                        root / "blueprint" / "sources.info",
+                    ]
+                )
+                cache_dir = root / "cache"
+                if cache_dir.is_dir():
+                    for p in cache_dir.iterdir():
+                        if not p.is_dir():
+                            continue
+                        files.extend(
+                            [
+                                p / "vcfcache_annotated.bcf",
+                                p / "vcfcache_annotated.bcf.csi",
+                                p / "annotation.yaml",
+                                p / "params.snapshot.yaml",
+                            ]
+                        )
+                total = 0
+                for f in files:
+                    try:
+                        if f.exists() and f.is_file():
+                            total += f.stat().st_size
+                    except FileNotFoundError:
+                        continue
+                return total / (1024 * 1024)
+
             def _list_local(item_type: str, base_dir: str | None) -> None:
-                base = Path(base_dir or os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")).expanduser()
+                default_base = Path(os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")).expanduser()
+                base = Path(base_dir).expanduser() if base_dir else default_base
+
+                # If the user provided a path, treat it as:
+                # - a base dir (contains caches/ and/or blueprints/) -> use <base>/<item_type>
+                # - an item dir (already points at caches/ or blueprints/, or directly contains items) -> use it as-is
                 search_dir = base
-                if base.name != item_type:
-                    search_dir = base / item_type
+
+                if base_dir:
+                    if base.name in ("caches", "blueprints"):
+                        search_dir = base
+                    elif (base / "caches").is_dir() or (base / "blueprints").is_dir():
+                        search_dir = base / item_type
+                    else:
+                        # User likely passed the directory that directly contains cache/blueprint roots.
+                        search_dir = base
+                else:
+                    search_dir = default_base / item_type
 
                 if not search_dir.exists():
                     print(f"No local {item_type} found at: {search_dir}")
                     return
 
-                entries = [p for p in sorted(search_dir.iterdir()) if p.is_dir()]
+                candidates = [p for p in sorted(search_dir.iterdir()) if p.is_dir()]
+                entries: list[Path] = []
+                for root in candidates:
+                    if item_type == "blueprints":
+                        if not _is_valid_blueprint_root(root):
+                            continue
+                    else:
+                        if not _is_valid_cache_root(root):
+                            continue
+                    size_mb = _cache_relevant_size_mb(root)
+                    if size_mb < 1.0:
+                        continue
+                    entries.append(root)
                 if not entries:
                     print(f"No local {item_type} found at: {search_dir}")
                     return
@@ -1107,7 +1212,7 @@ def main() -> None:
                 print(f"\nLocal vcfcache {item_type}:")
                 print("=" * 80)
                 for root in entries:
-                    size_mb = _dir_size_mb(root)
+                    size_mb = _cache_relevant_size_mb(root)
                     mtime = ""
                     try:
                         mtime = __import__("datetime").datetime.fromtimestamp(root.stat().st_mtime).date().isoformat()
@@ -1191,7 +1296,7 @@ def main() -> None:
                 return
 
             if getattr(args, "local", False):
-                _list_local(item_type, getattr(args, "path", None))
+                _list_local(item_type, local_path)
                 return
 
             zenodo_env = "sandbox" if args.debug else "production"
@@ -1411,10 +1516,16 @@ def main() -> None:
                 demo_parser.print_help()
                 sys.exit(0)
 
+    except ZenodoError as e:
+        logger.error(str(e))
+        raise SystemExit(2)
+    except KeyboardInterrupt:
+        logger.error("Interrupted.")
+        raise SystemExit(130)
     except Exception as e:
-        # Only log the top-level error without traceback - it will be shown by the raise
+        # Keep traceback for unexpected failures (useful for bug reports).
         logger.error(f"Error during execution: {e}")
-        raise  # This will show the full traceback
+        raise
 
 
 if __name__ == "__main__":
