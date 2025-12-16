@@ -660,6 +660,8 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
             "--uncached",  # Force uncached mode
             "--force",
         ]
+        if keep_files:
+            cmd_uncached.append("--debug")
 
         print(f"Running: {' '.join(cmd_uncached)}\n")
 
@@ -695,6 +697,8 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
             "-y", str(params_path),
             "--force",
         ]
+        if keep_files:
+            cmd_cached.append("--debug")
 
         print(f"Running: {' '.join(cmd_cached)}\n")
 

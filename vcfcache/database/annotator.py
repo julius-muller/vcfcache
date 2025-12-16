@@ -500,10 +500,12 @@ class VCFAnnotator(VCFDatabase):
 
         needs_cache_rename, rename_type = rename_info
         if needs_cache_rename:
-            # Create a renamed copy of the cache
-            # This is stored alongside the cache and reused for subsequent annotations
+            # Create a renamed copy of the cache in a subdirectory
+            # This is reused for subsequent annotations to avoid re-creating it
             suffix = "chrprefixed" if rename_type == "add_chr" else "nochr"
-            renamed_cache = self.cache_file.parent / f"{self.cache_file.stem}_{suffix}.bcf"
+            cache_variants_dir = self.cache_file.parent / ".cache_variants"
+            cache_variants_dir.mkdir(exist_ok=True)
+            renamed_cache = cache_variants_dir / f"{self.cache_file.stem}_{suffix}.bcf"
 
             if not renamed_cache.exists():
                 action = "chr-prefixed" if rename_type == "add_chr" else "chr-removed"

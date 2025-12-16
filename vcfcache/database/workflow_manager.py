@@ -560,7 +560,66 @@ class WorkflowManager(WorkflowBase):
         output_bcf = self.output_dir / f"{sample_name}_vc.bcf"
 
         if missing_count > 0:
-            cmd4 = f"{bcftools} annotate -a {step3_bcf} {step1_bcf} -c INFO -o {output_bcf} -Ob -W"
+            # Check if annotation tool dropped any variants (compare input vs output counts)
+            step3_count_result = subprocess.run(
+                f"{bcftools} index -n {step3_bcf}.csi",
+                shell=True,
+                capture_output=True,
+                text=True,
+            )
+            step3_count = (
+                int(step3_count_result.stdout.strip()) if step3_count_result.returncode == 0 else 0
+            )
+
+            if step3_count < missing_count:
+                # Annotation tool dropped some variants - we need to remove them from final output too
+                # to ensure cached and uncached outputs are identical
+                dropped_count = missing_count - step3_count
+                self.logger.warning(
+                    f"Annotation tool dropped {dropped_count} variants from missing set. "
+                    f"These will also be removed from final output to match uncached behavior."
+                )
+
+                # Strategy: Create a positions file of variants that were successfully annotated,
+                # then filter step1 to only include variants from cache OR successfully annotated
+                positions_file = work_task / f"{sample_name}_kept_positions.txt"
+
+                # Extract positions of successfully annotated variants
+                extract_cmd = (
+                    f"{bcftools} query -f '%CHROM\\t%POS\\t%REF\\t%ALT\\n' {step3_bcf} > {positions_file}"
+                )
+                subprocess.run(extract_cmd, shell=True, check=True, capture_output=True)
+
+                # Filter step1 to keep: (1) cached variants OR (2) successfully annotated missing variants
+                # First, split step1 into cached and non-cached
+                step1_cached = work_task / f"{sample_name}_from_cache.bcf"
+                step1_missing = work_task / f"{sample_name}_from_missing.bcf"
+
+                # Variants from cache (have CSQ)
+                filter_cached_cmd = (
+                    f"{bcftools} filter -i 'INFO/{tag}!=\"\"' {step1_bcf} -o {step1_cached} -Ob -W"
+                )
+                BcftoolsCommand(filter_cached_cmd, self.logger, work_task).run()
+
+                # Missing variants that VEP successfully annotated
+                filter_missing_cmd = (
+                    f"{bcftools} view -T {positions_file} {step1_bcf} -o {step1_missing} -Ob -W"
+                )
+                BcftoolsCommand(filter_missing_cmd, self.logger, work_task).run()
+
+                # Merge cached + successfully annotated missing
+                step1_filtered = work_task / f"{sample_name}_filtered.bcf"
+                merge_cmd = (
+                    f"{bcftools} concat -a -d none {step1_cached} {step1_missing} | "
+                    f"{bcftools} sort -o {step1_filtered} -Ob -W"
+                )
+                BcftoolsCommand(merge_cmd, self.logger, work_task).run()
+
+                # Now annotate the filtered step1 with step3
+                cmd4 = f"{bcftools} annotate -a {step3_bcf} {step1_filtered} -c INFO -o {output_bcf} -Ob -W"
+            else:
+                # No variants dropped, use original logic
+                cmd4 = f"{bcftools} annotate -a {step3_bcf} {step1_bcf} -c INFO -o {output_bcf} -Ob -W"
         else:
             # No new annotations, just copy step1 to output
             cmd4 = f"cp {step1_bcf} {output_bcf} && cp {step1_bcf}.csi {output_bcf}.csi"
