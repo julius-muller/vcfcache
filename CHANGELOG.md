@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved Zenodo sandbox integration test isolation (avoid interference from global `VCFCACHE_DIR`).
 - Hardened CI builds: retry/fallback downloads for bcftools/htslib and cached the compiled toolchain to avoid rebuilding on every run.
 
+## 0.4.0b2 (2025-12-16)
+
+### Added
+- Mainly adaptations in documentation and CI workflows to prepare for release.
+
 ## 0.4.0b1 (2025-12-15)
 
 ### Added

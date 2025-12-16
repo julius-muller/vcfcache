@@ -110,6 +110,81 @@ ask_yn_skip() {
   done
 }
 
+ensure_clean_git() {
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    return 0
+  fi
+  if [[ -n "$(git status --porcelain)" ]]; then
+    log "  ✗ Git working tree is not clean."
+    git status --porcelain
+    log "    Commit/stash changes or run the release from a clean state."
+    return 1
+  fi
+  return 0
+}
+
+commit_version_bump() {
+  # Commit version-related file changes if present.
+  # Only stages known files to avoid sweeping unrelated changes.
+  local files=()
+  [[ -f pyproject.toml ]] && files+=("pyproject.toml")
+  [[ -f vcfcache/__init__.py ]] && files+=("vcfcache/__init__.py")
+  [[ -f CHANGELOG.md ]] && files+=("CHANGELOG.md")
+
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    log "  ✗ Not a git repository; cannot commit/tag."
+    return 1
+  fi
+
+  if [[ ${#files[@]} -eq 0 ]]; then
+    log "  ✗ No version files found to commit."
+    return 1
+  fi
+
+  # Stage only if they have changes.
+  local any=false
+  for f in "${files[@]}"; do
+    if ! git diff --quiet -- "$f" >/dev/null 2>&1; then
+      git add "$f"
+      any=true
+    fi
+  done
+
+  if ! $any; then
+    log "  ✓ No version file changes to commit"
+    return 0
+  fi
+
+  git commit -m "Bump version to $VERSION" >/dev/null
+  log "  ✓ Committed version bump"
+  return 0
+}
+
+push_current_branch() {
+  local branch
+  branch="$(git rev-parse --abbrev-ref HEAD)"
+  if [[ -z "$branch" ]] || [[ "$branch" == "HEAD" ]]; then
+    log "  ✗ Detached HEAD; cannot push branch."
+    return 1
+  fi
+  git push origin "$branch" >/dev/null
+  log "  ✓ Pushed branch to origin ($branch)"
+  return 0
+}
+
+create_and_push_tag() {
+  local tag="v$VERSION"
+  if git rev-parse "$tag" >/dev/null 2>&1; then
+    log "  ✓ Git tag $tag already exists locally"
+  else
+    git tag -a "$tag" -m "Release $tag"
+    log "  ✓ Created git tag $tag"
+  fi
+  git push origin "$tag" >/dev/null
+  log "  ✓ Pushed git tag $tag"
+  return 0
+}
+
 docker_login_ghcr() {
   # Non-interactive GHCR login using a token.
   # Prefer GHCR_TOKEN (PAT with write:packages). Fallback to gh auth token if available.
@@ -216,6 +291,11 @@ sync_github_wiki_from_file() {
 
 cd "$PROJECT_ROOT"
 
+# Require a clean working tree for predictable release tags.
+if ! ensure_clean_git; then
+  exit 1
+fi
+
 # Get current versions from files
 CURRENT_VERSION_PYPROJECT=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
 CURRENT_VERSION_INIT=$(grep '^__version__ = ' vcfcache/__init__.py | sed 's/__version__ = "\(.*\)"/\1/')
@@ -252,8 +332,8 @@ if [[ "$FORCE_GH_PRERELEASE" == "1" ]] && [[ "$IS_PRERELEASE" != "1" ]]; then
 fi
 echo ""
 
-# Step 1: Update version in files
-log "Step 1: Update version in pyproject.toml, __init__.py, CHANGELOG.md"
+# Step 1: Update version + commit
+log "Step 1: Update version (and commit)"
 
 # Check if version is already updated
 if [[ "$CURRENT_VERSION_PYPROJECT" == "$VERSION" ]] && [[ "$CURRENT_VERSION_INIT" == "$VERSION" ]]; then
@@ -281,7 +361,7 @@ else
 
     # Reminder to update CHANGELOG.md manually
     log "  ⚠ Please manually update CHANGELOG.md with:"
-    log "    ## [$VERSION] - $(date +%Y-%m-%d)"
+    log "    ## $VERSION ($(date +%Y-%m-%d))"
     log "    ### Added/Changed/Fixed"
     log "    - ..."
     echo ""
@@ -290,6 +370,16 @@ else
   else
     log "  ⊘ Skipped version update"
   fi
+fi
+echo ""
+
+# Step 1b: Commit + push version bump
+log "Step 1b: Commit & push version bump"
+if ask_yn_skip "Commit and push version bump to origin?"; then
+  commit_version_bump
+  push_current_branch
+else
+  log "  ⊘ Skipped commit/push"
 fi
 echo ""
 
@@ -404,13 +494,20 @@ else
 fi
 echo ""
 
-# Step 6: GitHub release
-log "Step 6: Create GitHub release"
+# Step 6: Tag + GitHub release
+log "Step 6: Tag and create GitHub release"
 
 # Check if release already exists
 if gh release view "v$VERSION" >/dev/null 2>&1; then
   log "  ✓ GitHub release v$VERSION already exists, skipping"
   exit 0
+fi
+
+# Ensure tag exists and is pushed (tag should always point at the version bump commit)
+if ask_yn_skip "Create and push git tag v$VERSION now?"; then
+  create_and_push_tag
+else
+  log "  ⊘ Skipped tag creation"
 fi
 
 # Ask user if they want to create the release
@@ -419,15 +516,9 @@ if ! ask_yn_skip "Create GitHub release v$VERSION with artifacts?"; then
   exit 0
 fi
 
-# Check if git tag exists
-if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-  log "  ✓ Git tag v$VERSION already exists"
-else
-  # Create and push git tag
-  log "  → Creating git tag v$VERSION..."
-  git tag -a "v$VERSION" -m "Release v$VERSION"
-  git push origin "v$VERSION"
-  log "  ✓ Created and pushed git tag v$VERSION"
+if ! git rev-parse "v$VERSION" >/dev/null 2>&1; then
+  log "  ✗ Git tag v$VERSION does not exist. Create it first."
+  exit 1
 fi
 
 # Create GitHub release

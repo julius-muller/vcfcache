@@ -79,19 +79,32 @@ If you need to mark a GitHub release as pre-release without using a PEP 440 pre-
 ./scripts/release.sh 0.4.0 --github-prerelease
 ```
 
+### Recommended flow (what the script does)
+
+For a smooth release, the script expects a clean working tree and then:
+1. Updates versions in `pyproject.toml` and `vcfcache/__init__.py`.
+2. Prompts you to update `CHANGELOG.md`.
+3. Commits and pushes the version bump commit to `origin` (so the tag points at the correct versioned code).
+4. Builds/tests locally.
+5. Creates and pushes the git tag `v<version>` to `origin`.
+6. Creates the GitHub Release and uploads `dist/*` artifacts.
+7. (Optional) Syncs the GitHub Wiki homepage from `WIKI.md`.
+
 The script will walk you through each step with prompts:
 - **y** = Yes, proceed with this step
 - **n** = No, cancel the release and exit
 - **s** = Skip this step and continue
 
 Steps:
-1. Update version in pyproject.toml and __init__.py (interactive)
-2. Prompt you to update CHANGELOG.md manually
-3. Build and test locally - smoke test + full test suite (interactive)
-4. Upload to TestPyPI (interactive)
-5. Upload to PyPI (interactive)
-6. Build and push Docker image (interactive)
-7. Create GitHub release (interactive)
+1. Update version in `pyproject.toml` and `vcfcache/__init__.py` (interactive)
+2. Prompt you to update `CHANGELOG.md` manually
+3. Commit and push the version bump (interactive)
+4. Build and test locally - smoke test + full test suite (interactive)
+5. Upload to TestPyPI (interactive)
+6. Upload to PyPI (interactive)
+7. Build and push Docker image (interactive)
+8. Tag and create GitHub release (interactive)
+9. (Optional) Sync GitHub Wiki from `WIKI.md`
 
 You can skip any step (e.g., skip Docker for a quick PyPI-only release).
 
