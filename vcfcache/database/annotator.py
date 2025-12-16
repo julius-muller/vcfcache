@@ -804,7 +804,7 @@ class VCFAnnotator(VCFDatabase):
 
         Returns:
             Path to output file (BCF or Parquet)
-            self = VCFAnnotator(input_vcf="~/projects/vcfcache/tests/data/nodata/sample4.bcf",
+            self = VCFAnnotator(input_vcf="~/projects/vcfcache/tests/data/nodata/sample5.bcf",
              annotation_db = "~/tmp/test/test_out/cache/testor", output_dir="~/tmp/test/aout" ,force=True)
 
         """

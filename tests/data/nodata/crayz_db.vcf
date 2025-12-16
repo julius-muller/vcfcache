@@ -7,6 +7,7 @@
 ##contig=<ID=chr11,length=40>
 ##contig=<ID=chr22,length=40>
 ##contig=<ID=chrM,length=40>
+##contig=<ID=dbcontig,length=40>
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
 ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
@@ -21,3 +22,4 @@ chr4	2	cs1_6	T	TT,TTTTT	85	PASS	.	GT:DP:GQ	0/2:10:50	0/1:8:40
 chr1	3	cs1_3	A	AG,AAC,ACG	99	PASS	.	GT:DP:GQ	1/2:23:60	0/3:25:70
 chrM	30	cs1_7	A	GA,GAC,GACGT	88	PASS	.	GT:DP:GQ	2/3:16:50	1/2:14:30
 chr9	25	cs1_10	T	CA,CAA,CAAA,CAAAA	77	PASS	.	GT:DP:GQ	0/4:30:80	3/4:12:55
+dbcontig	20	cs1_1	G	CATCAGCTACT,CA,CAT	80	PASS	.	GT:DP:GQ	2/3:40:99	1/1:22:70

@@ -63,7 +63,8 @@ def test_file_validation(test_output_dir: str, test_scenario):
 
     # Test MD5 calculation
     md5_hash = compute_md5(ref_file)
-    assert md5_hash == "ec59e3976d29e276414191a6283499f7"
+    # MD5 updated after adding dbcontig, dbcontig2, dbcontig3, samplecontig to reference.fasta
+    assert md5_hash == "f51754c41c167c02138b16a1da76fa70"
 
 
 def test_vcf_reference_validation(test_scenario):

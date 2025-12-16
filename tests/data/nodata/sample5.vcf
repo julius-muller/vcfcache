@@ -6,6 +6,7 @@
 ##contig=<ID=11,length=40>
 ##contig=<ID=22,length=40>
 ##contig=<ID=M,length=40>
+##contig=<ID=samplecontig,length=248956422>
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
 ##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele Count">
 ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles">
@@ -18,3 +19,4 @@
 2	4	testvar4	G	A	100	PASS	AF=0.05;AC=6;AN=120;DP=450
 2	10	testvar5	ACGT	A	100	PASS	AF=0.15;AC=18;AN=120;DP=480
 9	5	testvar6	T	TAC,TA,TACC	100	PASS	AF=0.05,0.04,0.04;AC=5,4,4;AN=110;DP=420
+samplecontig	5	testvar1x	C	G	100	PASS	AF=0.1;AC=12;AN=120;DP=500

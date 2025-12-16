@@ -240,7 +240,7 @@ tests/
     ├── nodata/
     │   ├── crayz_db.bcf         # Test VCF 1
     │   ├── crayz_db2.bcf        # Test VCF 2
-    │   └── sample4.bcf          # Test sample
+    │   └── sample5.bcf          # Test sample
     └── references/
         └── reference.fasta      # Mini reference genome
 ```

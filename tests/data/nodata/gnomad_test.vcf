@@ -5,6 +5,7 @@
 ##reference=GRCh38
 ##contig=<ID=chr1,length=40>
 ##contig=<ID=chr2,length=40>
+##contig=<ID=dbcontig,length=40>
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
 ##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele Count">
 ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles">
@@ -15,3 +16,4 @@ chr1	8	gnomad2	CT	C	100	PASS	AF=0.05;AC=6;AN=120;DP=450
 chr2	2	gnomad3	A	G,T	100	PASS	AF=0.2,0.1;AC=24,12;AN=120;DP=600
 chr2	4	gnomad4	G	A	100	PASS	AF=0.05;AC=6;AN=120;DP=450
 chr2	10	gnomad5	ACGT	A	100	PASS	AF=0.15;AC=18;AN=120;DP=480
+dbcontig	20	cs1_1	G	CATCAGCTACT,CA,CAT	80	PASS	.	GT:DP:GQ	2/3:40:99	1/1:22:70

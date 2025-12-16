@@ -5,6 +5,7 @@
 ##contig=<ID=11,length=248956422>
 ##contig=<ID=22,length=248956422>
 ##contig=<ID=MT,length=248956422>
+##contig=<ID=samplecontig,length=248956422>
 ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 1	1	.	G	A	100	PASS	DP=50
@@ -13,3 +14,4 @@
 11	2	.	T	C	100	PASS	DP=45
 22	2	.	T	C	100	PASS	DP=45
 MT	2	.	T	C	100	PASS	DP=45
+samplecontig	1	.	G	A	100	PASS	DP=50
