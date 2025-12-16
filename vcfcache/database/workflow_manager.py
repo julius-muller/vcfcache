@@ -557,7 +557,7 @@ class WorkflowManager(WorkflowBase):
 
         # Step 4: Merge newly annotated back into original
         self.logger.info("Step 4/4: Merging cache and newly annotated variants")
-        output_bcf = self.output_dir / f"{sample_name}_vst.bcf"
+        output_bcf = self.output_dir / f"{sample_name}_vc.bcf"
 
         if missing_count > 0:
             cmd4 = f"{bcftools} annotate -a {step3_bcf} {step1_bcf} -c INFO -o {output_bcf} -Ob -W"
@@ -586,7 +586,7 @@ class WorkflowManager(WorkflowBase):
 
         sample_name = self.input_file.stem
         input_bcf = self.input_file
-        output_bcf = self.output_dir / f"{sample_name}_vst.bcf"
+        output_bcf = self.output_dir / f"{sample_name}_vc.bcf"
         aux_dir = self.output_dir / "auxiliary"
         aux_dir.mkdir(exist_ok=True)
         bcftools = self.params_file_content["bcftools_cmd"]

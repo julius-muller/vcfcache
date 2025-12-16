@@ -162,8 +162,8 @@ def test_annotate_with_cache(test_scenario, test_sample_with_hits_and_misses,
     assert result.returncode == 0, f"Annotation failed: {result.stderr}"
 
     sample_name = test_sample_with_hits_and_misses.name.replace(".bcf", "").replace(".vcf", "")
-    # In annotate mode the workflow publishes "<sample>_vst.bcf"
-    output_bcf = output_dir / f"{sample_name}_vst.bcf"
+    # In annotate mode the workflow publishes "<sample>_vc.bcf"
+    output_bcf = output_dir / f"{sample_name}_vc.bcf"
     assert output_bcf.exists(), f"Annotated output BCF not found at {output_bcf}"
 
     # Resolve bcftools path from the same params file used for the run
@@ -277,8 +277,8 @@ def test_blueprint_annotation_workflow(test_scenario, prebuilt_cache, test_outpu
     print(f"Annotate STDOUT:\n{result.stdout}")
     assert result.returncode == 0, f"Sample annotation failed: {result.stderr}"
 
-    # Verify output (annotate mode emits <sample>_vst.bcf)
-    output_bcf = output_dir / f"{sample_vcf.stem}_vst.bcf"
+    # Verify output (annotate mode emits <sample>_vc.bcf)
+    output_bcf = output_dir / f"{sample_vcf.stem}_vc.bcf"
     assert output_bcf.exists(), f"Annotated sample not found at {output_bcf}"
 
     # Check for MOCK_ANNO tag
@@ -395,7 +395,7 @@ def test_annotation_consistency_across_scenarios(test_scenario, test_output_dir)
         assert result.returncode == 0, f"Annotation failed: {result.stderr}"
 
         sample_name = sample_vcf.name.replace(".bcf", "").replace(".vcf", "")
-        output_bcf = output_dir / f"{sample_name}_vst.bcf"
+        output_bcf = output_dir / f"{sample_name}_vc.bcf"
 
     elif test_scenario == "blueprint":
         # In blueprint scenario, create minimal cache and use it
@@ -434,7 +434,7 @@ def test_annotation_consistency_across_scenarios(test_scenario, test_output_dir)
         ], check=True, timeout=120)
 
         sample_name = sample_vcf.name.replace(".bcf", "").replace(".vcf", "")
-        output_bcf = output_dir / f"{sample_name}_vst.bcf"
+        output_bcf = output_dir / f"{sample_name}_vc.bcf"
 
     else:  # vanilla
         # Run direct annotation

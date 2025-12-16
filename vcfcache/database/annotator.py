@@ -330,7 +330,7 @@ class VCFAnnotator(VCFDatabase):
         self.annotation_wfl_path = self.output_annotations.workflow_dir
         self.annotation_wfl_path.mkdir(parents=True, exist_ok=True)
 
-        self.output_vcf = Path(self.output_dir / f"{self.vcf_name}_vst{fext}")
+        self.output_vcf = Path(self.output_dir / f"{self.vcf_name}_vc{fext}")
 
         # now also import the mandatory annotation file, that cannot be provided by the user at this stage
         self.anno_config_file = self.annotation_db_path / "annotation.yaml"

@@ -356,6 +356,28 @@ Variables you can use:
 - `${INPUT_BCF}`, `${OUTPUT_BCF}`, `${AUXILIARY_DIR}`
 - `${params.*}` (values from your `params.yaml`)
 
+### Capturing non-BCF outputs (`${AUXILIARY_DIR}` is required)
+
+Many annotation tools can produce extra outputs besides the annotated BCF (HTML reports, JSON/TSV sidecars, warnings/stderr logs, summary stats, plugin outputs, etc.). VCFcache will **only keep those extra files** if your `annotation_cmd` writes them into `${AUXILIARY_DIR}`.
+
+Important implications:
+- Where it ends up: during `cache-build` it is stored inside the cache annotation directory (next to `vcfcache_annotated.bcf`); during `annotate` it is stored in your chosen `--output` directory as `./auxiliary/`.
+- If you run the tool in Docker/Apptainer, ensure `${AUXILIARY_DIR}` is a path that exists **inside** the container (VCFcache creates it on the host and substitutes the path into the command). Your wrapper/command must actually write/copy outputs there.
+- If the tool writes to the current working directory or to some internal temp directory, those files may be lost after the workflow finishes.
+- If nothing is written to `${AUXILIARY_DIR}`, VCFcache removes the empty directory automatically.
+
+Example (VEP-style outputs captured into `${AUXILIARY_DIR}`):
+```yaml
+annotation_cmd: |
+  ${params.bcftools_cmd} view ${INPUT_BCF} -Ou | \
+  ${params.annotation_tool_cmd} \
+    --format vcf --vcf --offline \
+    --stats_file ${AUXILIARY_DIR}/vep_stats.html \
+    --warning_file ${AUXILIARY_DIR}/vep_warnings.txt \
+    2> ${AUXILIARY_DIR}/vep_stderr.txt | \
+  ${params.bcftools_cmd} view -o ${OUTPUT_BCF} -Ob -W
+```
+
 Practical tip:
 - Use `vcfcache list --inspect <cache>` to see the exact `${params.*}` keys your cache requires and generate a minimal template.
 

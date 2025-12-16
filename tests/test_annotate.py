@@ -404,7 +404,7 @@ def test_full_annotation_workflow(test_output_dir, test_scenario, prebuilt_cache
     print(f"Output directory created: {output_dir}")
 
     # Step 8: Verify the output file exists
-    output_file = output_dir / (Path(str(TEST_SAMPLE)).stem + "_vst.bcf")
+    output_file = output_dir / (Path(str(TEST_SAMPLE)).stem + "_vc.bcf")
     if not output_file.exists():
         print(
             f"Files in output_dir ({output_dir}): {list(output_dir.iterdir()) if output_dir.exists() else 'Directory does not exist'}")
@@ -603,9 +603,9 @@ def test_input_not_modified_during_annotation(test_output_dir, params_file, test
     bcftools_path = get_bcftools_cmd()
 
     # Check if the output file exists
-    # The output file is named after the input file with _vst.bcf suffix
+    # The output file is named after the input file with _vc.bcf suffix
     sample_name = Path(str(TEST_SAMPLE)).stem
-    output_file = output_dir / f"{sample_name}_vst.bcf"
+    output_file = output_dir / f"{sample_name}_vc.bcf"
     assert output_file.exists(), f"Output file not found: {output_file}"
 
     # Check if the output file has a valid header

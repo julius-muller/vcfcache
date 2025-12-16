@@ -419,8 +419,8 @@ def run_smoke_test(keep_files=False, quiet=False):
             return 1
 
         # Verify output was created
-        # Note: output filename is based on input filename, so demo_sample.vcf.gz -> demo_sample.vcf_vst.bcf
-        output_bcf = output_dir / "demo_sample.vcf_vst.bcf"
+        # Note: output filename is based on input filename, so demo_sample.vcf.gz -> demo_sample.vcf_vc.bcf
+        output_bcf = output_dir / "demo_sample.vcf_vc.bcf"
         if not output_bcf.exists():
             print(f"✗ Annotated output not created: {output_bcf}")
             return 1
@@ -473,7 +473,7 @@ def run_smoke_test(keep_files=False, quiet=False):
             print("This is a critical issue - uncached mode must work for validation.")
             return 1
 
-        output_bcf_uncached = output_dir_uncached / "demo_sample.vcf_vst.bcf"
+        output_bcf_uncached = output_dir_uncached / "demo_sample.vcf_vc.bcf"
         if not output_bcf_uncached.exists():
             print(f"✗ ERROR: Uncached output not created: {output_bcf_uncached}")
             return 1
@@ -713,15 +713,14 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
             print(f"\nSTDERR:\n{result.stderr}")
             return 1
 
-        print(f"✓ Cached annotation completed in {cached_time:.2f}s\n")
+        print(f"✓ Cached annotation completed in {cached_time:.2f}s")
 
-        # Parse detailed timing from cached output
-        timing_details = {}
-        for line in result.stdout.split('\n'):
-            if 'cache hits' in line.lower() or 'missing' in line.lower():
-                print(f"  {line}")
-            if 'completed in' in line.lower() or 'time:' in line.lower():
-                print(f"  {line}")
+        # Show detailed output from cached run
+        if result.stdout:
+            print(f"  Annotation completed in {cached_time:.1f}s")
+            for line in result.stdout.split('\n'):
+                if 'Step' in line and '/' in line:
+                    print(f"  {line.strip()}")
 
         # ====================================================================
         # Compare outputs
@@ -730,8 +729,8 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
 
         # Find output files
         vcf_basename = vcf_path.stem if vcf_path.suffix == '.gz' else vcf_path.stem
-        uncached_bcf = uncached_dir / f"{vcf_basename}_vst.bcf"
-        cached_bcf = cached_dir / f"{vcf_basename}_vst.bcf"
+        uncached_bcf = uncached_dir / f"{vcf_basename}_vc.bcf"
+        cached_bcf = cached_dir / f"{vcf_basename}_vc.bcf"
 
         if not uncached_bcf.exists():
             print(f"✗ Uncached output not found: {uncached_bcf}")
@@ -774,10 +773,27 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
             speedup = uncached_time / cached_time
             time_saved = uncached_time - cached_time
             percent_saved = (time_saved / uncached_time) * 100
-            print(f"Speedup:  {speedup:8.2f}x")
+            print(f"Speedup:      {speedup:5.2f}x")
             print(f"Time saved: {time_saved:.2f}s ({percent_saved:.1f}%)")
         else:
             print("Note: Cached mode was not faster (file may be too small for caching benefit)")
+
+        # ====================================================================
+        # Show detailed timing breakdown
+        # ====================================================================
+        print(f"\n{'─'*70}")
+        print("Detailed Timing Breakdown:")
+        print(f"{'─'*70}")
+
+        # Show uncached timing details
+        print("\nUncached workflow:")
+        uncached_log = uncached_dir / "workflow.log"
+        show_step_timing(uncached_log)
+
+        # Show cached timing details
+        print("\nCached workflow:")
+        cached_log = cached_dir / "workflow.log"
+        show_step_timing(cached_log)
 
         # ====================================================================
         # Print raw command for copy-paste
@@ -791,6 +807,30 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
         print(" \\\n  ".join(cmd_uncached))
         print()
 
+        # ====================================================================
+        # Show exact commands to reproduce uncached workflow
+        # ====================================================================
+        print_section("Reproduce Uncached Workflow Manually")
+
+        print("The uncached workflow runs the following steps:")
+        print()
+        print("# Step 1: Normalize input (split multiallelic variants)")
+        vcf_basename = vcf_path.stem if vcf_path.suffix == '.gz' else vcf_path.stem
+        print(f"bcftools norm -m- {vcf_path} \\")
+        print(f"  -o {vcf_basename}_normalized.bcf -Ob -W --threads 1")
+        print()
+        print("# Step 2: Run annotation tool (command from annotation.yaml)")
+        print("# The exact command depends on your annotation.yaml configuration.")
+        print("# Typically for VEP:")
+        print(f"bcftools view {vcf_basename}_normalized.bcf | \\")
+        print("  vep --assembly GRCh37 --cache --offline --format vcf \\")
+        print("      --output_file stdout --vcf [VEP_OPTIONS] | \\")
+        print(f"  bcftools view -o {vcf_basename}_vc.bcf -Ob -W")
+        print()
+        print("Note: See your annotation.yaml for the exact VEP command and options.")
+        print(f"Uncached workflow log: {uncached_log}")
+        print()
+
         # Print output location
         print(f"Output files location: {temp_dir}")
         if keep_files:
@@ -799,6 +839,60 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
             print(f"Output directory will be preserved (user-specified)")
         else:
             print(f"Temporary directory will be cleaned up")
+
+        # ====================================================================
+        # Write benchmark summary to file
+        # ====================================================================
+        summary_file = temp_dir / "benchmark_summary.log"
+        with summary_file.open('w') as f:
+            f.write("=" * 70 + "\n")
+            f.write("VCFcache Annotation Benchmark Summary\n")
+            f.write("=" * 70 + "\n\n")
+
+            f.write(f"Cache: {cache_path}\n")
+            f.write(f"VCF:   {vcf_path}\n")
+            f.write(f"Params: {params_path}\n")
+            f.write(f"VCF file size: {vcf_size_mb:.2f} MB\n\n")
+
+            f.write("=" * 70 + "\n")
+            f.write("Results Comparison\n")
+            f.write("=" * 70 + "\n\n")
+
+            f.write(f"Uncached output: {uncached_bcf}\n")
+            f.write(f"Cached output:   {cached_bcf}\n\n")
+
+            f.write(f"Uncached output MD5: {uncached_md5}\n")
+            f.write(f"Cached output MD5:   {cached_md5}\n")
+
+            if uncached_md5 == cached_md5:
+                f.write("✓ Outputs are identical (body matches)\n\n")
+            else:
+                f.write("✗ WARNING: Outputs differ!\n\n")
+
+            f.write("─" * 70 + "\n")
+            f.write("Timing Summary:\n")
+            f.write("─" * 70 + "\n")
+            f.write(f"Uncached: {uncached_time:8.2f}s\n")
+            f.write(f"Cached:   {cached_time:8.2f}s\n")
+            f.write("─" * 70 + "\n")
+
+            if cached_time < uncached_time:
+                speedup = uncached_time / cached_time
+                time_saved = uncached_time - cached_time
+                percent_saved = (time_saved / uncached_time) * 100
+                f.write(f"Speedup:      {speedup:5.2f}x\n")
+                f.write(f"Time saved: {time_saved:.2f}s ({percent_saved:.1f}%)\n")
+            else:
+                f.write("Note: Cached mode was not faster\n")
+
+            f.write("\n" + "=" * 70 + "\n")
+            f.write("Output files location\n")
+            f.write("=" * 70 + "\n\n")
+            f.write(f"Uncached: {uncached_dir}\n")
+            f.write(f"Cached:   {cached_dir}\n")
+            f.write(f"Summary:  {summary_file}\n")
+
+        print(f"\n✓ Benchmark summary written to: {summary_file}")
 
         return 0
 

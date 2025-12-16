@@ -223,7 +223,7 @@ def test_push_and_pull_roundtrip_via_sandbox(tmp_path: Path):
             env=env,
             cwd=work_dir,
         )
-        produced = out_anno / "sample4_vst.bcf"
+        produced = out_anno / "sample4_vc.bcf"
         assert produced.exists()
 
     finally:

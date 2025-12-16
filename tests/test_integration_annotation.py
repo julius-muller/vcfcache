@@ -45,7 +45,7 @@ def test_full_integration_annotation():
         run_cmd(cmd, env=env)
 
         # Validate output exists
-        produced = outdir / f"{sample_vcf.stem}_vst.bcf"
+        produced = outdir / f"{sample_vcf.stem}_vc.bcf"
         assert produced.exists(), f"Annotated BCF missing: {produced}"
 
         # bcftools sanity check

@@ -115,7 +115,7 @@ run_bench() {
   mkdir -p "$outdir"
   local bname
   bname="$(basename "$bcf")"
-  local out_name="${bname%.bcf}_vst.bcf"
+  local out_name="${bname%.bcf}_vc.bcf"
   local run_name="run_${mode:-cached}_${scale}"
   local run_dir_host="${outdir}/${run_name}"
   local run_dir_cont="/out/${run_name}"
