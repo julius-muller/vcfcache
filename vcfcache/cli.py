@@ -492,6 +492,12 @@ def main() -> None:
         help="(optional) Preserve variants without annotation in output. By default, vcfcache mirrors annotation tool behavior by removing unannotated variants (default: False)",
     )
     vcf_parser.add_argument(
+        "--skip-split-multiallelic",
+        action="store_true",
+        default=False,
+        help="(optional) Skip splitting multiallelic variants. Use ONLY if certain input has no multiallelic variants (ALT field contains no commas). Provides small speedup (~6%% of runtime) but may cause format inconsistencies if multiallelic variants are present (default: False)",
+    )
+    vcf_parser.add_argument(
         "-f",
         "--force",
         dest="force",
@@ -966,10 +972,12 @@ def main() -> None:
             )
 
             preserve_unannotated = getattr(args, 'preserve_unannotated', False)
+            skip_split_multiallelic = getattr(args, 'skip_split_multiallelic', False)
             vcf_annotator.annotate(
                 uncached=args.uncached,
                 convert_parquet=args.parquet,
-                preserve_unannotated=preserve_unannotated
+                preserve_unannotated=preserve_unannotated,
+                skip_split_multiallelic=skip_split_multiallelic
             )
 
         elif args.command in ("list", "caches", "blueprints"):

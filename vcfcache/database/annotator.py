@@ -795,13 +795,14 @@ class VCFAnnotator(VCFDatabase):
         for field in gnomad_fields:
             info.pop(field, None)
 
-    def annotate(self, uncached: bool = False, convert_parquet: bool = False, preserve_unannotated: bool = False) -> None:
+    def annotate(self, uncached: bool = False, convert_parquet: bool = False, preserve_unannotated: bool = False, skip_split_multiallelic: bool = False) -> None:
         """Run annotation workflow on input VCF file.
 
         Args:
             uncached: Whether to run the workflow in uncached mode
             convert_parquet: Whether to convert output to Parquet format
             preserve_unannotated: Whether to preserve variants without annotation in output
+            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
 
         Returns:
             Path to output file (BCF or Parquet)
@@ -823,6 +824,7 @@ class VCFAnnotator(VCFDatabase):
                 dag=True,
                 report=True,
                 preserve_unannotated=preserve_unannotated,
+                skip_split_multiallelic=skip_split_multiallelic,
             )
             duration = time.time() - start_time
             # Always show completion (even in default mode)

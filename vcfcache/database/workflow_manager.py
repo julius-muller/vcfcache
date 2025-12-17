@@ -227,6 +227,7 @@ class WorkflowManager(WorkflowBase):
         report: bool = False,
         temp: Union[Path, str] = "/tmp",
         preserve_unannotated: bool = False,
+        skip_split_multiallelic: bool = False,
     ) -> subprocess.CompletedProcess:
         """Execute the workflow using pure Python.
 
@@ -240,6 +241,7 @@ class WorkflowManager(WorkflowBase):
             report: Ignored (not supported in pure Python mode)
             temp: Temporary directory for intermediate files
             preserve_unannotated: Whether to preserve variants without annotation in output
+            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
 
         Returns:
             subprocess.CompletedProcess with execution results
@@ -274,9 +276,9 @@ class WorkflowManager(WorkflowBase):
             elif db_mode == "annotate":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for annotate mode")
-                result = self._run_annotate(db_bcf, preserve_unannotated=preserve_unannotated)
+                result = self._run_annotate(db_bcf, preserve_unannotated=preserve_unannotated, skip_split_multiallelic=skip_split_multiallelic)
             elif db_mode == "annotate-nocache":
-                result = self._run_annotate_nocache()
+                result = self._run_annotate_nocache(skip_split_multiallelic=skip_split_multiallelic)
             else:
                 raise ValueError(
                     f"Invalid db_mode: {db_mode}. Must be one of: "
@@ -452,7 +454,7 @@ class WorkflowManager(WorkflowBase):
 
         return result
 
-    def _run_annotate(self, db_bcf: Path, preserve_unannotated: bool = False) -> subprocess.CompletedProcess:
+    def _run_annotate(self, db_bcf: Path, preserve_unannotated: bool = False, skip_split_multiallelic: bool = False) -> subprocess.CompletedProcess:
         """Annotate sample using cache - 4-step caching process.
 
         This is the key performance feature that makes VCFcache fast.
@@ -462,6 +464,7 @@ class WorkflowManager(WorkflowBase):
         Args:
             db_bcf: Path to cache BCF (vcfcache_annotated.bcf)
             preserve_unannotated: Whether to preserve variants without annotation in output
+            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
 
         Returns:
             subprocess.CompletedProcess with results
@@ -508,14 +511,27 @@ class WorkflowManager(WorkflowBase):
         # Get thread count from params
         threads = self.params_file_content.get("threads", 1)
 
-        # Step 0: Split multiallelic variants in input
-        self.logger.info("Step 0/4: Splitting multiallelic variants in input")
-        normalized_input = work_task / f"{sample_name}_normalized.bcf"
-        norm_cmd = (
-            f"{bcftools} norm -m- {input_bcf} -o {normalized_input} -Ob -W --threads {threads}"
-        )
-        BcftoolsCommand(norm_cmd, self.logger, work_task).run()
-        input_bcf = normalized_input  # Use normalized input for subsequent steps
+        # Step 0: Split multiallelic variants and remove spanning deletions (ALT=*)
+        if skip_split_multiallelic:
+            self.logger.info("Step 0/4: Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)")
+            # Still need to remove spanning deletions even when skipping split
+            self.logger.info("Step 0/4: Removing spanning deletion alleles (ALT=*)")
+            filtered_input = work_task / f"{sample_name}_no_span_del.bcf"
+            filter_cmd = (
+                f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
+            )
+            BcftoolsCommand(filter_cmd, self.logger, work_task).run()
+            input_bcf = filtered_input
+        else:
+            self.logger.info("Step 0/4: Splitting multiallelic variants and removing spanning deletions")
+            normalized_input = work_task / f"{sample_name}_normalized.bcf"
+            # Combine norm and filter: split multiallelic, then remove ALT=*
+            norm_cmd = (
+                f"{bcftools} norm -m- {input_bcf} -Ob | "
+                f"{bcftools} view -e 'ALT=\"*\"' -o {normalized_input} -Ob -W --threads {threads}"
+            )
+            BcftoolsCommand(norm_cmd, self.logger, work_task).run()
+            input_bcf = normalized_input  # Use normalized input for subsequent steps
 
         # Step 1: Add cache annotations
         # Note: Input contigs are never renamed. Cache may have been renamed if needed.
@@ -645,10 +661,13 @@ class WorkflowManager(WorkflowBase):
 
         return result
 
-    def _run_annotate_nocache(self) -> subprocess.CompletedProcess:
+    def _run_annotate_nocache(self, skip_split_multiallelic: bool = False) -> subprocess.CompletedProcess:
         """Annotate sample directly without using cache.
 
         This is for benchmarking or when cache is not available.
+
+        Args:
+            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
 
         Returns:
             subprocess.CompletedProcess with results
@@ -668,14 +687,27 @@ class WorkflowManager(WorkflowBase):
         # Get thread count from params
         threads = self.params_file_content.get("threads", 1)
 
-        # Step 0: Split multiallelic variants in input
-        self.logger.info("Splitting multiallelic variants in input")
-        normalized_input = work_task / f"{sample_name}_normalized.bcf"
-        norm_cmd = (
-            f"{bcftools} norm -m- {input_bcf} -o {normalized_input} -Ob -W --threads {threads}"
-        )
-        BcftoolsCommand(norm_cmd, self.logger, work_task).run()
-        input_bcf = normalized_input  # Use normalized input for annotation
+        # Step 0: Split multiallelic variants and remove spanning deletions (ALT=*)
+        if skip_split_multiallelic:
+            self.logger.info("Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)")
+            # Still need to remove spanning deletions even when skipping split
+            self.logger.info("Removing spanning deletion alleles (ALT=*)")
+            filtered_input = work_task / f"{sample_name}_no_span_del.bcf"
+            filter_cmd = (
+                f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
+            )
+            BcftoolsCommand(filter_cmd, self.logger, work_task).run()
+            input_bcf = filtered_input
+        else:
+            self.logger.info("Splitting multiallelic variants and removing spanning deletions")
+            normalized_input = work_task / f"{sample_name}_normalized.bcf"
+            # Combine norm and filter: split multiallelic, then remove ALT=*
+            norm_cmd = (
+                f"{bcftools} norm -m- {input_bcf} -Ob | "
+                f"{bcftools} view -e 'ALT=\"*\"' -o {normalized_input} -Ob -W --threads {threads}"
+            )
+            BcftoolsCommand(norm_cmd, self.logger, work_task).run()
+            input_bcf = normalized_input  # Use normalized input for annotation
 
         # Use a unique placeholder for stdin when piping
         STDIN_PLACEHOLDER = "__VCFCACHE_STDIN__"

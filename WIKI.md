@@ -317,6 +317,27 @@ vcfcache annotate \
   ```bash
   vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --vcf sample.bcf --output outdir --parquet --force
   ```
+- Preserve variants without annotation in output (by default, vcfcache mirrors annotation tool behavior by removing unannotated variants):
+  ```bash
+  vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --vcf sample.bcf --output outdir --preserve-unannotated --force
+  ```
+- Skip splitting multiallelic variants for small speedup (~6% of runtime):
+  ```bash
+  vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --vcf sample.bcf --output outdir --skip-split-multiallelic --force
+  ```
+  **WARNING**: Use `--skip-split-multiallelic` ONLY if you are certain your input VCF has no multiallelic variants (no commas in ALT field). If multiallelic variants are present, this will cause format inconsistencies between cached and uncached outputs. By default, vcfcache always splits multiallelic variants using `bcftools norm -m-` to ensure consistent output format.
+
+### Input preprocessing
+
+VCFcache automatically preprocesses input VCF/BCF files before annotation:
+
+1. **Multiallelic splitting** (unless `--skip-split-multiallelic` is used): Splits multiallelic variants into biallelic records using `bcftools norm -m-`
+2. **Spanning deletion removal**: Removes variants with `ALT=*` (spanning deletion alleles), which are VCF placeholder notation that annotation tools like VEP cannot process
+
+These preprocessing steps ensure:
+- Consistent input format for annotation tools
+- Identical outputs between cached and uncached modes
+- No unannotated variants in the output (annotation tools skip `ALT=*` variants)
 
 ---
 
