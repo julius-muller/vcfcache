@@ -486,6 +486,12 @@ def main() -> None:
         help="(optional) Skip cache, annotate all variants directly. For benchmarking only (default: False)",
     )
     vcf_parser.add_argument(
+        "--preserve-unannotated",
+        action="store_true",
+        default=False,
+        help="(optional) Preserve variants without annotation in output. By default, vcfcache mirrors annotation tool behavior by removing unannotated variants (default: False)",
+    )
+    vcf_parser.add_argument(
         "-f",
         "--force",
         dest="force",
@@ -959,7 +965,12 @@ def main() -> None:
                 bcftools_path=bcftools_path,
             )
 
-            vcf_annotator.annotate(uncached=args.uncached, convert_parquet=args.parquet)
+            preserve_unannotated = getattr(args, 'preserve_unannotated', False)
+            vcf_annotator.annotate(
+                uncached=args.uncached,
+                convert_parquet=args.parquet,
+                preserve_unannotated=preserve_unannotated
+            )
 
         elif args.command in ("list", "caches", "blueprints"):
             # Determine what to list.

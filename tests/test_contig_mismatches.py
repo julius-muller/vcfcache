@@ -297,37 +297,37 @@ def test_cached_uncached_identical_with_contig_mismatch(
     assert cached_bcf.exists(), "Cached output not created"
     assert uncached_bcf.exists(), "Uncached output not created"
 
-    # 4a. Check total variant counts (may differ - cached preserves all variants!)
+    # 4a. Check variant counts (should be identical - both have only annotated variants)
     cached_count = get_variant_count(cached_bcf)
     uncached_count = get_variant_count(uncached_bcf)
 
-    print(f"Cached total variants:   {cached_count}")
-    print(f"Uncached total variants: {uncached_count}")
+    print(f"Cached variant count:   {cached_count}")
+    print(f"Uncached variant count: {uncached_count}")
 
-    if cached_count > uncached_count:
-        print(f"✓ Cached preserves {cached_count - uncached_count} extra variants that annotation tool dropped")
+    assert cached_count == uncached_count, (
+        f"Variant count mismatch! Cached: {cached_count}, Uncached: {uncached_count}. "
+        f"This indicates the post-filtering is not working correctly."
+    )
 
-    # 4b. Compare MD5 of ANNOTATED variants only (filter both sides to CSQ!="")
-    # This is the critical test: annotated variants should be identical
-    cached_md5_annotated = compute_bcf_body_md5(cached_bcf, filter_annotated=True, tag="CSQ")
-    uncached_md5_annotated = compute_bcf_body_md5(uncached_bcf, filter_annotated=True, tag="CSQ")
+    # 4b. Compare MD5 of variant data
+    cached_md5 = compute_bcf_body_md5(cached_bcf)
+    uncached_md5 = compute_bcf_body_md5(uncached_bcf)
 
-    print(f"Cached MD5 (annotated only):   {cached_md5_annotated}")
-    print(f"Uncached MD5 (annotated only): {uncached_md5_annotated}")
+    print(f"Cached MD5:   {cached_md5}")
+    print(f"Uncached MD5: {uncached_md5}")
 
-    # MD5 mismatch is acceptable if only annotation content differs
-    # The critical requirement is that variant positions/alleles are identical
-    if cached_md5_annotated != uncached_md5_annotated:
-        print("MD5s differ - checking if only annotation content differs...")
+    # MD5 mismatch is acceptable if only annotation content or order differs
+    if cached_md5 != uncached_md5:
+        print("MD5s differ - checking if only annotation content/order differs...")
         bcftools = get_bcftools()
 
         # Check positions only (without INFO fields), sorted to handle order differences
         cached_pos = subprocess.run(
-            [bcftools, "query", "-f", "%CHROM\\t%POS\\t%REF\\t%ALT\\n", "-i", 'INFO/CSQ!=""', str(cached_bcf)],
+            [bcftools, "query", "-f", "%CHROM\\t%POS\\t%REF\\t%ALT\\n", str(cached_bcf)],
             capture_output=True, text=True, check=True
         ).stdout
         uncached_pos = subprocess.run(
-            [bcftools, "query", "-f", "%CHROM\\t%POS\\t%REF\\t%ALT\\n", "-i", 'INFO/CSQ!=""', str(uncached_bcf)],
+            [bcftools, "query", "-f", "%CHROM\\t%POS\\t%REF\\t%ALT\\n", str(uncached_bcf)],
             capture_output=True, text=True, check=True
         ).stdout
 
@@ -336,19 +336,19 @@ def test_cached_uncached_identical_with_contig_mismatch(
         uncached_sorted = sorted(uncached_pos.strip().split('\n'))
 
         if cached_sorted == uncached_sorted:
-            print("✓ Annotated variant sets are identical (MD5 diff is due to order/annotation differences)")
+            print("✓ Variant sets are identical (MD5 diff is due to order/annotation differences)")
         else:
             # Find differences
             cached_only = set(cached_sorted) - set(uncached_sorted)
             uncached_only = set(uncached_sorted) - set(cached_sorted)
-            print(f"Annotated variants only in cached ({len(cached_only)}): {list(cached_only)[:5]}")
-            print(f"Annotated variants only in uncached ({len(uncached_only)}): {list(uncached_only)[:5]}")
+            print(f"Variants only in cached ({len(cached_only)}): {list(cached_only)[:5]}")
+            print(f"Variants only in uncached ({len(uncached_only)}): {list(uncached_only)[:5]}")
             raise AssertionError(
-                f"Annotated variant sets differ! {len(cached_only)} unique to cached, "
+                f"Variant sets differ! {len(cached_only)} unique to cached, "
                 f"{len(uncached_only)} unique to uncached."
             )
 
-    print(f"✓ ANNOTATED variants are identical between cached and uncached (MD5={cached_md5_annotated})")
+    print(f"✓ Cached and uncached outputs have identical variant sets (count={cached_count})")
 
 
 def test_sample_extra_contig_not_in_output(
@@ -488,6 +488,180 @@ def test_cache_extra_contig_not_used(
     )
 
     print(f"✓ Cache's extra contig correctly excluded from output")
+
+
+def test_preserve_unannotated_flag(
+    sample_with_extra_contig, cache_with_extra_contig, params_yaml, test_output_dir
+):
+    """Test that --preserve-unannotated flag correctly preserves unannotated variants.
+
+    This test verifies:
+    1. Default behavior filters out variants without annotation (matching annotation tool)
+    2. --preserve-unannotated flag keeps all input variants
+    3. Both modes have identical annotated variant counts
+    4. Preserve mode has more total variants than default mode
+    """
+    print("\n=== Testing --preserve-unannotated flag ===")
+
+    # Create a custom annotation.yaml that DROPS variants on 'samplecontig' (like VEP drops non-standard contigs)
+    output_dir = Path(test_output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    csq_header = output_dir / "csq_header_preserve.txt"
+    csq_header.write_text('##INFO=<ID=CSQ,Number=.,Type=String,Description="Dummy annotation">\n')
+
+    annotation_yaml_preserve = output_dir / "annotation_preserve.yaml"
+    bcftools = get_bcftools()
+    annotation_yaml_preserve.write_text(f"""
+annotation_cmd: |
+  # Simulate VEP behavior: DROP variants on 'samplecontig' and annotate the rest
+  # Filter out samplecontig, then annotate remaining variants
+  {bcftools} view -t ^samplecontig ${{INPUT_BCF}} | \\
+  {bcftools} query -f '%CHROM\\t%POS\\t%REF\\t%ALT\\tDUMMY_ANNOTATION\\n' | \\
+    bgzip > ${{AUXILIARY_DIR}}/annot.tsv.gz && \\
+  tabix -s1 -b2 -e2 ${{AUXILIARY_DIR}}/annot.tsv.gz && \\
+  {bcftools} annotate -h {csq_header} -a ${{AUXILIARY_DIR}}/annot.tsv.gz -c CHROM,POS,REF,ALT,CSQ ${{INPUT_BCF}} -o ${{OUTPUT_BCF}} -Ob -W
+
+must_contain_info_tag: CSQ
+""")
+
+    # Step 1: Build cache
+    cache_dir = Path(test_output_dir) / "cache_preserve_test"
+
+    # First create an initial cache using blueprint-init
+    subprocess.run(
+        VCFCACHE_CMD + [
+            "blueprint-init",
+            "--vcf", str(cache_with_extra_contig),
+            "--output", str(cache_dir),
+            "--force",
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+    # Then build the actual annotated cache
+    subprocess.run(
+        VCFCACHE_CMD + [
+            "cache-build",
+            "--name", "test_preserve_cache",
+            "--db", str(cache_dir),
+            "-a", str(annotation_yaml_preserve),
+            "-y", str(params_yaml),
+            "--force",
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+    cache_bcf = cache_dir / "cache" / "test_preserve_cache"
+
+    # Step 2: Annotate with DEFAULT behavior (should filter unannotated variants)
+    output_default = Path(test_output_dir) / "annotated_default"
+
+    subprocess.run(
+        VCFCACHE_CMD + [
+            "annotate",
+            "-a", str(cache_bcf),
+            "--vcf", str(sample_with_extra_contig),
+            "--output", str(output_default),
+            "-y", str(params_yaml),
+            "--force",
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+    output_bcf_default = output_default / "sample5_vc.bcf"
+
+    # Step 3: Annotate with --preserve-unannotated flag
+    output_preserve = Path(test_output_dir) / "annotated_preserve"
+
+    subprocess.run(
+        VCFCACHE_CMD + [
+            "annotate",
+            "-a", str(cache_bcf),
+            "--vcf", str(sample_with_extra_contig),
+            "--output", str(output_preserve),
+            "-y", str(params_yaml),
+            "--preserve-unannotated",
+            "--force",
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+    output_bcf_preserve = output_preserve / "sample5_vc.bcf"
+
+    # Step 4: Count variants
+    default_total = get_variant_count(output_bcf_default)
+    preserve_total = get_variant_count(output_bcf_preserve)
+
+    # Count annotated variants using bcftools view filter
+    bcftools = get_bcftools()
+
+    # Count annotated in default output
+    result = subprocess.run(
+        [bcftools, "view", "-H", "-i", 'INFO/CSQ!=""', str(output_bcf_default)],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    default_annotated = len([line for line in result.stdout.split('\n') if line.strip()])
+
+    # Count annotated in preserve output
+    result = subprocess.run(
+        [bcftools, "view", "-H", "-i", 'INFO/CSQ!=""', str(output_bcf_preserve)],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    preserve_annotated = len([line for line in result.stdout.split('\n') if line.strip()])
+
+    print(f"Default mode - Total: {default_total}, Annotated: {default_annotated}")
+    print(f"Preserve mode - Total: {preserve_total}, Annotated: {preserve_annotated}")
+
+    # Step 5: Verify expectations
+
+    # 1. Default mode should only have annotated variants (filtered)
+    assert default_total == default_annotated, (
+        f"Default mode should only contain annotated variants! "
+        f"Total: {default_total}, Annotated: {default_annotated}"
+    )
+    print("✓ Default mode correctly filters to annotated variants only")
+
+    # 2. Preserve mode should have all input variants (some unannotated)
+    assert preserve_total > preserve_annotated, (
+        f"Preserve mode should have unannotated variants! "
+        f"Total: {preserve_total}, Annotated: {preserve_annotated}"
+    )
+    print("✓ Preserve mode correctly keeps unannotated variants")
+
+    # 3. Both modes should have the same number of annotated variants
+    assert default_annotated == preserve_annotated, (
+        f"Annotated variant count should be identical! "
+        f"Default: {default_annotated}, Preserve: {preserve_annotated}"
+    )
+    print("✓ Both modes have identical annotated variant counts")
+
+    # 4. Preserve mode should have more or equal total variants than default
+    assert preserve_total >= default_total, (
+        f"Preserve mode should have >= variants than default! "
+        f"Default: {default_total}, Preserve: {preserve_total}"
+    )
+    print("✓ Preserve mode has more total variants than default mode")
+
+    # 5. Verify MD5s of annotated variants are identical
+    default_md5 = compute_bcf_body_md5(output_bcf_default, filter_annotated=True)
+    preserve_md5 = compute_bcf_body_md5(output_bcf_preserve, filter_annotated=True)
+
+    assert default_md5 == preserve_md5, (
+        f"Annotated variants should be identical between modes! "
+        f"Default MD5: {default_md5}, Preserve MD5: {preserve_md5}"
+    )
+    print("✓ Annotated variants have identical MD5 checksums in both modes")
+
+    print(f"\n✓ SUCCESS: --preserve-unannotated flag works correctly!")
 
 
 if __name__ == "__main__":

@@ -795,12 +795,13 @@ class VCFAnnotator(VCFDatabase):
         for field in gnomad_fields:
             info.pop(field, None)
 
-    def annotate(self, uncached: bool = False, convert_parquet: bool = False) -> None:
+    def annotate(self, uncached: bool = False, convert_parquet: bool = False, preserve_unannotated: bool = False) -> None:
         """Run annotation workflow on input VCF file.
 
         Args:
+            uncached: Whether to run the workflow in uncached mode
             convert_parquet: Whether to convert output to Parquet format
-            unchached: Whether to run the workflow in uncached mode
+            preserve_unannotated: Whether to preserve variants without annotation in output
 
         Returns:
             Path to output file (BCF or Parquet)
@@ -821,6 +822,7 @@ class VCFAnnotator(VCFDatabase):
                 trace=True,
                 dag=True,
                 report=True,
+                preserve_unannotated=preserve_unannotated,
             )
             duration = time.time() - start_time
             # Always show completion (even in default mode)

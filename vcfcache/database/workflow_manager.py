@@ -226,6 +226,7 @@ class WorkflowManager(WorkflowBase):
         timeline: bool = False,
         report: bool = False,
         temp: Union[Path, str] = "/tmp",
+        preserve_unannotated: bool = False,
     ) -> subprocess.CompletedProcess:
         """Execute the workflow using pure Python.
 
@@ -238,6 +239,7 @@ class WorkflowManager(WorkflowBase):
             timeline: Ignored (not supported in pure Python mode)
             report: Ignored (not supported in pure Python mode)
             temp: Temporary directory for intermediate files
+            preserve_unannotated: Whether to preserve variants without annotation in output
 
         Returns:
             subprocess.CompletedProcess with execution results
@@ -272,7 +274,7 @@ class WorkflowManager(WorkflowBase):
             elif db_mode == "annotate":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for annotate mode")
-                result = self._run_annotate(db_bcf)
+                result = self._run_annotate(db_bcf, preserve_unannotated=preserve_unannotated)
             elif db_mode == "annotate-nocache":
                 result = self._run_annotate_nocache()
             else:
@@ -450,7 +452,7 @@ class WorkflowManager(WorkflowBase):
 
         return result
 
-    def _run_annotate(self, db_bcf: Path) -> subprocess.CompletedProcess:
+    def _run_annotate(self, db_bcf: Path, preserve_unannotated: bool = False) -> subprocess.CompletedProcess:
         """Annotate sample using cache - 4-step caching process.
 
         This is the key performance feature that makes VCFcache fast.
@@ -459,6 +461,7 @@ class WorkflowManager(WorkflowBase):
 
         Args:
             db_bcf: Path to cache BCF (vcfcache_annotated.bcf)
+            preserve_unannotated: Whether to preserve variants without annotation in output
 
         Returns:
             subprocess.CompletedProcess with results
@@ -587,6 +590,9 @@ class WorkflowManager(WorkflowBase):
 
         # Step 4: Merge newly annotated back into original
         self.logger.info("Step 4/4: Merging cache and newly annotated variants")
+
+        # First merge annotations into a temporary file
+        step4_bcf = work_task / f"{sample_name}_merged.bcf"
         output_bcf = self.output_dir / f"{sample_name}_vc.bcf"
 
         if missing_count > 0:
@@ -603,23 +609,38 @@ class WorkflowManager(WorkflowBase):
 
             if step3_count < missing_count:
                 dropped_count = missing_count - step3_count
-                self.logger.warning(
+                self.logger.info(
                     f"Annotation tool dropped {dropped_count} variants from input. "
-                    f"These variants are preserved in cached output (without {tag} annotation) "
-                    f"but would be missing in uncached output. "
-                    f"This is a FEATURE - vcfcache preserves all your variants!"
+                    f"By default, these are also removed from cached output to match annotation tool behavior."
                 )
 
             # Merge annotations from step3 into step1
             cmd4 = (
                 f"{bcftools} annotate -a {step3_bcf} {step1_bcf} -c INFO "
-                f"-o {output_bcf} -Ob -W --threads {threads}"
+                f"-o {step4_bcf} -Ob -W --threads {threads}"
             )
         else:
-            # No new annotations, just copy step1 to output
-            cmd4 = f"cp {step1_bcf} {output_bcf} && cp {step1_bcf}.csi {output_bcf}.csi"
+            # No new annotations, just copy step1
+            cmd4 = f"cp {step1_bcf} {step4_bcf} && cp {step1_bcf}.csi {step4_bcf}.csi"
 
-        result = BcftoolsCommand(cmd4, self.logger, work_task).run()
+        BcftoolsCommand(cmd4, self.logger, work_task).run()
+
+        # Post-filter: Remove variants without annotation to match annotation tool behavior
+        # This ensures cached output is identical to uncached output
+        # Skip filtering if --preserve-unannotated flag is set
+        if preserve_unannotated:
+            self.logger.info(
+                "Preserving unannotated variants in output (--preserve-unannotated flag set)"
+            )
+            copy_cmd = f"cp {step4_bcf} {output_bcf} && cp {step4_bcf}.csi {output_bcf}.csi"
+            result = BcftoolsCommand(copy_cmd, self.logger, work_task).run()
+        else:
+            filter_cmd = (
+                f"{bcftools} view -i 'INFO/{tag}!=\"\"' {step4_bcf} "
+                f"-o {output_bcf} -Ob -W --threads {threads}"
+            )
+            result = BcftoolsCommand(filter_cmd, self.logger, work_task).run()
+
         self.logger.info(f"Annotation complete: {output_bcf}")
 
         return result
