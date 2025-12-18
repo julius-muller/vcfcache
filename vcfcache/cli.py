@@ -202,8 +202,16 @@ def main() -> None:
         "-v",
         "--verbose",
         action="count",
-        default=0,
-        help="Increase verbosity (can be used multiple times, e.g. -vv)",
+        default=1,
+        help="Increase verbosity: default is INFO, -v for DEBUG (formerly -vv)",
+    )
+    parent_parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_const",
+        const=0,
+        dest="verbose",
+        help="Quiet mode: only show warnings and errors",
     )
     parent_parser.add_argument(
         "--debug",
@@ -231,8 +239,16 @@ def main() -> None:
         "--verbose",
         dest="verbose",
         action="count",
-        default=0,
-        help="(optional) Increase verbosity: -v for INFO, -vv for DEBUG",
+        default=1,
+        help="(optional) Increase verbosity: default is INFO, -v for DEBUG (formerly -vv)",
+    )
+    init_parent_parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_const",
+        const=0,
+        dest="verbose",
+        help="(optional) Quiet mode: only show warnings and errors",
     )
     init_parent_parser.add_argument(
         "--debug",

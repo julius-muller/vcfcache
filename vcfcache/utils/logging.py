@@ -22,14 +22,14 @@ def setup_logging(verbosity: int, log_file: Optional[Path] = None) -> logging.Lo
     """
     # Console is one level less verbose than file
     console_levels = {
-        0: logging.WARNING,  # Default
-        1: logging.INFO,  # -v
-        2: logging.DEBUG,  # -vv
+        0: logging.WARNING,  # -q (quiet)
+        1: logging.INFO,  # default
+        2: logging.DEBUG,  # -v
     }
     file_levels = {
-        0: logging.INFO,  # Default
-        1: logging.DEBUG,  # -v
-        2: logging.DEBUG,  # -vv
+        0: logging.INFO,  # -q (quiet)
+        1: logging.DEBUG,  # default
+        2: logging.DEBUG,  # -v
     }
 
     console_level = console_levels.get(min(verbosity, 2), logging.WARNING)

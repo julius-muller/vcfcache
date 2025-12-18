@@ -177,7 +177,7 @@ class DatabaseAnnotator(VCFDatabase):
             ):  # we dont want to remove a random dir....
                 if force:
                     print(
-                        f"Cache directory already exists, removing: {self.cached_output.root_dir}"
+                        f"Cache directory already exists, removing: {self.cached_annotations.annotation_dir}"
                     )
                     shutil.rmtree(self.cached_annotations.annotation_dir)
                 else:
