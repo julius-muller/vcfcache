@@ -708,12 +708,6 @@ def main() -> None:
         help="Run comprehensive smoke test of all 4 commands (blueprint-init, blueprint-extend, cache-build, annotate)",
     )
     demo_parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="Suppress detailed output (show only essential information)",
-    )
-    demo_parser.add_argument(
         "-a",
         "--annotation_db",
         type=str,
@@ -1517,7 +1511,9 @@ def main() -> None:
             # Validate mode selection
             if args.smoke_test:
                 # Smoke test mode
-                exit_code = run_smoke_test(keep_files=args.debug, quiet=args.quiet)
+                # Derive quiet mode from verbosity: quiet when verbosity is 0 (via -q flag)
+                quiet = (args.verbose == 0)
+                exit_code = run_smoke_test(keep_files=args.debug, quiet=quiet)
                 sys.exit(exit_code)
 
             elif args.annotation_db or args.vcf:
@@ -1536,13 +1532,15 @@ def main() -> None:
                     sys.exit(1)
 
                 # All required arguments provided, run benchmark
+                # Derive quiet mode from verbosity: quiet when verbosity is 0 (via -q flag)
+                quiet = (args.verbose == 0)
                 exit_code = run_benchmark(
                     cache_dir=args.annotation_db,
                     vcf_file=args.vcf,
                     params_file=args.params,
                     output_dir=args.output,
                     keep_files=args.debug,
-                    quiet=args.quiet,
+                    quiet=quiet,
                 )
                 sys.exit(exit_code)
 
