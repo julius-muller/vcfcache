@@ -742,6 +742,9 @@ class WorkflowManager(WorkflowBase):
         2. Params file variables (${params.vep_cache})
         3. Special workflow variables (${INPUT_BCF}, ${OUTPUT_BCF}, ${AUXILIARY_DIR})
 
+        Supports both escaped (\\${VAR}) and unescaped (${VAR}, $VAR) variable formats.
+        Escaped variables are useful in YAML to prevent premature expansion.
+
         Args:
             text: Text with variables to substitute
             extra_vars: Additional variables to substitute (e.g., INPUT_BCF, OUTPUT_BCF)
@@ -765,6 +768,9 @@ class WorkflowManager(WorkflowBase):
         if extra_vars:
             for key, value in extra_vars.items():
                 if key not in skip_vars:
+                    # Handle escaped variables first (e.g., \${INPUT_BCF} from YAML)
+                    text = text.replace(f"\\${{{key}}}", str(value))
+                    # Then handle normal variables
                     text = text.replace(f"${{{key}}}", str(value))
                     text = text.replace(f"${key}", str(value))  # Also support $VAR format
 
