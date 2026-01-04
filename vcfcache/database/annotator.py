@@ -140,13 +140,28 @@ class DatabaseAnnotator(VCFDatabase):
         with open(user_config, "r") as f:
             content = f.read()
 
-        # Use regex to add backslashes only if not already present
-        # This prevents double-escaping when users already have \${VAR} in their YAML
+        # Use regex to ensure exactly one backslash before variables
+        # This fixes files from old buggy code that may have double backslashes
         import re
 
+        # First, fix any double (or more) backslashes before variables (from old buggy code)
+        cleanup_patterns = [
+            (r'\\+\$\{INPUT_BCF', '\\${INPUT_BCF'),  # Replace \\+${...} with \${...}
+            (r'\\+\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),
+            (r'\\+\$\{OUTPUT_BCF', '\\${OUTPUT_BCF'),
+            (r'\\+\$OUTPUT_BCF(?![_{])', '\\$OUTPUT_BCF'),
+            (r'\\+\$\{AUXILIARY_DIR', '\\${AUXILIARY_DIR'),
+            (r'\\+\$AUXILIARY_DIR(?![_{])', '\\$AUXILIARY_DIR'),
+        ]
+
+        modified_content = content
+        for pattern, replacement in cleanup_patterns:
+            modified_content = re.sub(pattern, replacement, modified_content)
+
+        # Then, add backslashes where missing (for unescaped variables)
         # Pattern explanation: negative lookbehind (?<!\\) ensures we don't match if backslash already present
         # Note: Use regular strings for replacements, not raw strings, so \\$ = one backslash
-        patterns = [
+        add_escape_patterns = [
             (r'(?<!\\)\$\{INPUT_BCF', '\\${INPUT_BCF'),
             (r'(?<!\\)\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),  # Don't match if followed by _ or {
             (r'(?<!\\)\$\{OUTPUT_BCF', '\\${OUTPUT_BCF'),
@@ -156,8 +171,7 @@ class DatabaseAnnotator(VCFDatabase):
         ]
 
         # Apply each regex replacement
-        modified_content = content
-        for pattern, replacement in patterns:
+        for pattern, replacement in add_escape_patterns:
             modified_content = re.sub(pattern, replacement, modified_content)
 
         output_cfg = self.output_dir / "annotation.yaml"
