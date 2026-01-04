@@ -140,20 +140,24 @@ class DatabaseAnnotator(VCFDatabase):
         with open(user_config, "r") as f:
             content = f.read()
 
-        # Direct replacements for all possible forms
-        replacements = [
-            ("${INPUT_BCF", "\\${INPUT_BCF"),
-            ("$INPUT_BCF", "\\$INPUT_BCF"),
-            ("${OUTPUT_BCF", "\\${OUTPUT_BCF"),
-            ("$OUTPUT_BCF", "\\$OUTPUT_BCF"),
-            ("${AUXILIARY_DIR", "\\${AUXILIARY_DIR"),
-            ("$AUXILIARY_DIR", "\\$AUXILIARY_DIR"),
+        # Use regex to add backslashes only if not already present
+        # This prevents double-escaping when users already have \${VAR} in their YAML
+        import re
+
+        # Pattern explanation: negative lookbehind (?<!\\) ensures we don't match if backslash already present
+        patterns = [
+            (r'(?<!\\)\$\{INPUT_BCF', r'\\${INPUT_BCF'),
+            (r'(?<!\\)\$INPUT_BCF(?![_{])', r'\\$INPUT_BCF'),  # Don't match if followed by _ or {
+            (r'(?<!\\)\$\{OUTPUT_BCF', r'\\${OUTPUT_BCF'),
+            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', r'\\$OUTPUT_BCF'),
+            (r'(?<!\\)\$\{AUXILIARY_DIR', r'\\${AUXILIARY_DIR'),
+            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', r'\\$AUXILIARY_DIR'),
         ]
 
-        # Apply each replacement
+        # Apply each regex replacement
         modified_content = content
-        for old, new in replacements:
-            modified_content = modified_content.replace(old, new)
+        for pattern, replacement in patterns:
+            modified_content = re.sub(pattern, replacement, modified_content)
 
         output_cfg = self.output_dir / "annotation.yaml"
         with open(output_cfg, "w") as f:
