@@ -145,13 +145,14 @@ class DatabaseAnnotator(VCFDatabase):
         import re
 
         # Pattern explanation: negative lookbehind (?<!\\) ensures we don't match if backslash already present
+        # Note: Use regular strings for replacements, not raw strings, so \\$ = one backslash
         patterns = [
-            (r'(?<!\\)\$\{INPUT_BCF', r'\\${INPUT_BCF'),
-            (r'(?<!\\)\$INPUT_BCF(?![_{])', r'\\$INPUT_BCF'),  # Don't match if followed by _ or {
-            (r'(?<!\\)\$\{OUTPUT_BCF', r'\\${OUTPUT_BCF'),
-            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', r'\\$OUTPUT_BCF'),
-            (r'(?<!\\)\$\{AUXILIARY_DIR', r'\\${AUXILIARY_DIR'),
-            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', r'\\$AUXILIARY_DIR'),
+            (r'(?<!\\)\$\{INPUT_BCF', '\\${INPUT_BCF'),
+            (r'(?<!\\)\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),  # Don't match if followed by _ or {
+            (r'(?<!\\)\$\{OUTPUT_BCF', '\\${OUTPUT_BCF'),
+            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', '\\$OUTPUT_BCF'),
+            (r'(?<!\\)\$\{AUXILIARY_DIR', '\\${AUXILIARY_DIR'),
+            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', '\\$AUXILIARY_DIR'),
         ]
 
         # Apply each regex replacement

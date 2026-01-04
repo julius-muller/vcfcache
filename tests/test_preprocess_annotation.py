@@ -38,12 +38,12 @@ required_tool_version: "115.2"
 
         # Use the same regex patterns from the fixed code
         patterns = [
-            (r'(?<!\\)\$\{INPUT_BCF', r'\\${INPUT_BCF'),
-            (r'(?<!\\)\$INPUT_BCF(?![_{])', r'\\$INPUT_BCF'),
-            (r'(?<!\\)\$\{OUTPUT_BCF', r'\\${OUTPUT_BCF'),
-            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', r'\\$OUTPUT_BCF'),
-            (r'(?<!\\)\$\{AUXILIARY_DIR', r'\\${AUXILIARY_DIR'),
-            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', r'\\$AUXILIARY_DIR'),
+            (r'(?<!\\)\$\{INPUT_BCF', '\\${INPUT_BCF'),
+            (r'(?<!\\)\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),
+            (r'(?<!\\)\$\{OUTPUT_BCF', '\\${OUTPUT_BCF'),
+            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', '\\$OUTPUT_BCF'),
+            (r'(?<!\\)\$\{AUXILIARY_DIR', '\\${AUXILIARY_DIR'),
+            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', '\\$AUXILIARY_DIR'),
         ]
 
         modified_content = content
@@ -88,12 +88,12 @@ required_tool_version: "115.2"
 
         # Use the same regex patterns from the fixed code
         patterns = [
-            (r'(?<!\\)\$\{INPUT_BCF', r'\\${INPUT_BCF'),
-            (r'(?<!\\)\$INPUT_BCF(?![_{])', r'\\$INPUT_BCF'),
-            (r'(?<!\\)\$\{OUTPUT_BCF', r'\\${OUTPUT_BCF'),
-            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', r'\\$OUTPUT_BCF'),
-            (r'(?<!\\)\$\{AUXILIARY_DIR', r'\\${AUXILIARY_DIR'),
-            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', r'\\$AUXILIARY_DIR'),
+            (r'(?<!\\)\$\{INPUT_BCF', '\\${INPUT_BCF'),
+            (r'(?<!\\)\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),
+            (r'(?<!\\)\$\{OUTPUT_BCF', '\\${OUTPUT_BCF'),
+            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', '\\$OUTPUT_BCF'),
+            (r'(?<!\\)\$\{AUXILIARY_DIR', '\\${AUXILIARY_DIR'),
+            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', '\\$AUXILIARY_DIR'),
         ]
 
         modified_content = content
@@ -134,12 +134,12 @@ must_contain_info_tag: CSQ
             content = f.read()
 
         patterns = [
-            (r'(?<!\\)\$\{INPUT_BCF', r'\\${INPUT_BCF'),
-            (r'(?<!\\)\$INPUT_BCF(?![_{])', r'\\$INPUT_BCF'),
-            (r'(?<!\\)\$\{OUTPUT_BCF', r'\\${OUTPUT_BCF'),
-            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', r'\\$OUTPUT_BCF'),
-            (r'(?<!\\)\$\{AUXILIARY_DIR', r'\\${AUXILIARY_DIR'),
-            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', r'\\$AUXILIARY_DIR'),
+            (r'(?<!\\)\$\{INPUT_BCF', '\\${INPUT_BCF'),
+            (r'(?<!\\)\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),
+            (r'(?<!\\)\$\{OUTPUT_BCF', '\\${OUTPUT_BCF'),
+            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', '\\$OUTPUT_BCF'),
+            (r'(?<!\\)\$\{AUXILIARY_DIR', '\\${AUXILIARY_DIR'),
+            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', '\\$AUXILIARY_DIR'),
         ]
 
         modified_content = content
