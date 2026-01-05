@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17943998.svg)](https://doi.org/10.5281/zenodo.17943998)
+[![DOI](https://zenodo.org/badge/947952659.svg)](https://zenodo.org/badge/latestdoi/947952659)
 
 # VCFcache – Cache once, annotate fast
 
