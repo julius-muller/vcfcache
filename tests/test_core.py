@@ -182,7 +182,7 @@ def test_list_inspect_reports_required_params(tmp_path: Path):
     )
 
     result = subprocess.run(
-        VCFCACHE_CMD + ["list", "--inspect", str(cache_root)],
+        VCFCACHE_CMD + ["list", "caches", "--inspect", str(cache_root)],
         capture_output=True,
         text=True,
     )
@@ -203,7 +203,7 @@ def test_caches_local_lists_from_path(tmp_path: Path):
     (cache_root / "cache" / "test_anno" / "annotation.yaml").write_text("annotation_cmd: echo\n", encoding="utf-8")
 
     result = subprocess.run(
-        VCFCACHE_CMD + ["caches", "--local", "--path", str(base)],
+        VCFCACHE_CMD + ["list", "caches", "--local", str(base)],
         capture_output=True,
         text=True,
     )
@@ -219,7 +219,7 @@ def test_list_local_accepts_path_positional(tmp_path: Path):
     (bp1 / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
 
     result = subprocess.run(
-        VCFCACHE_CMD + ["list", "--local", str(base)],
+        VCFCACHE_CMD + ["list", "blueprints", "--local", str(base)],
         capture_output=True,
         text=True,
     )
