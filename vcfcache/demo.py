@@ -164,8 +164,7 @@ def run_command(cmd, description, cwd=None):
             cmd,
             capture_output=True,
             text=True,
-            cwd=cwd,
-            timeout=300
+            cwd=cwd
         )
 
         duration = time.time() - start_time
@@ -685,8 +684,7 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
         result = subprocess.run(
             cmd_uncached,
             capture_output=True,
-            text=True,
-            timeout=3600,  # 1 hour timeout
+            text=True
         )
 
         uncached_time = time.time() - start_time
@@ -722,8 +720,7 @@ def run_benchmark(cache_dir, vcf_file, params_file, output_dir=None, keep_files=
         result = subprocess.run(
             cmd_cached,
             capture_output=True,
-            text=True,
-            timeout=3600,
+            text=True
         )
 
         cached_time = time.time() - start_time

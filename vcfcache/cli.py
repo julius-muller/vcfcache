@@ -28,10 +28,8 @@ from pathlib import Path
 import requests
 import yaml
 
-from vcfcache import EXPECTED_BCFTOOLS_VERSION
 from vcfcache.integrations.zenodo import (
     download_doi,
-    resolve_zenodo_alias,
     search_zenodo_records,
     ZenodoError,
 )
@@ -273,7 +271,7 @@ def main() -> None:
         "--yaml",
         dest="params",
         required=False,
-        help="Path to a params YAML containing environment variables related to paths and resources",
+        help="(optional) Path to a params YAML containing environment variables related to paths and resources. Defaults to cache's params.snapshot.yaml if not provided.",
     )
 
     subparsers = parser.add_subparsers(
@@ -351,15 +349,6 @@ def main() -> None:
         help="(optional) Params YAML used for local blueprint operations",
     )
     init_parser.add_argument(
-        "-t",
-        "--threads",
-        dest="threads",
-        type=int,
-        default=1,
-        metavar="N",
-        help="(optional) Number of threads for bcftools when creating from VCF (default: 1)"
-    )
-    init_parser.add_argument(
         "-n",
         "--normalize",
         dest="normalize",
@@ -398,15 +387,6 @@ def main() -> None:
         required=True,
         metavar="VCF",
         help="Input VCF/BCF file to add (must be indexed with .csi)"
-    )
-    extend_parser.add_argument(
-        "-t",
-        "--threads",
-        dest="threads",
-        type=int,
-        default=1,
-        metavar="N",
-        help="(optional) Number of threads for bcftools (default: 1)"
     )
     extend_parser.add_argument(
         "-n",
@@ -489,15 +469,6 @@ def main() -> None:
         help="(optional) Params YAML file with tool paths and resources. Auto-generated if not provided."
     )
     cache_build_parser.add_argument(
-        "-t",
-        "--threads",
-        dest="threads",
-        type=int,
-        default=1,
-        metavar="N",
-        help="(optional) Number of threads for bcftools (default: 1)"
-    )
-    cache_build_parser.add_argument(
         "-f",
         "--force",
         dest="force",
@@ -524,7 +495,7 @@ def main() -> None:
         required=True,
         metavar="DIR",
         help=(
-            "Path to annotation cache directory or cache root. "
+            "Path to specific annotation cache directory (e.g., cache_root/cache/vep_gnomad). "
             "Use --list to see available caches."
         ),
     )
@@ -797,7 +768,6 @@ def main() -> None:
                     force=args.force,
                     debug=args.debug,
                     bcftools_path=bcftools_path,
-                    threads=args.threads,
                     normalize=args.normalize,
                 )
                 initializer.initialize()
@@ -816,7 +786,6 @@ def main() -> None:
                 verbosity=args.verbose,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
-                threads=args.threads,
                 normalize=args.normalize,
             )
             updater.add()
@@ -1305,7 +1274,7 @@ def main() -> None:
                 return f"AF \u2265 {af_str}"
 
             def _display_title(record: dict, item_type: str) -> str:
-                from vcfcache.naming import CacheName
+                from vcfcache.utils.naming import CacheName
 
                 keywords = record.get("keywords") or []
                 alias = next((k for k in keywords if isinstance(k, str) and (k.startswith("cache-") or k.startswith("bp-"))), None)
@@ -1456,7 +1425,7 @@ def main() -> None:
             # Always ensure our deposits are discoverable by API search.
             keywords = ["vcfcache", "blueprint" if is_blueprint else "cache", dir_name]
             try:
-                from vcfcache.naming import CacheName
+                from vcfcache.utils.naming import CacheName
 
                 parsed = CacheName.parse(dir_name)
                 keywords.extend([parsed.genome, parsed.source, parsed.release, parsed.filt])

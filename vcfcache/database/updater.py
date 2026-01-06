@@ -40,7 +40,6 @@ class DatabaseUpdater(VCFDatabase):
         params_file: Optional[Path] | Optional[str] = None,
         verbosity: int = 0,
         debug: bool = False,
-        threads: int = 1,
         normalize: bool = False,
     ):
         super().__init__(Path(db_path), verbosity, debug, bcftools_path)
@@ -63,12 +62,15 @@ class DatabaseUpdater(VCFDatabase):
             if wfini.exists():
                 self.params_file = wfini
             else:
-                # Auto-generate minimal params file
+                # Auto-generate minimal params file with all required fields
                 import yaml
                 self.params_file = self.workflow_dir / "extend.yaml"
                 minimal_params = {
+                    "annotation_tool_cmd": str(bcftools_path),  # Use bcftools as default
                     "bcftools_cmd": str(bcftools_path),
-                    "threads": threads,
+                    "temp_dir": "/tmp",
+                    "threads": 1,  # Default to 1 thread
+                    "optional_checks": {},
                 }
                 self.params_file.write_text(yaml.dump(minimal_params))
 

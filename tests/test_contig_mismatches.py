@@ -116,20 +116,25 @@ annotation_cmd: |
   bcftools annotate -h {csq_header} -a ${{AUXILIARY_DIR}}/annot.tsv.gz -c CHROM,POS,REF,ALT,CSQ ${{INPUT_BCF}} -o ${{OUTPUT_BCF}} -Ob -W
 
 must_contain_info_tag: CSQ
+required_tool_version: "1.21+htslib-1.21"
+optional_checks: {{}}
 """)
     return annotation_yaml
 
 
 @pytest.fixture
 def params_yaml(test_output_dir):
-    """Create a simple params.yaml."""
+    """Create a simple params.yaml with all required fields."""
     output_dir = Path(test_output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     bcftools = get_bcftools()
     params_yaml = output_dir / "params.yaml"
     params_yaml.write_text(f"""
+annotation_tool_cmd: {bcftools}
 bcftools_cmd: {bcftools}
+temp_dir: /tmp
 threads: 1
+optional_checks: {{}}
 """)
     return params_yaml
 
@@ -523,6 +528,8 @@ annotation_cmd: |
   {bcftools} annotate -h {csq_header} -a ${{AUXILIARY_DIR}}/annot.tsv.gz -c CHROM,POS,REF,ALT,CSQ ${{INPUT_BCF}} -o ${{OUTPUT_BCF}} -Ob -W
 
 must_contain_info_tag: CSQ
+required_tool_version: "1.21+htslib-1.21"
+optional_checks: {{}}
 """)
 
     # Step 1: Build cache

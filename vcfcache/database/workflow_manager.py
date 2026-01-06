@@ -181,6 +181,13 @@ class WorkflowManager(WorkflowBase):
             params_expanded = os.path.expandvars(params_content)
             raw_params = yaml.safe_load(params_expanded) or {}
 
+            # Validate params.yaml schema
+            from vcfcache.utils.schemas import ParamsYAMLSchema
+            is_valid, error = ParamsYAMLSchema.validate(raw_params, self.params_file)
+            if not is_valid:
+                self.logger.error(error)
+                raise ValueError(error)
+
             def _expand(val):
                 if isinstance(val, str):
                     return os.path.expanduser(os.path.expandvars(val))
@@ -211,6 +218,13 @@ class WorkflowManager(WorkflowBase):
             anno_content = self.nfa_config.read_text()
             anno_expanded = os.path.expandvars(anno_content)
             self.nfa_config_content = yaml.safe_load(anno_expanded)
+
+            # Validate annotation.yaml schema
+            from vcfcache.utils.schemas import AnnotationYAMLSchema
+            is_valid, error = AnnotationYAMLSchema.validate(self.nfa_config_content, self.nfa_config)
+            if not is_valid:
+                self.logger.error(error)
+                raise ValueError(error)
 
             self.logger.debug(f"Loaded annotation config from: {self.nfa_config}")
         else:

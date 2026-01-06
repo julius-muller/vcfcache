@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/julius-muller/vcfcache)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/vcfcache)](https://pypi.org/project/vcfcache/)
 [![Cite](https://img.shields.io/badge/Cite-CITATION.cff-blue)](CITATION.cff)
-
+[![codecov](https://codecov.io/github/julius-muller/vcfcache/graph/badge.svg?token=ELV3PZ6PNL)](https://codecov.io/github/julius-muller/vcfcache)
 
 
 # VCFcache – Cache once, annotate fast

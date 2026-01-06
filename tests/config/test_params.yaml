@@ -12,6 +12,8 @@ annotation_tool_cmd: "bcftools"
 tool_version_command: "bcftools --version-only"
 # bcftools - uses PATH to find appropriate version for scenario
 bcftools_cmd: "bcftools"
+# Number of threads for bcftools operations
+threads: 1
 
 ## * OPTIONAL RESOURCES *
 # All keys here can be utilized in the annotation.yaml file as ${params.MYKEY}

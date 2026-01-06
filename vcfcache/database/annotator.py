@@ -385,6 +385,7 @@ class VCFAnnotator(VCFDatabase):
                 wfi.exists()
             ), f"Workflow annotation params file not found: {wfi}, required if no yaml provided!"
             shutil.copyfile(wfi, self.params_file)
+            print(f"Using default params from cache: {wfi.relative_to(wfi.parent.parent.parent)}")
         assert (
             self.params_file.exists()
         ), f"Workflow params file not found: {self.params_file}"

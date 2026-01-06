@@ -31,7 +31,6 @@ class DatabaseInitializer(VCFDatabase):
         verbosity: int = 0,
         force: bool = False,
         debug: bool = False,
-        threads: int = 1,
         normalize: bool = False,
     ) -> None:
         """Initialize the database creator.
@@ -44,7 +43,6 @@ class DatabaseInitializer(VCFDatabase):
             verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
             force: Force overwrite of existing database (default: False)
             debug: Boolean to enable or disable debug mode (default: False)
-            threads: Number of threads for bcftools (default: 1)
             normalize: If True, split multiallelic variants using bcftools norm -m-
 
         """
@@ -74,11 +72,14 @@ class DatabaseInitializer(VCFDatabase):
             shutil.copyfile(Path(params_file).expanduser().resolve(), self.config_yaml)
             params_path = Path(params_file) if isinstance(params_file, str) else params_file
         else:
-            # Create minimal params file with just bcftools and threads
+            # Create minimal params file with all required fields and defaults
             import yaml
             minimal_params = {
+                "annotation_tool_cmd": str(bcftools_path),  # Use bcftools as default annotation tool
                 "bcftools_cmd": str(bcftools_path),
-                "threads": threads,
+                "temp_dir": "/tmp",
+                "threads": 1,  # Default to 1 thread
+                "optional_checks": {},
             }
             self.config_yaml.write_text(yaml.dump(minimal_params))
             params_path = self.config_yaml

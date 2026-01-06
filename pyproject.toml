@@ -43,6 +43,7 @@ dev = [
     "pandas>=2.2.0", # for output of parquet
     "pyarrow>=20.0.0", # for output of parquet
     "pytest>=9.0.2", # python -m pytest -xvs
+    "pytest-cov>=6.0.0", # coverage reports for CI
     "ruff>=0.14.8", # ruff check --fix vcfcache
     "black>=25.12.0", # black vcfcache
     "mypy>=1.19.0", # mypy vcfcache
@@ -70,6 +71,9 @@ markers = [
   "unit: marks tests as unit tests (legacy marker)",
   "blueprint: marks tests for blueprint image (legacy marker)"
 ]
+
+[tool.coverage.run]
+source = ["vcfcache"]
 
 [tool.hatch.build.targets.sdist]
 include = ["vcfcache/**", "tests/**"]
