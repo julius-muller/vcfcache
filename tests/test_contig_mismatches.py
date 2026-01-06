@@ -222,6 +222,129 @@ def test_contig_compatibility_chr_prefix_mismatch(
     print(f"✓ Chr prefix mismatch handled: {variant_count} variants annotated")
 
 
+def test_corrupted_renamed_cache_detection_and_recreation(
+    test_output_dir,
+    sample_with_extra_contig,
+    cache_with_extra_contig,
+    annotation_yaml,
+    params_yaml
+):
+    """Test that corrupted renamed cache files are detected and recreated.
+
+    This simulates the scenario where a renamed cache file was created by an
+    interrupted bcftools process, leaving a truncated file without an index.
+    The system should detect this, remove the corrupted file, and recreate it.
+    """
+    bcftools = get_bcftools()
+
+    # Create cache directory with chr prefix (cache has chr1, chr2, etc.)
+    cache_dir = Path(test_output_dir) / "cache_corruption_test"
+
+    # 1. Create blueprint from cache with chr prefix
+    result = subprocess.run(
+        VCFCACHE_CMD + [
+            "blueprint-init",
+            "--vcf", str(cache_with_extra_contig),
+            "--output", str(cache_dir),
+            "--force",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"Blueprint init failed: {result.stderr}"
+
+    # 2. Build cache with annotation
+    result = subprocess.run(
+        VCFCACHE_CMD + [
+            "cache-build",
+            "--name", "test_cache",
+            "--db", str(cache_dir),
+            "-a", str(annotation_yaml),
+            "-y", str(params_yaml),
+            "--force",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"Cache build failed: {result.stderr}"
+
+    cache_path = cache_dir / "cache" / "test_cache"
+
+    # 3. First annotation - creates renamed cache normally (sample has no chr prefix)
+    output_dir1 = Path(test_output_dir) / "corrupted_test_run1"
+
+    cmd = VCFCACHE_CMD + [
+        "annotate",
+        "--vcf", str(sample_with_extra_contig),
+        "-a", str(cache_path),
+        "-y", str(params_yaml),
+        "--output", str(output_dir1)
+    ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    assert result.returncode == 0, f"First annotation failed:\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}"
+
+    # Verify renamed cache was created with index
+    cache_variants_dir = cache_path / ".cache_variants"
+    renamed_cache = cache_variants_dir / "vcfcache_annotated_nochr.bcf"
+    renamed_cache_index = Path(f"{renamed_cache}.csi")
+
+    assert renamed_cache.exists(), "Renamed cache should exist after first run"
+    assert renamed_cache_index.exists(), "Renamed cache index should exist after first run"
+
+    # 2. Simulate corruption - remove the index to simulate interrupted bcftools
+    print(f"\n=== Simulating corruption: removing index {renamed_cache_index} ===")
+    renamed_cache_index.unlink()
+    assert not renamed_cache_index.exists(), "Index should be removed"
+    assert renamed_cache.exists(), "Cache file should still exist (corrupted state)"
+
+    # 4. Second annotation - should detect corruption, remove file, and recreate
+    output_dir2 = Path(test_output_dir) / "corrupted_test_run2"
+
+    cmd = VCFCACHE_CMD + [
+        "annotate",
+        "--vcf", str(sample_with_extra_contig),
+        "-a", str(cache_path),
+        "-y", str(params_yaml),
+        "--output", str(output_dir2)
+    ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    # Verify the warning message about corruption
+    assert "Renamed cache index is missing" in result.stderr or "Renamed cache index is missing" in result.stdout, \
+        f"Should warn about missing index\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}"
+    assert "Removing corrupted cache to force recreation" in result.stderr or "Removing corrupted cache to force recreation" in result.stdout, \
+        f"Should mention recreation\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}"
+
+    # Verify the annotation succeeded
+    assert result.returncode == 0, f"Second annotation should succeed after recreation:\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}"
+
+    # Verify renamed cache and index were recreated
+    assert renamed_cache.exists(), "Renamed cache should be recreated"
+    assert renamed_cache_index.exists(), "Renamed cache index should be recreated"
+
+    # Verify the recreated cache is valid (can be read by bcftools)
+    try:
+        subprocess.run(
+            f"{bcftools} view -h {renamed_cache}",
+            shell=True,
+            check=True,
+            capture_output=True
+        )
+    except subprocess.CalledProcessError as e:
+        pytest.fail(f"Recreated cache should be valid: {e.stderr.decode()}")
+
+    # Verify output exists and has variants
+    output_bcf = output_dir2 / "sample5_vc.bcf"
+    assert output_bcf.exists(), "Output BCF should be created"
+
+    variant_count = get_variant_count(output_bcf)
+    assert variant_count > 0, "Output should have variants"
+
+    print(f"✓ Corrupted renamed cache detected and recreated: {variant_count} variants annotated")
+
+
 def test_cached_uncached_identical_with_contig_mismatch(
     test_output_dir,
     sample_with_extra_contig,

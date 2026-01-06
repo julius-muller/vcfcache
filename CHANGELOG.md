@@ -29,7 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dockerfile optimizations: moved tests to test stage only, added pip cache mounts for faster builds
 
 ### Fixed
-- **CRITICAL:** Added validation after creating renamed cache files (chr prefix mismatches) to detect incomplete/truncated files from interrupted bcftools processes. Previously, if the bcftools command was killed externally (signal, timeout, system issue), the incomplete file would be left without an index and cause subsequent cached annotations to fail. Now detects missing index and truncated files immediately with clear error messages.
+- **CRITICAL:** Added validation for BOTH new and existing renamed cache files (chr prefix mismatches) to detect incomplete/truncated files from interrupted bcftools processes. Previously, if the bcftools command was killed externally (signal, timeout, system issue), the incomplete file would be left without an index and cause subsequent cached annotations to fail. The initial fix only validated newly created files, but pre-existing corrupted files from before the fix would still cause failures. Now validates ALL renamed cache files before use:
+  - Checks that index (.csi) file exists
+  - Verifies file is not truncated by reading header with bcftools
+  - If corruption detected, removes corrupted file and recreates it
+  - Provides clear warning messages when corruption is detected
+  - Added test that simulates pre-existing corrupted cache files to prevent regression
 
 ## 0.4.1 (2026-01-06)
 

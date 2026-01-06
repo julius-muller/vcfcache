@@ -550,6 +550,54 @@ class VCFAnnotator(VCFDatabase):
             cache_variants_dir.mkdir(exist_ok=True)
             renamed_cache = cache_variants_dir / f"{self.cache_file.stem}_{suffix}.bcf"
 
+            # Validate existing renamed cache before using it
+            if renamed_cache.exists():
+                renamed_cache_index = Path(f"{renamed_cache}.csi")
+                is_corrupted = False
+
+                # Check 1: Index file must exist
+                if not renamed_cache_index.exists():
+                    msg = (
+                        f"Renamed cache index is missing: {renamed_cache_index}. "
+                        f"The file may have been created by an interrupted process. "
+                        f"Removing corrupted cache to force recreation."
+                    )
+                    if self.logger:
+                        self.logger.warning(msg)
+                    else:
+                        print(f"WARNING: {msg}")
+                    is_corrupted = True
+                else:
+                    # Check 2: File must not be truncated
+                    try:
+                        subprocess.run(
+                            f"{self.bcftools_path} view -h {renamed_cache}",
+                            shell=True,
+                            check=True,
+                            capture_output=True
+                        )
+                    except subprocess.CalledProcessError as e:
+                        stderr = e.stderr.decode() if e.stderr else ""
+                        if "BGZF EOF marker" in stderr or "truncated" in stderr:
+                            msg = (
+                                f"Renamed cache file is truncated: {renamed_cache}. "
+                                f"The file may have been created by an interrupted process. "
+                                f"Removing corrupted cache to force recreation."
+                            )
+                            if self.logger:
+                                self.logger.warning(msg)
+                            else:
+                                print(f"WARNING: {msg}")
+                            is_corrupted = True
+                        else:
+                            # Some other error - re-raise it
+                            raise
+
+                # Remove corrupted files
+                if is_corrupted:
+                    renamed_cache.unlink()
+                    renamed_cache_index.unlink(missing_ok=True)
+
             if not renamed_cache.exists():
                 action = "chr-prefixed" if rename_type == "add_chr" else "chr-removed"
                 msg = f"Creating {action} version of cache at: {renamed_cache}"
