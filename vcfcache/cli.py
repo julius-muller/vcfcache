@@ -530,6 +530,15 @@ def main() -> None:
         ),
     )
     vcf_parser.add_argument(
+        "--md5-all",
+        action="store_true",
+        default=False,
+        help=(
+            "(optional) Compute MD5 of all variants (no header) and store in stats. "
+            "WARNING: can be slow for large files and may differ between runs due to upstream tool quirks."
+        ),
+    )
+    vcf_parser.add_argument(
         "--uncached",
         action="store_true",
         default=False,
@@ -724,15 +733,6 @@ def main() -> None:
         "dir2",
         type=str,
         help="Second annotate stats directory",
-    )
-    compare_parser.add_argument(
-        "--md5-all",
-        action="store_true",
-        default=False,
-        help=(
-            "(optional) Compute MD5 of all variants (no header). "
-            "WARNING: can be slow for large files and may differ between runs due to upstream tool quirks."
-        ),
     )
 
     args = parser.parse_args(args=None if sys.argv[1:] else ["--help"])
@@ -1016,7 +1016,8 @@ def main() -> None:
                 uncached=args.uncached,
                 convert_parquet=args.parquet,
                 preserve_unannotated=preserve_unannotated,
-                skip_split_multiallelic=skip_split_multiallelic
+                skip_split_multiallelic=skip_split_multiallelic,
+                md5_all=args.md5_all,
             )
 
             # Show detailed timing if --debug is enabled
@@ -1542,12 +1543,7 @@ def main() -> None:
             from vcfcache.compare import compare_runs
 
             try:
-                if args.md5_all:
-                    print(
-                        "WARNING: --md5-all can be slow for large files and may differ between runs "
-                        "due to upstream tool quirks."
-                    )
-                compare_runs(Path(args.dir1), Path(args.dir2), md5_all=args.md5_all)
+                compare_runs(Path(args.dir1), Path(args.dir2))
             except (FileNotFoundError, ValueError) as e:
                 print(f"Error: {e}")
                 sys.exit(1)

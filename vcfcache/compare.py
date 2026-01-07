@@ -4,7 +4,6 @@ This module provides functionality to compare two successful vcfcache annotate
 runs (typically cached vs uncached) and display performance metrics.
 """
 
-import hashlib
 import re
 import subprocess
 from pathlib import Path
@@ -107,24 +106,7 @@ def find_output_bcf(output_dir: Path) -> Optional[Path]:
     return None
 
 
-def compute_variant_md5_all(bcf_path: Path) -> Optional[str]:
-    """Compute MD5 of all variant lines (no header)."""
-    try:
-        proc = subprocess.Popen(
-            ["bcftools", "view", "-H", str(bcf_path)],
-            stdout=subprocess.PIPE,
-            text=True,
-        )
-    except Exception:
-        return None
 
-    md5_hash = hashlib.md5()
-    for line in proc.stdout:  # type: ignore[union-attr]
-        md5_hash.update(line.encode())
-    proc.wait()
-    if proc.returncode != 0:
-        return None
-    return md5_hash.hexdigest()
 
 
 def format_time(seconds: float) -> str:
@@ -149,13 +131,12 @@ def format_time(seconds: float) -> str:
         return f"{seconds:.1f}s"
 
 
-def compare_runs(dir1: Path, dir2: Path, md5_all: bool = False) -> None:
+def compare_runs(dir1: Path, dir2: Path) -> None:
     """Compare two vcfcache annotate runs and display results.
 
     Args:
         dir1: First annotate stats directory
         dir2: Second annotate stats directory
-        md5_all: If True, compute full MD5 of all variants (no header)
     """
     # Validate both directories exist
     if not dir1.exists():
@@ -235,15 +216,6 @@ def compare_runs(dir1: Path, dir2: Path, md5_all: bool = False) -> None:
 
     md5_all_a = md5_a.get("all")
     md5_all_b = md5_b.get("all")
-    if md5_all:
-        if md5_all_a is None:
-            out_a = find_output_bcf(dir_a)
-            if out_a:
-                md5_all_a = compute_variant_md5_all(out_a)
-        if md5_all_b is None:
-            out_b = find_output_bcf(dir_b)
-            if out_b:
-                md5_all_b = compute_variant_md5_all(out_b)
 
     print("\n" + "=" * 80)
     print("  VCFcache Run Comparison")
@@ -305,9 +277,8 @@ def compare_runs(dir1: Path, dir2: Path, md5_all: bool = False) -> None:
     print(f"  Top10 MD5 B: {md5_b.get('top10') or 'N/A'}")
     print(f"  Bottom10 MD5 A: {md5_a.get('bottom10') or 'N/A'}")
     print(f"  Bottom10 MD5 B: {md5_b.get('bottom10') or 'N/A'}")
-    if md5_all:
-        print(f"  Total MD5 A (all variants): {md5_all_a or 'N/A'}")
-        print(f"  Total MD5 B (all variants): {md5_all_b or 'N/A'}")
-        print()
+    print(f"  Total MD5 A (all variants): {md5_all_a or 'N/A'}")
+    print(f"  Total MD5 B (all variants): {md5_all_b or 'N/A'}")
+    print()
     print("=" * 80)
     print()

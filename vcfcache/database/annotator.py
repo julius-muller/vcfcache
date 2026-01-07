@@ -758,7 +758,7 @@ class VCFAnnotator(VCFDatabase):
         for field in gnomad_fields:
             info.pop(field, None)
 
-    def annotate(self, uncached: bool = False, convert_parquet: bool = False, preserve_unannotated: bool = False, skip_split_multiallelic: bool = False) -> None:
+    def annotate(self, uncached: bool = False, convert_parquet: bool = False, preserve_unannotated: bool = False, skip_split_multiallelic: bool = False, md5_all: bool = False) -> None:
         """Run annotation workflow on input VCF file.
 
         Args:
@@ -766,6 +766,7 @@ class VCFAnnotator(VCFDatabase):
             convert_parquet: Whether to convert output to Parquet format
             preserve_unannotated: Whether to preserve variants without annotation in output
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
+            md5_all: Compute full MD5 of all variants (no header) and store in stats
 
         Returns:
             Path to output file (BCF or Parquet)
@@ -805,7 +806,7 @@ class VCFAnnotator(VCFDatabase):
                     mode=mode,
                     output_file=str(self.output_vcf) if self.output_vcf else "stdout",
                 )
-                self._write_compare_stats(mode=mode)
+                self._write_compare_stats(mode=mode, md5_all=md5_all)
 
         except Exception:
             if self.logger:
@@ -824,7 +825,7 @@ class VCFAnnotator(VCFDatabase):
             if temp_stats_dir:
                 shutil.rmtree(temp_stats_dir, ignore_errors=True)
 
-    def _write_compare_stats(self, mode: str) -> None:
+    def _write_compare_stats(self, mode: str, md5_all: bool = False) -> None:
         stats_file = self.output_dir / "compare_stats.yaml"
         output_file = str(self.output_vcf) if self.output_vcf else "stdout"
         anno_md5 = None
@@ -869,6 +870,8 @@ class VCFAnnotator(VCFDatabase):
             top_md5, bottom_md5 = self._compute_top_bottom_md5(self.output_vcf)
             stats["variant_md5"]["top10"] = top_md5
             stats["variant_md5"]["bottom10"] = bottom_md5
+            if md5_all:
+                stats["variant_md5"]["all"] = self._compute_all_md5(self.output_vcf)
 
         stats_file.write_text(yaml.safe_dump(stats, sort_keys=False))
 
@@ -932,6 +935,24 @@ class VCFAnnotator(VCFDatabase):
         if len(top_lines) <= 10 and len(bottom_lines) <= 10 and len(top_lines) == len(bottom_lines):
             bottom_md5 = top_md5
         return top_md5, bottom_md5
+
+    def _compute_all_md5(self, bcf_path: Path) -> Optional[str]:
+        try:
+            proc = subprocess.Popen(
+                [str(self.bcftools_path), "view", "-H", str(bcf_path)],
+                stdout=subprocess.PIPE,
+                text=True,
+            )
+        except Exception:
+            return None
+
+        md5_hash = hashlib.md5()
+        for line in proc.stdout:  # type: ignore[union-attr]
+            md5_hash.update(line.encode())
+        proc.wait()
+        if proc.returncode != 0:
+            return None
+        return md5_hash.hexdigest()
 
     def _convert_to_parquet(self, bcf_path: Path, threads: int = 2) -> Path:
         """Convert annotated BCF to optimized Parquet format"""
