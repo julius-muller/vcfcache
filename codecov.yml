@@ -5,3 +5,9 @@ comment:
   layout: "reach, diff, flags, files"
   behavior: default
   require_changes: false
+
+coverage:
+  status:
+    patch:
+      default:
+        target: 50%
