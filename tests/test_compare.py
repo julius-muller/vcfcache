@@ -400,9 +400,11 @@ def test_compare_cli_integration(tmp_path):
     # Test with various flags (should not crash with AttributeError)
     import subprocess as sp
 
+    cmd = [sys.executable, "-m", "vcfcache.cli", "compare", str(dir1), str(dir2)]
+
     # Test with --verbose
     result = sp.run(
-        ["vcfcache", "compare", str(dir1), str(dir2), "--verbose"],
+        cmd + ["--verbose"],
         capture_output=True,
         text=True,
     )
@@ -412,7 +414,7 @@ def test_compare_cli_integration(tmp_path):
 
     # Test with --quiet
     result = sp.run(
-        ["vcfcache", "compare", str(dir1), str(dir2), "--quiet"],
+        cmd + ["--quiet"],
         capture_output=True,
         text=True,
     )
@@ -421,7 +423,7 @@ def test_compare_cli_integration(tmp_path):
 
     # Test with --debug
     result = sp.run(
-        ["vcfcache", "compare", str(dir1), str(dir2), "--debug"],
+        cmd + ["--debug"],
         capture_output=True,
         text=True,
     )
