@@ -176,12 +176,15 @@ class DatabaseUpdater(VCFDatabase):
 
             # Run the workflow in database mode
             start_time = datetime.now()
+            # Pass normalize flag via nextflow_args
+            nextflow_args = ["--normalize"] if self.normalize else None
             self.nx_workflow.run(
                 db_mode="blueprint-extend",
                 trace=True,
                 dag=True,
                 report=True,
                 db_bcf=self.blueprint_bcf,
+                nextflow_args=nextflow_args,
             )
             duration = datetime.now() - start_time
 

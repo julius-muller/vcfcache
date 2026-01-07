@@ -245,11 +245,14 @@ class DatabaseInitializer(VCFDatabase):
                 self.logger.info("Starting the workflow execution...")
             # Log contig preview
             self._log_contigs()
+            # Pass normalize flag via nextflow_args
+            nextflow_args = ["--normalize"] if self.normalize else None
             self.nx_workflow.run(
                 db_mode="blueprint-init",
                 trace=True,
                 dag=True,
                 report=True,
+                nextflow_args=nextflow_args,
             )
             if self.logger:
                 self.logger.info("Workflow execution completed.")
