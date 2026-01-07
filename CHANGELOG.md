@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.5.1 (2026-01-07)
+
+### Fixed
+- CI: use `python -m vcfcache.cli` in compare CLI integration test to avoid PATH dependency.
+
 ## 0.5.0 (2026-01-07)
 
 ### Added
