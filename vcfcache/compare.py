@@ -138,6 +138,18 @@ def _extra_param_keys(params: Dict[str, any]) -> list[str]:
     return sorted(extra)
 
 
+def _format_param_value(value: any) -> str:
+    if value is None:
+        return "<missing>"
+    if isinstance(value, str):
+        return value
+    try:
+        text = yaml.safe_dump(value, default_flow_style=True)
+        return text.strip().replace("\n", " ")
+    except Exception:
+        return str(value)
+
+
 def find_output_bcf(output_dir: Path) -> Optional[Path]:
     """Find the output BCF file from the annotate stats directory.
 
@@ -242,8 +254,18 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     params2 = _load_params_snapshot(dir2)
     anno_text1 = _load_annotation_snapshot(dir1)
     anno_text2 = _load_annotation_snapshot(dir2)
-    extra_params1 = _extra_param_keys(params1)
-    extra_params2 = _extra_param_keys(params2)
+    extra_keys1 = _extra_param_keys(params1)
+    extra_keys2 = _extra_param_keys(params2)
+    extra_key_union = sorted(set(extra_keys1) | set(extra_keys2))
+    extra_diff_keys = []
+    for key in extra_key_union:
+        v1 = params1.get(key) if isinstance(params1, dict) else None
+        v2 = params2.get(key) if isinstance(params2, dict) else None
+        if v1 != v2:
+            extra_diff_keys.append(key)
+
+    extra_params1 = [f"{k}={_format_param_value(params1.get(k) if isinstance(params1, dict) else None)}" for k in extra_diff_keys]
+    extra_params2 = [f"{k}={_format_param_value(params2.get(k) if isinstance(params2, dict) else None)}" for k in extra_diff_keys]
 
     completion1 = read_completion_flag(dir1) or {}
     completion2 = read_completion_flag(dir2) or {}
