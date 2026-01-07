@@ -80,6 +80,22 @@ def parse_workflow_log(output_dir: Path) -> Tuple[Optional[float], List[Dict[str
     return total_time, step_timings
 
 
+def parse_missing_variants(output_dir: Path) -> Optional[int]:
+    """Parse workflow.log to extract missing variants count for cached runs."""
+    workflow_log = output_dir / "workflow.log"
+    if not workflow_log.exists():
+        return None
+    try:
+        with open(workflow_log, "r") as f:
+            for line in f:
+                match = re.search(r"Annotating (\d+) missing variants", line)
+                if match:
+                    return int(match.group(1))
+    except Exception:
+        return None
+    return None
+
+
 def find_output_bcf(output_dir: Path) -> Optional[Path]:
     """Find the output BCF file from the annotate stats directory.
 
@@ -176,6 +192,8 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     # Parse workflow logs
     time1, steps1 = parse_workflow_log(dir1)
     time2, steps2 = parse_workflow_log(dir2)
+    missing1 = parse_missing_variants(dir1)
+    missing2 = parse_missing_variants(dir2)
 
     # Determine comparator order (A = slower / longer runtime)
     if time1 is not None and time2 is not None and time1 < time2:
@@ -183,11 +201,13 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
         stats_a, stats_b = stats2, stats1
         time_a, time_b = time2, time1
         steps_a, steps_b = steps2, steps1
+        missing_a, missing_b = missing2, missing1
     else:
         dir_a, dir_b = dir1, dir2
         stats_a, stats_b = stats1, stats2
         time_a, time_b = time1, time2
         steps_a, steps_b = steps1, steps2
+        missing_a, missing_b = missing1, missing2
 
     def _counts(stats: Dict[str, any]) -> tuple[Optional[int], Optional[int], Optional[int], Optional[int]]:
         counts = stats.get("variant_counts", {}) or {}
@@ -204,6 +224,22 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
 
     total_a, annotated_a, tool_annotated_a, dropped_a = _counts(stats_a)
     total_b, annotated_b, tool_annotated_b, dropped_b = _counts(stats_b)
+
+    def _fallback_tool_annotated(
+        stats: Dict[str, any],
+        tool_annotated: Optional[int],
+        missing: Optional[int],
+        total: Optional[int],
+    ) -> Optional[int]:
+        mode = stats.get("mode")
+        if tool_annotated is None and mode == "cached":
+            return missing
+        if mode == "cached" and missing is not None and tool_annotated == total:
+            return missing
+        return tool_annotated
+
+    tool_annotated_a = _fallback_tool_annotated(stats_a, tool_annotated_a, missing_a, total_a)
+    tool_annotated_b = _fallback_tool_annotated(stats_b, tool_annotated_b, missing_b, total_b)
 
     def _rate(annotated: Optional[int], duration: Optional[float]) -> Optional[float]:
         if annotated is None or duration is None or duration <= 0:
@@ -223,18 +259,22 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     print("  VCFcache Run Comparison")
     print("=" * 80)
     print()
-    print(f"Input file: {stats_a.get('input_name', 'unknown')}")
+    print("Samples")
+    print(f"  Input file: {stats_a.get('input_name', 'unknown')}")
+    print(f"  Comparator A stats dir: {dir_a}")
+    print(f"  Comparator B stats dir: {dir_b}")
+    print(f"  Cache A: {stats_a.get('cache_name', 'unknown')}")
+    print(f"  Cache B: {stats_b.get('cache_name', 'unknown')}")
     print()
     if warnings:
-        print("WARNINGS:")
+        print("Warnings")
         for w in warnings:
             print(f"  {w}")
         print()
 
     def _print_comparator(label: str, stats: Dict[str, any], total: Optional[int], annotated: Optional[int], tool_annotated: Optional[int], dropped: Optional[int], rate: Optional[float], total_time: Optional[float]) -> None:
-        print(f"{label}: {stats.get('stats_dir', 'unknown')}")
+        print(label)
         print(f"  Mode: {stats.get('mode', 'unknown')}")
-        print(f"  Input file: {stats.get('input_name', 'unknown')}")
         print(f"  Cache name: {stats.get('cache_name', 'unknown')}")
         if stats.get("cache_path"):
             print(f"  Cache path: {stats.get('cache_path')}")
@@ -257,30 +297,12 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
             print(f"  Total time: {format_time(total_time)} ({total_time:,.2f}s)")
         print()
 
-    stats_a["stats_dir"] = str(dir_a)
-    stats_b["stats_dir"] = str(dir_b)
     print("Comparator A (slower)")
-    _print_comparator("  Stats dir", stats_a, total_a, annotated_a, tool_annotated_a, dropped_a, rate_a, time_a)
+    _print_comparator("Details", stats_a, total_a, annotated_a, tool_annotated_a, dropped_a, rate_a, time_a)
     print("Comparator B (faster)")
-    _print_comparator("  Stats dir", stats_b, total_b, annotated_b, tool_annotated_b, dropped_b, rate_b, time_b)
+    _print_comparator("Details", stats_b, total_b, annotated_b, tool_annotated_b, dropped_b, rate_b, time_b)
 
-    if time_a is not None and time_b is not None:
-        speedup = time_a / time_b if time_b > 0 else 0
-        time_saved = time_a - time_b
-        print("Summary:")
-        print(f"  Speed-up (A/B): {speedup:.2f}x")
-        print(f"  Time saved: {format_time(time_saved)} ({time_saved:,.2f}s)")
-        print()
-
-    print("Output verification:")
-    print(f"  Top10 MD5 A: {md5_a.get('top10') or 'N/A'}")
-    print(f"  Top10 MD5 B: {md5_b.get('top10') or 'N/A'}")
-    print(f"  Bottom10 MD5 A: {md5_a.get('bottom10') or 'N/A'}")
-    print(f"  Bottom10 MD5 B: {md5_b.get('bottom10') or 'N/A'}")
-    print(f"  Total MD5 A (all variants): {md5_all_a or 'N/A'}")
-    print(f"  Total MD5 B (all variants): {md5_all_b or 'N/A'}")
-    print()
-    print("Detailed Step Timings:")
+    print("Detailed Step Timings")
     def _print_steps(label: str, steps: List[Dict[str, str]]) -> None:
         print(f"  {label}:")
         if not steps:
@@ -295,6 +317,24 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
 
     _print_steps("Comparator A", steps_a)
     _print_steps("Comparator B", steps_b)
+    print()
+
+    print("Summary")
+    if time_a is not None and time_b is not None:
+        speedup = time_a / time_b if time_b > 0 else 0
+        time_saved = time_a - time_b
+        print(f"  [OK] Speed-up (A/B): {speedup:.2f}x")
+        print(f"  [OK] Time saved: {format_time(time_saved)} ({time_saved:,.2f}s)")
+    else:
+        print("  [!] Speed-up: N/A (timing missing)")
+
+    print("  [OK] Output verification:")
+    print(f"    Top10 MD5 A: {md5_a.get('top10') or 'N/A'}")
+    print(f"    Top10 MD5 B: {md5_b.get('top10') or 'N/A'}")
+    print(f"    Bottom10 MD5 A: {md5_a.get('bottom10') or 'N/A'}")
+    print(f"    Bottom10 MD5 B: {md5_b.get('bottom10') or 'N/A'}")
+    print(f"    Total MD5 A (all variants): {md5_all_a or 'N/A'}")
+    print(f"    Total MD5 B (all variants): {md5_all_b or 'N/A'}")
     print()
     print("=" * 80)
     print()
