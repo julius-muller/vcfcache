@@ -6,38 +6,17 @@
 [![codecov](https://codecov.io/github/julius-muller/vcfcache/graph/badge.svg?token=ELV3PZ6PNL)](https://codecov.io/github/julius-muller/vcfcache)
 
 
-# VCFcache – Cache once, annotate fast
+# VCFcache – cache once, annotate fast
 
-Cache common variants once, reuse them for every sample. VCFcache builds a normalized blueprint, annotates it once, and reuses those results so only rare/novel variants are annotated at runtime.
+VCFcache builds a normalized blueprint of common variants, annotates it once, and reuses those annotations so only novel variants are processed at runtime. It is genome‑agnostic and tool‑agnostic (VEP, SnpEff, ANNOVAR, custom scripts).
 
-**Performance**: With 60-90% cache hit rates on typical samples, VCFcache achieves 2-10× speed-ups compared to standard annotation pipelines. Cache lookups are constant-time operations regardless of cache size, making the tool highly scalable. See [WIKI.md](WIKI.md#performance-model) for the detailed runtime efficiency model.
-
-**Contig naming**: VCFcache requires matching contig naming between cache and samples (e.g., both use `chr1` or both use `1`). At runtime, vcfcache reports the contig overlap and fails fast if there is no overlap.
-
-Works with any genome/build (human, mouse, plants, model organisms) as long as your inputs and annotation pipeline use compatible reference builds and contig naming. The genome build must be explicitly set in both `params.yaml` and `annotation.yaml`.
+See [WIKI.md](WIKI.md) for full documentation, performance notes, and cache distribution via Zenodo.
 
 ---
 
-## Quick Start - pip install
+## Quick Start (containers: Docker or Apptainer)
 
-Requires: Python >= 3.11 (earlier versions untested), bcftools >= 1.20
-
-```bash
-pip install vcfcache
-vcfcache demo --smoke-test  # Run comprehensive demo
-vcfcache --help
-```
-
-Install bcftools separately:
-- Ubuntu/Debian: `sudo apt-get install bcftools`
-- macOS: `brew install bcftools`
-- Conda: `conda install -c bioconda bcftools`
-
----
-
-## Quick Start - Docker
-
-**Docker includes bcftools** - no separate installation needed.
+Containers include a modern `bcftools`, which avoids OS‑level version issues.
 
 ```bash
 docker pull ghcr.io/julius-muller/vcfcache:latest
@@ -52,12 +31,34 @@ docker run --rm -v $(pwd):/work ghcr.io/julius-muller/vcfcache:latest \
     --vcf /work/sample.vcf.gz \
     --output /work/sample_vc.bcf \
     --stats-dir /work
+```
 
+Apptainer/Singularity (example):
+```bash
+apptainer exec docker://ghcr.io/julius-muller/vcfcache:latest \
+  vcfcache list caches
 ```
 
 ---
 
-## Quick Start - from source
+## Quick Start (pip)
+
+Requires: Python >= 3.11 and `bcftools >= 1.20`.
+
+```bash
+uv pip install vcfcache
+vcfcache demo -q
+vcfcache --help
+```
+
+Install `bcftools` separately:
+- Ubuntu/Debian: `sudo apt-get install bcftools`
+- macOS: `brew install bcftools`
+- Conda: `conda install -c bioconda bcftools`
+
+---
+
+## Quick Start (from source with test suite)
 
 ```bash
 git clone https://github.com/julius-muller/vcfcache.git
@@ -69,7 +70,7 @@ vcfcache --help
 
 ---
 
-## Build Your Own Cache
+## Build your own cache
 
 1. **Create blueprint** (normalize/deduplicate variants):
 ```bash
@@ -91,7 +92,56 @@ Use `--no-stats` to skip writing stats/logs (disables `vcfcache compare`).
 
 ---
 
-## Configuration
+## Public caches/blueprints (Zenodo)
+
+List and download:
+```bash
+vcfcache list caches
+vcfcache list blueprints
+vcfcache cache-build --doi <DOI>                 # download cache
+vcfcache blueprint-init --doi <DOI> -o ./cache   # download blueprint
+```
+Use a downloaded cache:
+```bash
+vcfcache annotate -a ~/.cache/vcfcache/caches/<cache_name> --vcf sample.vcf.gz --output sample_vc.bcf
+```
+
+---
+
+## params.yaml (runtime settings)
+
+`params.yaml` defines tool paths and runtime settings (e.g., `bcftools_cmd`, `annotation_tool_cmd`, `threads`, `temp_dir`, `genome_build`).  
+Pass it with `-y/--yaml` for `cache-build` and `annotate`. If omitted for `annotate`, the cache’s `params.snapshot.yaml` is used.
+
+## annotation.yaml (annotation recipe)
+
+`annotation.yaml` defines the annotation command, required tool version, and output tag (`must_contain_info_tag`).  
+It is required for `cache-build` (`-a/--anno-config`) and is stored in the cache as `annotation.snapshot.yaml`.
+
+The key field is `annotation_cmd`. It is a shell command string that must read from `$INPUT_BCF` and write to `$OUTPUT_BCF`.  
+You can include `$AUXILIARY_DIR` for tool side‑outputs. This is typically a direct translation of your annotation pipeline.
+
+Minimal example (bcftools annotate):
+```yaml
+annotation_cmd: "bcftools annotate -a /path/to/anno.bcf -c INFO -o $OUTPUT_BCF -Ob -W --threads ${params.threads} $INPUT_BCF"
+must_contain_info_tag: "CSQ"
+required_tool_version: "1.0"
+genome_build: "GRCh38"
+```
+
+---
+
+## Stats directory contents
+
+`<input_basename>_vcstats` contains:
+- `annotation.log` and `workflow.log` — run logs and timing breakdown.
+- `workflow/params.snapshot.yaml` and `workflow/annotation.snapshot.yaml` — exact configs used for the run.
+- `auxiliary/` — tool side‑outputs (e.g., VEP stats).
+- `compare_stats.yaml` and `.vcfcache_complete` — summary metrics and completion metadata.
+
+---
+
+## Configuration (common)
 
 Override system bcftools (if needed):
 ```bash
