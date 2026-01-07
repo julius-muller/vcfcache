@@ -762,6 +762,7 @@ def test_main_push_metadata_error(monkeypatch, tmp_path):
     cache_dir = tmp_path / "cache"
     (cache_dir / "blueprint").mkdir(parents=True)
     (cache_dir / "blueprint" / "vcfcache.bcf").write_text("bcf")
+    (cache_dir / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     import types
     import vcfcache.utils.archive as archive_mod
@@ -918,6 +919,7 @@ def test_main_push_publish_autometadata(monkeypatch, tmp_path):
     cache_dir = tmp_path / "cache"
     (cache_dir / "blueprint").mkdir(parents=True)
     (cache_dir / "blueprint" / "vcfcache.bcf").write_text("bcf")
+    (cache_dir / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     import types
     import vcfcache.utils.archive as archive_mod
@@ -963,6 +965,7 @@ def test_main_push_test_token(monkeypatch, tmp_path):
     cache_dir = tmp_path / "cache"
     (cache_dir / "blueprint").mkdir(parents=True)
     (cache_dir / "blueprint" / "vcfcache.bcf").write_text("bcf")
+    (cache_dir / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     import types
     import vcfcache.utils.archive as archive_mod
@@ -1282,6 +1285,7 @@ def test_main_list_local_caches_formats_alias(monkeypatch, tmp_path, capsys):
     )
     (anno_dir / "vcfcache_annotated.bcf").write_bytes(b"x" * (2 * 1024 * 1024))
     (anno_dir / "vcfcache_annotated.bcf.csi").write_text("idx")
+    (anno_dir / ".vcfcache_complete").write_text("completed: true\nmode: cache-build\n")
     (root / "blueprint" / "vcfcache.bcf").write_text("bcf")
     (root / "blueprint" / "vcfcache.bcf.csi").write_text("idx")
     (root / "blueprint" / "sources.info").write_text("{}")
@@ -1469,6 +1473,7 @@ def test_main_push_requires_token(monkeypatch, tmp_path):
     cache_dir = tmp_path / "cache"
     (cache_dir / "blueprint").mkdir(parents=True)
     (cache_dir / "blueprint" / "vcfcache.bcf").write_text("bcf")
+    (cache_dir / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     monkeypatch.setattr(
         cli.sys,
@@ -1486,12 +1491,13 @@ def test_main_push_requires_token(monkeypatch, tmp_path):
 
 def test_main_push_blueprint_success(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("ZENODO_TOKEN", "token")
-    monkeypatch.setattr(cli, "setup_logging", lambda *_args, **_kwargs: type("L", (), {"debug": lambda *_: None, "info": lambda *_: None})())
+    monkeypatch.setattr(cli, "setup_logging", lambda *_args, **_kwargs: type("L", (), {"debug": lambda *_: None, "info": lambda *_: None, "error": lambda *_: None})())
     monkeypatch.setattr(cli, "log_command", lambda *_args, **_kwargs: None)
 
     cache_dir = tmp_path / "cache"
     (cache_dir / "blueprint").mkdir(parents=True)
     (cache_dir / "blueprint" / "vcfcache.bcf").write_text("bcf")
+    (cache_dir / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     import types
     import vcfcache.utils.archive as archive_mod

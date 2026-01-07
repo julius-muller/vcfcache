@@ -177,7 +177,7 @@ class DatabaseUpdater(VCFDatabase):
             # Run the workflow in database mode
             start_time = datetime.now()
             # Pass normalize flag via nextflow_args
-            nextflow_args = ["--normalize"] if self.normalize else None
+            nextflow_args = ["--normalize"] if getattr(self, "normalize", False) else None
             self.nx_workflow.run(
                 db_mode="blueprint-extend",
                 trace=True,

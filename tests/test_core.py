@@ -206,6 +206,9 @@ def test_caches_local_lists_from_path(tmp_path: Path):
     # Ensure size >= 1MB so it is listed (local listing ignores tiny/placeholder dirs).
     (cache_root / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
     (cache_root / "cache" / "test_anno" / "vcfcache_annotated.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+    (cache_root / "cache" / "test_anno" / ".vcfcache_complete").write_text(
+        "completed: true\nmode: cache-build\n"
+    )
     (cache_root / "cache" / "test_anno" / "annotation.yaml").write_text(
         "annotation_cmd: echo\n"
         "must_contain_info_tag: CSQ\n"
@@ -229,6 +232,7 @@ def test_list_local_accepts_path_positional(tmp_path: Path):
     bp1 = base / "bp-GRCh37-gnomad-4.1joint-AF0100"
     (bp1 / "blueprint").mkdir(parents=True)
     (bp1 / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+    (bp1 / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     result = subprocess.run(
         VCFCACHE_CMD + ["list", "blueprints", "--local", str(base)],
@@ -246,6 +250,7 @@ def test_list_local_does_not_append_item_type_when_dir_is_already_items(tmp_path
     bp1 = root / "bp-GRCh37-gnomad-4.1joint-AF0100"
     (bp1 / "blueprint").mkdir(parents=True)
     (bp1 / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+    (bp1 / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     result = subprocess.run(
         VCFCACHE_CMD + ["list", "blueprints", "--local", str(root)],
@@ -266,6 +271,7 @@ def test_list_local_filters_invalid_dirs(tmp_path: Path):
     bp = base / "bp-GRCh37-gnomad-4.1joint-AF0100"
     (bp / "blueprint").mkdir(parents=True)
     (bp / "blueprint" / "vcfcache.bcf").write_bytes(b"x" * (1024 * 1024 + 10))
+    (bp / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
 
     result = subprocess.run(
         VCFCACHE_CMD + ["list", "blueprints", "--local", str(base)],

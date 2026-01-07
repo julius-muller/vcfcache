@@ -246,7 +246,7 @@ class DatabaseInitializer(VCFDatabase):
             # Log contig preview
             self._log_contigs()
             # Pass normalize flag via nextflow_args
-            nextflow_args = ["--normalize"] if self.normalize else None
+            nextflow_args = ["--normalize"] if getattr(self, "normalize", False) else None
             self.nx_workflow.run(
                 db_mode="blueprint-init",
                 trace=True,
