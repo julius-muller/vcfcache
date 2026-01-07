@@ -119,18 +119,8 @@ def _load_annotation_snapshot(stats_dir: Path) -> str:
         return ""
 
 
-def _required_param_keys(annotation_text: str) -> set[str]:
-    filtered_lines = []
-    for line in annotation_text.splitlines():
-        if line.lstrip().startswith("#"):
-            continue
-        filtered_lines.append(line)
-    filtered_text = "\n".join(filtered_lines)
-    keys = set(re.findall(r"\$\{params\.([A-Za-z0-9_\\.]+)\}", filtered_text))
-    top_level = set()
-    for key in keys:
-        top_level.add(key.split(".")[0])
-    base_required = {
+def _required_param_keys() -> set[str]:
+    return {
         "genome_build",
         "bcftools_cmd",
         "annotation_tool_cmd",
@@ -138,13 +128,12 @@ def _required_param_keys(annotation_text: str) -> set[str]:
         "temp_dir",
         "threads",
     }
-    return base_required | top_level
 
 
-def _extra_param_keys(params: Dict[str, any], annotation_text: str) -> list[str]:
+def _extra_param_keys(params: Dict[str, any]) -> list[str]:
     if not isinstance(params, dict):
         return []
-    required = _required_param_keys(annotation_text)
+    required = _required_param_keys()
     extra = [k for k in params.keys() if k not in required]
     return sorted(extra)
 
@@ -253,8 +242,8 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     params2 = _load_params_snapshot(dir2)
     anno_text1 = _load_annotation_snapshot(dir1)
     anno_text2 = _load_annotation_snapshot(dir2)
-    extra_params1 = _extra_param_keys(params1, anno_text1)
-    extra_params2 = _extra_param_keys(params2, anno_text2)
+    extra_params1 = _extra_param_keys(params1)
+    extra_params2 = _extra_param_keys(params2)
 
     completion1 = read_completion_flag(dir1) or {}
     completion2 = read_completion_flag(dir2) or {}
