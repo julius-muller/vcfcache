@@ -1320,6 +1320,61 @@ def test_main_list_local_missing_dir(monkeypatch, tmp_path, capsys):
     assert "No local caches found" in out
 
 
+def test_push_requires_completion_flags(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        cli,
+        "setup_logging",
+        lambda *_args, **_kwargs: type(
+            "L", (), {"debug": lambda *_: None, "info": lambda *_: None, "error": lambda *_: None}
+        )(),
+    )
+    monkeypatch.setattr(cli, "log_command", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli.os, "environ", {**cli.os.environ, "ZENODO_TOKEN": "token"})
+    monkeypatch.setattr(cli, "tar_cache", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr("vcfcache.utils.archive.file_md5", lambda *_args, **_kwargs: "md5")
+    monkeypatch.setattr("vcfcache.integrations.zenodo.create_deposit", lambda *_args, **_kwargs: {"id": 1})
+    monkeypatch.setattr("vcfcache.integrations.zenodo.upload_file", lambda *_args, **_kwargs: None)
+
+    # Missing blueprint completion flag
+    base = tmp_path / "bp_root"
+    (base / "blueprint").mkdir(parents=True)
+    (base / "blueprint" / "vcfcache.bcf").write_text("bcf")
+
+    monkeypatch.setattr(
+        cli.sys,
+        "argv",
+        [
+            "vcfcache",
+            "push",
+            "--cache-dir",
+            str(base),
+        ],
+    )
+    with pytest.raises(ValueError, match="Missing .vcfcache_complete"):
+        cli.main()
+
+    # Cache with missing per-annotation completion flag
+    cache_root = tmp_path / "cache_root"
+    (cache_root / "blueprint").mkdir(parents=True)
+    (cache_root / "blueprint" / "vcfcache.bcf").write_text("bcf")
+    (cache_root / "cache" / "anno1").mkdir(parents=True)
+    (cache_root / "cache" / "anno1" / "vcfcache_annotated.bcf").write_text("bcf")
+    (cache_root / ".vcfcache_complete").write_text("completed: true\nmode: blueprint-init\n")
+
+    monkeypatch.setattr(
+        cli.sys,
+        "argv",
+        [
+            "vcfcache",
+            "push",
+            "--cache-dir",
+            str(cache_root),
+        ],
+    )
+    with pytest.raises(ValueError, match="Missing .vcfcache_complete"):
+        cli.main()
+
+
 def test_main_version_fallback_uses_package_version(monkeypatch):
     monkeypatch.setattr(cli, "pkg_version", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("nope")))
     monkeypatch.setattr(cli.sys, "argv", ["vcfcache", "--version"])

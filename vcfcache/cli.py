@@ -1620,6 +1620,31 @@ def main() -> None:
                     "Expected 'blueprint/vcfcache.bcf' (blueprint) or non-empty 'cache/' directory (cache)."
                 )
 
+            def _assert_complete(path: Path, expected_mode: str) -> None:
+                complete_file = path / ".vcfcache_complete"
+                if not complete_file.exists():
+                    raise ValueError(f"Missing .vcfcache_complete in {path}")
+                try:
+                    complete_data = yaml.safe_load(complete_file.read_text()) or {}
+                except Exception as exc:
+                    raise ValueError(f"Invalid .vcfcache_complete in {path}: {exc}") from exc
+                if complete_data.get("completed") is not True:
+                    raise ValueError(f"Incomplete run in {path} (.vcfcache_complete completed != true)")
+                if complete_data.get("mode") != expected_mode:
+                    raise ValueError(
+                        f"Unexpected .vcfcache_complete mode in {path}: "
+                        f"{complete_data.get('mode')} (expected {expected_mode})"
+                    )
+
+            if is_blueprint:
+                _assert_complete(cache_dir, "blueprint-init")
+            if is_cache:
+                cache_subdir = cache_dir / "cache"
+                for p in cache_subdir.iterdir():
+                    if not p.is_dir():
+                        continue
+                    _assert_complete(p, "cache-build")
+
             dir_name = cache_dir.name
             prefix = "bp" if is_blueprint else "cache"
             tar_name = f"{prefix}_{dir_name}.tar.gz"
