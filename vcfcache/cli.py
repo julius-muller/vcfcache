@@ -1320,6 +1320,12 @@ def main() -> None:
                     return _dir_size_mb(cache_dir)
                 return 0.0
 
+            def _blueprint_dir_size_mb(root: Path) -> float:
+                bp_dir = root / "blueprint"
+                if bp_dir.is_dir():
+                    return _dir_size_mb(bp_dir)
+                return 0.0
+
             def _cache_variant_count(root: Path) -> int | None:
                 from vcfcache.utils.validation import find_bcftools
                 bcftools = find_bcftools()
@@ -1403,7 +1409,7 @@ def main() -> None:
                         continue
 
                     if item_type == "blueprints":
-                        size_mb = _dir_size_mb(root)
+                        size_mb = _blueprint_dir_size_mb(root)
                     else:
                         size_mb = _cache_dir_size_mb(root)
                     if size_mb < 1.0:
@@ -1425,7 +1431,7 @@ def main() -> None:
                 print("=" * 80)
                 for root in entries:
                     if item_type == "blueprints":
-                        size_mb = _dir_size_mb(root)
+                        size_mb = _blueprint_dir_size_mb(root)
                     else:
                         size_mb = _cache_dir_size_mb(root)
                     mtime = ""
