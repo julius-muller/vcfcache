@@ -5,6 +5,7 @@ that signals successful completion of vcfcache operations (cache-build,
 blueprint-init, blueprint-extend, annotate).
 """
 
+import os
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -59,7 +60,12 @@ def write_completion_flag(
         "command": command,
         "mode": mode,
         "version": version,
-        "git_commit": get_git_commit_hash(),
+        "git_commit": (
+            get_git_commit_hash()
+            or os.environ.get("VCFCACHE_GIT_COMMIT")
+            or os.environ.get("GIT_COMMIT")
+            or "unknown"
+        ),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     if output_file:
