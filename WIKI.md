@@ -671,11 +671,12 @@ vcfcache list --inspect /path/to/cache  # Inspect specific cache
 
 Upload a local blueprint or cache directory to Zenodo (great for sharing caches).
 
-- `--cache-dir`: path to a cache root directory (auto-detects blueprint vs cache).
+- `--cache-dir`: path to a vcfcache base directory (blueprint upload) **or** a specific cache directory under `<base>/cache/<cache_name>` (cache+blueprint upload).
 - `--dest`: upload destination (currently `zenodo`).
 - `--test`: upload to Zenodo sandbox (uses `ZENODO_SANDBOX_TOKEN`).
 - `--metadata`: optional YAML/JSON file to set Zenodo metadata (title/description/creators/keywords).
 - `--publish`: publish the record immediately after upload.
+- `--yes`: skip confirmation prompt.
 
 Environment variables:
 - `ZENODO_TOKEN`: production token.

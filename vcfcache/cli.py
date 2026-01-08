@@ -39,7 +39,7 @@ from vcfcache.database.annotator import DatabaseAnnotator, VCFAnnotator
 from vcfcache.database.initializer import DatabaseInitializer
 from vcfcache.database.updater import DatabaseUpdater
 from vcfcache.utils.logging import log_command, setup_logging
-from vcfcache.utils.archive import extract_cache, tar_cache
+from vcfcache.utils.archive import extract_cache, tar_cache_subset
 from vcfcache.utils.paths import get_project_root
 from vcfcache.utils.validation import check_bcftools_installed
 
@@ -769,7 +769,10 @@ def main() -> None:
         "--cache-dir",
         required=True,
         metavar="DIR",
-        help="Cache directory to upload (blueprint or annotated cache)"
+        help=(
+            "Path to a vcfcache base directory (blueprint upload) or a specific cache "
+            "directory under <base>/cache/<cache_name> (cache upload)."
+        ),
     )
     push_parser.add_argument(
         "--dest",
@@ -788,14 +791,18 @@ def main() -> None:
         )
     )
     push_parser.add_argument(
-        "--blueprints",
+        "--metadata",
         required=False,
         metavar="FILE",
         help=(
-            "(optional) Path to YAML/JSON file with Zenodo blueprints. "
-            "Should contain: title, description, creators (name, affiliation, orcid), "
-            "keywords, upload_type. If not provided, minimal blueprints will be auto-generated."
-        )
+            "(optional) Path to YAML/JSON file with Zenodo metadata for the upload. "
+            "If not provided, minimal metadata is auto-generated when using --publish."
+        ),
+    )
+    push_parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="(optional) Skip confirmation prompt and proceed with upload.",
     )
     push_parser.add_argument(
         "--publish",
@@ -1713,22 +1720,30 @@ def main() -> None:
             if not cache_dir.exists():
                 raise FileNotFoundError(f"Cache directory not found: {cache_dir}")
 
-            # Auto-detect blueprint vs cache and generate appropriate name
-            # Blueprint: has blueprint/ dir with vcfcache.bcf, cache/ dir is empty or absent
-            # Cache: has cache/ dir with subdirectories (named annotation caches)
-            has_blueprint_dir = (cache_dir / "blueprint").is_dir()
-            has_blueprint_file = (cache_dir / "blueprint" / "vcfcache.bcf").exists()
-            cache_subdir = cache_dir / "cache"
-            has_cache_content = cache_subdir.is_dir() and any(cache_subdir.iterdir())
+            selected_cache_name = None
+            base_dir = cache_dir
 
-            is_blueprint = has_blueprint_dir and has_blueprint_file and not has_cache_content
-            is_cache = has_cache_content
-
-            if not is_blueprint and not is_cache:
+            if cache_dir.name == "cache" and cache_dir.is_dir():
                 raise ValueError(
-                    f"Directory {cache_dir} does not appear to be a valid blueprint or cache. "
-                    "Expected 'blueprint/vcfcache.bcf' (blueprint) or non-empty 'cache/' directory (cache)."
+                    f"Cache directory {cache_dir} is the cache root. "
+                    "Provide a specific cache at <base>/cache/<cache_name> or the base directory."
                 )
+
+            if cache_dir.parent.name == "cache":
+                selected_cache_name = cache_dir.name
+                base_dir = cache_dir.parent.parent
+
+            has_blueprint_file = (base_dir / "blueprint" / "vcfcache.bcf").exists()
+            has_cache_dir = (base_dir / "cache").is_dir()
+            has_cache_content = has_cache_dir and any((base_dir / "cache").iterdir())
+
+            if not has_blueprint_file:
+                raise ValueError(
+                    f"Base directory {base_dir} is missing blueprint/vcfcache.bcf."
+                )
+
+            is_cache = selected_cache_name is not None
+            is_blueprint = not is_cache
 
             def _assert_complete(path: Path, expected_mode: str) -> None:
                 complete_file = path / ".vcfcache_complete"
@@ -1746,24 +1761,53 @@ def main() -> None:
                         f"{complete_data.get('mode')} (expected {expected_mode})"
                     )
 
-            if is_blueprint:
-                _assert_complete(cache_dir, "blueprint-init")
+            _assert_complete(base_dir, "blueprint-init")
             if is_cache:
-                cache_subdir = cache_dir / "cache"
-                for p in cache_subdir.iterdir():
-                    if not p.is_dir():
-                        continue
-                    _assert_complete(p, "cache-build")
+                cache_path = base_dir / "cache" / selected_cache_name
+                if not cache_path.is_dir():
+                    raise ValueError(f"Cache directory not found: {cache_path}")
+                _assert_complete(cache_path, "cache-build")
 
-            dir_name = cache_dir.name
+            dir_name = base_dir.name
             prefix = "bp" if is_blueprint else "cache"
             tar_name = f"{prefix}_{dir_name}.tar.gz"
-            tar_path = cache_dir.parent / tar_name
+            tar_path = base_dir.parent / tar_name
+
+            if is_blueprint and has_cache_content:
+                logger.info(
+                    "Blueprint upload selected: existing cache contents will be excluded."
+                )
+
+            upload_kind = "blueprint-only" if is_blueprint else f"cache + blueprint ({selected_cache_name})"
+            print("Upload plan:")
+            print(f"  Base directory: {base_dir}")
+            print(f"  Upload type: {upload_kind}")
+            if is_cache:
+                print(f"  Cache included: cache/{selected_cache_name}")
+            else:
+                print("  Cache included: (none)")
+            print(f"  Tarball: {tar_path}")
+            if args.metadata:
+                print(f"  Metadata file: {Path(args.metadata).expanduser().resolve()}")
+            else:
+                print("  Metadata file: (none)")
+
+            if not args.yes:
+                resp = input("Proceed with upload? [y/N]: ").strip().lower()
+                if resp not in ("y", "yes"):
+                    print("Upload cancelled.")
+                    return
 
             logger.info(f"Detected {'blueprint' if is_blueprint else 'cache'}: {dir_name}")
             logger.info(f"Creating archive: {tar_name}")
 
-            tar_cache(cache_dir, tar_path)
+            tar_cache_subset(
+                base_dir,
+                tar_path,
+                include_blueprint=True,
+                include_cache_name=selected_cache_name,
+                include_empty_cache_dir=True,
+            )
             md5 = file_md5(tar_path)
 
             logger.info(f"Archive MD5: {md5}")
@@ -1806,7 +1850,7 @@ def main() -> None:
                     metadata["keywords"] = keywords
 
             if args.publish and not metadata:
-                # Zenodo requires minimal blueprints before publishing.
+                # Zenodo requires minimal metadata before publishing.
                 item_type = "blueprint" if is_blueprint else "annotated cache"
                 metadata = {
                     "title": f"VCFcache {item_type}: {dir_name}",
@@ -1826,11 +1870,11 @@ def main() -> None:
                 resp = requests.put(
                     zenodo_url,
                     params={"access_token": token},
-                    json={"blueprints": metadata},
+                    json={"metadata": metadata},
                     timeout=30,
                 )
                 if not resp.ok:
-                    error_msg = f"Failed to update blueprints: {resp.status_code} {resp.reason}"
+                    error_msg = f"Failed to update metadata: {resp.status_code} {resp.reason}"
                     try:
                         error_detail = resp.json()
                         error_msg += f"\nZenodo error: {error_detail}"

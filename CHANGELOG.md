@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Renamed `--show-command` to `--requirements` and expanded output to explain cache YAMLs, required params, and tool checks.
 - Local `vcfcache list` shows actual directory sizes (blueprints: `blueprint/`, caches: `cache/`) instead of a small file subset.
+- `vcfcache push` now uses `--metadata` for Zenodo metadata, confirms upload contents, and supports blueprint-only uploads from a base dir or cache+blueprint uploads from a specific cache dir.
 - Release process simplified and documented in `RELEASE.md`; `scripts/release.sh` is deprecated.
 - README/WIKI streamlined and expanded with container-first quick start and a clear “start with `--requirements`” workflow.
 - Zenodo metadata templates refreshed for gnomAD v4.1 cache uploads; older metadata placeholders removed.

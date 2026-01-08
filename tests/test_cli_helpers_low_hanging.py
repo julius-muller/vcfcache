@@ -809,7 +809,7 @@ def test_main_push_metadata_error(monkeypatch, tmp_path):
         Path(tar_path).write_text("tar")
         return Path(tar_path)
 
-    monkeypatch.setattr(cli, "tar_cache", _tar_cache)
+    monkeypatch.setattr(cli, "tar_cache_subset", _tar_cache)
     monkeypatch.setattr(archive_mod, "file_md5", lambda *_args, **_kwargs: "md5")
 
     class _Resp:
@@ -836,8 +836,9 @@ def test_main_push_metadata_error(monkeypatch, tmp_path):
             "push",
             "--cache-dir",
             str(cache_dir),
-            "--blueprints",
+            "--metadata",
             str(meta),
+            "--yes",
         ],
     )
     with pytest.raises(RuntimeError):
@@ -966,7 +967,7 @@ def test_main_push_publish_autometadata(monkeypatch, tmp_path):
         Path(tar_path).write_text("tar")
         return Path(tar_path)
 
-    monkeypatch.setattr(cli, "tar_cache", _tar_cache)
+    monkeypatch.setattr(cli, "tar_cache_subset", _tar_cache)
     monkeypatch.setattr(archive_mod, "file_md5", lambda *_args, **_kwargs: "md5")
     monkeypatch.setattr(cli.requests, "put", lambda *_a, **_k: type("Resp", (), {"ok": True, "raise_for_status": lambda *_: None})())
 
@@ -979,6 +980,7 @@ def test_main_push_publish_autometadata(monkeypatch, tmp_path):
             "--cache-dir",
             str(cache_dir),
             "--publish",
+            "--yes",
         ],
     )
     cli.main()
@@ -1012,7 +1014,7 @@ def test_main_push_test_token(monkeypatch, tmp_path):
         Path(tar_path).write_text("tar")
         return Path(tar_path)
 
-    monkeypatch.setattr(cli, "tar_cache", _tar_cache)
+    monkeypatch.setattr(cli, "tar_cache_subset", _tar_cache)
     monkeypatch.setattr(archive_mod, "file_md5", lambda *_args, **_kwargs: "md5")
     monkeypatch.setattr(cli.requests, "put", lambda *_a, **_k: type("Resp", (), {"ok": True, "raise_for_status": lambda *_: None})())
 
@@ -1025,6 +1027,7 @@ def test_main_push_test_token(monkeypatch, tmp_path):
             "--cache-dir",
             str(cache_dir),
             "--test",
+            "--yes",
         ],
     )
     cli.main()
@@ -1362,7 +1365,7 @@ def test_push_requires_completion_flags(monkeypatch, tmp_path):
     )
     monkeypatch.setattr(cli, "log_command", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(cli.os, "environ", {**cli.os.environ, "ZENODO_TOKEN": "token"})
-    monkeypatch.setattr(cli, "tar_cache", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli, "tar_cache_subset", lambda *_args, **_kwargs: None)
     monkeypatch.setattr("vcfcache.utils.archive.file_md5", lambda *_args, **_kwargs: "md5")
     monkeypatch.setattr("vcfcache.integrations.zenodo.create_deposit", lambda *_args, **_kwargs: {"id": 1})
     monkeypatch.setattr("vcfcache.integrations.zenodo.upload_file", lambda *_args, **_kwargs: None)
@@ -1543,7 +1546,7 @@ def test_main_push_blueprint_success(monkeypatch, tmp_path, capsys):
         Path(tar_path).write_text("tar")
         return Path(tar_path)
 
-    monkeypatch.setattr(cli, "tar_cache", _tar_cache)
+    monkeypatch.setattr(cli, "tar_cache_subset", _tar_cache)
     monkeypatch.setattr(archive_mod, "file_md5", lambda *_args, **_kwargs: "md5")
 
     monkeypatch.setattr(
@@ -1554,6 +1557,7 @@ def test_main_push_blueprint_success(monkeypatch, tmp_path, capsys):
             "push",
             "--cache-dir",
             str(cache_dir),
+            "--yes",
         ],
     )
     cli.main()
