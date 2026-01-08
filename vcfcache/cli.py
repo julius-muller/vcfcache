@@ -1616,6 +1616,10 @@ def main() -> None:
             def _display_title(record: dict, item_type: str) -> str:
                 from vcfcache.utils.naming import CacheName
 
+                title = record.get("title")
+                if isinstance(title, str) and title.strip() and title.strip() != "Unknown":
+                    return title.strip()
+
                 keywords = record.get("keywords") or []
                 alias = next((k for k in keywords if isinstance(k, str) and (k.startswith("cache-") or k.startswith("bp-"))), None)
                 if not alias:
