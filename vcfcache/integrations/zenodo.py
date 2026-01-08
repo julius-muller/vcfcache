@@ -118,17 +118,64 @@ def upload_file(
 ) -> dict:
     bucket = deposition["links"]["bucket"]
     filename = path.name
+    file_size = path.stat().st_size
+
+    def _format_bytes(num: int) -> str:
+        for unit in ("B", "KB", "MB", "GB", "TB"):
+            if num < 1024:
+                return f"{num:.0f}{unit}" if unit == "B" else f"{num:.1f}{unit}"
+            num /= 1024
+        return f"{num:.1f}PB"
+
+    def _progress_enabled() -> bool:
+        import sys
+        return sys.stderr.isatty() or os.environ.get("VCFCACHE_UPLOAD_PROGRESS") == "1"
+
     last_err: Exception | None = None
     for attempt in range(3):
         try:
             with open(path, "rb") as fp:
+                if _progress_enabled():
+                    import sys
+                    import time
+
+                    class _ProgressReader:
+                        def __init__(self, raw):
+                            self.raw = raw
+                            self.sent = 0
+                            self.last = 0.0
+
+                        def read(self, amt: int = -1) -> bytes:
+                            chunk = self.raw.read(amt)
+                            if not chunk:
+                                return chunk
+                            self.sent += len(chunk)
+                            now = time.time()
+                            if now - self.last >= 0.5 or self.sent == file_size:
+                                pct = (self.sent / file_size * 100) if file_size else 0.0
+                                sys.stderr.write(
+                                    f\"\\rUploading {filename}: {pct:5.1f}% ({_format_bytes(self.sent)}/{_format_bytes(file_size)})\"
+                                )
+                                sys.stderr.flush()
+                                self.last = now
+                            return chunk
+
+                        def __len__(self) -> int:
+                            return file_size
+
+                    data = _ProgressReader(fp)
+                else:
+                    data = fp
                 resp = requests.put(
                     f"{bucket}/{filename}",
-                    data=fp,
+                    data=data,
                     params={"access_token": token},
                     timeout=120,
                 )
             resp.raise_for_status()
+            if _progress_enabled():
+                import sys
+                sys.stderr.write(\"\\n\")
             return resp.json()
         except requests.exceptions.RequestException as exc:
             last_err = exc
