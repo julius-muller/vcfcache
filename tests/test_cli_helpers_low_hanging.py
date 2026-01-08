@@ -2,6 +2,7 @@
 # Copyright (c) 2024-2026 Julius Müller
 
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -361,6 +362,33 @@ def test_main_annotate_requirements(monkeypatch, tmp_path):
     monkeypatch.setattr(cli.sys, "argv", ["vcfcache", "annotate", "--requirements", "-a", str(tmp_path)])
     cli.main()
     assert called.get("ok") is True
+
+
+def test_requirements_shows_snapshot_and_values(tmp_path):
+    annotation_dir = tmp_path / "cache" / "anno1"
+    annotation_dir.mkdir(parents=True)
+    (annotation_dir / "annotation.yaml").write_text(
+        "annotation_cmd: \"echo ${params.foo} ${params.bar}\"\n"
+        "must_contain_info_tag: CSQ\n"
+        "required_tool_version: \"1.0\"\n"
+        "genome_build: GRCh38\n"
+    )
+    (annotation_dir / "params.snapshot.yaml").write_text(
+        "foo: hello\n"
+        "bcftools_cmd: bcftools\n"
+    )
+
+    result = subprocess.run(
+        [sys.executable, "-m", "vcfcache.cli", "annotate", "--requirements", "-a", str(annotation_dir)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "params.yaml: " in result.stdout
+    assert "from cache snapshot" in result.stdout
+    assert "foo: hello" in result.stdout
+    assert "bar: " in result.stdout
+    assert "<missing>" in result.stdout
 
 
 def test_main_cache_build_doi_prebuilt_cache(monkeypatch, tmp_path):

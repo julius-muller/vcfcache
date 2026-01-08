@@ -408,8 +408,10 @@ vcfcache annotate \
 
 ### Annotate via a local cache directory
 
-`-a` must point to the **annotation directory** (the one containing `annotation.yaml` and `vcfcache_annotated.bcf`):
+`-a` must point to the **annotation directory** (the one containing `annotation.yaml` and `vcfcache_annotated.bcf`).
+Start with `--requirements`: it explains what tool and parameters the cache expects, and validates tool versions.
 ```bash
+vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --requirements
 vcfcache annotate \
   -a /path/to/cache_root/cache/<annotation_name> \
   --vcf sample.bcf \
@@ -420,9 +422,11 @@ vcfcache annotate \
 
 ### Useful annotate options
 
-- Print the stored annotation command (does not run annotation):
+- Print cache requirements and validate your environment (does not run annotation).  
+  If `-y/--yaml` is provided, it checks that file; otherwise it uses the cache’s `params.snapshot.yaml`:
   ```bash
   vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --requirements
+  vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --requirements -y params.yaml
   ```
 - Run an uncached annotation pass (useful for benchmarking/debugging):
   ```bash

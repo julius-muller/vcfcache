@@ -109,11 +109,13 @@ def test_requirements_outputs_annotation_tool_cmd(test_output_dir):
 
     expected_cmd = "docker run --rm -i vep:latest"
     (annotation_dir / "annotation.yaml").write_text(
-        "annotation_cmd: "
-        f"\"{expected_cmd}\"\n"
+        "annotation_cmd: \"echo ${params.annotation_tool_cmd}\"\n"
         "must_contain_info_tag: CSQ\n"
         "required_tool_version: \"1.0\"\n"
         "genome_build: GRCh38\n"
+    )
+    (annotation_dir / "params.snapshot.yaml").write_text(
+        "annotation_tool_cmd: docker run --rm -i vep:latest\n"
     )
 
     result = subprocess.run(
@@ -129,6 +131,7 @@ def test_requirements_outputs_annotation_tool_cmd(test_output_dir):
 
     assert result.returncode == 0, result.stderr
     assert expected_cmd in result.stdout
+    assert "Annotation command (with params substituted)" in result.stdout
 
 
 def test_list_shows_available_annotations(test_output_dir):

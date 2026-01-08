@@ -86,6 +86,7 @@ vcfcache cache-build --name vep_cache --db ./cache -a annotation.yaml -y params.
 
 3. **Use cache** on samples:
 ```bash
+vcfcache annotate --requirements -a ./cache/cache/vep_cache
 vcfcache annotate -a ./cache/cache/vep_cache --vcf sample.vcf.gz --output ./sample_vc.bcf --stats-dir ./results
 ```
 
