@@ -893,7 +893,11 @@ def main() -> None:
                 # Download blueprint from Zenodo
                 zenodo_env = "sandbox" if args.debug else "production"
                 logger.info(f"Downloading blueprint from Zenodo ({zenodo_env}) DOI: {args.doi}")
-                output_dir = Path(args.output).expanduser().resolve()
+                if args.output == "./cache":
+                    base = Path(os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")).expanduser()
+                    output_dir = (base / "blueprints").resolve()
+                else:
+                    output_dir = Path(args.output).expanduser().resolve()
                 output_dir.mkdir(parents=True, exist_ok=True)
 
                 # Download to temporary tarball
