@@ -1002,6 +1002,7 @@ def main() -> None:
                 if getattr(args, "output", None):
                     cache_base = Path(args.output).expanduser()
                     logger.info(f"Using download output directory: {cache_base}")
+                    store_subdirs = False
                 else:
                     vcfcache_root = os.environ.get("VCFCACHE_DIR")
                     if vcfcache_root:
@@ -1009,6 +1010,7 @@ def main() -> None:
                         logger.info(f"Using VCFCACHE_DIR: {cache_base}")
                     else:
                         cache_base = Path.home() / ".cache/vcfcache"
+                    store_subdirs = True
 
                 # Extract to temporary location to detect type
                 temp_extract = cache_base / "temp"
@@ -1031,7 +1033,7 @@ def main() -> None:
                         )
 
                     # Move to blueprints cache
-                    blueprint_store = cache_base / "blueprints"
+                    blueprint_store = cache_base / "blueprints" if store_subdirs else cache_base
                     blueprint_store.mkdir(parents=True, exist_ok=True)
                     final_dir = blueprint_store / extracted_dir.name
                     if final_dir.exists():
@@ -1053,7 +1055,7 @@ def main() -> None:
                         )
 
                     # Move to caches directory
-                    cache_store = cache_base / "caches"
+                    cache_store = cache_base / "caches" if store_subdirs else cache_base
                     cache_store.mkdir(parents=True, exist_ok=True)
                     final_dir = cache_store / extracted_dir.name
                     if final_dir.exists():
