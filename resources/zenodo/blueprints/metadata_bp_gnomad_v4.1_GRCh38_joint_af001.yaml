@@ -2,7 +2,7 @@ title: "VCFcache blueprint gnomAD v4.1 joint GRCh38 (AF \u2265 0.01)"
 genome_build: GRCh38
 version: 0.5.1
 description: "<p><strong>Abstract</strong> VCFcache blueprint derived from gnomAD\
-  \ v4.1 joint frequency data (GRCh38).</p>\n<p><strong>Note</strong> NOTE: This blueprint\
+  \ v4.1 joint frequency data (GRCh38).</p>\n<p><strong>Note</strong> This blueprint\
   \ does not contain annotations. A combined cache+blueprint bundle can be downloaded\
   \ from the corresponding cache record.</p>\n<p><strong>Contents</strong> This blueprint\
   \ contains 18.9M high-quality variant sites filtered to allele frequency (AF) \u2265\
@@ -14,9 +14,10 @@ description: "<p><strong>Abstract</strong> VCFcache blueprint derived from gnomA
   <p><strong>Purpose</strong> This blueprint serves as a foundation for building annotation\
   \ caches with tools like VEP, SnpEff, or bcftools +split-vep, enabling rapid annotation\
   \ of sample VCFs by pre-annotating common variants (\u22651% population frequency).</p>\n\
-  <p><strong>Setup</strong>: <code>vcfcache blueprint-init --doi <DOI> -o <output_dir></code></p>\n\
-  <p><strong>Usage</strong>: <code>vcfcache cache-build --db <blueprint_dir> -a annotation.yaml\
-  \ -n <name></code></p>\n"
+  <p><strong>Setup</strong>: <code>vcfcache blueprint-init --doi &lt;DOI&gt; -o &lt;output_dir&gt;</code></p>\n\
+  <p><strong>Usage</strong>: <code>vcfcache cache-build --db &lt;blueprint_dir&gt;\
+  \ -a annotation.yaml -n &lt;name&gt;</code></p>\n<p><strong>Documentation</strong>:\
+  \ <a href=\"https://github.com/julius-muller/vcfcache/wiki\">VCFcache wiki</a></p>\n"
 upload_type: dataset
 creators:
 - name: "Julius M\xFCller"

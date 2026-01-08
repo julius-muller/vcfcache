@@ -3,21 +3,24 @@ title: "VCFcache cache gnomAD v4.1 joint GRCh38 (AF \u2265 0.1) annotated with v
 genome_build: GRCh38
 version: 0.5.1
 description: "<p><strong>Abstract</strong> VCFcache cache derived from gnomAD v4.1\
-  \ joint frequency data (GRCh38).</p>\n<p><strong>Note</strong> NOTE: This upload\
-  \ includes both the annotation cache and its underlying blueprint. The blueprint\
-  \ can be used to build new caches with different annotation recipes.</p>\n<p><strong>Contents</strong>\
-  \ This underlying blueprint contains 8M high-quality variant sites filtered to allele\
-  \ frequency (AF) \u2265 0.1 (10% or 1 in 10 individuals). All genotype and INFO\
-  \ fields have been removed, retaining only genomic positions (CHROM, POS, REF, ALT).\
-  \ Multiallelic sites have been split into separate records.</p>\n<p><strong>Technical\
-  \ details</strong><br>Coverage: chr1-22, chrX, chrY<br>Source: gnomAD v4.1.0 joint\
-  \ frequency (807,162 samples)<br>Processing: AF-filtered (\u226510%), normalized,\
-  \ GT/INFO removed, multiallelics split, vep annotated<br>Annotation tool: Ensembl\
-  \ VEP 115.2 (via Apptainer)<br>VEP cache: Ensembl 115, GRCh38</p>\n<p><strong>Setup</strong>:\
-  \ <code>vcfcache cache-build --doi <DOI></code></p>\n<p><strong>Usage</strong>:\
-  \ <code>vcfcache annotate -a <cache_dir> -i sample.vcf.gz -o sample_vc.bcf --stats-dir\
-  \ output/</code></p>\n<p>VEP Annotations Included (CSQ INFO field): - Comprehensive\
-  \ annotation (--everything) - HGVS nomenclature (--hgvsg)</p>\n"
+  \ joint frequency data (GRCh38). Annotation tool: Ensembl VEP 115.2 (via Apptainer).\
+  \ Includes Comprehensive annotation (--everything), HGVS nomenclature (--hgvsg).</p>\n\
+  <p><strong>Note</strong> This upload includes both the annotation cache and its\
+  \ underlying blueprint. The blueprint can be used to build new caches with different\
+  \ annotation recipes.</p>\n<p><strong>Contents</strong> This underlying blueprint\
+  \ contains 8M high-quality variant sites filtered to allele frequency (AF) \u2265\
+  \ 0.1 (10% or 1 in 10 individuals). All genotype and INFO fields have been removed,\
+  \ retaining only genomic positions (CHROM, POS, REF, ALT). Multiallelic sites have\
+  \ been split into separate records.</p>\n<p><strong>Technical details</strong><br>Coverage:\
+  \ chr1-22, chrX, chrY<br>Source: gnomAD v4.1.0 joint frequency (807,162 samples)<br>Processing:\
+  \ AF-filtered (\u226510%), normalized, GT/INFO removed, multiallelics split, vep\
+  \ annotated<br>Annotation tool: Ensembl VEP 115.2 (via Apptainer)<br>VEP cache:\
+  \ Ensembl 115, GRCh38</p>\n<p><strong>VEP Annotations Included (CSQ INFO field)</strong><br>Comprehensive\
+  \ annotation (--everything)<br>HGVS nomenclature (--hgvsg)</p>\n<p><strong>Setup</strong>:\
+  \ <code>vcfcache cache-build --doi &lt;DOI&gt;</code></p>\n<p><strong>Usage</strong>:\
+  \ <code>vcfcache annotate -a &lt;cache_dir&gt; -i sample.vcf.gz -o sample_vc.bcf\
+  \ --stats-dir output/</code></p>\n<p><strong>Documentation</strong>: <a href=\"\
+  https://github.com/julius-muller/vcfcache/wiki\">VCFcache wiki</a></p>\n"
 upload_type: dataset
 creators:
 - name: "Julius M\xFCller"

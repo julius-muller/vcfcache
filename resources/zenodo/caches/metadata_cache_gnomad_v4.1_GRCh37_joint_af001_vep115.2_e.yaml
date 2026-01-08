@@ -3,22 +3,22 @@ title: "VCFcache cache gnomAD v4.1 joint GRCh37 (AF \u2265 0.01, lifted from GRC
 genome_build: GRCh37
 version: 0.5.1
 description: "<p><strong>Abstract</strong> VCFcache cache derived from gnomAD v4.1\
-  \ joint frequency data, lifted over from GRCh38 to GRCh37 (hg19).</p>\n<p><strong>Note</strong>\
-  \ NOTE: This upload includes both the annotation cache and its underlying blueprint.\
-  \ The blueprint can be used to build new caches with different annotation recipes.</p>\n\
-  <p><strong>Note</strong> NOTE: This is a liftover from GRCh38. For native GRCh38\
-  \ analysis, use the GRCh38 cache instead.</p>\n<p><strong>Technical details</strong><br>Coverage:\
-  \ chr1-22, chrX, chrY (GRCh37 coordinates)<br>Source: gnomAD v4.1.0 joint frequency\
-  \ (807,162 samples)<br>Processing: GRCh38\u2192GRCh37 liftover, AF-filtered (\u2265\
-  1%), normalized,<br>GT/INFO removed, multiallelics split, vep annotated<br>Annotation\
-  \ tool: Ensembl VEP 115.2<br>VEP cache: Ensembl 115, GRCh37</p>\n<p><strong>Setup</strong>:\
-  \ <code>vcfcache cache-build --doi <DOI></code></p>\n<p><strong>Usage</strong>:\
-  \ <code>vcfcache annotate -a <cache_dir> -i sample.vcf.gz -o sample_vc.bcf --stats-dir\
-  \ output/</code></p>\n<p>The underlying blueprint contains 19M high-quality variant\
-  \ sites lifted over from GRCh38 to GRCh37 using CrossMap and then filtered to allele\
-  \ frequency (AF) \u2265 0.01 1% or 1 in 100 individuals). Multiallelic sites have\
-  \ been split into separate records.</p>\n<p>VEP Annotations Included (CSQ INFO field):\
-  \ - Comprehensive annotation (--everything) - HGVS nomenclature (--hgvsg)</p>\n"
+  \ joint frequency data, lifted over from GRCh38 to GRCh37 (hg19). Annotation tool:\
+  \ Ensembl VEP 115.2. Includes Comprehensive annotation (--everything), HGVS nomenclature\
+  \ (--hgvsg).</p>\n<p><strong>Note</strong> This upload includes both the annotation\
+  \ cache and its underlying blueprint. The blueprint can be used to build new caches\
+  \ with different annotation recipes.</p>\n<p><strong>Note</strong> This is a liftover\
+  \ from GRCh38. For native GRCh38 analysis, use the GRCh38 cache instead.</p>\n<p><strong>Technical\
+  \ details</strong><br>Coverage: chr1-22, chrX, chrY (GRCh37 coordinates)<br>Source:\
+  \ gnomAD v4.1.0 joint frequency (807,162 samples)<br>Processing: GRCh38\u2192GRCh37\
+  \ liftover, AF-filtered (\u22651%), normalized,<br>GT/INFO removed, multiallelics\
+  \ split, vep annotated<br>Annotation tool: Ensembl VEP 115.2<br>VEP cache: Ensembl\
+  \ 115, GRCh37</p>\n<p><strong>VEP Annotations Included (CSQ INFO field)</strong><br>Comprehensive\
+  \ annotation (--everything)<br>HGVS nomenclature (--hgvsg)</p>\n<p><strong>Setup</strong>:\
+  \ <code>vcfcache cache-build --doi &lt;DOI&gt;</code></p>\n<p><strong>Usage</strong>:\
+  \ <code>vcfcache annotate -a &lt;cache_dir&gt; -i sample.vcf.gz -o sample_vc.bcf\
+  \ --stats-dir output/</code></p>\n<p><strong>Documentation</strong>: <a href=\"\
+  https://github.com/julius-muller/vcfcache/wiki\">VCFcache wiki</a></p>\n"
 upload_type: dataset
 creators:
 - name: "Julius M\xFCller"

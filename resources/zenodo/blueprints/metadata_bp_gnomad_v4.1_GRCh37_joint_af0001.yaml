@@ -3,23 +3,25 @@ title: "VCFcache blueprint gnomAD v4.1 joint GRCh37 (AF \u2265 0.001, lifted fro
 genome_build: GRCh37
 description: "<p><strong>Abstract</strong> VCFcache blueprint derived from gnomAD\
   \ v4.1 joint frequency data, lifted over from GRCh38 to GRCh37 (hg19).</p>\n<p><strong>Note</strong>\
-  \ NOTE: This blueprint does not contain annotations. A combined cache+blueprint\
-  \ bundle can be downloaded from the corresponding cache record.</p>\n<p><strong>Note</strong>\
-  \ NOTE: This is a liftover from GRCh38. For native GRCh38 analysis, use the GRCh38\
-  \ blueprint instead.</p>\n<p><strong>Contents</strong> This blueprint contains 98.9M\
-  \ high-quality variant sites lifted over from GRCh38 to GRCh37 using CrossMap and\
-  \ then filtered to allele frequency (AF) \u2265 0.001 (0.1% or 1 in 1000 individuals).\
-  \ All genotype and INFO fields have been removed, retaining only genomic positions\
-  \ (CHROM, POS, REF, ALT). Multiallelic sites have been split into separate records.</p>\n\
-  <p><strong>Technical details</strong><br>Coverage: chr1-22, chrX, chrY (GRCh37 coordinates)<br>Source:\
+  \ This blueprint does not contain annotations. A combined cache+blueprint bundle\
+  \ can be downloaded from the corresponding cache record.</p>\n<p><strong>Note</strong>\
+  \ This is a liftover from GRCh38. For native GRCh38 analysis, use the GRCh38 blueprint\
+  \ instead.</p>\n<p><strong>Contents</strong> This blueprint contains 98.9M high-quality\
+  \ variant sites lifted over from GRCh38 to GRCh37 using CrossMap and then filtered\
+  \ to allele frequency (AF) \u2265 0.001 (0.1% or 1 in 1000 individuals). All genotype\
+  \ and INFO fields have been removed, retaining only genomic positions (CHROM, POS,\
+  \ REF, ALT). Multiallelic sites have been split into separate records.</p>\n<p><strong>Technical\
+  \ details</strong><br>Coverage: chr1-22, chrX, chrY (GRCh37 coordinates)<br>Source:\
   \ gnomAD v4.1.0 joint frequency (807,162 samples)<br>Processing: GRCh38\u2192GRCh37\
   \ liftover, AF-filtered (\u22650.1%), normalized,<br>GT/INFO removed, multiallelics\
   \ split</p>\n<p><strong>Purpose</strong> This blueprint serves as a foundation for\
   \ building annotation caches with tools like VEP, SnpEff, or bcftools +split-vep,\
   \ enabling rapid annotation of sample VCFs using GRCh37/hg19 coordinates with common\
   \ variants (\u22651% population frequency).</p>\n<p><strong>Setup</strong>: <code>vcfcache\
-  \ blueprint-init --doi <DOI> -o <output_dir></code></p>\n<p><strong>Usage</strong>:\
-  \ <code>vcfcache cache-build --db <blueprint_dir> -a annotation.yaml -n <name></code></p>\n"
+  \ blueprint-init --doi &lt;DOI&gt; -o &lt;output_dir&gt;</code></p>\n<p><strong>Usage</strong>:\
+  \ <code>vcfcache cache-build --db &lt;blueprint_dir&gt; -a annotation.yaml -n &lt;name&gt;</code></p>\n\
+  <p><strong>Documentation</strong>: <a href=\"https://github.com/julius-muller/vcfcache/wiki\"\
+  >VCFcache wiki</a></p>\n"
 upload_type: dataset
 creators:
 - name: "Julius M\xFCller"
