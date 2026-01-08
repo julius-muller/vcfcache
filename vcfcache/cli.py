@@ -264,6 +264,29 @@ def _print_annotation_command(path_hint: Path, params_override: Path | None = No
     else:
         print(f"  annotation tool: {_bad('no tool_version_command provided')}  {_bad('✗')}")
 
+    print("\n" + _hdr("Cache contigs (bcftools index -s)"))
+    cache_bcf = cache_dir / "vcfcache_annotated.bcf"
+    if cache_bcf.exists():
+        try:
+            res = subprocess.run(
+                [str(bcftools_cmd), "index", "-s", str(cache_bcf)],
+                capture_output=True,
+                text=True,
+            )
+            if res.returncode == 0:
+                contigs = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+                if contigs:
+                    for line in contigs:
+                        print(f"  {line}")
+                else:
+                    print("  (no contigs reported)")
+            else:
+                print(f"  ERROR ({res.stderr.strip() or 'failed'})")
+        except Exception as exc:
+            print(f"  ERROR ({exc})")
+    else:
+        print("  (vcfcache_annotated.bcf not found)")
+
     def _substitute_params(text: str, params_map: dict) -> str:
         def _replace(match: re.Match) -> str:
             key = match.group(1)
