@@ -100,7 +100,7 @@ def test_print_annotation_command_single_cache(tmp_path, capsys):
 
     cli._print_annotation_command(cache_root)
     out = capsys.readouterr().out
-    assert "Annotation command recorded in cache" in out
+    assert "Annotation command (with params substituted)" in out
     assert "echo hello" in out
 
 
@@ -1192,7 +1192,7 @@ def test_print_annotation_command_single_cache(tmp_path, capsys):
 
     cli._print_annotation_command(cache_root)
     out = capsys.readouterr().out
-    assert "Annotation command recorded in cache" in out
+    assert "Annotation command (with params substituted)" in out
     assert "echo ok" in out
 
 
