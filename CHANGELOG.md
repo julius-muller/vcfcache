@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.5.2 (2026-01-08)
+
 ### Added
 - New `-r/--requirements` for `vcfcache annotate` to print cache requirements, validate tools, and show a fully substituted annotation command.
   - Uses `-y/--yaml` if provided, otherwise the cache’s `params.snapshot.yaml`.
