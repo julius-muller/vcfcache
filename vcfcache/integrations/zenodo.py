@@ -154,7 +154,7 @@ def upload_file(
                             if now - self.last >= 0.5 or self.sent == file_size:
                                 pct = (self.sent / file_size * 100) if file_size else 0.0
                                 sys.stderr.write(
-                                    f\"\\rUploading {filename}: {pct:5.1f}% ({_format_bytes(self.sent)}/{_format_bytes(file_size)})\"
+                                    f"\rUploading {filename}: {pct:5.1f}% ({_format_bytes(self.sent)}/{_format_bytes(file_size)})"
                                 )
                                 sys.stderr.flush()
                                 self.last = now
@@ -175,7 +175,7 @@ def upload_file(
             resp.raise_for_status()
             if _progress_enabled():
                 import sys
-                sys.stderr.write(\"\\n\")
+                sys.stderr.write("\n")
             return resp.json()
         except requests.exceptions.RequestException as exc:
             last_err = exc
