@@ -6,17 +6,17 @@ User-facing documentation for building and using VCFcache. This page is intentio
 
 ## Table of Contents
 1. What VCFcache does
-2. Performance model (runtime efficiency)
-3. Quick Start
-4. Key concepts (Blueprint vs Cache)
-5. Finding caches (Zenodo + local)
-6. Inspecting a cache (what params does it require?)
-7. Building your own cache (end-to-end)
-8. Using a cache to annotate samples
-9. Configuration reference (`params.yaml` + `annotation.yaml`)
-10. Docker usage
-11. Troubleshooting
-12. CLI reference (all commands & flags)
+2. Quick Start
+3. Key concepts (Blueprint vs Cache)
+4. Finding caches (Zenodo + local)
+5. Inspecting a cache (what params does it require?)
+6. Building your own cache (end-to-end)
+7. Using a cache to annotate samples
+8. Configuration reference (`params.yaml` + `annotation.yaml`)
+9. Docker usage
+10. CLI reference (all commands & flags)
+11. Performance model (runtime efficiency)
+12. Troubleshooting
 
 ---
 
@@ -42,122 +42,7 @@ Trade-off:
 
 ---
 
-## 2) Performance model (runtime efficiency)
-
-VCFcache dramatically reduces per-sample annotation time by caching results for common variants and reusing them instead of re-computing each time. This section explains the runtime model and expected speed gains.
-
-### How cache lookups work
-
-Cache lookups are extremely fast – VCFcache uses bcftools/htslib to query a pre-indexed binary BCF cache file, so retrieving an annotation for a given variant is effectively a **constant-time operation**. Thanks to the BCF index, bcftools provides near-instant random access to any variant's data. Using binary BCF format instead of text VCF further reduces overhead (2-3× faster for queries).
-
-In short: **looking up a cached annotation incurs minimal, constant cost regardless of cache size**, whereas annotating a variant from scratch is orders of magnitude slower.
-
-### Why conventional annotation is slow
-
-Conventional annotation pipelines (e.g., Ensembl VEP with plugins like SpliceAI, dbNSFP, or CADD) are **I/O bound, not compute bound**. They don't perform heavy calculations - they're essentially lookup engines that retrieve pre-computed scores and predictions from large external data files.
-
-The bottleneck is **data access**: For each variant, the pipeline typically queries multiple large external files (tabix-indexed VCFs, BED files, BigWig tracks, database files, etc.). Each query involves:
-- Seeking to the genomic position in a large file
-- Decompressing data blocks (for bgzipped files)
-- Parsing the relevant records
-- Often querying wide genomic intervals or scanning multiple resources
-
-Even though the annotation tool itself is fast, **pulling data from many large files is slow**. The algorithms behind tools like tabix and BigWig are optimized for one-off lookups (as in genome browsers) but not for processing thousands of sequential queries in batch. Each per-variant query is handled as an independent search, repeating the same I/O operations over and over.
-
-**Example**: If a variant requires data from 5 different external files (e.g., VEP cache, dbNSFP, CADD, SpliceAI, conservation scores), and each file access takes 2 seconds due to file size and I/O, that's 10 seconds per variant - but the actual computation is negligible.
-
-### Runtime model variables
-
-Let us define a few variables to formalize the runtime for a given sample:
-
-- **N** – number of variants in the sample
-- **f** – fraction of variants that hit the cache (cache hit rate, typically 0.70-0.90)
-- **t_ann** – average time to fully annotate one variant without caching (per-variant annotation time)
-- **t_lookup** – time to fetch one variant's annotation from cache (very small: ~0.001-0.01s)
-- **t_overhead** – one-time fixed overhead for preparing the job and intersecting with cache
-
-### Runtime comparison
-
-**Baseline (no cache)**: All variants annotated from scratch
-```
-T_baseline = N × t_ann
-```
-
-**With VCFcache**: Cached variants handled much faster
-```
-T_cached = t_overhead + (f × N × t_lookup) + ((1-f) × N × t_ann)
-```
-
-Because cache lookup is extremely fast (t_lookup ≪ t_ann), this simplifies to:
-```
-T_cached ≈ t_overhead + (1-f) × N × t_ann
-```
-
-For negligible overhead:
-```
-T_cached ≈ (1-f) × N × t_ann
-```
-
-### Expected speed-up
-
-The speed-up factor is:
-```
-Speed-up ≈ T_baseline / T_cached ≈ 1 / (1-f)
-```
-
-**Practical examples**:
-- **f = 0.80** (80% cache hits) → **~5× faster**
-- **f = 0.90** (90% cache hits) → **~10× faster**
-- **f = 0.95** (95% cache hits) → **~20× faster**
-
-In practice, using a large population cache (like one built from gnomAD) often yields **70-90% cache hit rates** for typical sample VCFs, resulting in **5-10× speed-ups**.
-
-### Impact of pipeline complexity
-
-The benefit of caching **grows with pipeline complexity**. As the annotation pipeline incorporates more resource-intensive analyses (e.g., SpliceAI splice predictions or deep-learning scores), the average annotation time t_ann per variant increases, making the baseline runtime grow linearly.
-
-However, **cache lookup time (t_lookup) and overhead (t_overhead) remain flat** regardless of pipeline complexity. No matter how many annotations are in the pipeline, fetching a cached result is still just a quick indexed lookup.
-
-Therefore: **the more complex (and slow) the annotation pipeline, the more advantageous caching becomes**.
-
-### Scalability: cache size independence
-
-Cache lookup performance is **independent of cache size**. A cache with ten million variants can be queried just as quickly as a cache with ten thousand variants. Each lookup is a direct index access (like a dictionary lookup by position) with negligible cost.
-
-This ensures vcfcache remains scalable – you can build very comprehensive caches covering broad population datasets without worrying about slowing down per-variant lookup performance. **Each sample's runtime scales primarily with the novelty of its variants, not with the size of the cache**.
-
-### Contig naming considerations
-
-VCFcache requires **matching contig naming** between your cache and input samples. For example, if your cache uses `chr1`, `chr2`, etc., your samples must also use `chr1`, `chr2`, etc. Mixing naming conventions (e.g., cache with `chr1` and sample with `1`) will result in an error. At annotation start, vcfcache reports the contig overlap and fails fast if there is no overlap.
-
-### Genome build compatibility
-
-The genome build must be explicitly set in both `params.yaml` and `annotation.yaml` (e.g., `GRCh38`, `GRCh37`). VCFcache validates that these values match and logs the genome build during workflow startup.
-
-### When caching provides less benefit
-
-For **very small datasets** or **very simple annotation pipelines**, the fixed overhead (t_overhead) may dominate the runtime, reducing or eliminating speed gains. Specifically:
-
-- **Small N** (few variants): If your sample has only dozens or hundreds of variants, the overhead of setting up the caching workflow may be comparable to just annotating them directly
-- **Simple pipelines with minimal data access** (small t_ann): If your annotation pipeline only adds a few basic fields without accessing large external data sources (e.g., VEP without any plugins, or simple dbSNP ID lookups), there's less data access cost to save. The benefit of caching grows with the number and size of external data sources your pipeline accesses (BigWig files, large tabix-indexed databases, VEP plugins like SpliceAI/dbNSFP/CADD, etc.)
-- **Testing with tiny datasets**: If you're testing vcfcache with a small test VCF, you may not see significant speed-ups and might even observe slower performance due to overhead
-
-**Key insight**: Annotation pipelines are essentially lookup engines - they don't do heavy computation, they access data from large external files. The per-variant time (t_ann) is dominated by I/O cost: seeking through BigWig files, querying tabix-indexed VCFs, loading plugin data, etc. Even if it takes 10 seconds to pull all the required data for a single variant from various large files, fetching that same pre-computed result from the cache takes milliseconds - **a 100× speed-up per cached variant**. The more external data sources your pipeline queries, the larger t_ann becomes, and the more dramatic the caching benefit.
-
-**Recommendation**: VCFcache is designed for production annotation workflows where you have many samples (hundreds to thousands) with typical variant counts (thousands to millions) and annotation pipelines that access multiple external data sources. The benefits compound over many samples - the one-time cache build cost is amortized across all future samples.
-
-### Summary
-
-VCFcache shifts the runtime model to **"annotate once, reuse often"**, delivering:
-- **Predictable speed-ups**: 2-10× for typical samples (60-90% cache hits)
-- **Greater gains for complex pipelines**: More expensive annotations = higher relative benefit
-- **Constant-time lookups**: Cache size doesn't affect query performance
-- **Scalable design**: Runtime determined by variant novelty, not cache size
-- **Best for production workflows**: Benefits compound when annotating many samples
-
----
-
-## 3) Quick Start
+## 2) Quick Start
 
 This section is for “I want to see it work” with minimal setup.
 
@@ -231,7 +116,7 @@ Why the extra files in `cache/<annotation_name>/`?
 
 ---
 
-## 5) Finding caches (Zenodo + local)
+## 4) Finding caches (Zenodo + local)
 
 This section covers how to discover available caches and where downloads are stored.
 
@@ -283,7 +168,7 @@ vcfcache list caches --local /data/vcfcache
 
 ---
 
-## 6) Inspecting a cache (what params does it require?)
+## 5) Inspecting a cache (what params does it require?)
 
 Caches depend on their `annotation.yaml` recipe, which can reference `${params.*}` keys that must exist in your `params.yaml` at runtime (or be compatible with the stored snapshot).
 
@@ -303,7 +188,7 @@ This is the quickest way to answer “what do I need in my `params.yaml` to use 
 
 ---
 
-## 7) Building your own cache (end-to-end)
+## 6) Building your own cache (end-to-end)
 
 This section walks through creating a cache from scratch.
 
@@ -322,6 +207,11 @@ vcfcache blueprint-init \
   --output ./cache_root \
   -y params.yaml \
   --force
+```
+
+You can also start from a public blueprint DOI (no local input required):
+```bash
+vcfcache blueprint-init --doi <DOI> -o ./cache_root
 ```
 
 If you want multiallelic splitting during blueprint creation:
@@ -391,7 +281,7 @@ vcfcache cache-build --doi <DOI> -o /data/vcfcache
 
 ---
 
-## 8) Using a cache to annotate samples
+## 7) Using a cache to annotate samples
 
 This section covers how to annotate a sample file once you have a cache.
 
@@ -460,7 +350,7 @@ These preprocessing steps ensure:
 
 ---
 
-## 9) Configuration reference (`params.yaml` + `annotation.yaml`)
+## 8) Configuration reference (`params.yaml` + `annotation.yaml`)
 
 VCFcache deliberately splits configuration into:
 - `params.yaml`: environment/tool paths (site-specific, editable per machine)
@@ -532,7 +422,7 @@ export VCFCACHE_BCFTOOLS=/path/to/bcftools-1.22
 
 ---
 
-## 10) Docker usage
+## 9) Docker usage
 
 Docker is a convenient way to avoid installing `bcftools` on the host and to run VCFcache consistently across machines.
 
@@ -551,7 +441,129 @@ docker build --target final -f docker/Dockerfile.vcfcache -t vcfcache:local .
 
 ---
 
-## 11) Troubleshooting
+## 11) Performance model (runtime efficiency)
+
+VCFcache dramatically reduces per-sample annotation time by caching results for common variants and reusing them instead of re-computing each time. This section explains the runtime model and expected speed gains.
+
+### How cache lookups work
+
+Cache lookups are extremely fast – VCFcache uses bcftools/htslib to query a pre-indexed binary BCF cache file, so retrieving an annotation for a given variant is effectively a **constant-time operation**. Thanks to the BCF index, bcftools provides near-instant random access to any variant's data. Using binary BCF format instead of text VCF further reduces overhead (2-3× faster for queries).
+
+In short: **looking up a cached annotation incurs minimal, constant cost regardless of cache size**, whereas annotating a variant from scratch is orders of magnitude slower.
+
+### Why conventional annotation is slow
+
+Conventional annotation pipelines (e.g., Ensembl VEP with plugins like SpliceAI, dbNSFP, or CADD) are **I/O bound, not compute bound**. They don't perform heavy calculations - they're essentially lookup engines that retrieve pre-computed scores and predictions from large external data files.
+
+The bottleneck is **data access**: For each variant, the pipeline typically queries multiple large external files (tabix-indexed VCFs, BED files, BigWig tracks, database files, etc.). Each query involves:
+- Seeking to the genomic position in a large file
+- Decompressing data blocks (for bgzipped files)
+- Parsing the relevant records
+- Often querying wide genomic intervals or scanning multiple resources
+
+Even though the annotation tool itself is fast, **pulling data from many large files is slow**. The algorithms behind tools like tabix and BigWig are optimized for one-off lookups (as in genome browsers) but not for processing thousands of sequential queries in batch. Each per-variant query is handled as an independent search, repeating the same I/O operations over and over.
+
+**Example**: If a variant requires data from 5 different external files (e.g., VEP cache, dbNSFP, CADD, SpliceAI, conservation scores), and each file access takes 2 seconds due to file size and I/O, that's 10 seconds per variant - but the actual computation is negligible.
+
+### Runtime model variables
+
+Let us define a few variables to formalize the runtime for a given sample:
+
+- **N** – number of variants in the sample
+- **f** – fraction of variants that hit the cache (cache hit rate, typically 0.60-0.80 for gnomAD-based caches)
+- **t_ann** – average time to fully annotate one variant without caching (per-variant annotation time)
+- **t_lookup** – time to fetch one variant's annotation from cache (very small: ~0.001-0.01s)
+- **t_overhead** – one-time fixed overhead for preparing the job and intersecting with cache
+
+### Runtime comparison
+
+**Baseline (no cache)**: All variants annotated from scratch
+```
+T_baseline = N × t_ann
+```
+
+**With VCFcache**: Cached variants handled much faster
+```
+T_cached = t_overhead + (f × N × t_lookup) + ((1-f) × N × t_ann)
+```
+
+Because cache lookup is extremely fast (t_lookup ≪ t_ann), this simplifies to:
+```
+T_cached ≈ t_overhead + (1-f) × N × t_ann
+```
+
+For negligible overhead:
+```
+T_cached ≈ (1-f) × N × t_ann
+```
+
+### Expected speed-up
+
+The speed-up factor is:
+```
+Speed-up ≈ T_baseline / T_cached ≈ 1 / (1-f)
+```
+
+**Practical examples**:
+- **f = 0.80** (80% cache hits) → **~5× faster**
+- **f = 0.90** (90% cache hits) → **~10× faster**
+- **f = 0.95** (95% cache hits) → **~20× faster**
+
+In practice, using a large population cache (like one built from gnomAD) often yields **60–80% cache hit rates** for typical sample VCFs, resulting in **2.5–5× speed-ups**.
+
+To maximize speed‑ups for your own cohort, build a **custom cache**:
+- Take the intersection of a handful of representative samples (e.g., 5).
+- Start from a standard gnomAD blueprint.
+- Run `blueprint-extend` with the cohort intersection, then annotate the blueprint into a cache.
+This increases cache hit rates significantly.
+
+### Impact of pipeline complexity
+
+The benefit of caching **grows with pipeline complexity**. As the annotation pipeline incorporates more resource-intensive analyses (e.g., SpliceAI splice predictions or deep-learning scores), the average annotation time t_ann per variant increases, making the baseline runtime grow linearly.
+
+However, **cache lookup time (t_lookup) and overhead (t_overhead) remain flat** regardless of pipeline complexity. No matter how many annotations are in the pipeline, fetching a cached result is still just a quick indexed lookup.
+
+Therefore: **the more complex (and slow) the annotation pipeline, the more advantageous caching becomes**.
+
+### Scalability: cache size independence
+
+Cache lookup performance is **independent of cache size**. A cache with ten million variants can be queried just as quickly as a cache with ten thousand variants. Each lookup is a direct index access (like a dictionary lookup by position) with negligible cost.
+
+This ensures vcfcache remains scalable – you can build very comprehensive caches covering broad population datasets without worrying about slowing down per-variant lookup performance. **Each sample's runtime scales primarily with the novelty of its variants, not with the size of the cache**.
+
+### Contig naming considerations
+
+VCFcache requires **matching contig naming** between your cache and input samples. For example, if your cache uses `chr1`, `chr2`, etc., your samples must also use `chr1`, `chr2`, etc. Mixing naming conventions (e.g., cache with `chr1` and sample with `1`) will result in an error. At annotation start, vcfcache reports the contig overlap and fails fast if there is no overlap.
+
+### Genome build compatibility
+
+The genome build must be explicitly set in both `params.yaml` and `annotation.yaml` (e.g., `GRCh38`, `GRCh37`). VCFcache validates that these values match and logs the genome build during workflow startup.
+
+### When caching provides less benefit
+
+For **very small datasets** or **very simple annotation pipelines**, the fixed overhead (t_overhead) may dominate the runtime, reducing or eliminating speed gains. Specifically:
+
+- **Small N** (few variants): If your sample has only dozens or hundreds of variants, the overhead of setting up the caching workflow may be comparable to just annotating them directly
+- **Simple pipelines with minimal data access** (small t_ann): If your annotation pipeline only adds a few basic fields without accessing large external data sources (e.g., VEP without any plugins, or simple dbSNP ID lookups), there's less data access cost to save. The benefit of caching grows with the number and size of external data sources your pipeline accesses (BigWig files, large tabix-indexed databases, VEP plugins like SpliceAI/dbNSFP/CADD, etc.)
+- **Testing with tiny datasets**: If you're testing vcfcache with a small test VCF, you may not see significant speed-ups and might even observe slower performance due to overhead
+
+**Key insight**: Annotation pipelines are essentially lookup engines - they don't do heavy computation, they access data from large external files. The per-variant time (t_ann) is dominated by I/O cost: seeking through BigWig files, querying tabix-indexed VCFs, loading plugin data, etc. Even if it takes 10 seconds to pull all the required data for a single variant from various large files, fetching that same pre-computed result from the cache takes milliseconds - **a 100× speed-up per cached variant**. The more external data sources your pipeline queries, the larger t_ann becomes, and the more dramatic the caching benefit.
+
+**Recommendation**: VCFcache is designed for production annotation workflows where you have many samples (hundreds to thousands) with typical variant counts (thousands to millions) and annotation pipelines that access multiple external data sources. The benefits compound over many samples - the one-time cache build cost is amortized across all future samples.
+
+### Summary
+
+VCFcache shifts the runtime model to **"annotate once, reuse often"**, delivering:
+- **Predictable speed-ups**: 2-10× for typical samples (60-90% cache hits)
+- **Greater gains for complex pipelines**: More expensive annotations = higher relative benefit
+- **Constant-time lookups**: Cache size doesn't affect query performance
+- **Scalable design**: Runtime determined by variant novelty, not cache size
+- **Best for production workflows**: Benefits compound when annotating many samples
+
+---
+
+
+## 12) Troubleshooting
 
 - **bcftools not found or too old**: install `bcftools >= 1.20`, or set `VCFCACHE_BCFTOOLS=...`.
 - **Nothing shows up in `--local` listing**: confirm `VCFCACHE_DIR` and directory layout (`<base>/caches/*` and `<base>/blueprints/*`).
@@ -575,7 +587,7 @@ This means that while VCFcache guarantees functional equivalence (same variants 
 
 ---
 
-## 12) CLI reference (all commands & flags)
+## 10) CLI reference (all commands & flags)
 
 This section is a compact reference for the CLI. It complements the walkthrough above.
 
@@ -587,9 +599,8 @@ Create a blueprint from a local VCF/BCF, or download a blueprint from Zenodo.
 
 - `-i/--vcf`: input VCF/BCF (local blueprint creation).
 - `--doi`: download blueprint by DOI (mutually exclusive with `--vcf`).
-- `-o/--output`: output directory for the blueprint (default: `./cache`).
+- `-o/--output`: output directory for the blueprint (default: `./cache` for local creation; for DOI downloads defaults to `VCFCACHE_DIR/blueprints` if not provided).
 - `-y/--yaml`: params YAML used during local blueprint creation (tool paths, temp dir).
-- `-t/--threads`: threads for `bcftools` operations (default: 1).
 - `-n/--normalize`: split multiallelic variants during blueprint creation.
 - `-f/--force`: overwrite output directory if it exists.
 - `--debug`: keep intermediate work dirs and use Zenodo sandbox for list/download operations.
@@ -601,7 +612,6 @@ Extend an existing blueprint with additional variants.
 - `--db`: blueprint directory (cache root containing `blueprint/`).
 - `--vcf`: additional VCF/BCF to merge into the blueprint.
 - `-y/--yaml`: params YAML used for local blueprint operations.
-- `-t/--threads`: threads for `bcftools` operations (default: 1).
 - `-n/--normalize`: split multiallelic variants during extension.
 - `-f/--force`: overwrite temporary outputs if present.
 - `--debug`: keep intermediate work dirs.
@@ -615,11 +625,10 @@ Two modes:
 Flags:
 - `-d/--db`: local blueprint directory.
 - `--doi`: DOI for blueprint or cache.
-- `-o/--output`: base directory for DOI downloads (overrides `VCFCACHE_DIR` for this command).
+- `-o/--output`: output directory for DOI downloads. If provided, the cache/blueprint is extracted directly into this directory (no extra `caches/` or `blueprints/` subdir).
 - `-n/--name`: cache name when building from a blueprint.
 - `-a/--anno-config`: annotation recipe YAML (required when building from a blueprint).
 - `-y/--params`: params YAML (copied to `params.snapshot.yaml`).
-- `-t/--threads`: threads for `bcftools` operations (default: 1).
 - `-f/--force`: overwrite existing cache outputs.
 - `--debug`: keep intermediate work dirs and use Zenodo sandbox for DOI operations.
 
@@ -634,7 +643,6 @@ Annotate a sample VCF/BCF using a cache.
 - `--no-stats`: disable stats/logs output (also disables `vcfcache compare`).
 - `--md5-all`: compute full MD5 of all variants (no header) and store in stats (slow; may differ between runs).
 - `-y/--yaml`: params YAML for runtime (copied to workflow `params.snapshot.yaml`).
-- `-t/--threads`: threads for `bcftools` (default: 1).
 - `-f/--force`: overwrite outputs.
 - `--uncached`: run annotation without using the cache (debug/benchmark).
 - `--parquet`: also convert output to Parquet for downstream querying.
