@@ -699,29 +699,23 @@ Environment variables:
 - `ZENODO_SANDBOX_TOKEN`: sandbox token.
 - `ZENODO_SANDBOX=1`: affects some operations; for VCFcache CLI, `--debug` and `--test` are the main toggles.
 
+### `vcfcache compare`
+
+Compare two successful `vcfcache annotate` runs using their stats directories.
+
+- `dir1`: first stats directory
+- `dir2`: second stats directory
+- `--debug`: keep intermediate files (no effect on compare itself, but included for consistency)
+
+Requires `.vcfcache_complete` in both stats dirs (created by `vcfcache annotate`).
+
 ### `vcfcache demo`
 
-Convenience command for smoke testing and benchmarking.
+Convenience command for smoke testing.
 
-**Two modes**:
-
-1. **Smoke test mode**: Runs comprehensive test of all 4 commands using bundled demo data
-   ```bash
-   vcfcache demo --smoke-test
-   ```
-
-2. **Benchmark mode**: Compares cached vs uncached annotation performance
-   ```bash
-   vcfcache demo -a <cache> --vcf <file> -y <params> [--output <file>] [--stats-dir <dir>]
-   ```
+This command runs a **smoke test** covering the full pipeline (blueprint-init → blueprint-extend → cache-build → annotate) using bundled demo data.
 
 **Options**:
-- `--smoke-test`: run smoke test mode.
-- `-a/--annotation_db CACHE`: benchmark mode - path to annotation cache (requires `--vcf` and `-y`).
-- `--vcf VCF`: benchmark mode - path to VCF/BCF file to annotate (requires `-a` and `-y`).
-- `-y/--yaml PARAMS`: params YAML file (required for benchmark mode).
-- `--output FILE`: benchmark mode - output BCF path (default: temporary file in /tmp).
-- `--stats-dir DIR`: benchmark mode - stats directory (optional). If omitted, annotate defaults to `<cwd>/<input_basename>_vcstats`.
 - `--debug`: keep intermediate files for inspection; also enables detailed timing output.
 - `-q/--quiet`: suppress detailed output (show only essential information).
 
