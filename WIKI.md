@@ -172,19 +172,19 @@ vcfcache list caches --local /data/vcfcache
 
 Caches depend on their `annotation.yaml` recipe, which can reference `${params.*}` keys that must exist in your `params.yaml` at runtime (or be compatible with the stored snapshot).
 
-Use `--inspect` to see:
+Use `vcfcache annotate --requirements` to see:
 - constraints from `annotation.yaml` (e.g., required tool version, required INFO tag)
 - which `${params.*}` keys are referenced by the recipe
 - which values are present in `params.snapshot.yaml`
-- a minimal `params.yaml` template you can copy
+- a fully substituted annotation command and basic tool checks
 
 Inspect either the cache root or a specific annotation directory:
 ```bash
-vcfcache list --inspect /path/to/cache_root
-vcfcache list --inspect /path/to/cache_root/cache/<annotation_name>
+vcfcache annotate --requirements -a /path/to/cache_root
+vcfcache annotate --requirements -a /path/to/cache_root/cache/<annotation_name>
 ```
 
-This is the quickest way to answer “what do I need in my `params.yaml` to use this cache correctly?”
+`vcfcache list --inspect` is now just a thin wrapper around `vcfcache annotate --requirements`.
 
 ---
 
@@ -411,7 +411,7 @@ annotation_cmd: |
 ```
 
 Practical tip:
-- Use `vcfcache list --inspect <cache>` to see the exact `${params.*}` keys your cache requires and generate a minimal template.
+- Use `vcfcache annotate --requirements -a <cache>` to see the exact `${params.*}` keys your cache requires and validate tool versions.
 
 ### bcftools requirement / override
 
@@ -662,7 +662,7 @@ Discover public items on Zenodo or list local items.
 - `--genome GENOME`: filter public Zenodo results by genome keyword (e.g., `GRCh37`, `GRCh38`).
 - `--source SOURCE`: filter public Zenodo results by source keyword (e.g., `gnomad`).
 - `--local [PATH]`: list local items instead of querying Zenodo. Optionally specify a custom path (default: `VCFCACHE_DIR` or `~/.cache/vcfcache`).
-- `--inspect PATH`: inspect a local cache/blueprint directory and print required `${params.*}` keys.
+- `--inspect PATH`: inspect a local cache and print requirements (same output as `vcfcache annotate --requirements`).
 - `--debug`: query Zenodo sandbox instead of production.
 
 **Examples**:

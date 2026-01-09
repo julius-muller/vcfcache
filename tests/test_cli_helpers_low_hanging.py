@@ -455,10 +455,8 @@ def test_main_list_inspect_blueprint_only(monkeypatch, tmp_path, capsys):
             str(root),
         ],
     )
-    cli.main()
-    out = capsys.readouterr().out
-    assert "VCFcache inspect" in out
-    assert "blueprint-only" in out.lower()
+    with pytest.raises(FileNotFoundError):
+        cli.main()
 
 
 def test_main_list_local_blueprints(monkeypatch, tmp_path, capsys):
@@ -600,7 +598,7 @@ def test_main_list_inspect_annotation_dir(monkeypatch, tmp_path, capsys):
     )
     cli.main()
     out = capsys.readouterr().out
-    assert "Annotation dir" in out
+    assert "Cache annotation recipe" in out
 
 
 def test_main_list_remote_records(monkeypatch, capsys):
@@ -938,7 +936,7 @@ def test_main_list_inspect_cache_root_multiple_annos(monkeypatch, tmp_path, caps
     )
     cli.main()
     out = capsys.readouterr().out
-    assert "Cache annotations" in out
+    assert "Multiple caches found" in out
 
 
 def test_main_push_publish_autometadata(monkeypatch, tmp_path):
@@ -1249,9 +1247,8 @@ def test_main_list_inspect_blueprint_only(monkeypatch, tmp_path, capsys):
         "argv",
         ["vcfcache", "list", "caches", "--inspect", str(root)],
     )
-    cli.main()
-    out = capsys.readouterr().out
-    assert "blueprint-only" in out
+    with pytest.raises(FileNotFoundError):
+        cli.main()
 
 
 def test_main_list_inspect_invalid_structure(monkeypatch, tmp_path):
@@ -1265,7 +1262,7 @@ def test_main_list_inspect_invalid_structure(monkeypatch, tmp_path):
         "argv",
         ["vcfcache", "list", "caches", "--inspect", str(bad)],
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(FileNotFoundError):
         cli.main()
 
 
@@ -1294,8 +1291,7 @@ def test_main_list_inspect_missing_params_snapshot(monkeypatch, tmp_path, capsys
     )
     cli.main()
     out = capsys.readouterr().out
-    assert "Params snapshot: (missing) params.snapshot.yaml" in out
-    assert "MISSING" in out
+    assert "params.yaml: (missing)" in out
 
 
 def test_main_list_local_caches_formats_alias(monkeypatch, tmp_path, capsys):

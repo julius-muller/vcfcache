@@ -774,7 +774,8 @@ def main() -> None:
         "--inspect",
         metavar="PATH",
         help=(
-            "(optional) Inspect a specific local cache/blueprint. "
+            "(optional) Inspect a specific local cache and print requirements "
+            "(same output as `vcfcache annotate --requirements`). "
             "Accepts a filesystem path or a name under VCFCACHE_DIR/{caches,blueprints}."
         ),
     )
@@ -1674,7 +1675,7 @@ def main() -> None:
 
             # Handle --inspect mode
             if args.inspect:
-                _inspect_local(args.inspect)
+                _print_annotation_command(Path(args.inspect))
                 return
 
             # Handle --local mode

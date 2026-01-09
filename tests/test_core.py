@@ -191,12 +191,12 @@ def test_list_inspect_reports_required_params(tmp_path: Path):
     )
 
     result = subprocess.run(
-        VCFCACHE_CMD + ["list", "caches", "--inspect", str(cache_root)],
+        VCFCACHE_CMD + ["annotate", "--requirements", "-a", str(cache_root)],
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0, result.stderr
-    assert "Required params.yaml keys" in result.stdout
+    assert "Required params" in result.stdout
     assert "bcftools_cmd" in result.stdout
     assert "annotation_tool_cmd" in result.stdout
 
