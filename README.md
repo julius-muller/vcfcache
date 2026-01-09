@@ -10,36 +10,23 @@
 
 VCFcache builds a normalized blueprint of common variants, annotates it once, and reuses those annotations so only novel variants are processed at runtime. It is genome‑agnostic and tool‑agnostic (VEP, SnpEff, ANNOVAR, custom scripts).
 
-Important: to use a cache, you must have the same annotation tool (and compatible version) installed locally.
+**Important**: to use a cache, you must have the same annotation tool (and compatible version) installed locally.
+
+## When VCFcache helps
+
+VCFcache is useful when you either (a) repeatedly annotate many samples with a stable pipeline, or (b) want to quickly apply published, prebuilt annotations (e.g., gnomAD-derived, vep annotated caches) to a large VCF/BCF. Performance depends on cache hit rate and I/O.
+
+## Key properties
+
+* **Drop-in integration:** keep your existing annotation command; place it into a simple `annotation.yaml` and run `vcfcache annotate`.
+* **Cache reuse with automatic fallback:** cache hits are reused; cache misses are annotated with your configured command and merged into one output.
+* **Genome- and tool-agnostic:** works with arbitrary reference builds and organisms, and with any annotator or pipeline that can be expressed as a command (stdin/stdout or file-based).
+* **Ready-made human caches available:** published caches built from public aggregation resources (e.g., gnomAD) can be downloaded and used immediately; the same tooling can generate highly efficient custom caches for your specific options and datasets.
+* **BCF-native I/O:** VCFcache reads and writes **BCF** for performance and indexing; use `bcftools view` to convert VCF/VCF.gz at the boundaries.
 
 See [WIKI.md](WIKI.md) for full documentation, performance notes, and cache distribution via Zenodo.
 
 ---
-
-## Quick Start (containers: Docker or Apptainer)
-
-Containers include a modern `bcftools`, which avoids OS‑level version issues.
-
-```bash
-docker pull ghcr.io/julius-muller/vcfcache:latest
-
-# List available public caches
-docker run --rm ghcr.io/julius-muller/vcfcache:latest list caches
-
-# Use a public cache from Zenodo
-docker run --rm -v $(pwd):/work ghcr.io/julius-muller/vcfcache:latest \
-  annotate \
-    -a cache-hg38-gnomad-4.1joint-AF0100-vep-115.2-basic \
-    --vcf /work/sample.vcf.gz \
-    --output /work/sample_vc.bcf \
-    --stats-dir /work
-```
-
-Apptainer/Singularity (example):
-```bash
-apptainer exec docker://ghcr.io/julius-muller/vcfcache:latest \
-  vcfcache list caches
-```
 
 ---
 

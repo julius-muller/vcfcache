@@ -50,7 +50,7 @@ This section is for “I want to see it work” with minimal setup.
 
 Requires Python 3.11+ and `bcftools >= 1.20`.
 ```bash
-pip install vcfcache
+uv pip install vcfcache
 vcfcache --help
 ```
 
@@ -190,11 +190,11 @@ vcfcache annotate --requirements -a /path/to/cache_root/cache/<annotation_name>
 
 ## 6) Building your own cache (end-to-end)
 
-This section walks through creating a cache from scratch.
+Most users start from a **downloaded blueprint** (fast and reproducible), then build a cache with their own annotation recipe.  
+Creating a blueprint from scratch gives maximum control but requires you to curate a population file and can change which variants are cached.
 
 ### Prerequisites
 
-- Input population file in BCF/VCF form (ideally BCF) and indexed (e.g., `.csi`).
 - `bcftools >= 1.20`.
 - An annotation tool/pipeline you can run non-interactively (VEP is a common choice).
 

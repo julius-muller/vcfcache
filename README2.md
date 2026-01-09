@@ -9,7 +9,7 @@
 
 VCFcache accelerates variant annotation by reusing annotations for variants that are already present in a local cache. Variants not found in the cache are annotated with your existing workflow and merged into a single output file.
 
-VCFcache is designed to be a minimal wrapper around established annotation pipelines (e.g., VEP). It does not introduce a new annotation model; it reuses precomputed results where possible.
+VCFcache is designed to be a minimal wrapper around established annotation pipelines (e.g., VEP). It does not introduce a new annotation model; it reuses precomputed results where possible. It is genome‑agnostic and tool‑agnostic (VEP, SnpEff, ANNOVAR, custom scripts).
 
 ## When VCFcache helps
 
