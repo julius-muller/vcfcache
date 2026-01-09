@@ -143,6 +143,12 @@ vcfcache annotate -a /tmp/caches/<cache_name> \
   -i input.bcf -o output.bcf
 ```
 
+Before running a cache you downloaded from someone else, use:
+```bash
+vcfcache annotate --requirements -a /tmp/caches/<cache_name>
+```
+This prints the expected tool versions, required `${params.*}` keys, and a fully substituted annotation command.
+
 ---
 
 ## Output equivalence and verification
