@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.5.3 (2026-01-09)
+
+### Added
+- Zenodo upload/download progress indicator (TTY or `VCFCACHE_UPLOAD_PROGRESS=1`).
+- Zenodo upload retries (3 attempts with backoff).
+- Cache contig listing in `vcfcache annotate --requirements` (capped at 50 lines).
+- GitHub Actions workflow to sync `WIKI.md` to the GitHub Wiki on main (`.github/workflows/wiki-sync.yml`).
+
+### Changed
+- `vcfcache list --inspect` now reuses `vcfcache annotate --requirements`.
+- DOI downloads with `cache-build -o <dir>` now extract directly into the given directory (no extra `caches/`/`blueprints/` subdir).
+- WIKI updated: moved performance model to the end, updated hit-rate guidance (60–80% for gnomAD), clarified custom-cohort cache strategy, and synced CLI reference.
+
+### Fixed
+- Zenodo metadata parsing uses `metadata` (not deprecated `blueprints`) and handles missing headers in download streams.
+- Local `vcfcache list` alias formatting restored for directory names.
+
 ## 0.5.2 (2026-01-08)
 
 ### Added
