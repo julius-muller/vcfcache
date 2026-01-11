@@ -7,18 +7,18 @@
 
 # VCFcache – cache once, annotate fast
 
-VCFcache builds a normalized blueprint of common variants, annotates it once, and reuses those annotations so only novel variants are processed at runtime.
+VCFcache accelerates variant annotation by caching annotations for a user-defined variant set and reusing them across runs, so only novel variants are processed at runtime.
 
 ### When VCFcache helps
 
-VCFcache is useful when you either (a) repeatedly annotate many samples with a stable pipeline, or (b) want to quickly apply common annotations (e.g., VEP --everything) to a large VCF/BCF. Speed increase depends on cache hit rate of the input sample and per-variant annotation speed of the original pipeline.
+VCFcache is useful when you either (a) repeatedly annotate many samples with a stable pipeline, or (b) want to quickly apply common annotations (e.g., VEP --everything) to a large VCF/BCF. Speedup depends on the cache hit rate of the input sample and the per-variant cost of the original annotation pipeline.
 
 ### Key properties
 
 * **Drop-in integration:** keep your existing annotation command; place it into a simple `annotation.yaml` and run `vcfcache annotate`.
 * **Cache reuse with automatic fallback:** cache hits are reused; cache misses are annotated with your configured command and merged into one output.
 * **Genome- and tool-agnostic:** works with arbitrary reference builds and organisms, and with any annotator or pipeline that can be expressed as a command (stdin/stdout or file-based).
-* **Pre-built caches available:** published caches built from public aggregation resources and annotation tools can be downloaded and used immediately (currently hg19/hg38 annotated with VEP --everything, more on request); the same tooling can generate highly efficient custom caches for your specific options and datasets.
+* **Pre-built caches available:** published caches built from public aggregation resources and annotation tools can be downloaded and used immediately (currently hg19/hg38 annotated with VEP --everything; additional configurations can be generated on request); the same tooling can generate highly efficient custom caches for your specific options and datasets.
 * **BCF-native I/O:** VCFcache reads and writes **BCF** for performance and indexing; use `bcftools view` to convert VCF/VCF.gz at the boundaries.
 
 **Important**: to use a prebuilt cache, you must have the same annotation tool (and compatible version) installed locally.
