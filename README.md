@@ -9,11 +9,11 @@
 
 VCFcache builds a normalized blueprint of common variants, annotates it once, and reuses those annotations so only novel variants are processed at runtime.
 
-## When VCFcache helps
+### When VCFcache helps
 
 VCFcache is useful when you either (a) repeatedly annotate many samples with a stable pipeline, or (b) want to quickly apply common annotations (e.g., VEP --everything) to a large VCF/BCF. Speed increase depends on cache hit rate of the input sample and per-variant annotation speed of the original pipeline.
 
-## Key properties
+### Key properties
 
 * **Drop-in integration:** keep your existing annotation command; place it into a simple `annotation.yaml` and run `vcfcache annotate`.
 * **Cache reuse with automatic fallback:** cache hits are reused; cache misses are annotated with your configured command and merged into one output.
@@ -46,7 +46,7 @@ See [WIKI.md - Section 2 (Quick Start)](WIKI.md#2-quick-start) for development i
 
 ---
 
-## Your First Annotation (3-minute tutorial)
+## Minimal example
 
 This minimal example shows the complete workflow using a public cache.
 
@@ -74,7 +74,7 @@ This shows:
 - Required params (reference cache paths, etc.)
 - The exact annotation command that will run
 
-**Critical**: Install the exact tool version shown (e.g., `vep --version` must match).
+**Critical**: Install the exact tool version shown here to ensure compatibility with the cache annotations.
 
 ### 4. Annotate your sample
 

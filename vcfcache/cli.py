@@ -639,7 +639,10 @@ def main() -> None:
         dest="i",
         required=False,
         metavar="VCF",
-        help="Input VCF/BCF file to annotate (required unless using --list or --requirements)",
+        help=(
+            "Input VCF/BCF file to annotate (required unless using --list or --requirements). "
+            "Use '-' to read from stdin."
+        ),
     )
     vcf_parser.add_argument(
         "-o",
