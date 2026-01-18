@@ -398,7 +398,7 @@ Example:
 ```yaml
 bcftools_cmd: "bcftools"
 annotation_tool_cmd: "vep"
-tool_version_command: "vep --version"
+tool_version_command: "vep | awk '/ensembl-vep/ {print $NF}'"
 temp_dir: "/tmp"
 threads: 1
 genome_build: "GRCh38"
