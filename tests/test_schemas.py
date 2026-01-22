@@ -21,7 +21,7 @@ class TestParamsYAMLSchema:
             "temp_dir": "/tmp",
             "threads": 2,
             "genome_build": "GRCh38",
-            "tool_version_command": "vep --version",
+            "tool_version_command": "vep | awk '/ensembl-vep/ {print $NF}'",
             "optional_checks": {},
             "custom_field": "value",
         }

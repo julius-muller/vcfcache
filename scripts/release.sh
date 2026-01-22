@@ -322,7 +322,7 @@ sync_github_wiki_from_file() {
   local wiki_url
   wiki_url="$(derive_wiki_repo_url)"
   if [[ -z "$wiki_url" ]]; then
-    log "  ✗ Could not derive wiki repo URL from origin; set WIKI_REPO_URL manually."
+    log "  ✗ Could not derive wiki repo URL from origin; set WIKI_REPO_URL manually."\
     return 1
   fi
   if [[ ! -f "WIKI.md" ]]; then

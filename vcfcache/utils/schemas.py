@@ -162,7 +162,7 @@ annotation_tool_cmd: "vep"
 bcftools_cmd: "bcftools"
 temp_dir: "/tmp"
 genome_build: "GRCh38"
-tool_version_command: "vep --version"
+tool_version_command: "vep | awk '/ensembl-vep/ {{print $NF}}'"
 optional_checks: {{}}
 vep_cache_dir: "/opt/vep/cache"
 """
