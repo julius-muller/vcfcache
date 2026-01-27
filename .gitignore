@@ -27,19 +27,14 @@ tests/config/old/
 # IDE
 /.idea/
 /.vscode/
-/.junie/
-/.claude/
 
 # Nextflow
 /.nextflow/
 /work/
 .nextflow.log*
 
-
 # extra
 *.log
-CLAUDE.md
-AGENTS.md
 RELEASE.md
 VARIANT_COUNT_ANALYSIS.md
 TEST_SUMMARY.md
@@ -50,3 +45,4 @@ tests/benchmarks/
 /VARIANT_PRESERVATION_SUMMARY.md
 /coverage.xml
 /junit.xml
+manuscript/
