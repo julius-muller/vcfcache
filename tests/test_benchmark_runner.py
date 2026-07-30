@@ -6,6 +6,7 @@ from pathlib import Path
 from benchmarks.run_pilot import (
     PilotConfig,
     annotation_command,
+    calculate_cache_hit_rate,
     parse_elapsed,
     parse_gnu_time,
     semantic_compare,
@@ -31,6 +32,16 @@ def test_parse_elapsed_formats():
     assert parse_elapsed("7.5") == 7.5
     assert parse_elapsed("2:03.5") == 123.5
     assert parse_elapsed("1:02:03") == 3723
+
+
+def test_cache_hit_rate_falls_back_to_normalized_output_total():
+    counts = {
+        "input_variants": None,
+        "total_output": 1_772,
+        "tool_annotated": 71,
+    }
+    assert calculate_cache_hit_rate("uncached", counts, 1_772) is None
+    assert calculate_cache_hit_rate("cached", counts, 1_772) == 1 - (71 / 1_772)
 
 
 def test_parse_gnu_time(tmp_path):

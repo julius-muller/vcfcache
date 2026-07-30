@@ -248,6 +248,23 @@ def find_stats_dir(run_dir: Path) -> Path:
     return matches[0]
 
 
+def calculate_cache_hit_rate(
+    mode: str, variant_counts: dict[str, object], output_records: int
+) -> float | None:
+    """Calculate hit rate using the normalized total when input count is absent."""
+    if mode != "cached":
+        return None
+    total = (
+        variant_counts.get("input_variants")
+        or variant_counts.get("total_output")
+        or output_records
+    )
+    tool_annotated = variant_counts.get("tool_annotated")
+    if not isinstance(total, int) or not isinstance(tool_annotated, int) or total <= 0:
+        return None
+    return 1 - (tool_annotated / total)
+
+
 def write_json_atomic(path: Path, value: object) -> None:
     """Write JSON without exposing a partially-written result."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -321,11 +338,7 @@ def run_one(config: PilotConfig, mode: str) -> dict[str, object]:
     compare_stats_path = stats_dir / "compare_stats.yaml"
     compare_stats = yaml.safe_load(compare_stats_path.read_text()) or {}
     variant_counts = compare_stats.get("variant_counts", {}) or {}
-    input_variants = variant_counts.get("input_variants")
-    tool_annotated = variant_counts.get("tool_annotated")
-    hit_rate = None
-    if mode == "cached" and input_variants and tool_annotated is not None:
-        hit_rate = 1 - (tool_annotated / input_variants)
+    hit_rate = calculate_cache_hit_rate(mode, variant_counts, output_records)
 
     metrics: dict[str, object] = {
         "mode": mode,
@@ -502,7 +515,11 @@ def summarize(config: PilotConfig) -> dict[str, object]:
         "sample": config.sample,
         "commit": config.commit,
         "replicate": config.replicate,
-        "input_records": metrics["uncached"]["variant_counts"].get("input_variants"),
+        "input_records": (
+            metrics["uncached"]["variant_counts"].get("input_variants")
+            or metrics["uncached"]["variant_counts"].get("total_output")
+            or metrics["uncached"]["output_records"]
+        ),
         "uncached_wall_seconds": uncached_seconds,
         "cached_wall_seconds": cached_seconds,
         "speedup": uncached_seconds / cached_seconds,
