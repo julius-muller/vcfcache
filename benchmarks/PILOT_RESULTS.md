@@ -1,4 +1,4 @@
-# Frozen paired publication pilot
+# Confirmed paired publication pilot
 
 Pilot date: 2026-07-30 UTC.
 
@@ -8,7 +8,8 @@ Pilot date: 2026-07-30 UTC.
 |---|---|
 | Sample | 1000 Genomes HG02079 (EAS), GRCh38 |
 | Input variants | 4,329,621 |
-| VCFcache code | commit `0d1d794242ff` |
+| Initial VCFcache code | commit `0d1d794242ff` |
+| Confirmed VCFcache code | commit `88c018086b21` |
 | Annotation | VEP 115.2, `--everything`, eight forks |
 | Public cache | gnomAD v4.1 GRCh38, AF ≥ 0.001 |
 | Host | 32-vCPU, 62-GiB VM |
@@ -18,15 +19,15 @@ The cached and uncached commands were identical except for the `--uncached`
 flag. GNU time covered the complete VCFcache command, including normalization,
 annotation, output writing, indexing, and final accounting.
 
-## Result
+## Confirmed result
 
 | Metric | Uncached | Cached | Change |
 |---|---:|---:|---:|
-| Wall time | 7,666.6 s (2:07:46.6) | 924.6 s (0:15:24.6) | 8.29×; 87.94% saved |
-| User CPU time | 56,614.6 s (15.73 h) | 4,624.3 s (1.28 h) | 14.44 CPU-h saved |
+| Wall time | 7,613.4 s (2:06:53.4) | 796.1 s (0:13:16.1) | 9.56×; 89.54% saved |
+| User CPU time | 57,705.5 s (16.03 h) | 4,414.5 s (1.23 h) | 14.80 CPU-h saved |
 | Variants sent to VEP | 4,329,621 | 172,755 | 4,156,866 avoided |
 | Effective cache-hit rate | — | 96.01% | — |
-| Peak RSS | 44.1 GiB | 44.1 GiB | accounting-limited |
+| Largest-process peak RSS | 5.22 GiB | 749 MiB | statistics spike removed |
 | Retained run directory | 969 MiB | 969 MiB | no material difference |
 
 This single-sample pilot supports the mechanism and establishes feasibility. It
@@ -50,16 +51,30 @@ within-locus ordering difference. A regression test was added before rerunning
 the complete comparison; the revised comparator canonicalizes record order
 only within the same CHROM/POS locus.
 
-## Scale-up gate
+## Streaming-accounting confirmation
 
-Before launching the 50-sample matrix:
+The initial pair used a statistics implementation that captured every matching
+VCF text record in memory and produced a 44.1-GiB peak in both modes. The
+streaming implementation emits only one newline per matching record and counts
+the iterator incrementally.
 
-1. change final annotated-variant accounting to stream/count records rather
-   than retaining full `bcftools view` output;
-2. rerun this exact pair and semantic validation;
-3. freeze that commit and measure its true per-job peak RSS;
-4. size Slurm concurrency from the new peak and execute one warm-up plus three
-   randomized measured pairs per sample.
+- A direct full-output count returned 4,329,621 in 38.3 s at 31 MiB peak RSS.
+- Uncached end-to-end peak fell from 44.1 GiB to 5.22 GiB.
+- Cached end-to-end peak fell from 44.1 GiB to 749 MiB.
+- Cached wall time fell by 128.4 s; uncached wall time fell by 53.2 s.
+- The repeated pair retained exact semantic equivalence.
+
+GNU time reports the maximum RSS of the largest process, not the sum of
+concurrent VEP workers. Read-only snapshots observed approximately 20–23 GiB
+aggregate worker RSS during uncached annotation. Slurm jobs should initially
+request 32 GiB and use cgroup memory metrics for final reporting.
+
+## Scale-up
+
+The implementation is ready for the prespecified 50-sample matrix: one warm-up
+and three randomized measured cached/uncached pairs per sample. Start with 15
+concurrent eight-CPU, 32-GiB Slurm jobs and adjust only after observing the
+first batch's cgroup memory.
 
 Machine-readable results are outside Git at
-`/mnt/data/vcfcache_benchmarks/pilot/HG02079/0d1d794242ff/summary.json`.
+`/mnt/data/vcfcache_benchmarks/pilot/HG02079/88c018086b21/summary.json`.

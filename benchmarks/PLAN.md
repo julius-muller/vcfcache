@@ -23,11 +23,11 @@ output.
    - Capture cgroup CPU, memory peak, I/O, wall time, variant counts, hit rate,
      cache size, and output concordance.
 4. **Headline experiment** — paired pilot complete; cohort pending
-   - The frozen HG02079 pilot achieved 8.29× end-to-end speedup at a 96.01%
+   - The confirmed HG02079 pilot achieved 9.56× end-to-end speedup at a 96.01%
      cache-hit rate with semantic equivalence across all 4,329,621 variants.
      See [PILOT_RESULTS.md](PILOT_RESULTS.md).
-   - Remove the memory-heavy final statistics scan and repeat the paired pilot
-     before freezing the implementation used for the cohort.
+   - The memory-heavy final statistics scan was replaced with streaming
+     counting and the exact pair was repeated at commit `88c018086b21`.
    - Run cached and uncached VEP 115.2 `--everything` on all 50 1000 Genomes
      samples.
    - Use one warm-up and three measured repetitions, randomized within sample.
@@ -55,6 +55,7 @@ output.
 ## Infrastructure
 
 Data preparation and sequential pilots run on the current 32-vCPU, 62-GiB VM.
-The 50-sample repeated annotation matrix should move to Slurm after the
-statistics-memory fix and confirmation pilot. Current end-to-end peak RSS is
-44.1 GiB per job, caused by post-annotation accounting rather than VEP.
+The 50-sample repeated annotation matrix should now move to Slurm. After the
+streaming fix, GNU time's largest-process peak RSS is 5.22 GiB uncached and
+749 MiB cached; observed aggregate VEP worker RSS was approximately 20–23 GiB
+during the uncached run.
