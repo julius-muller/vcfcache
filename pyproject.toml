@@ -69,7 +69,8 @@ markers = [
   "requires_annotation: marks tests that need full annotation pipeline with VEP",
   "integration: marks tests as integration tests (legacy marker)",
   "unit: marks tests as unit tests (legacy marker)",
-  "blueprint: marks tests for blueprint image (legacy marker)"
+  "blueprint: marks tests for blueprint image (legacy marker)",
+  "benchmark_network: live official-source smoke tests for publication data preparation",
 ]
 
 [tool.coverage.run]
