@@ -85,6 +85,17 @@ class DatabaseInitializer(VCFDatabase):
             self.config_yaml.write_text(yaml.dump(minimal_params))
             params_path = self.config_yaml
 
+            # Warn user about auto-generated params with UNKNOWN genome_build
+            warning_msg = (
+                "WARNING: No params.yaml provided (-y flag). Auto-generated minimal params.yaml "
+                f"at {self.config_yaml} with genome_build='UNKNOWN'. "
+                "You MUST update the genome_build field before running cache-build."
+            )
+            if self.logger:
+                self.logger.warning(warning_msg)
+            else:
+                print(warning_msg)
+
         # Initialize workflow backend (pure Python)
         if self.logger:
             self.logger.info("Initializing pure Python workflow...")

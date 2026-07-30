@@ -59,7 +59,7 @@ vcfcache list caches
 ### 2. Pull a specific cache
 
 ```bash
-# Cache auto-downloads on first use, or download explicitly:
+# Cache auto-downloads on first use:
 vcfcache cache-build --doi 10.5281/zenodo.18189447
 ```
 
@@ -136,9 +136,12 @@ vcfcache cache-build \
 ### From your own variants
 ```bash
 # Use your cohort's common variants for maximum cache hit rate
-vcfcache blueprint-init --vcf cohort_common.bcf --output ./cache_root -y params.yaml
+vcfcache blueprint-init --vcf cohort_common.bcf --output ./cache_root  # Auto-generates minimal params.yaml
+# Update genome_build in the auto-generated params.yaml before proceeding!
 vcfcache cache-build --db ./cache_root --name my_cache -a annotation.yaml -y params.yaml
 ```
+
+**Note**: If you omit `-y params.yaml` during `blueprint-init`, VCFcache auto-generates a minimal `params.yaml` with `genome_build: "UNKNOWN"`. You **must** update the `genome_build` field (e.g., to `GRCh38` or `GRCh37`) before running `cache-build`.
 
 See [WIKI.md - Section 6 (Building your own cache)](WIKI.md#6-building-your-own-cache-end-to-end) for the complete workflow including sharing via Zenodo.
 
