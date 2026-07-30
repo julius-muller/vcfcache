@@ -920,14 +920,26 @@ class VCFAnnotator(VCFDatabase):
     def _count_annotated_variants(self, bcf_path: Path, tag: Optional[str]) -> Optional[int]:
         if not tag:
             return None
-        result = subprocess.run(
-            [str(self.bcftools_path), "view", "-H", "-i", f"INFO/{tag}!=\"\"", str(bcf_path)],
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode != 0:
+        try:
+            with subprocess.Popen(
+                [
+                    str(self.bcftools_path),
+                    "query",
+                    "-i",
+                    f'INFO/{tag}!=""',
+                    "-f",
+                    r"\n",
+                    str(bcf_path),
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            ) as proc:
+                assert proc.stdout is not None
+                count = sum(1 for _ in proc.stdout)
+                return count if proc.wait() == 0 else None
+        except OSError:
             return None
-        return len([line for line in result.stdout.splitlines() if line.strip()])
 
     def _compute_top_bottom_md5(self, bcf_path: Path) -> tuple[Optional[str], Optional[str]]:
         try:

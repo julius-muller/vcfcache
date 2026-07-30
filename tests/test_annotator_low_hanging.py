@@ -388,6 +388,78 @@ def test_setup_output_force_removes_existing(tmp_path):
     assert (root / "workflow").exists()
 
 
+def test_count_annotated_variants_streams_newline_only_query(monkeypatch):
+    annotator = VCFAnnotator.__new__(VCFAnnotator)
+    annotator.bcftools_path = Path("/fake/bcftools")
+    observed = {}
+
+    class _StreamingStdout:
+        def __iter__(self):
+            yield from ("\n", "\n", "\n")
+
+        def read(self, *_args, **_kwargs):
+            raise AssertionError("streaming counter must not capture all output")
+
+    class _Process:
+        stdout = _StreamingStdout()
+        returncode = 0
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def wait(self):
+            return self.returncode
+
+    def _popen(command, **kwargs):
+        observed["command"] = command
+        observed["kwargs"] = kwargs
+        return _Process()
+
+    monkeypatch.setattr("vcfcache.database.annotator.subprocess.Popen", _popen)
+
+    assert annotator._count_annotated_variants(Path("sample.bcf"), "CSQ") == 3
+    assert observed["command"] == [
+        "/fake/bcftools",
+        "query",
+        "-i",
+        'INFO/CSQ!=""',
+        "-f",
+        r"\n",
+        "sample.bcf",
+    ]
+    assert observed["kwargs"]["stdout"] is subprocess.PIPE
+    assert observed["kwargs"]["stderr"] is subprocess.DEVNULL
+
+
+def test_count_annotated_variants_returns_none_on_failure(monkeypatch):
+    annotator = VCFAnnotator.__new__(VCFAnnotator)
+    annotator.bcftools_path = Path("/fake/bcftools")
+
+    class _Process:
+        stdout = iter(())
+        returncode = 1
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def wait(self):
+            return self.returncode
+
+    monkeypatch.setattr(
+        "vcfcache.database.annotator.subprocess.Popen",
+        lambda *_args, **_kwargs: _Process(),
+    )
+
+    assert annotator._count_annotated_variants(Path("sample.bcf"), "CSQ") is None
+    assert annotator._count_annotated_variants(Path("sample.bcf"), None) is None
+
+
 def test_convert_to_parquet_logs(monkeypatch, tmp_path):
     class _Logger:
         def __init__(self):
