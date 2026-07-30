@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from itertools import zip_longest
 from pathlib import Path
-from typing import Sequence
+from typing import Iterable, Sequence
 
 import yaml  # type: ignore[import-untyped]
 
@@ -384,10 +384,34 @@ def _csq_header(path: Path) -> str:
     )
 
 
+def _locus_groups(
+    stream: Iterable[str],
+) -> Iterable[tuple[tuple[str, str], list[list[str]]]]:
+    """Yield records grouped by CHROM/POS, preserving order within each locus."""
+    locus: tuple[str, str] | None = None
+    records: list[list[str]] = []
+    for record_number, line in enumerate(stream, start=1):
+        fields = line.rstrip("\n").split("\t", maxsplit=8)
+        if len(fields) != 9:
+            raise RuntimeError(f"Unexpected bcftools query output at {record_number}")
+        next_locus = (fields[0], fields[1])
+        if locus is not None and next_locus != locus:
+            yield locus, records
+            records = []
+        locus = next_locus
+        records.append(fields)
+    if locus is not None:
+        yield locus, records
+
+
+def _canonical_record(fields: list[str]) -> tuple[tuple[str, ...], str]:
+    return tuple(fields[:8]), ",".join(sorted(fields[8].split(",")))
+
+
 def semantic_compare(
     cached_bcf: Path, uncached_bcf: Path, *, mismatch_limit: int = 20
 ) -> dict[str, object]:
-    """Compare variant identity and CSQ values, ignoring only CSQ item order."""
+    """Compare semantic records, ignoring within-locus and CSQ item order."""
     cached = _query_process(cached_bcf)
     uncached = _query_process(uncached_bcf)
     assert cached.stdout is not None
@@ -397,67 +421,99 @@ def semantic_compare(
     key_mismatches = 0
     annotation_mismatches = 0
     annotation_order_only = 0
+    record_order_only = 0
     examples: list[dict[str, object]] = []
     cached_digest = hashlib.sha256()
     uncached_digest = hashlib.sha256()
 
-    for record_number, pair in enumerate(
-        zip_longest(cached.stdout, uncached.stdout, fillvalue=sentinel), start=1
+    cached_groups = _locus_groups(cached.stdout)
+    uncached_groups = _locus_groups(uncached.stdout)
+    for group_number, pair in enumerate(
+        zip_longest(cached_groups, uncached_groups, fillvalue=sentinel), start=1
     ):
-        cached_line, uncached_line = pair
-        if cached_line is sentinel or uncached_line is sentinel:
+        cached_group, uncached_group = pair
+        if cached_group is sentinel or uncached_group is sentinel:
             key_mismatches += 1
             if len(examples) < mismatch_limit:
-                examples.append(
-                    {"record": record_number, "kind": "record_count_mismatch"}
-                )
+                examples.append({"group": group_number, "kind": "locus_count_mismatch"})
             continue
-        assert isinstance(cached_line, str)
-        assert isinstance(uncached_line, str)
-        cached_fields = cached_line.rstrip("\n").split("\t", maxsplit=8)
-        uncached_fields = uncached_line.rstrip("\n").split("\t", maxsplit=8)
-        if len(cached_fields) != 9 or len(uncached_fields) != 9:
-            raise RuntimeError(f"Unexpected bcftools query output at {record_number}")
-        cached_key, cached_csq = cached_fields[:8], cached_fields[8]
-        uncached_key, uncached_csq = uncached_fields[:8], uncached_fields[8]
-        records += 1
-        if cached_key != uncached_key:
+        assert isinstance(cached_group, tuple)
+        assert isinstance(uncached_group, tuple)
+        cached_locus, cached_fields = cached_group
+        uncached_locus, uncached_fields = uncached_group
+        records += max(len(cached_fields), len(uncached_fields))
+        if cached_locus != uncached_locus:
             key_mismatches += 1
             if len(examples) < mismatch_limit:
                 examples.append(
                     {
-                        "record": record_number,
-                        "kind": "variant_or_input_info",
-                        "cached": cached_key,
-                        "uncached": uncached_key,
+                        "group": group_number,
+                        "kind": "locus",
+                        "cached": cached_locus,
+                        "uncached": uncached_locus,
                     }
                 )
-        if cached_csq == uncached_csq:
-            cached_canonical = cached_csq
-            uncached_canonical = uncached_csq
-        else:
-            cached_canonical = ",".join(sorted(cached_csq.split(",")))
-            uncached_canonical = ",".join(sorted(uncached_csq.split(",")))
-            if cached_canonical == uncached_canonical:
-                annotation_order_only += 1
-            else:
-                annotation_mismatches += 1
+        cached_original_keys = [tuple(fields[:8]) for fields in cached_fields]
+        uncached_original_keys = [tuple(fields[:8]) for fields in uncached_fields]
+        cached_fields.sort(key=lambda fields: tuple(fields[:8]))
+        uncached_fields.sort(key=lambda fields: tuple(fields[:8]))
+        if cached_original_keys != uncached_original_keys and sorted(
+            cached_original_keys
+        ) == sorted(uncached_original_keys):
+            record_order_only += 1
+
+        for occurrence, record_pair in enumerate(
+            zip_longest(cached_fields, uncached_fields, fillvalue=sentinel), start=1
+        ):
+            cached_record, uncached_record = record_pair
+            if cached_record is sentinel or uncached_record is sentinel:
+                key_mismatches += 1
                 if len(examples) < mismatch_limit:
                     examples.append(
                         {
-                            "record": record_number,
-                            "kind": "CSQ",
-                            "key": cached_key[:4],
-                            "cached": cached_csq,
-                            "uncached": uncached_csq,
+                            "group": group_number,
+                            "locus": cached_locus,
+                            "occurrence": occurrence,
+                            "kind": "record_count_mismatch",
                         }
                     )
-        cached_digest.update(
-            ("\t".join(cached_key) + "\t" + cached_canonical + "\n").encode()
-        )
-        uncached_digest.update(
-            ("\t".join(uncached_key) + "\t" + uncached_canonical + "\n").encode()
-        )
+                continue
+            assert isinstance(cached_record, list)
+            assert isinstance(uncached_record, list)
+            cached_key, cached_canonical = _canonical_record(cached_record)
+            uncached_key, uncached_canonical = _canonical_record(uncached_record)
+            if cached_key != uncached_key:
+                key_mismatches += 1
+                if len(examples) < mismatch_limit:
+                    examples.append(
+                        {
+                            "group": group_number,
+                            "kind": "variant_or_input_info",
+                            "cached": cached_key,
+                            "uncached": uncached_key,
+                        }
+                    )
+            if cached_record[8] != uncached_record[8]:
+                if cached_canonical == uncached_canonical:
+                    annotation_order_only += 1
+                else:
+                    annotation_mismatches += 1
+                    if len(examples) < mismatch_limit:
+                        examples.append(
+                            {
+                                "group": group_number,
+                                "kind": "CSQ",
+                                "key": cached_key[:4],
+                                "cached": cached_record[8][:500],
+                                "uncached": uncached_record[8][:500],
+                            }
+                        )
+            cached_digest.update(
+                ("\t".join(cached_key) + "\t" + cached_canonical + "\n").encode()
+            )
+            uncached_digest.update(
+                ("\t".join(uncached_key) + "\t" + uncached_canonical + "\n").encode()
+            )
 
     cached_stderr = cached.communicate()[1]
     uncached_stderr = uncached.communicate()[1]
@@ -480,6 +536,7 @@ def semantic_compare(
         "key_mismatches": key_mismatches,
         "annotation_mismatches": annotation_mismatches,
         "annotation_order_only": annotation_order_only,
+        "record_order_only_loci": record_order_only,
         "csq_headers_equal": cached_header == uncached_header,
         "cached_semantic_sha256": cached_digest.hexdigest(),
         "uncached_semantic_sha256": uncached_digest.hexdigest(),

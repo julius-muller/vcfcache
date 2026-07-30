@@ -9,6 +9,7 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [PLAN.md](PLAN.md): implementation phases and publication figure specification.
 - [DATA_SETUP.md](DATA_SETUP.md): exact public-data layout, transformations, and QC.
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md): measured VM capacity and scaling decision.
+- [PILOT_RESULTS.md](PILOT_RESULTS.md): frozen paired-pilot results and scale-up gate.
 
 ## Prepare the public VCF cohort
 
@@ -53,5 +54,5 @@ for VCFcache's `--uncached` switch.
 Each run records the exact command, Git commit, environment, wall/CPU time,
 maximum RSS, filesystem counters, VCFcache variant counts, and cache hit rate.
 The final comparison streams both BCFs and requires identical variant keys,
-input AF/AC/AN and GT values, and equivalent CSQ sets (permitting CSQ item
-reordering only).
+input AF/AC/AN and GT values, and equivalent CSQ sets. It canonicalizes only
+split-allele order within a locus and CSQ item order.

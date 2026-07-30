@@ -34,7 +34,17 @@ Keep public-data preparation on the current VM. Moving this streaming workload
 to a cluster would add setup and transfer overhead without solving a current
 resource constraint.
 
-Use Slurm for the repeated annotation matrix after a single paired
-cached/uncached pilot has measured per-job wall time, peak RAM, CPU utilization,
-and scratch use. The project-level hundreds of cores and 500 GiB RAM should then
-be allocated from observed job requirements, not from an advance guess.
+The paired HG02079 pilot measured 2 h 07 min 47 s uncached and 15 min 25 s
+cached. Each retained run directory occupies 969 MiB. The workflow used eight
+VEP forks and the current VM completed both paths safely.
+
+Both modes reported approximately 44.1 GiB peak RSS. Inspection showed that
+this peak occurs after annotation in the final statistics accounting, which
+captures a complete `bcftools view` stream in Python. It is not the working set
+required by VEP. This should be converted to streaming record counting and the
+paired pilot repeated before sizing the full matrix.
+
+Keep sequential pilots on the current VM. Use Slurm for the 50-sample,
+three-replicate annotation matrix after the memory fix. Until then, do not
+schedule more than one benchmark job per 62-GiB worker; the project's 500 GiB
+aggregate memory would otherwise limit safe concurrency to roughly ten jobs.

@@ -17,12 +17,17 @@ output.
    - Prepare 50 autosomal 1000 Genomes VCFs and seven GIAB VCFs as described in
      [DATA_SETUP.md](DATA_SETUP.md).
    - Freeze sample IDs, source checksums, transformations, and final checksums.
-3. **Benchmark runner** — implemented; pilot pending
+3. **Benchmark runner** — implemented; pilot complete
    - Pin the VCFcache commit, container, bcftools, VEP 115.2 cache, CPUs, RAM,
      scratch storage, and thread counts.
    - Capture cgroup CPU, memory peak, I/O, wall time, variant counts, hit rate,
      cache size, and output concordance.
-4. **Headline experiment** — pending pilot
+4. **Headline experiment** — paired pilot complete; cohort pending
+   - The frozen HG02079 pilot achieved 8.29× end-to-end speedup at a 96.01%
+     cache-hit rate with semantic equivalence across all 4,329,621 variants.
+     See [PILOT_RESULTS.md](PILOT_RESULTS.md).
+   - Remove the memory-heavy final statistics scan and repeat the paired pilot
+     before freezing the implementation used for the cohort.
    - Run cached and uncached VEP 115.2 `--everything` on all 50 1000 Genomes
      samples.
    - Use one warm-up and three measured repetitions, randomized within sample.
@@ -49,6 +54,7 @@ output.
 
 ## Infrastructure
 
-Data preparation runs on the current 32-vCPU, 62-GiB VM. The repeated annotation
-matrix should move to Slurm after one cached/uncached pilot determines per-job
-CPU, RAM, scratch, and wall-time requirements.
+Data preparation and sequential pilots run on the current 32-vCPU, 62-GiB VM.
+The 50-sample repeated annotation matrix should move to Slurm after the
+statistics-memory fix and confirmation pilot. Current end-to-end peak RSS is
+44.1 GiB per job, caused by post-annotation accounting rather than VEP.

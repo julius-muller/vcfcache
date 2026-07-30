@@ -86,12 +86,48 @@ def _write_annotated_vcf(
     return path
 
 
+def _write_same_locus_vcf(path: Path, alts: list[str]) -> Path:
+    plain = path.with_suffix("")
+    records = []
+    values = {"C": ("0.1", "1"), "G": ("0.2", "2")}
+    for alt in alts:
+        af, ac = values[alt]
+        records.append(
+            f"chr1\t10\t.\tA\t{alt}\t.\tPASS\t"
+            f"AF={af};AC={ac};AN=4;CSQ={alt}|effect\tGT\t0/1\n"
+        )
+    plain.write_text(
+        "##fileformat=VCFv4.2\n"
+        "##contig=<ID=chr1,length=1000>\n"
+        '##INFO=<ID=AF,Number=A,Type=Float,Description="AF">\n'
+        '##INFO=<ID=AC,Number=A,Type=Integer,Description="AC">\n'
+        '##INFO=<ID=AN,Number=1,Type=Integer,Description="AN">\n'
+        '##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence">\n'
+        '##FORMAT=<ID=GT,Number=1,Type=String,Description="GT">\n'
+        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n" + "".join(records)
+    )
+    with path.open("wb") as output:
+        subprocess.run(["bgzip", "--stdout", str(plain)], check=True, stdout=output)
+    subprocess.run(["tabix", "--preset", "vcf", str(path)], check=True)
+    return path
+
+
 def test_semantic_compare_ignores_csq_item_order(tmp_path):
     cached = _write_annotated_vcf(tmp_path / "cached.vcf.gz", csq="a|1,b|2")
     uncached = _write_annotated_vcf(tmp_path / "uncached.vcf.gz", csq="b|2,a|1")
     report = semantic_compare(cached, uncached)
     assert report["semantic_pass"] is True
     assert report["annotation_order_only"] == 1
+    assert report["annotation_mismatches"] == 0
+
+
+def test_semantic_compare_ignores_split_allele_order_within_locus(tmp_path):
+    cached = _write_same_locus_vcf(tmp_path / "cached.vcf.gz", ["C", "G"])
+    uncached = _write_same_locus_vcf(tmp_path / "uncached.vcf.gz", ["G", "C"])
+    report = semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is True
+    assert report["record_order_only_loci"] == 1
+    assert report["key_mismatches"] == 0
     assert report["annotation_mismatches"] == 0
 
 
