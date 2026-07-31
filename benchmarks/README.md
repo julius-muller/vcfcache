@@ -82,4 +82,6 @@ HG02079 pair:
 
 Each array task runs cached and uncached modes in a deterministic randomized
 order on worker-local storage, requires semantic equivalence, and archives the
-pair atomically below `/results/tasks/`.
+pair atomically below `/results/tasks/`. The repository must be staged at the
+same absolute path on the controller and workers; submission exports that path
+explicitly because Slurm executes a spool copy of the batch script.

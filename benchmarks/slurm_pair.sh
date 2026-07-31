@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+repo_root=${VCFCACHE_REPO_ROOT:?VCFCACHE_REPO_ROOT is required}
 task_manifest=${VCFCACHE_TASK_MANIFEST:?VCFCACHE_TASK_MANIFEST is required}
 results_root=${VCFCACHE_RESULTS_ROOT:-/results}
 task_id=${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID is required}
@@ -38,6 +38,8 @@ fi
 
 rm -rf -- "$run_root"
 mkdir -p "$run_root"
+test -x "$repo_root/.venv/bin/python"
+test -f "$repo_root/benchmarks/run_pilot.py"
 export LC_ALL=C
 export LANG=C
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from benchmarks.run_cohort import build_tasks, mode_order, write_tasks
+from benchmarks.run_cohort import build_tasks, collect, mode_order, write_tasks
 from benchmarks.run_pilot import (
     PilotConfig,
     annotation_command,
@@ -76,6 +76,20 @@ def test_mode_order_changes_with_auditable_key():
     first, second, key = mode_order("HG02079", 1, "vcfcache-paper-v1")
     assert {first, second} == {"cached", "uncached"}
     assert len(key) == 64
+
+
+def test_collect_finds_nested_task_summaries(tmp_path, capsys):
+    summary = (
+        tmp_path
+        / "tasks/task-0/pilot/HG02079/commit/summary_r01.json"
+    )
+    summary.parent.mkdir(parents=True)
+    summary.write_text(
+        '{"semantic_comparison": {"semantic_pass": true}}\n'
+    )
+    args = type("Args", (), {"results": tmp_path})()
+    collect(args)
+    assert '"completed_tasks": 1' in capsys.readouterr().out
 
 
 def test_parse_gnu_time(tmp_path):

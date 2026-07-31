@@ -141,7 +141,7 @@ def submit(args: argparse.Namespace) -> None:
         "sbatch",
         f"--array=0-{task_count - 1}%{args.concurrency}",
         f"--export=ALL,VCFCACHE_TASK_MANIFEST={args.tasks},"
-        f"VCFCACHE_RESULTS_ROOT={args.results}",
+        f"VCFCACHE_RESULTS_ROOT={args.results},VCFCACHE_REPO_ROOT={REPO_ROOT}",
         str(PAIR_SCRIPT),
     ]
     completed = subprocess.run(command, check=True, capture_output=True, text=True)
@@ -162,7 +162,7 @@ def status(_: argparse.Namespace) -> None:
 
 def collect(args: argparse.Namespace) -> None:
     """Report completed task summaries without modifying results."""
-    summaries = sorted(args.results.glob("tasks/task-*/summary_r*.json"))
+    summaries = sorted(args.results.glob("tasks/task-*/**/summary_r*.json"))
     semantic_passes = 0
     for path in summaries:
         value = json.loads(path.read_text())
