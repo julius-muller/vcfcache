@@ -510,7 +510,9 @@ def _run_split_pipeline(
             "--samples-file",
             str(sample_ids),
             "--no-update",
-            "--regions",
+            # Stream in source order. HPRC's contig order is lexical rather than
+            # natural, so --regions would seek backwards through the 2.2-GB file.
+            "--targets",
             regions,
             "--output-type",
             "u",
@@ -672,8 +674,12 @@ def _subset_vcf(source: Path, bed: Path, destination: Path) -> None:
         [
             "bcftools",
             "view",
-            "--regions-file",
+            # Compact per-sample inputs are faster to stream once than to seek
+            # through ~192k exome intervals. Overlap mode 1 matches -R BED.
+            "--targets-file",
             str(bed),
+            "--targets-overlap",
+            "1",
             "--output-type",
             "z",
             "--output",
@@ -803,17 +809,26 @@ def prepare_interval_cohort(
     return sorted(results)
 
 
-def _first_matching_record(vcf: Path, expression: str) -> bool:
+def _first_invalid_alt(vcf: Path) -> str:
+    """Return the first symbolic or multiallelic ALT in one streaming scan."""
     process = subprocess.Popen(
-        ["bcftools", "view", "--no-header", "--include", expression, str(vcf)],
+        [
+            "bcftools",
+            "query",
+            "--include",
+            'ALT~"[<>*]" || N_ALT>1',
+            "--format",
+            "%ALT\n",
+            str(vcf),
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
     assert process.stdout is not None
-    first = process.stdout.readline()
+    first = process.stdout.readline().decode().strip()
     process.terminate()
     process.communicate()
-    return bool(first)
+    return first
 
 
 def validate_interval_vcf(vcf: Path, *, allowed_contigs: set[str]) -> dict[str, object]:
@@ -844,9 +859,10 @@ def validate_interval_vcf(vcf: Path, *, allowed_contigs: set[str]) -> dict[str, 
     unexpected = sorted(contigs - allowed_contigs)
     if unexpected:
         errors.append(f"unexpected_contigs={','.join(unexpected)}")
-    if _first_matching_record(vcf, 'ALT~"[<>*]"'):
+    invalid_alt = _first_invalid_alt(vcf)
+    if re.search(r"[<>*]", invalid_alt):
         errors.append("symbolic_allele")
-    if _first_matching_record(vcf, "N_ALT>1"):
+    if "," in invalid_alt:
         errors.append("multiallelic")
     return {
         "status": "PASS" if not errors else "FAIL",
