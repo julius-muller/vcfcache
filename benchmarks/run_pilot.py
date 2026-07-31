@@ -60,6 +60,14 @@ class PilotConfig:
     def run_dir(self, mode: str) -> Path:
         return self.pilot_root / f"{mode}_r{self.replicate:02d}"
 
+    @property
+    def comparison_path(self) -> Path:
+        return self.pilot_root / f"semantic_comparison_r{self.replicate:02d}.json"
+
+    @property
+    def summary_path(self) -> Path:
+        return self.pilot_root / f"summary_r{self.replicate:02d}.json"
+
 
 def run_checked(
     args: Sequence[str | Path], *, capture_output: bool = True
@@ -85,6 +93,56 @@ def sha256sum(path: Path, chunk_size: int = 8 << 20) -> str:
         while chunk := handle.read(chunk_size):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _key_value_file(path: Path) -> dict[str, int]:
+    """Parse a cgroup key/value counter file."""
+    values: dict[str, int] = {}
+    for line in path.read_text().splitlines():
+        fields = line.split()
+        if len(fields) == 2:
+            try:
+                values[fields[0]] = int(fields[1])
+            except ValueError:
+                continue
+    return values
+
+
+def cgroup_v2_snapshot(
+    *,
+    proc_cgroup: Path = Path("/proc/self/cgroup"),
+    cgroup_root: Path = Path("/sys/fs/cgroup"),
+) -> dict[str, object] | None:
+    """Read aggregate counters for the current Slurm cgroup-v2 step."""
+    if not proc_cgroup.exists():
+        return None
+    relative = next(
+        (
+            line.removeprefix("0::")
+            for line in proc_cgroup.read_text().splitlines()
+            if line.startswith("0::")
+        ),
+        None,
+    )
+    if relative is None:
+        return None
+    group = cgroup_root / relative.lstrip("/")
+    memory_peak = group / "memory.peak"
+    if not memory_peak.exists():
+        return None
+    snapshot: dict[str, object] = {
+        "path": relative,
+        "memory_peak_bytes": int(memory_peak.read_text().strip()),
+        "memory_current_bytes": int((group / "memory.current").read_text().strip()),
+    }
+    for name in ("memory.events", "cpu.stat"):
+        path = group / name
+        if path.exists():
+            snapshot[name.replace(".", "_")] = _key_value_file(path)
+    io_stat = group / "io.stat"
+    if io_stat.exists():
+        snapshot["io_stat"] = io_stat.read_text().splitlines()
+    return snapshot
 
 
 def tracked_tree_is_clean() -> bool:
@@ -158,6 +216,17 @@ def preflight(config: PilotConfig, *, require_clean: bool = True) -> dict[str, o
         "platform": platform.platform(),
         "cpu_count": os.cpu_count(),
         "memory_bytes": memory_kib * 1024,
+        "cpu_model": next(
+            (
+                line.split(":", maxsplit=1)[1].strip()
+                for line in Path("/proc/cpuinfo").read_text().splitlines()
+                if line.startswith("model name")
+            ),
+            "unknown",
+        ),
+        "slurm": {
+            key: value for key, value in os.environ.items() if key.startswith("SLURM_")
+        },
         "input_vcf": str(config.input_vcf),
         "input_records": input_records,
         "input_bytes": config.input_vcf.stat().st_size,
@@ -275,6 +344,7 @@ def write_json_atomic(path: Path, value: object) -> None:
 
 def run_one(config: PilotConfig, mode: str) -> dict[str, object]:
     """Execute and instrument one immutable pilot run."""
+    cgroup_before = cgroup_v2_snapshot()
     run_dir = config.run_dir(mode)
     if run_dir.exists():
         raise FileExistsError(f"Pilot run already exists: {run_dir}")
@@ -340,6 +410,7 @@ def run_one(config: PilotConfig, mode: str) -> dict[str, object]:
     variant_counts = compare_stats.get("variant_counts", {}) or {}
     hit_rate = calculate_cache_hit_rate(mode, variant_counts, output_records)
 
+    cgroup_after = cgroup_v2_snapshot()
     metrics: dict[str, object] = {
         "mode": mode,
         "replicate": config.replicate,
@@ -352,12 +423,17 @@ def run_one(config: PilotConfig, mode: str) -> dict[str, object]:
         "input_vcf": str(config.input_vcf),
         "output_bcf": str(output_bcf),
         "output_bytes": output_bcf.stat().st_size,
+        "output_sha256": sha256sum(output_bcf),
+        "output_index_sha256": sha256sum(output_index),
         "output_records": output_records,
         "stats_dir": str(stats_dir),
         "variant_counts": variant_counts,
         "cache_hit_rate": hit_rate,
         "command": command,
+        "cgroup_v2": {"before": cgroup_before, "after": cgroup_after},
     }
+    if os.environ.get("VCFCACHE_REQUIRE_CGROUP_METRICS") == "1" and not cgroup_after:
+        raise RuntimeError("Required Slurm cgroup-v2 metrics are unavailable")
     write_json_atomic(run_dir / "metrics.json", metrics)
     print(f"{mode.capitalize()} pilot completed in {wall_seconds:.1f}s")
     return metrics
@@ -549,13 +625,12 @@ def compare_outputs(config: PilotConfig) -> dict[str, object]:
     cached = config.run_dir("cached") / "output.bcf"
     uncached = config.run_dir("uncached") / "output.bcf"
     report = semantic_compare(cached, uncached)
-    write_json_atomic(config.pilot_root / "semantic_comparison.json", report)
+    write_json_atomic(config.comparison_path, report)
     status = "PASS" if report["semantic_pass"] else "FAIL"
     print(f"Semantic comparison {status}: {report['records_compared']:,} records")
     if not report["semantic_pass"]:
         raise RuntimeError(
-            f"Cached and uncached outputs differ; see "
-            f"{config.pilot_root / 'semantic_comparison.json'}"
+            f"Cached and uncached outputs differ; see " f"{config.comparison_path}"
         )
     return report
 
@@ -587,11 +662,24 @@ def summarize(config: PilotConfig) -> dict[str, object]:
         "cached_user_seconds": metrics["cached"]["user_seconds"],
         "uncached_max_rss_kib": metrics["uncached"]["max_rss_kib"],
         "cached_max_rss_kib": metrics["cached"]["max_rss_kib"],
+        "uncached_cgroup_memory_peak_bytes": (
+            metrics["uncached"].get("cgroup_v2", {}).get("after") or {}
+        ).get("memory_peak_bytes"),
+        "cached_cgroup_memory_peak_bytes": (
+            metrics["cached"].get("cgroup_v2", {}).get("after") or {}
+        ).get("memory_peak_bytes"),
     }
-    comparison_path = config.pilot_root / "semantic_comparison.json"
+    comparison_path = config.comparison_path
+    legacy_comparison_path = config.pilot_root / "semantic_comparison.json"
+    if (
+        not comparison_path.exists()
+        and config.replicate == 1
+        and legacy_comparison_path.exists()
+    ):
+        comparison_path = legacy_comparison_path
     if comparison_path.exists():
         summary["semantic_comparison"] = json.loads(comparison_path.read_text())
-    write_json_atomic(config.pilot_root / "summary.json", summary)
+    write_json_atomic(config.summary_path, summary)
     print(
         f"Pilot speedup: {summary['speedup']:.2f}x; "
         f"wall time saved: {summary['wall_seconds_saved']:.1f}s"

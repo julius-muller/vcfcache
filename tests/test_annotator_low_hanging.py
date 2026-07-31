@@ -137,11 +137,12 @@ def test_process_region_basic(monkeypatch):
 def test_process_region_import_error(monkeypatch):
     annotator = VCFAnnotator.__new__(VCFAnnotator)
     annotator.logger = None
+    original_import = __import__
 
     def _importer(name, globals=None, locals=None, fromlist=(), level=0):
         if name == "pandas":
             raise ImportError("no pandas")
-        return __import__(name, globals, locals, fromlist, level)
+        return original_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr("builtins.__import__", _importer)
     with pytest.raises(ImportError):

@@ -108,3 +108,28 @@ The single-sample pilot is feasibility evidence only. Before manuscript
 submission, replace all square-bracketed fields in
 `MATERIALS_AND_METHODS.md` from the full Slurm archive and complete the
 submission-time gate in `SOURCE_PROVENANCE.md`.
+
+## Slurm cohort
+
+Prepare and submit one campaign from the controller. This creates a one-pair
+HG02079 smoke job, a 50-pair warm-up array, and a 150-pair measured array. The
+arrays are linked with `afterok` dependencies, so measured jobs cannot start
+unless the smoke and all warm-ups succeed.
+
+```bash
+.venv/bin/python benchmarks/run_cohort.py prepare \
+  --campaign-id primary-wgs-<commit>
+.venv/bin/python benchmarks/run_cohort.py submit-chain \
+  --campaign-id primary-wgs-<commit> --concurrency 6
+.venv/bin/python benchmarks/run_cohort.py status \
+  --campaign-id primary-wgs-<commit>
+.venv/bin/python benchmarks/run_cohort.py collect \
+  --campaign-id primary-wgs-<commit>
+```
+
+Each task runs cached and uncached modes in separate Slurm steps on worker-local
+storage, requires semantic equivalence, and atomically archives the full pair
+below `/results/campaigns/<campaign-id>/`. Manifests live on the same shared
+export. The controller sees it at `/mnt/data/slurm-results`; workers mount it as
+`/results`. Failed attempts are retained separately and can be resubmitted with
+the `submit` subcommand and a sparse `--task-ids` array specification.

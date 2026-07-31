@@ -3,10 +3,12 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from benchmarks.run_cohort import build_tasks, mode_order, worker_path, write_tasks
 from benchmarks.run_pilot import (
     PilotConfig,
     annotation_command,
     calculate_cache_hit_rate,
+    cgroup_v2_snapshot,
     parse_elapsed,
     parse_gnu_time,
     semantic_compare,
@@ -42,6 +44,89 @@ def test_cache_hit_rate_falls_back_to_normalized_output_total():
     }
     assert calculate_cache_hit_rate("uncached", counts, 1_772) is None
     assert calculate_cache_hit_rate("cached", counts, 1_772) == 1 - (71 / 1_772)
+
+
+def test_replicates_use_distinct_report_paths(tmp_path):
+    first = PilotConfig(tmp_path, tmp_path / "sample.vcf.gz", tmp_path, tmp_path, 1)
+    second = PilotConfig(tmp_path, tmp_path / "sample.vcf.gz", tmp_path, tmp_path, 2)
+    assert first.comparison_path.name == "semantic_comparison_r01.json"
+    assert second.comparison_path.name == "semantic_comparison_r02.json"
+    assert first.summary_path.name == "summary_r01.json"
+    assert second.summary_path.name == "summary_r02.json"
+
+
+def test_cohort_tasks_are_deterministic_and_replicate_specific(tmp_path):
+    qc = tmp_path / "sample_qc.tsv"
+    qc.write_text(
+        "cohort\tsample\tpopulation\tsuperpopulation\tsex\tpath\trecords\tsha256\tstatus\n"
+        "1000g\tS1\tPOP\tEUR\tfemale\t/mnt/data/S1.vcf.gz\t10\tabc\tPASS\n"
+    )
+    first = build_tasks(qc, replicates=3, seed="paper", selected_sample="S1")
+    second = build_tasks(qc, replicates=3, seed="paper", selected_sample="S1")
+    assert first == second
+    assert [task.task_id for task in first] == [0, 1, 2]
+    assert [task.replicate for task in first] == [1, 2, 3]
+    assert all(
+        {task.first_mode, task.second_mode} == {"cached", "uncached"} for task in first
+    )
+    output = tmp_path / "tasks.tsv"
+    write_tasks(output, first)
+    assert (
+        output.read_text()
+        .splitlines()[0]
+        .startswith("task_id\tphase\tmeasured\tsample")
+    )
+
+
+def test_mode_order_changes_with_auditable_key():
+    first, second, key = mode_order("HG02079", 1, "vcfcache-paper-v1")
+    assert {first, second} == {"cached", "uncached"}
+    assert len(key) == 64
+
+
+def test_measured_full_cohort_has_exact_balanced_order(tmp_path):
+    qc = tmp_path / "sample_qc.tsv"
+    header = (
+        "cohort\tsample\tpopulation\tsuperpopulation\tsex\tpath\t"
+        "records\tsha256\tstatus\n"
+    )
+    rows = [
+        f"1000g\tS{index:02d}\tPOP\tEUR\tfemale\t/mnt/data/S{index:02d}.vcf.gz\t"
+        f"10\tsha{index:02d}\tPASS\n"
+        for index in range(50)
+    ]
+    qc.write_text(header + "".join(rows))
+    tasks = build_tasks(qc, phase="measured", replicates=3, seed="paper")
+    assert len(tasks) == 150
+    assert sum(task.first_mode == "cached" for task in tasks) == 75
+    for sample in {task.sample for task in tasks}:
+        orders = {task.first_mode for task in tasks if task.sample == sample}
+        assert orders == {"cached", "uncached"}
+
+
+def test_worker_path_translates_export_mount():
+    assert worker_path(
+        Path("/mnt/data/slurm-results/campaigns/run/manifests/smoke.tsv"),
+        Path("/mnt/data/slurm-results"),
+        Path("/results"),
+    ) == Path("/results/campaigns/run/manifests/smoke.tsv")
+
+
+def test_cgroup_v2_snapshot_parses_peak_and_counters(tmp_path):
+    proc = tmp_path / "proc-cgroup"
+    root = tmp_path / "cgroup"
+    group = root / "slurm/job/step"
+    group.mkdir(parents=True)
+    proc.write_text("0::/slurm/job/step\n")
+    (group / "memory.peak").write_text("123456\n")
+    (group / "memory.current").write_text("123\n")
+    (group / "memory.events").write_text("oom 0\noom_kill 0\n")
+    (group / "cpu.stat").write_text("usage_usec 999\n")
+    (group / "io.stat").write_text("8:0 rbytes=10 wbytes=20\n")
+    snapshot = cgroup_v2_snapshot(proc_cgroup=proc, cgroup_root=root)
+    assert snapshot is not None
+    assert snapshot["memory_peak_bytes"] == 123456
+    assert snapshot["cpu_stat"] == {"usage_usec": 999}
 
 
 def test_parse_gnu_time(tmp_path):
