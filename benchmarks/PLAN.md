@@ -17,7 +17,7 @@ output.
    - Prepare 50 autosomal 1000 Genomes VCFs and seven GIAB VCFs as described in
      [DATA_SETUP.md](DATA_SETUP.md).
    - Freeze sample IDs, source checksums, transformations, and final checksums.
-2a. **Assay-size and independent robustness cohorts** — in progress
+2a. **Assay-size and independent robustness cohorts** — implemented
    - Test the HPRC selection, ACMG gene definition, MANE BED construction,
      chrX completion, interval subsetting, final format, and QC before bulk
      preparation.
@@ -28,6 +28,8 @@ output.
      established autosomal WGS files.
    - Keep every final dataset as sorted, BGZF-compressed, tabix-indexed VCF;
      freeze source and output checksums.
+   - Completed with 120/120 QC passes: 20 HPRC, 50 matched WES, and 50 matched
+     panel files. See [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md).
 3. **Benchmark runner** — implemented; pilot complete
    - Pin the VCFcache commit, container, bcftools, VEP 115.2 cache, CPUs, RAM,
      scratch storage, and thread counts.

@@ -10,6 +10,8 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [DATA_SETUP.md](DATA_SETUP.md): exact public-data layout, transformations, and QC.
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md): measured VM capacity and scaling decision.
 - [PILOT_RESULTS.md](PILOT_RESULTS.md): frozen paired-pilot results and scale-up gate.
+- [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md): completed HPRC/WES/panel counts,
+  checksums, storage, and QC gate.
 
 ## Prepare the public VCF cohort
 

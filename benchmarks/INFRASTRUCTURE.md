@@ -35,6 +35,12 @@ files are expected to remain below 10 GiB. With 552 GiB free at the expansion
 preflight, preparation remains comfortably within the current VM; no Slurm
 cluster is needed for this data-construction step.
 
+Actual expansion setup completed in approximately 25 minutes and left 544 GiB
+free. The complete benchmark root is 48 GiB (34 GiB sources, 5.0 GiB work,
+5.8 GiB final samples, and 3.8 GiB retained pilots). The current VM was more
+than sufficient; Slurm remains necessary only for the repeated annotation
+matrix.
+
 ## Decision
 
 Keep public-data preparation on the current VM. Moving this streaming workload
