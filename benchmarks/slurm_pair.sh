@@ -125,7 +125,8 @@ if report.get("semantic_pass") is not True:
     raise SystemExit("Semantic comparison did not pass")
 PY
 
-mkdir -p "$phase_root/tasks"
+test -d "$phase_root/tasks"
+test -d "$phase_root/attempts"
 test ! -e "$partial_result"
 mkdir "$partial_result"
 rsync -a "$run_root/" "$partial_result/"

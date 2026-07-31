@@ -224,6 +224,10 @@ def prepare_campaign(args: argparse.Namespace) -> None:
     }
     phase_values: dict[str, object] = {}
     for phase, (sample, replicates) in specs.items():
+        # Create shared parents once on the controller. Concurrent mkdir -p
+        # calls from different workers can race on the NFSv4 export.
+        (root / phase / "tasks").mkdir(parents=True, exist_ok=True)
+        (root / phase / "attempts").mkdir(parents=True, exist_ok=True)
         tasks = build_tasks(
             args.qc,
             phase=phase,

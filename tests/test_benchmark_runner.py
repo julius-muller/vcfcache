@@ -6,6 +6,7 @@ from pathlib import Path
 from benchmarks.run_cohort import (
     build_tasks,
     mode_order,
+    prepare_campaign,
     submit_phase,
     worker_path,
     write_tasks,
@@ -145,6 +146,51 @@ def test_submit_phase_sets_worker_paths_and_working_directory(tmp_path, monkeypa
     assert any(value.startswith("--chdir=") for value in command)
     export = next(value for value in command if value.startswith("--export="))
     assert "VCFCACHE_TASK_MANIFEST=/results/campaigns/run/manifests/smoke.tsv" in export
+
+
+def test_prepare_campaign_precreates_shared_phase_directories(
+    tmp_path, monkeypatch, capsys
+):
+    qc = tmp_path / "sample_qc.tsv"
+    header = (
+        "cohort\tsample\tpopulation\tsuperpopulation\tsex\tpath\t"
+        "records\tsha256\tstatus\n"
+    )
+    rows = [
+        f"1000g\tS{index:02d}\tPOP\tEUR\tfemale\t/mnt/data/S{index:02d}.vcf.gz\t"
+        f"10\tsha{index:02d}\tPASS\n"
+        for index in range(49)
+    ]
+    rows.append(
+        "1000g\tHG02079\tPOP\tEAS\tmale\t/mnt/data/HG02079.vcf.gz\t10\tsmoke\tPASS\n"
+    )
+    qc.write_text(header + "".join(rows))
+    controller = tmp_path / "controller"
+    monkeypatch.setattr(
+        "benchmarks.run_cohort.git_output",
+        lambda *args: "abcdef123456" if "--short=12" in args else "abcdef1234567890",
+    )
+    monkeypatch.setattr(
+        "benchmarks.run_cohort.subprocess.run",
+        lambda *_args, **_kwargs: subprocess.CompletedProcess([], 0),
+    )
+    args = type(
+        "Args",
+        (),
+        {
+            "campaign_id": "run",
+            "controller_results": controller,
+            "worker_results": Path("/results"),
+            "qc": qc,
+            "seed": "paper",
+            "smoke_sample": "HG02079",
+        },
+    )()
+    prepare_campaign(args)
+    capsys.readouterr()
+    for phase in ("smoke", "warmup", "measured"):
+        assert (controller / "campaigns/run" / phase / "tasks").is_dir()
+        assert (controller / "campaigns/run" / phase / "attempts").is_dir()
 
 
 def test_cgroup_v2_snapshot_parses_peak_and_counters(tmp_path):
