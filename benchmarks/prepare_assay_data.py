@@ -36,6 +36,7 @@ HPRC_SELECTION_SEED = "vcfcache-paper-hprc-r2-v1"
 HPRC_QUOTAS = {"AFR": 5, "AMR": 3, "EAS": 4, "EUR": 4, "SAS": 4}
 AUTOSOMES = tuple(f"chr{number}" for number in range(1, 23))
 ASSAY_CONTIGS = (*AUTOSOMES, "chrX")
+WES_CAPTURE_PADDING = 125
 
 HPRC_R2_URL = (
     "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/"
@@ -55,6 +56,25 @@ THOUSAND_GENOMES_X_NAME = (
 )
 THOUSAND_GENOMES_X_MD5 = "d2c80aa7b3bcb8f895f98fd5779fb448"
 THOUSAND_GENOMES_X_TBI_MD5 = "6d4abec5fd7119e6f3152a640d758b13"
+WES_CALIBRATION_BASE = "https://zenodo.org/api/records/3597727/files"
+WES_CALIBRATION_FILES = (
+    (
+        "converted_ARUP_NA12878_Exome-decomposed-normalized.vcf.gz",
+        "13166a0da8fad50dd6cccf9e5f4acfc1",
+    ),
+    (
+        "converted_ARUP_NA12878_Exome-decomposed-normalized.vcf.gz.tbi",
+        "7f6e7658c1ce85e1c1d0c7230de45f2d",
+    ),
+    (
+        "converted_UCSF_NA12878_WES_Agilent_V4_Custom-decomposed-normalized.vcf.gz",
+        "1e5121e446f97957de52a576ed95a7f0",
+    ),
+    (
+        "converted_UCSF_NA12878_WES_Agilent_V4_Custom-decomposed-normalized.vcf.gz.tbi",
+        "e6e58089605a6fc95b005d62e9a5ec1c",
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -73,9 +93,11 @@ def ensure_assay_layout(root: Path) -> None:
         "sources/hprc_r2",
         "sources/twist",
         "sources/ensembl",
+        "sources/wes_calibration/NA12878_GRCh37",
         "sources/1000g/vcf",
         "samples/GRCh38/hprc_r2",
         "samples/GRCh38/wes_twist_core",
+        "samples/GRCh38/wes_twist_core_targets",
         "samples/GRCh38/panel_acmg_sf_v3.3",
         "regions/GRCh38",
         "manifests",
@@ -195,7 +217,7 @@ def _chromosome_x_source(root: Path) -> Path:
 
 def assay_source_jobs(root: Path) -> list[tuple[SourceFile, Path]]:
     """Return immutable source downloads and any upstream checksums."""
-    return [
+    jobs = [
         (SourceFile("hprc_r2", "joint", HPRC_R2_URL), _hprc_source(root)),
         (
             SourceFile("hprc_r2", "joint", f"{HPRC_R2_URL}.tbi"),
@@ -225,6 +247,20 @@ def assay_source_jobs(root: Path) -> list[tuple[SourceFile, Path]]:
             Path(f"{_chromosome_x_source(root)}.tbi"),
         ),
     ]
+    for filename, checksum in WES_CALIBRATION_FILES:
+        lab = "ARUP" if "ARUP" in filename else "UCSF"
+        jobs.append(
+            (
+                SourceFile(
+                    "wes_real_grch37",
+                    f"NA12878_{lab}",
+                    f"{WES_CALIBRATION_BASE}/{filename}/content",
+                    checksum,
+                ),
+                root / "sources/wes_calibration/NA12878_GRCh37" / filename,
+            )
+        )
+    return jobs
 
 
 def write_assay_source_manifest(
@@ -372,6 +408,27 @@ def merge_intervals(
     return merged
 
 
+def pad_intervals(
+    intervals: Iterable[tuple[str, int, int]],
+    *,
+    padding: int,
+    contig_lengths: dict[str, int],
+) -> list[tuple[str, int, int]]:
+    """Pad BED intervals, clip them to contig bounds, then merge them."""
+    padded = []
+    for contig, start, end in intervals:
+        if contig not in contig_lengths:
+            raise ValueError(f"Missing contig length for {contig}")
+        padded.append(
+            (
+                contig,
+                max(0, start - padding),
+                min(contig_lengths[contig], end + padding),
+            )
+        )
+    return merge_intervals(padded)
+
+
 def _open_gtf(path: Path) -> TextIO:
     if path.suffix == ".gz":
         return gzip.open(path, "rt")
@@ -437,15 +494,40 @@ def normalize_twist_bed(source: Path, destination: Path) -> Path:
     return _write_bed(destination, merge_intervals(intervals))
 
 
-def prepare_regions(root: Path) -> tuple[Path, Path]:
+def _read_bed(path: Path) -> list[tuple[str, int, int]]:
+    return [
+        (fields[0], int(fields[1]), int(fields[2]))
+        for line in path.read_text().splitlines()
+        if (fields := line.split("\t"))
+    ]
+
+
+def _reference_contig_lengths() -> dict[str, int]:
+    return {
+        fields[0]: int(fields[1])
+        for line in Path(f"{REFERENCE_FASTA}.fai").read_text().splitlines()
+        if (fields := line.split("\t"))
+    }
+
+
+def prepare_regions(root: Path) -> tuple[Path, Path, Path]:
     """Create frozen WES and ACMG panel interval files."""
     twist_source = _twist_source(root)
     ensembl_source = _ensembl_source(root)
     if not twist_source.exists() or not ensembl_source.exists():
         raise FileNotFoundError("Download the Twist BED and Ensembl GTF first")
-    twist = normalize_twist_bed(
+    twist_targets = normalize_twist_bed(
         twist_source,
         root / "regions/GRCh38/twist_human_core_exome_hg38.chr1-22-X.merged.bed",
+    )
+    twist_capture = _write_bed(
+        root / "regions/GRCh38/"
+        f"twist_human_core_exome_hg38.chr1-22-X.pad{WES_CAPTURE_PADDING}.merged.bed",
+        pad_intervals(
+            _read_bed(twist_targets),
+            padding=WES_CAPTURE_PADDING,
+            contig_lengths=_reference_contig_lengths(),
+        ),
     )
     genes = set(load_acmg_genes())
     intervals, observed = build_mane_panel_intervals(ensembl_source, genes, padding=20)
@@ -464,9 +546,14 @@ def prepare_regions(root: Path) -> tuple[Path, Path]:
         )
         for assay, bed, definition in (
             (
-                "wes_twist_core",
-                twist,
+                "wes_twist_core_targets",
+                twist_targets,
                 "Twist Human Core Exome hg38 targets; merged; chr1-22/X",
+            ),
+            (
+                "wes_twist_core",
+                twist_capture,
+                f"Twist targets +/-{WES_CAPTURE_PADDING} bp; calibrated capture-like footprint",
             ),
             (
                 "panel_acmg_sf_v3.3",
@@ -486,8 +573,8 @@ def prepare_regions(root: Path) -> tuple[Path, Path]:
                 )
             )
     output.with_suffix(".tsv.partial").replace(output)
-    print(f"Prepared interval definitions: {twist}, {panel}")
-    return twist, panel
+    print(f"Prepared interval definitions: {twist_targets}, {twist_capture}, {panel}")
+    return twist_targets, twist_capture, panel
 
 
 def _run_split_pipeline(
@@ -876,10 +963,11 @@ def validate_interval_vcf(vcf: Path, *, allowed_contigs: set[str]) -> dict[str, 
 
 
 def qc_assay_cohorts(root: Path) -> Path:
-    """Validate all 120 new VCFs and write one provenance-friendly QC table."""
+    """Validate all 170 new VCFs and write one provenance-friendly QC table."""
     expected = {
         "hprc_r2": (20, set(AUTOSOMES)),
         "wes_twist_core": (50, set(ASSAY_CONTIGS)),
+        "wes_twist_core_targets": (50, set(ASSAY_CONTIGS)),
         "panel_acmg_sf_v3.3": (50, set(ASSAY_CONTIGS)),
     }
     output = root / "qc/assay_sample_qc.tsv"
@@ -938,8 +1026,15 @@ def run_all(root: Path, workers: int) -> None:
     prepare_hprc(root)
     prepare_interval_cohort(
         root,
-        cohort="wes_twist_core",
+        cohort="wes_twist_core_targets",
         bed=root / "regions/GRCh38/twist_human_core_exome_hg38.chr1-22-X.merged.bed",
+        workers=workers,
+    )
+    prepare_interval_cohort(
+        root,
+        cohort="wes_twist_core",
+        bed=root / "regions/GRCh38/"
+        f"twist_human_core_exome_hg38.chr1-22-X.pad{WES_CAPTURE_PADDING}.merged.bed",
         workers=workers,
     )
     prepare_interval_cohort(
@@ -964,6 +1059,7 @@ def build_parser() -> argparse.ArgumentParser:
             "prepare-x",
             "prepare-hprc",
             "prepare-wes",
+            "prepare-wes-targets",
             "prepare-panel",
             "qc",
             "all",
@@ -995,6 +1091,14 @@ def main() -> None:
         prepare_interval_cohort(
             root,
             cohort="wes_twist_core",
+            bed=root / "regions/GRCh38/"
+            f"twist_human_core_exome_hg38.chr1-22-X.pad{WES_CAPTURE_PADDING}.merged.bed",
+            workers=args.workers,
+        )
+    elif command == "prepare-wes-targets":
+        prepare_interval_cohort(
+            root,
+            cohort="wes_twist_core_targets",
             bed=root
             / "regions/GRCh38/twist_human_core_exome_hg38.chr1-22-X.merged.bed",
             workers=args.workers,

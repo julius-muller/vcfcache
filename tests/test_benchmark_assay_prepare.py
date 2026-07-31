@@ -14,6 +14,7 @@ from benchmarks.prepare_assay_data import (
     deterministic_hprc_selection,
     load_acmg_genes,
     merge_intervals,
+    pad_intervals,
     parse_gtf_attributes,
     prepare_one_interval_sample,
     validate_interval_vcf,
@@ -82,6 +83,14 @@ def test_merge_intervals_merges_overlap_and_bookended_regions():
         ("chr1", 10, 30),
         ("chr2", 20, 30),
     ]
+
+
+def test_pad_intervals_clips_to_contigs_then_merges():
+    assert pad_intervals(
+        [("chr1", 5, 10), ("chr1", 20, 25), ("chrX", 95, 100)],
+        padding=10,
+        contig_lengths={"chr1": 100, "chrX": 100},
+    ) == [("chr1", 0, 35), ("chrX", 85, 100)]
 
 
 def test_build_mane_panel_intervals_filters_pads_merges_and_maps_contigs(tmp_path):
