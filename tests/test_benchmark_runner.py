@@ -3,7 +3,13 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from benchmarks.run_cohort import build_tasks, mode_order, worker_path, write_tasks
+from benchmarks.run_cohort import (
+    build_tasks,
+    mode_order,
+    submit_phase,
+    worker_path,
+    write_tasks,
+)
 from benchmarks.run_pilot import (
     PilotConfig,
     annotation_command,
@@ -110,6 +116,35 @@ def test_worker_path_translates_export_mount():
         Path("/mnt/data/slurm-results"),
         Path("/results"),
     ) == Path("/results/campaigns/run/manifests/smoke.tsv")
+
+
+def test_submit_phase_sets_worker_paths_and_working_directory(tmp_path, monkeypatch):
+    controller = tmp_path / "controller"
+    manifest = controller / "campaigns/run/manifests/smoke.tsv"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text("header\nrow\n")
+    captured = {}
+
+    def _run(command, **_kwargs):
+        captured["command"] = command
+        return subprocess.CompletedProcess(command, 0, stdout="42\n", stderr="")
+
+    monkeypatch.setattr(
+        "benchmarks.run_cohort.shutil.which", lambda _name: "/bin/sbatch"
+    )
+    monkeypatch.setattr("benchmarks.run_cohort.subprocess.run", _run)
+    job_id, command = submit_phase(
+        campaign_id="run",
+        phase="smoke",
+        controller_results=controller,
+        worker_results=Path("/results"),
+        concurrency=1,
+    )
+    assert job_id == "42"
+    assert command == captured["command"]
+    assert any(value.startswith("--chdir=") for value in command)
+    export = next(value for value in command if value.startswith("--export="))
+    assert "VCFCACHE_TASK_MANIFEST=/results/campaigns/run/manifests/smoke.tsv" in export
 
 
 def test_cgroup_v2_snapshot_parses_peak_and_counters(tmp_path):

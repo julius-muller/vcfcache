@@ -294,6 +294,7 @@ def submit_phase(
         "--parsable",
         f"--job-name=vcfcache-{phase}",
         f"--array={array}%{concurrency}",
+        f"--chdir={REPO_ROOT}",
         f"--output={worker_results}/campaigns/{campaign_id}/logs/{phase}-%A_%a.out",
         f"--export=ALL,VCFCACHE_CAMPAIGN_ID={campaign_id},"
         f"VCFCACHE_PHASE={phase},VCFCACHE_TASK_MANIFEST={worker_manifest},"
