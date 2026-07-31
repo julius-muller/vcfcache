@@ -56,3 +56,30 @@ maximum RSS, filesystem counters, VCFcache variant counts, and cache hit rate.
 The final comparison streams both BCFs and requires identical variant keys,
 input AF/AC/AN and GT values, and equivalent CSQ sets. It canonicalizes only
 split-allele order within a locus and CSQ item order.
+
+## Slurm cohort
+
+Generate the frozen 50-sample, three-replicate task matrix on the controller:
+
+```bash
+.venv/bin/python benchmarks/run_cohort.py prepare
+.venv/bin/python benchmarks/run_cohort.py submit
+.venv/bin/python benchmarks/run_cohort.py status
+.venv/bin/python benchmarks/run_cohort.py collect
+```
+
+For the publication infrastructure smoke test, prepare only the confirmed
+HG02079 pair:
+
+```bash
+.venv/bin/python benchmarks/run_cohort.py prepare \
+  --sample HG02079 --replicates 1 \
+  --tasks /mnt/data/vcfcache_benchmarks/manifests/slurm_smoke.tsv
+.venv/bin/python benchmarks/run_cohort.py submit \
+  --tasks /mnt/data/vcfcache_benchmarks/manifests/slurm_smoke.tsv \
+  --concurrency 1
+```
+
+Each array task runs cached and uncached modes in a deterministic randomized
+order on worker-local storage, requires semantic equivalence, and archives the
+pair atomically below `/results/tasks/`.

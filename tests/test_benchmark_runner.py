@@ -3,6 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from benchmarks.run_cohort import build_tasks, mode_order, write_tasks
 from benchmarks.run_pilot import (
     PilotConfig,
     annotation_command,
@@ -42,6 +43,39 @@ def test_cache_hit_rate_falls_back_to_normalized_output_total():
     }
     assert calculate_cache_hit_rate("uncached", counts, 1_772) is None
     assert calculate_cache_hit_rate("cached", counts, 1_772) == 1 - (71 / 1_772)
+
+
+def test_replicates_use_distinct_report_paths(tmp_path):
+    first = PilotConfig(tmp_path, tmp_path / "sample.vcf.gz", tmp_path, tmp_path, 1)
+    second = PilotConfig(tmp_path, tmp_path / "sample.vcf.gz", tmp_path, tmp_path, 2)
+    assert first.comparison_path.name == "semantic_comparison_r01.json"
+    assert second.comparison_path.name == "semantic_comparison_r02.json"
+    assert first.summary_path.name == "summary_r01.json"
+    assert second.summary_path.name == "summary_r02.json"
+
+
+def test_cohort_tasks_are_deterministic_and_replicate_specific(tmp_path):
+    qc = tmp_path / "sample_qc.tsv"
+    qc.write_text(
+        "cohort\tsample\tpath\tstatus\n" "1000g\tS1\t/mnt/data/S1.vcf.gz\tPASS\n"
+    )
+    first = build_tasks(qc, replicates=3, seed="paper", selected_sample="S1")
+    second = build_tasks(qc, replicates=3, seed="paper", selected_sample="S1")
+    assert first == second
+    assert [task.task_id for task in first] == [0, 1, 2]
+    assert [task.replicate for task in first] == [1, 2, 3]
+    assert all(
+        {task.first_mode, task.second_mode} == {"cached", "uncached"} for task in first
+    )
+    output = tmp_path / "tasks.tsv"
+    write_tasks(output, first)
+    assert output.read_text().splitlines()[0].startswith("task_id\tsample\tinput_vcf")
+
+
+def test_mode_order_changes_with_auditable_key():
+    first, second, key = mode_order("HG02079", 1, "vcfcache-paper-v1")
+    assert {first, second} == {"cached", "uncached"}
+    assert len(key) == 64
 
 
 def test_parse_gnu_time(tmp_path):

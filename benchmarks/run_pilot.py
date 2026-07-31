@@ -60,6 +60,14 @@ class PilotConfig:
     def run_dir(self, mode: str) -> Path:
         return self.pilot_root / f"{mode}_r{self.replicate:02d}"
 
+    @property
+    def comparison_path(self) -> Path:
+        return self.pilot_root / f"semantic_comparison_r{self.replicate:02d}.json"
+
+    @property
+    def summary_path(self) -> Path:
+        return self.pilot_root / f"summary_r{self.replicate:02d}.json"
+
 
 def run_checked(
     args: Sequence[str | Path], *, capture_output: bool = True
@@ -549,13 +557,12 @@ def compare_outputs(config: PilotConfig) -> dict[str, object]:
     cached = config.run_dir("cached") / "output.bcf"
     uncached = config.run_dir("uncached") / "output.bcf"
     report = semantic_compare(cached, uncached)
-    write_json_atomic(config.pilot_root / "semantic_comparison.json", report)
+    write_json_atomic(config.comparison_path, report)
     status = "PASS" if report["semantic_pass"] else "FAIL"
     print(f"Semantic comparison {status}: {report['records_compared']:,} records")
     if not report["semantic_pass"]:
         raise RuntimeError(
-            f"Cached and uncached outputs differ; see "
-            f"{config.pilot_root / 'semantic_comparison.json'}"
+            f"Cached and uncached outputs differ; see " f"{config.comparison_path}"
         )
     return report
 
@@ -588,10 +595,17 @@ def summarize(config: PilotConfig) -> dict[str, object]:
         "uncached_max_rss_kib": metrics["uncached"]["max_rss_kib"],
         "cached_max_rss_kib": metrics["cached"]["max_rss_kib"],
     }
-    comparison_path = config.pilot_root / "semantic_comparison.json"
+    comparison_path = config.comparison_path
+    legacy_comparison_path = config.pilot_root / "semantic_comparison.json"
+    if (
+        not comparison_path.exists()
+        and config.replicate == 1
+        and legacy_comparison_path.exists()
+    ):
+        comparison_path = legacy_comparison_path
     if comparison_path.exists():
         summary["semantic_comparison"] = json.loads(comparison_path.read_text())
-    write_json_atomic(config.pilot_root / "summary.json", summary)
+    write_json_atomic(config.summary_path, summary)
     print(
         f"Pilot speedup: {summary['speedup']:.2f}x; "
         f"wall time saved: {summary['wall_seconds_saved']:.1f}s"
