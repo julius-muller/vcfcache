@@ -6,6 +6,12 @@ under `/mnt/data/vcfcache_benchmarks`.
 
 ## Documents
 
+- [MATERIALS_AND_METHODS.md](MATERIALS_AND_METHODS.md): publication-ready
+  methods draft, with explicit placeholders for the final full-cohort run.
+- [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md): source releases, citations,
+  checksum chain, data-use notes, and submission-time provenance gate.
+- [manifests/](manifests/): tracked machine-readable source, sample-selection,
+  and interval snapshots for peer review and deposition.
 - [PLAN.md](PLAN.md): implementation phases and publication figure specification.
 - [DATA_SETUP.md](DATA_SETUP.md): exact public-data layout, transformations, and QC.
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md): measured VM capacity and scaling decision.
@@ -97,3 +103,8 @@ maximum RSS, filesystem counters, VCFcache variant counts, and cache hit rate.
 The final comparison streams both BCFs and requires identical variant keys,
 input AF/AC/AN and GT values, and equivalent CSQ sets. It canonicalizes only
 split-allele order within a locus and CSQ item order.
+
+The single-sample pilot is feasibility evidence only. Before manuscript
+submission, replace all square-bracketed fields in
+`MATERIALS_AND_METHODS.md` from the full Slurm archive and complete the
+submission-time gate in `SOURCE_PROVENANCE.md`.

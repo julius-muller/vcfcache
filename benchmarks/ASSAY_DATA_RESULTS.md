@@ -3,6 +3,9 @@
 Preparation completed 2026-07-31 UTC and the WES realism correction was made
 with implementation commit `fce7aa3`. Large data and machine-readable manifests are under
 `/mnt/data/vcfcache_benchmarks`; they are intentionally outside Git.
+Publication-facing snapshots, source citations, access conditions, and
+checksums are tracked in [`manifests/`](manifests/) and
+[SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md).
 
 ## Completion gate
 

@@ -1,0 +1,261 @@
+# Materials and Methods — publication draft
+
+The data-preparation text below is final for the frozen cohorts produced on
+2026-07-31. The performance-analysis text is the prespecified protocol for the
+full experiment. Items in square brackets must be replaced from the final Slurm
+run archive; pilot values must not be substituted for full-cohort values.
+
+## Study design
+
+We evaluated whether VCFcache reduces the computational cost of repeated variant
+annotation by reusing annotations for variants present in a pre-annotated public
+variant set. The primary comparison is paired within sample: the same input VCF
+and Ensembl Variant Effect Predictor (VEP) command are run with VCFcache enabled
+and with VCFcache's `--uncached` mode. The modes differ only in whether existing
+cache annotations are reused. Samples, rather than technical repetitions or
+individual variants, are the statistical units.
+
+The primary cohort comprises 50 read-called whole genomes from the high-coverage
+1000 Genomes resource. Seven Genome in a Bottle (GIAB) genomes, 20 graph-derived
+HPRC Release 2 genomes, 50 matched capture-like exomes, 50 matched strict-target
+exome controls, and 50 matched small-panel inputs provide external, provenance,
+representation, and input-size checks. HPRC results are reported separately
+because its variants are assembly/graph-derived rather than read-called by the
+1000 Genomes pipeline. The exome and panel VCFs are interval subsets of matched
+1000 Genomes genotypes and are not presented as wet-laboratory callsets.
+
+## Public data and ethics
+
+All inputs are publicly accessible and de-identified. No participants were
+recruited and no re-identification was attempted. [INSERT INSTITUTIONAL
+DETERMINATION OR EXEMPTION LANGUAGE.] Population and superpopulation fields are
+used as supplied by IGSR for balanced sampling and descriptive performance
+strata; they are not interpreted as discrete biological races. We followed the
+[HPRC Data Use Best Practices](https://humanpangenome.org/data-use/) and will
+follow the 1000 Genomes guidance for referring to populations.
+
+Direct URLs, checksums, access dates, licenses/data-use notes, sample IDs, and
+derived interval hashes are frozen in
+[`SOURCE_PROVENANCE.md`](SOURCE_PROVENANCE.md) and
+[`manifests/`](manifests/). These records are part of the method, not optional
+supplementary bookkeeping.
+
+## Primary 1000 Genomes WGS cohort
+
+We downloaded the NYGC 30× high-coverage integrated phased SNV/indel/SV panel
+described by Byrska-Bishop *et al.* (2022) from IGSR. We used the 2022 chr1–22
+files in GRCh38 coordinates and the Phase 3 integrated sample panel for source
+population, superpopulation, and `gender` metadata. All upstream files were
+verified against the provider's `20220804_manifest.txt` MD5 values.
+
+Selection was deterministic. Before sampling, we excluded the seven identities
+represented by GIAB HG001–HG007. Within each of AFR, AMR, EAS, EUR, and SAS and
+within each metadata sex stratum, eligible samples were ranked by the
+hexadecimal SHA-256 digest of `vcfcache-paper-v1:<sample_id>`. The first five
+records in each sex stratum were retained, yielding 10 samples per
+superpopulation, five recorded female and five recorded male (50 total). The
+exact identities and seed are in
+[`selected_1000g_samples.tsv`](manifests/selected_1000g_samples.tsv).
+
+For each autosome, bcftools selected the 50 samples, retained SNPs and indels,
+excluded symbolic alleles and records with an SVTYPE value, and did not update
+cohort INFO values after subsetting. INFO was reduced to source AF, AC, and AN;
+FORMAT was reduced to GT. The `+split` plugin emitted one BGZF VCF per sample,
+retaining only records for which that individual carried an alternate genotype
+(`GT="alt"`). The 22 shards per individual were concatenated, coordinate-sorted,
+BGZF-compressed, and tabix-indexed. Thus AF/AC/AN describe the source cohort and
+were not recalculated from the 50 selected samples.
+
+## Genome in a Bottle cohort
+
+We downloaded NIST GIAB v4.2.1 GRCh38 small-variant benchmark VCFs for HG001
+through HG007. The archived v4.2.1 HG002 path was used so all seven genomes had
+the same release label. VCFs were coordinate-sorted, BGZF-compressed, and
+tabix-indexed without reducing their official individual INFO or FORMAT fields.
+GIAB use and citation guidance is available from the
+[NIST GIAB FAQ](https://www.nist.gov/programs-projects/faqs-genome-bottle), and
+the v4.2.1 benchmark is described by Wagner *et al.* (2022).
+
+## HPRC Release 2 robustness cohort
+
+We used the HPRC v2.0 minigraph-cactus wave VCF in GRCh38 coordinates from the
+[HPRC Data Explorer](https://data.humanpangenome.org/alignments). We intersected
+its 232 sample columns with Phase 3 1000 Genomes metadata and excluded all
+identities in the primary or GIAB cohorts. Candidates were ranked within strata
+by SHA-256 of `vcfcache-paper-hprc-r2-v1:<sample_id>`. We selected 20 genomes:
+AFR 5, AMR 3, EAS 4, EUR 4, and SAS 4. Only three eligible AMR samples existed,
+so both remaining positions were assigned to AFR. Both source sex strata are
+represented within every superpopulation. Exact identities are frozen in
+[`selected_hprc_r2_samples.tsv`](manifests/selected_hprc_r2_samples.tsv).
+
+We restricted records to chr1–22, split multiallelic sites, retained carried
+biallelic SNPs and indels with both REF and ALT shorter than 50 bp, and removed
+symbolic/star alleles. Outputs retained source INFO/AF, AC, and AN plus FORMAT/GT
+and were emitted as single-sample BGZF VCFs with tabix indexes. The graph-derived
+cohort is a generalization analysis and is not pooled with read-called WGS.
+
+## Matched exome inputs and calibration
+
+The strict target definition was the Twist Human Core Exome hg38 covered-target
+BED downloaded from the vendor's
+[data-file page](https://www.twistbioscience.com/resources/data-files/ngs-human-core-exome-panel-bed-file).
+We retained chr1–22 and chrX, sorted intervals, and merged overlapping or
+bookended intervals. The frozen union contains 191,723 intervals spanning
+33,074,111 bp. Strict-target subsets contained only 20,343–26,292 records per
+sample (median 21,345), so they were retained as a mechanism control rather than
+used as the primary WES-size benchmark.
+
+To model a capture-like WES VCF footprint, each merged target was symmetrically
+padded, clipped to UCSC GRCh38.p14 contig bounds, and re-merged. Padding was
+calibrated across all 50 matched genomes before the final definition was fixed:
+±100 bp yielded a median/mean of 66,350/68,947 records, ±125 bp yielded
+77,056/80,211, and ±150 bp yielded 87,701/91,325. We selected ±125 bp because
+its mean was close to the prespecified approximately 80,000-variant target and
+its median closely matched the 77,745-site UCSF NA12878 WES VCF. The retained
+footprint has 165,014 intervals spanning 78,026,576 bp and yields
+73,266–95,429 records per sample.
+
+As external calibration anchors, we checksum-froze two real, CC BY 4.0 NA12878
+diagnostic-laboratory WES VCFs from
+[Zenodo record 3597727](https://doi.org/10.5281/zenodo.3597727): ARUP (25,066
+sites) and UCSF (77,745 sites). These GRCh37 VCFs demonstrate laboratory,
+capture, caller, and filtering variation. They were not timed and were not mixed
+with the GRCh38 performance cohort. The ±125-bp inputs must therefore be called
+“in-silico capture-like WES VCFs,” not real exomes.
+
+For each of the same 50 primary identities, autosomal records came from the
+prepared WGS VCF and chrX records came from the matching official NYGC 30× chrX
+callset. Each was subset with bcftools target-overlap mode 1, concatenated,
+coordinate-sorted, BGZF-compressed, and tabix-indexed.
+
+## Matched small-panel inputs
+
+The panel included the 84 gene symbols in ACMG Secondary Findings v3.3 Table 1;
+the exact list is frozen in
+[`acmg_sf_v3.3_genes.txt`](config/acmg_sf_v3.3_genes.txt). From Ensembl release
+115 GRCh38 GTF, we retained CDS records on chr1–22 or chrX whose `gene_name` was
+in that list and whose transcript carried the `MANE_Select` tag. GTF coordinates
+were converted to zero-based, half-open BED intervals, padded by 20 bp on each
+side, sorted, and merged. All 84 genes contributed at least one interval. The
+final panel has 1,823 intervals spanning 423,617 bp. The same 50 identities and
+the same autosomal/chrX transformation used for WES were used for the panel.
+
+The ACMG gene list defines an input-size benchmark and does not constitute a
+clinical analysis, a recommendation to return findings, or validation of assay
+coverage.
+
+## Input validation and frozen artifacts
+
+Every final performance input is an ordinary single-sample `.vcf.gz`, not BCF.
+Each file was required to pass `bgzip --test`, have a readable tabix index,
+contain exactly one expected sample, be coordinate sorted, use only allowed
+contigs, and have nonzero records and byte size. 1000 Genomes VCFs were also
+required to contain only SNP/indel records carried by the individual and exactly
+INFO/AF, AC, AN and FORMAT/GT. HPRC and interval-derived files were required to
+contain no symbolic or multiallelic ALT. Variant counts, sizes, contigs,
+SHA-256, and pass/fail status were written to machine-readable QC tables.
+
+The completed assay QC contains 170 unique PASS rows: 20 HPRC, 50 capture-like
+WES, 50 strict-target WES, and 50 panel VCFs. Its SHA-256 is
+`c956ec08322ce3b1f4f7bb358fb9f1a5673d155e06acb755892430f23041ced5`.
+Preparation code is frozen at commits `fce7aa3` and `5603699`; the complete
+test suite passed (316 passed, 18 skipped) after preparation.
+
+## Public annotation cache
+
+The public-cache universe was derived from the gnomAD v4.1 joint exome+genome
+sites Hail Table. A variant was selected if any `joint.freq` element had
+AF ≥ 0.01; exported INFO/AF and AC were the combined `joint.freq[0]` values.
+This yielded 18,869,857 GRCh38 records. VCFcache created a genotype-free,
+multiallelic-split blueprint and annotated it once with VEP 115.2. The benchmark
+uses the checksum-frozen 3,950,678,136-byte annotated cache described in
+[`SOURCE_PROVENANCE.md`](SOURCE_PROVENANCE.md).
+
+VEP ran offline against homo_sapiens cache 115/GRCh38.p14 with `--cache`,
+`--hgvsg`, `--everything`, `--buffer_size 500000`, and `--fork 8`. VEP output
+was converted to BCF with eight bcftools threads. VEP cache metadata identify
+GENCODE 49, SIFT 6.2.1, PolyPhen 2.2.3, dbSNP 156, ClinVar 202502, COSMIC 101,
+gnomAD exomes v4.1, gnomAD genomes v4.1, and regulatory build 1.0.
+
+## Annotation benchmark protocol
+
+For each primary WGS sample, one warm-up pair and three measured cached/uncached
+pairs will be executed. Pair order will be randomized within sample using
+[FINAL RANDOMIZATION SEED], generated before inspection of full-cohort results.
+Warm-ups will not enter estimates. The same input, VEP recipe, output filesystem,
+CPU allocation, memory allocation, and software environment will be used for
+both modes. Jobs will request eight CPUs and [FINAL MEMORY] GiB and run on
+[CPU MODEL, OPENSTACK FLAVOR, OS, STORAGE/MOUNT, SLURM VERSION]. Concurrent jobs
+will be capped at [FINAL CAP] based on the first resource-audit batch; any cap
+change and its criterion will be reported.
+
+VCFcache [FINAL VERSION] at Git commit [FINAL COMMIT] will be used with
+bcftools 1.21/htslib 1.21, VEP 115.2, Apptainer [FINAL VERSION], and the
+checksum-frozen SIF and annotation cache. Data preparation used bcftools
+1.21/htslib 1.21, bgzip/tabix 1.21-29-g243e97ec, and Python 3.12.3. Interval
+sorting, merging, and clipping were implemented in the tracked Python pipeline;
+bedtools was not invoked. Although the repository runtime can bundle bcftools
+1.22, that binary was not used to prepare these cohorts or in the completed
+pilot.
+
+GNU `/usr/bin/time -v` and Slurm cgroup accounting will record end-to-end wall
+time, user and system CPU time, maximum resident memory, and filesystem I/O.
+VCFcache logs will record input records, cache hits, misses, variants submitted
+to VEP, and effective hit rate. Wall time includes normalization, cache lookup,
+VEP annotation, output assembly, compression, indexing, and final streaming
+accounting. Failed or pre-empted jobs will be rerun but never silently deleted;
+all attempts and prespecified exclusion reasons will remain in the archive.
+
+The WES, strict-target, and panel size experiments will use the same paired
+commands. Because startup overhead dominates small inputs, panel timing will use
+[FINAL NUMBER] repeated executions per sample and report the full distribution.
+Each HPRC sample will receive one paired robustness run and remain a separately
+summarized cohort.
+
+## Correctness assessment
+
+Cached and uncached outputs must pass a streaming semantic comparison. For every
+record, the comparator checks CHROM, POS, REF, ALT, input AF/AC/AN, genotype,
+the CSQ header, and the complete set of CSQ items. It canonicalizes only
+split-record order within an identical CHROM/POS locus and CSQ item order,
+because these orders are not semantically meaningful. Any other key, input
+field, header, or annotation mismatch fails the pair and is reported; it is not
+discarded as a timing outlier.
+
+## Outcomes and statistical analysis
+
+The primary outcome is paired end-to-end wall-time speedup,
+`T_uncached / T_cached`, for WGS. Secondary outcomes are the paired wall-time
+difference, percentage wall time saved, CPU-hours saved, variants not submitted
+to VEP, hit rate, peak memory, and I/O. Technical replicates will first be
+summarized within sample; samples remain the inferential units.
+
+We will report medians, interquartile ranges, and sample-level bootstrap 95%
+confidence intervals for speedup and resource savings. Bootstrap resampling will
+resample samples with replacement and preserve all paired modes and technical
+replicates for a sampled individual; [FINAL BOOTSTRAP SEED AND REPLICATE COUNT]
+will be frozen in analysis code. Results will also be stratified descriptively
+by source superpopulation, without interpreting differences as intrinsic
+population biology. HPRC and GIAB results will be descriptive external checks.
+
+For a cohort of size `N`, observed compute saved will be estimated as the sum of
+paired CPU-hour differences. Extrapolations to 10–10,000 genomes will show both
+gross savings and cache-construction cost, use measured rather than advertised
+cloud/HPC prices, and present sensitivity ranges for hit rate and annotation
+complexity. The measured break-even point will be reported; extrapolations will
+be explicitly labeled as model-based rather than observed.
+
+## Software citations
+
+- VCFcache: [FINAL ARCHIVE DOI], version [FINAL VERSION], commit [FINAL COMMIT].
+- Danecek *et al.* Twelve years of SAMtools and BCFtools. *GigaScience* (2021).
+  https://doi.org/10.1093/gigascience/giab008
+- McLaren *et al.* The Ensembl Variant Effect Predictor. *Genome Biology*
+  (2016). https://doi.org/10.1186/s13059-016-0974-4
+- Kurtzer *et al.* Singularity: Scientific containers for mobility of compute.
+  *PLOS ONE* (2017). https://doi.org/10.1371/journal.pone.0177459
+
+Dataset citations are listed in
+[`SOURCE_PROVENANCE.md`](SOURCE_PROVENANCE.md). The final manuscript reference
+manager should import the DOI metadata rather than copying author lists from
+this working draft.

@@ -1,5 +1,11 @@
 # Public benchmark VCF setup
 
+Publication-facing citations, licenses/data-use notes, access dates, and the
+complete checksum chain are in [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md).
+Tracked snapshots of the external operational manifests are in
+[`manifests/`](manifests/). This document remains the operational transformation
+specification.
+
 ## Output
 
 Large data live under `/mnt/data/vcfcache_benchmarks`:
