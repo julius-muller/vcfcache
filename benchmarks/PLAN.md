@@ -17,6 +17,17 @@ output.
    - Prepare 50 autosomal 1000 Genomes VCFs and seven GIAB VCFs as described in
      [DATA_SETUP.md](DATA_SETUP.md).
    - Freeze sample IDs, source checksums, transformations, and final checksums.
+2a. **Assay-size and independent robustness cohorts** — in progress
+   - Test the HPRC selection, ACMG gene definition, MANE BED construction,
+     chrX completion, interval subsetting, final format, and QC before bulk
+     preparation.
+   - Add 20 HPRC Release 2 graph-derived GRCh38 samples as a separately
+     interpreted robustness cohort.
+   - Derive 50 matched Twist-core WES and 50 matched ACMG SF v3.3 panel VCFs
+     from the primary identities, including chromosome X without mutating the
+     established autosomal WGS files.
+   - Keep every final dataset as sorted, BGZF-compressed, tabix-indexed VCF;
+     freeze source and output checksums.
 3. **Benchmark runner** — implemented; pilot complete
    - Pin the VCFcache commit, container, bcftools, VEP 115.2 cache, CPUs, RAM,
      scratch storage, and thread counts.
@@ -35,6 +46,11 @@ output.
    - Measure controlled hit rates of 0%, 25%, 50%, 75%, 90%, 95%, and 100%.
    - Compare lightweight VEP, VEP `--everything`, a pinned plugin-rich clinical
      stack, and a lookup-only negative control.
+   - Measure the real-input-size curve with matched WGS, Twist WES, and ACMG
+     panel files. Use repeated short runs for the panel to estimate startup
+     overhead and the break-even record count.
+   - Run one paired annotation per HPRC R2 sample and report this graph-derived
+     cohort separately as a generalization check.
 6. **Analysis and manuscript** — pending
    - Treat samples as the statistical unit and report paired ratios, medians,
      IQRs, and bootstrap 95% confidence intervals.

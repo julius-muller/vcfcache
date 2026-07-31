@@ -31,10 +31,42 @@ chromosome/sample outputs are skipped on subsequent invocations.
 After QC, all files are also available through the flat, non-duplicating
 directory `/mnt/data/vcfcache_benchmarks/samples/GRCh38/all`.
 
+## Prepare the assay-size and HPRC R2 cohorts
+
+The second, independent pipeline leaves the original 57-sample cohort
+immutable and adds three publication cohorts:
+
+- 20 population-stratified HPRC Release 2 graph-derived GRCh38 VCFs;
+- 50 matched in-silico WES VCFs using the official Twist Human Core Exome
+  hg38 targets; and
+- 50 matched small-panel VCFs covering the 84 ACMG SF v3.3 genes, defined as
+  Ensembl 115 MANE Select coding sequence plus 20 bp on each side.
+
+The matched WES and panel cohorts use chromosomes 1–22 and X. The official
+1000 Genomes chrX callset is prepared as assay-only shards, so the established
+autosomal WGS cohort does not change.
+
+```bash
+.venv/bin/python benchmarks/prepare_assay_data.py preflight
+.venv/bin/python benchmarks/prepare_assay_data.py download --workers 3
+.venv/bin/python benchmarks/prepare_assay_data.py select-hprc
+.venv/bin/python benchmarks/prepare_assay_data.py regions
+.venv/bin/python benchmarks/prepare_assay_data.py prepare-x
+.venv/bin/python benchmarks/prepare_assay_data.py prepare-hprc
+.venv/bin/python benchmarks/prepare_assay_data.py prepare-wes --workers 4
+.venv/bin/python benchmarks/prepare_assay_data.py prepare-panel --workers 4
+.venv/bin/python benchmarks/prepare_assay_data.py qc
+```
+
+`prepare_assay_data.py all --workers 4` runs the same resumable sequence.
+All final files remain ordinary sorted, BGZF-compressed, tabix-indexed,
+single-sample `.vcf.gz` files; no BCF dataset is created.
+
 ## Tests
 
 ```bash
 .venv/bin/python -m pytest tests/test_benchmark_prepare.py -q
+.venv/bin/python -m pytest tests/test_benchmark_assay_prepare.py -q
 .venv/bin/python -m pytest -q
 VCFCACHE_BENCHMARK_NETWORK=1 \
   .venv/bin/python -m pytest tests/test_benchmark_prepare.py -m benchmark_network -q

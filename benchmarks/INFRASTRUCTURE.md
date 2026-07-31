@@ -28,6 +28,13 @@ The completed setup used 37 GiB: 29 GiB of immutable sources, 3.3 GiB of
 the sample manifest at 14:42 UTC to the final QC report at 15:46 UTC, setup
 took 64 minutes on this VM, including the long-tail public-server transfer.
 
+The assay expansion needs approximately 5.0 GiB of additional large sources
+(HPRC R2 wave VCF and 1000 Genomes chrX), 105 MiB for Ensembl 115, and less
+than 10 MiB for interval definitions. Derived WES, panel, chrX-shard, and HPRC
+files are expected to remain below 10 GiB. With 552 GiB free at the expansion
+preflight, preparation remains comfortably within the current VM; no Slurm
+cluster is needed for this data-construction step.
+
 ## Decision
 
 Keep public-data preparation on the current VM. Moving this streaming workload
