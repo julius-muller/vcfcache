@@ -39,8 +39,9 @@ The second, independent pipeline leaves the original 57-sample cohort
 immutable and adds three publication cohorts:
 
 - 20 population-stratified HPRC Release 2 graph-derived GRCh38 VCFs;
-- 50 matched in-silico WES VCFs using the official Twist Human Core Exome
-  hg38 targets; and
+- 50 matched capture-like WES VCFs using the official Twist Human Core Exome
+  hg38 targets padded by 125 bp, calibrated to approximately 80,000 variants;
+- 50 matched strict-target WES controls using the unpadded Twist BED; and
 - 50 matched small-panel VCFs covering the 84 ACMG SF v3.3 genes, defined as
   Ensembl 115 MANE Select coding sequence plus 20 bp on each side.
 
@@ -56,6 +57,7 @@ autosomal WGS cohort does not change.
 .venv/bin/python benchmarks/prepare_assay_data.py prepare-x
 .venv/bin/python benchmarks/prepare_assay_data.py prepare-hprc
 .venv/bin/python benchmarks/prepare_assay_data.py prepare-wes --workers 4
+.venv/bin/python benchmarks/prepare_assay_data.py prepare-wes-targets --workers 4
 .venv/bin/python benchmarks/prepare_assay_data.py prepare-panel --workers 4
 .venv/bin/python benchmarks/prepare_assay_data.py qc
 ```
@@ -63,6 +65,11 @@ autosomal WGS cohort does not change.
 `prepare_assay_data.py all --workers 4` runs the same resumable sequence.
 All final files remain ordinary sorted, BGZF-compressed, tabix-indexed,
 single-sample `.vcf.gz` files; no BCF dataset is created.
+
+The primary `wes_twist_core` cohort uses a transparent ±125-bp capture
+footprint: 73,266–95,429 records per sample (median 77,056; mean 80,211). The
+unpadded 33-Mb files are retained as `wes_twist_core_targets`, a mechanistic
+target-only control rather than a claim about typical raw WES output.
 
 ## Tests
 

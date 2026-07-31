@@ -9,7 +9,8 @@ sources/{1000g,giab}/       immutable primary-cohort downloads
 sources/{hprc_r2,twist,ensembl}/ assay and robustness sources
 samples/GRCh38/{1000g,giab} primary per-sample VCFs and TBI indexes
 samples/GRCh38/hprc_r2      20 HPRC R2 robustness VCF/index pairs
-samples/GRCh38/wes_twist_core 50 matched WES VCF/index pairs
+samples/GRCh38/wes_twist_core 50 matched capture-like WES VCF/index pairs
+samples/GRCh38/wes_twist_core_targets 50 strict-target WES controls
 samples/GRCh38/panel_acmg_sf_v3.3 50 matched panel VCF/index pairs
 samples/GRCh38/all          flat symlink view of all 57 VCF/index pairs
 regions/GRCh38/             frozen merged WES and panel BED files
@@ -87,11 +88,29 @@ Source intervals: Twist Human Core Exome covered targets for hg38, downloaded
 from Twist's current data-file page. Freeze the vendor file checksum, restrict
 to chromosomes 1–22 and X, sort, and merge overlapping/bookended intervals.
 
+The strict 33,074,111-bp target union produces only 20,343–26,292 carried
+variants per sample. Preserve those files as `wes_twist_core_targets`, because
+they are useful as an on-target mechanism control but are not representative
+of many raw clinical WES VCFs.
+
+For the primary capture-like cohort, pad each merged target by 125 bp, clip to
+contig bounds, then re-merge. This creates 165,014 intervals spanning
+78,026,576 bp. The value was selected by an explicit full-cohort calibration:
+±100 bp gave median/mean 66,350/68,947 records, ±125 bp gave
+77,056/80,211, and ±150 bp gave 87,701/91,325. The retained primary range is
+73,266–95,429 records per sample.
+
 Subset the same 50 primary 1000 Genomes identities. Autosomal variants come
 from the immutable prepared WGS inputs; chromosome X comes from the matching
 official NYGC 30x chrX callset. The output is an *in-silico captured WES VCF*,
 which controls ancestry, genotype, and caller while changing only target size.
 It must not be described as a wet-lab exome callset.
+
+Two openly licensed, genuine diagnostic-lab NA12878 WES VCFs from Zenodo
+(GRCh37) are frozen as calibration anchors under
+`sources/wes_calibration/NA12878_GRCh37`: ARUP has 25,066 sites and UCSF has
+77,745. They demonstrate substantial caller/capture variation and are not
+mixed into the GRCh38 performance cohort.
 
 ## Matched small-panel cohort
 
@@ -112,8 +131,9 @@ if cached execution is not faster.
 
 ## Assay-cohort validation
 
-`qc/assay_sample_qc.tsv` must contain exactly 20 HPRC, 50 WES, and 50 panel
-rows. Every final VCF must pass BGZF testing, have a valid tabix index, contain
+`qc/assay_sample_qc.tsv` must contain exactly 20 HPRC, 50 capture-like WES, 50
+strict-target WES, and 50 panel rows. Every final VCF must pass BGZF testing,
+have a valid tabix index, contain
 exactly one sample, use only the allowed contigs, contain no symbolic or
 multiallelic records, and have nonzero indexed record count, byte size, and
 SHA-256 recorded. Source URLs, upstream MD5 where available, local SHA-256,

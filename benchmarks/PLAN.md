@@ -28,8 +28,11 @@ output.
      established autosomal WGS files.
    - Keep every final dataset as sorted, BGZF-compressed, tabix-indexed VCF;
      freeze source and output checksums.
-   - Completed with 120/120 QC passes: 20 HPRC, 50 matched WES, and 50 matched
-     panel files. See [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md).
+   - Retain strict Twist targets as a mechanism control and use a separately
+     labeled ±125-bp, empirically calibrated capture-like WES cohort for the
+     primary size comparison.
+   - Completed with 20 HPRC, 50 capture-like WES, 50 target-only WES, and 50
+     matched panel files. See [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md).
 3. **Benchmark runner** — implemented; pilot complete
    - Pin the VCFcache commit, container, bcftools, VEP 115.2 cache, CPUs, RAM,
      scratch storage, and thread counts.
