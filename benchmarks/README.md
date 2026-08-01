@@ -102,7 +102,12 @@ Each run records the exact command, Git commit, environment, wall/CPU time,
 maximum RSS, filesystem counters, VCFcache variant counts, and cache hit rate.
 The final comparison streams both BCFs and requires identical variant keys,
 input AF/AC/AN and GT values, and equivalent CSQ sets. It canonicalizes only
-split-allele order within a locus and CSQ item order.
+split-allele order within a locus and CSQ item order. Differences confined to
+the VEP `HGNC_ID` CSQ field are counted and reported but do not fail the
+comparison because VEP 115.2 assigns that field non-deterministically according
+to buffering and batch composition (Ensembl VEP issue
+[#1959](https://github.com/Ensembl/ensembl-vep/issues/1959)). Any difference in
+another CSQ field still fails the comparison.
 
 The single-sample pilot is feasibility evidence only. Before manuscript
 submission, replace all square-bracketed fields in

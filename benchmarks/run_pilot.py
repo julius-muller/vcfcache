@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import shutil
 import socket
 import subprocess
@@ -33,6 +34,8 @@ DEFAULT_PARAMS = DEFAULT_CACHE / "params.snapshot.yaml"
 VCFCACHE_CMD = REPO_ROOT / ".venv/bin/vcfcache"
 TIME_CMD = Path("/usr/bin/time")
 MODES = ("uncached", "cached")
+KNOWN_VEP_IGNORED_CSQ_FIELDS = ("HGNC_ID",)
+KNOWN_VEP_ISSUE_URL = "https://github.com/Ensembl/ensembl-vep/issues/1959"
 
 
 @dataclass(frozen=True)
@@ -460,6 +463,12 @@ def _csq_header(path: Path) -> str:
     )
 
 
+def _csq_fields(header: str) -> tuple[str, ...]:
+    """Extract the ordered VEP CSQ field names from its INFO header."""
+    match = re.search(r'Format: ([^"]+)', header)
+    return tuple(match.group(1).split("|")) if match else ()
+
+
 def _locus_groups(
     stream: Iterable[str],
 ) -> Iterable[tuple[tuple[str, str], list[list[str]]]]:
@@ -480,14 +489,34 @@ def _locus_groups(
         yield locus, records
 
 
-def _canonical_record(fields: list[str]) -> tuple[tuple[str, ...], str]:
-    return tuple(fields[:8]), ",".join(sorted(fields[8].split(",")))
+def _canonical_csq(value: str, ignored_indices: tuple[int, ...] = ()) -> str:
+    items: list[str] = []
+    for item in value.split(","):
+        values = item.split("|")
+        for index in ignored_indices:
+            if index < len(values):
+                values[index] = ""
+        items.append("|".join(values))
+    return ",".join(sorted(items))
+
+
+def _canonical_record(
+    fields: list[str], ignored_indices: tuple[int, ...] = ()
+) -> tuple[tuple[str, ...], str]:
+    return tuple(fields[:8]), _canonical_csq(fields[8], ignored_indices)
 
 
 def semantic_compare(
     cached_bcf: Path, uncached_bcf: Path, *, mismatch_limit: int = 20
 ) -> dict[str, object]:
-    """Compare semantic records, ignoring within-locus and CSQ item order."""
+    """Compare semantic records, with narrowly documented VEP exceptions."""
+    cached_header = _csq_header(cached_bcf)
+    uncached_header = _csq_header(uncached_bcf)
+    csq_fields = _csq_fields(cached_header) if cached_header == uncached_header else ()
+    ignored_csq_fields = tuple(
+        field for field in KNOWN_VEP_IGNORED_CSQ_FIELDS if field in csq_fields
+    )
+    ignored_indices = tuple(csq_fields.index(field) for field in ignored_csq_fields)
     cached = _query_process(cached_bcf)
     uncached = _query_process(uncached_bcf)
     assert cached.stdout is not None
@@ -496,6 +525,7 @@ def semantic_compare(
     records = 0
     key_mismatches = 0
     annotation_mismatches = 0
+    ignored_annotation_mismatches = 0
     annotation_order_only = 0
     record_order_only = 0
     examples: list[dict[str, object]] = []
@@ -556,8 +586,10 @@ def semantic_compare(
                 continue
             assert isinstance(cached_record, list)
             assert isinstance(uncached_record, list)
-            cached_key, cached_canonical = _canonical_record(cached_record)
-            uncached_key, uncached_canonical = _canonical_record(uncached_record)
+            cached_key, cached_raw_canonical = _canonical_record(cached_record)
+            uncached_key, uncached_raw_canonical = _canonical_record(uncached_record)
+            _, cached_canonical = _canonical_record(cached_record, ignored_indices)
+            _, uncached_canonical = _canonical_record(uncached_record, ignored_indices)
             if cached_key != uncached_key:
                 key_mismatches += 1
                 if len(examples) < mismatch_limit:
@@ -570,8 +602,20 @@ def semantic_compare(
                         }
                     )
             if cached_record[8] != uncached_record[8]:
-                if cached_canonical == uncached_canonical:
+                if cached_raw_canonical == uncached_raw_canonical:
                     annotation_order_only += 1
+                elif cached_canonical == uncached_canonical:
+                    ignored_annotation_mismatches += 1
+                    if len(examples) < mismatch_limit:
+                        examples.append(
+                            {
+                                "group": group_number,
+                                "kind": "CSQ_ignored_known_vep_issue",
+                                "key": cached_key[:4],
+                                "ignored_fields": list(ignored_csq_fields),
+                                "reference": KNOWN_VEP_ISSUE_URL,
+                            }
+                        )
                 else:
                     annotation_mismatches += 1
                     if len(examples) < mismatch_limit:
@@ -599,8 +643,6 @@ def semantic_compare(
             f"cached={cached.returncode} {cached_stderr}; "
             f"uncached={uncached.returncode} {uncached_stderr}"
         )
-    cached_header = _csq_header(cached_bcf)
-    uncached_header = _csq_header(uncached_bcf)
     return {
         "semantic_pass": (
             key_mismatches == 0
@@ -611,6 +653,14 @@ def semantic_compare(
         "records_compared": records,
         "key_mismatches": key_mismatches,
         "annotation_mismatches": annotation_mismatches,
+        "raw_annotation_mismatches": (
+            annotation_mismatches + ignored_annotation_mismatches
+        ),
+        "ignored_annotation_mismatches": ignored_annotation_mismatches,
+        "ignored_csq_fields": list(ignored_csq_fields),
+        "ignored_difference_reference": (
+            KNOWN_VEP_ISSUE_URL if ignored_annotation_mismatches else None
+        ),
         "annotation_order_only": annotation_order_only,
         "record_order_only_loci": record_order_only,
         "csq_headers_equal": cached_header == uncached_header,

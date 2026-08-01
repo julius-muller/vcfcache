@@ -216,10 +216,13 @@ summarized cohort.
 
 Cached and uncached outputs must pass a streaming semantic comparison. For every
 record, the comparator checks CHROM, POS, REF, ALT, input AF/AC/AN, genotype,
-the CSQ header, and the complete set of CSQ items. It canonicalizes only
+the CSQ header, and the complete set of CSQ items. It canonicalizes
 split-record order within an identical CHROM/POS locus and CSQ item order,
-because these orders are not semantically meaningful. Any other key, input
-field, header, or annotation mismatch fails the pair and is reported; it is not
+because these orders are not semantically meaningful. Differences confined to
+`HGNC_ID` are counted and retained in the report but ignored for pass/fail due
+to the buffering- and batch-dependent VEP 115.2 behavior documented in Ensembl
+VEP issue [#1959](https://github.com/Ensembl/ensembl-vep/issues/1959). Any other
+key, input field, header, or annotation mismatch fails the pair and is not
 discarded as a timing outlier.
 
 ## Outcomes and statistical analysis

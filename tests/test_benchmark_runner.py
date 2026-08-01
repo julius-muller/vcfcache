@@ -231,16 +231,24 @@ def test_parse_gnu_time(tmp_path):
 
 
 def _write_annotated_vcf(
-    path: Path, *, csq: str, position: int = 10, af: str = "0.1"
+    path: Path,
+    *,
+    csq: str,
+    position: int = 10,
+    af: str = "0.1",
+    csq_format: str | None = None,
 ) -> Path:
     plain = path.with_suffix("")
+    csq_description = "Consequence"
+    if csq_format:
+        csq_description += f". Format: {csq_format}"
     plain.write_text(
         "##fileformat=VCFv4.2\n"
         "##contig=<ID=chr1,length=1000>\n"
         '##INFO=<ID=AF,Number=A,Type=Float,Description="AF">\n'
         '##INFO=<ID=AC,Number=A,Type=Integer,Description="AC">\n'
         '##INFO=<ID=AN,Number=1,Type=Integer,Description="AN">\n'
-        '##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence">\n'
+        f'##INFO=<ID=CSQ,Number=.,Type=String,Description="{csq_description}">\n'
         '##FORMAT=<ID=GT,Number=1,Type=String,Description="GT">\n'
         "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n"
         f"chr1\t{position}\t.\tA\tG\t.\tPASS\t"
@@ -303,3 +311,43 @@ def test_semantic_compare_detects_annotation_difference(tmp_path):
     report = semantic_compare(cached, uncached)
     assert report["semantic_pass"] is False
     assert report["annotation_mismatches"] == 1
+
+
+def test_semantic_compare_ignores_only_hgnc_id_for_known_vep_bug(tmp_path):
+    cached = _write_annotated_vcf(
+        tmp_path / "cached.vcf.gz",
+        csq="G|missense_variant|HGNC:1",
+        csq_format="Allele|Consequence|HGNC_ID",
+    )
+    uncached = _write_annotated_vcf(
+        tmp_path / "uncached.vcf.gz",
+        csq="G|missense_variant|",
+        csq_format="Allele|Consequence|HGNC_ID",
+    )
+    report = semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is True
+    assert report["annotation_mismatches"] == 0
+    assert report["raw_annotation_mismatches"] == 1
+    assert report["ignored_annotation_mismatches"] == 1
+    assert report["ignored_csq_fields"] == ["HGNC_ID"]
+    assert report["ignored_difference_reference"].endswith("/issues/1959")
+    assert report["examples"][0]["kind"] == "CSQ_ignored_known_vep_issue"
+
+
+def test_semantic_compare_does_not_hide_other_csq_difference_with_hgnc_rule(
+    tmp_path,
+):
+    cached = _write_annotated_vcf(
+        tmp_path / "cached.vcf.gz",
+        csq="G|missense_variant|HGNC:1",
+        csq_format="Allele|Consequence|HGNC_ID",
+    )
+    uncached = _write_annotated_vcf(
+        tmp_path / "uncached.vcf.gz",
+        csq="G|synonymous_variant|",
+        csq_format="Allele|Consequence|HGNC_ID",
+    )
+    report = semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is False
+    assert report["annotation_mismatches"] == 1
+    assert report["ignored_annotation_mismatches"] == 0
