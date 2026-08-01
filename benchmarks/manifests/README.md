@@ -15,6 +15,9 @@ to the preparation VM.
   selected identities and the deterministic selection seeds.
 - `assay_regions.tsv` freezes the three derived BED definitions and their
   SHA-256 checksums. Paths are relative to the benchmark root.
+- `bundled_caches.tsv` is the allow-list for publication cache strategies. It
+  freezes the shipped aliases, production Zenodo DOIs, archive names and MD5
+  values, AF semantics, and separates bundled from custom caches.
 
 The large operational manifests remain authoritative for individual output
 artifacts: `qc/sample_qc.tsv` contains every WGS/GIAB output checksum and
@@ -25,4 +28,3 @@ paper's data deposit and record the deposit DOI here.
 `accessed_utc` records when a source was downloaded or reverified for this
 study. An empty checksum means that the provider did not publish that checksum;
 it does not mean that the local artifact was left unhashed.
-

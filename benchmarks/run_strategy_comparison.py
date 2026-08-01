@@ -6,9 +6,12 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib
 import json
+import shutil
 import statistics
 import subprocess
+import tempfile
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -24,17 +27,47 @@ from benchmarks.run_pilot import (
 )
 
 DEFAULT_DATA_ROOT = Path("/mnt/data/vcfcache_benchmarks")
-DEFAULT_CACHE_ROOT = Path("/mnt/data/vcfcache_data/caches")
-DEFAULT_ROOT = DEFAULT_DATA_ROOT / "strategy_comparison"
+DEFAULT_CACHE_ROOT = DEFAULT_DATA_ROOT / "bundled_zenodo_caches"
+DEFAULT_ROOT = DEFAULT_DATA_ROOT / "strategy_comparison_zenodo_v1"
 DEFAULT_SELECTION = (
     Path(__file__).resolve().parent / "manifests/selected_1000g_samples.tsv"
 )
 SELECTION_SEED = "vcfcache-paper-cache-strategy-v1"
 VEP_CACHE_NAME = "vep115.2_everything"
-PUBLIC_STRATEGIES = (
-    ("gnomad_af_0.001", "af0001", 0.001),
-    ("gnomad_af_0.01", "af001", 0.01),
-    ("gnomad_af_0.1", "af010", 0.1),
+
+
+@dataclass(frozen=True)
+class BundledCacheSpec:
+    """One published cache bundle discoverable through VCFcache and Zenodo."""
+
+    name: str
+    alias: str
+    doi: str
+    root_name: str
+    archive_name: str
+    archive_md5: str
+    af_threshold: float
+
+
+BUNDLED_CACHE_SPECS = (
+    BundledCacheSpec(
+        name="gnomad_af_0.1",
+        alias="cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e",
+        doi="10.5281/zenodo.18189447",
+        root_name="gnomad_v4.1_GRCh38_joint_af010",
+        archive_name="cache_gnomad_v4.1_GRCh38_joint_af010.tar.gz",
+        archive_md5="088cf426461a51b77bdfcd5dcd2233f4",
+        af_threshold=0.1,
+    ),
+    BundledCacheSpec(
+        name="gnomad_af_0.01",
+        alias="cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+        doi="10.5281/zenodo.18190046",
+        root_name="gnomad_v4.1_GRCh38_joint_af001",
+        archive_name="cache_gnomad_v4.1_GRCh38_joint_af001.tar.gz",
+        archive_md5="3ac438461eac0cf42c75717156d7b2d4",
+        af_threshold=0.01,
+    ),
 )
 
 
@@ -47,6 +80,8 @@ class Strategy:
     cache_dir: Path
     blueprint: Path
     af_threshold: float | None = None
+    alias: str | None = None
+    doi: str | None = None
 
 
 def run_checked(args: Sequence[str | Path], *, log: Path | None = None) -> None:
@@ -100,18 +135,124 @@ def sample_path(data_root: Path, sample: str, superpopulation: str) -> Path:
     )
 
 
+def provenance_path(cache_root: Path, spec: BundledCacheSpec) -> Path:
+    """Return the retained provenance record for a downloaded bundle."""
+    return cache_root / spec.root_name / "zenodo_provenance.json"
+
+
+def verify_bundled_cache(cache_root: Path, spec: BundledCacheSpec) -> None:
+    """Fail closed unless a cache has verified Zenodo-download provenance."""
+    root = cache_root / spec.root_name
+    provenance = provenance_path(cache_root, spec)
+    required = (
+        root / "blueprint/vcfcache.bcf",
+        root / f"cache/{VEP_CACHE_NAME}/vcfcache_annotated.bcf",
+        root / f"cache/{VEP_CACHE_NAME}/params.snapshot.yaml",
+        provenance,
+    )
+    require_paths(required)
+    value = json.loads(provenance.read_text())
+    expected = {
+        "alias": spec.alias,
+        "doi": spec.doi,
+        "archive_name": spec.archive_name,
+        "archive_md5": spec.archive_md5,
+        "archive_md5_verified": True,
+        "source": "zenodo_production",
+    }
+    differences = {
+        key: (value.get(key), wanted)
+        for key, wanted in expected.items()
+        if value.get(key) != wanted
+    }
+    if differences:
+        raise RuntimeError(
+            f"Bundled cache lacks matching Zenodo provenance: {provenance}: "
+            f"{differences}"
+        )
+
+
+def fetch_bundled(args: argparse.Namespace) -> None:
+    """Download and checksum-verify the two published GRCh38 cache bundles."""
+    zenodo = importlib.import_module("vcfcache.integrations.zenodo")
+    archive_utils = importlib.import_module("vcfcache.utils.archive")
+    args.cache_root.mkdir(parents=True, exist_ok=True)
+    archive_root = args.cache_root / "archives"
+    archive_root.mkdir(parents=True, exist_ok=True)
+    for spec in BUNDLED_CACHE_SPECS:
+        try:
+            verify_bundled_cache(args.cache_root, spec)
+            print(f"Verified existing Zenodo bundle: {spec.alias}")
+            continue
+        except (FileNotFoundError, RuntimeError, json.JSONDecodeError):
+            pass
+
+        root = args.cache_root / spec.root_name
+        if root.exists():
+            raise RuntimeError(
+                f"Refusing to replace unverified cache directory: {root}. "
+                "Move it aside or select a clean --cache-root."
+            )
+        archive = archive_root / spec.archive_name
+        if not archive.exists():
+            partial = archive.with_suffix(archive.suffix + ".partial")
+            if partial.exists():
+                partial.unlink()
+            zenodo.download_doi(spec.doi, partial, sandbox=False)
+            partial_md5 = archive_utils.file_md5(partial)
+            if partial_md5 != spec.archive_md5:
+                raise RuntimeError(
+                    f"Zenodo archive checksum mismatch for {spec.doi}: "
+                    f"{partial_md5} != {spec.archive_md5}"
+                )
+            partial.replace(archive)
+        observed_md5 = archive_utils.file_md5(archive)
+        if observed_md5 != spec.archive_md5:
+            raise RuntimeError(
+                f"Zenodo archive checksum mismatch for {spec.doi}: "
+                f"{observed_md5} != {spec.archive_md5}"
+            )
+        temporary = Path(tempfile.mkdtemp(prefix=f".{spec.name}-", dir=args.cache_root))
+        try:
+            extracted = archive_utils.extract_cache(archive, temporary)
+            if extracted.name != spec.root_name:
+                raise RuntimeError(
+                    f"Unexpected root in Zenodo bundle {spec.doi}: {extracted.name}"
+                )
+            extracted.rename(root)
+        finally:
+            shutil.rmtree(temporary)
+        write_json_atomic(
+            provenance_path(args.cache_root, spec),
+            {
+                "alias": spec.alias,
+                "doi": spec.doi,
+                "source": "zenodo_production",
+                "downloaded_at": datetime.now(timezone.utc).isoformat(),
+                "archive_name": spec.archive_name,
+                "archive_md5": observed_md5,
+                "archive_md5_verified": True,
+            },
+        )
+        verify_bundled_cache(args.cache_root, spec)
+        print(f"Downloaded and verified Zenodo bundle: {spec.alias}")
+
+
 def public_strategies(cache_root: Path) -> list[Strategy]:
-    """Resolve the three local copies of the public gnomAD cache family."""
+    """Resolve only published cache bundles downloaded from Zenodo."""
     values: list[Strategy] = []
-    for name, suffix, threshold in PUBLIC_STRATEGIES:
-        root = cache_root / f"gnomad_v4.1_GRCh38_joint_{suffix}"
+    for spec in BUNDLED_CACHE_SPECS:
+        verify_bundled_cache(cache_root, spec)
+        root = cache_root / spec.root_name
         values.append(
             Strategy(
-                name=name,
-                kind="public_gnomad",
+                name=spec.name,
+                kind="bundled_zenodo",
                 cache_dir=root / "cache" / VEP_CACHE_NAME,
                 blueprint=root / "blueprint/vcfcache.bcf",
-                af_threshold=threshold,
+                af_threshold=spec.af_threshold,
+                alias=spec.alias,
+                doi=spec.doi,
             )
         )
     return values
@@ -146,11 +287,26 @@ def prepare(args: argparse.Namespace) -> None:
             "data_root": str(args.data_root),
             "cache_root": str(args.cache_root),
             "evaluation_is_disjoint": True,
+            "bundled_caches": [
+                {
+                    "name": spec.name,
+                    "alias": spec.alias,
+                    "doi": spec.doi,
+                    "archive_md5": spec.archive_md5,
+                }
+                for spec in BUNDLED_CACHE_SPECS
+            ],
         }
     )
     if design_path.exists():
         existing = json.loads(design_path.read_text())
-        for key in ("selection_seed", "superpopulations", "training", "evaluation"):
+        for key in (
+            "selection_seed",
+            "superpopulations",
+            "training",
+            "evaluation",
+            "bundled_caches",
+        ):
             if existing[key] != design[key]:
                 raise RuntimeError(f"Frozen design differs at {key}")
         design = existing
@@ -162,7 +318,9 @@ def prepare(args: argparse.Namespace) -> None:
         for row in design["training"]
     ]
     public = public_strategies(args.cache_root)
-    source_cache = public[1].cache_dir
+    source_cache = next(
+        strategy.cache_dir for strategy in public if strategy.name == "gnomad_af_0.01"
+    )
     require_paths(
         [
             *training_paths,
@@ -276,7 +434,7 @@ def completed_metrics(config: PilotConfig, mode: str) -> dict[str, Any] | None:
 
 
 def execute(args: argparse.Namespace) -> None:
-    """Run one uncached baseline and four cached strategies per held-out sample."""
+    """Run one uncached baseline and three cache strategies per held-out sample."""
     design = load_design(args.root)
     strategies = [*public_strategies(args.cache_root), cohort_strategy(args.root)]
     require_paths(
@@ -376,6 +534,8 @@ def collect_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
                 {
                     "strategy": strategy.name,
                     "strategy_kind": strategy.kind,
+                    "bundled_alias": strategy.alias or "",
+                    "zenodo_doi": strategy.doi or "",
                     "af_threshold": strategy.af_threshold or "",
                     "cache_records": cache_records(strategy.blueprint),
                     "cache_bytes": (strategy.cache_dir / "vcfcache_annotated.bcf")
@@ -425,21 +585,19 @@ def xml_escape(value: str) -> str:
 def make_svg(path: Path, rows: list[dict[str, Any]]) -> None:
     """Create a dependency-free two-panel SVG with medians and sample points."""
     labels = {
-        "gnomad_af_0.1": "gnomAD\nAF ≥ 10%",
-        "gnomad_af_0.01": "gnomAD\nAF ≥ 1%",
-        "gnomad_af_0.001": "gnomAD\nAF ≥ 0.1%",
+        "gnomad_af_0.1": "Bundled gnomAD\nany-stratum AF ≥ 10%",
+        "gnomad_af_0.01": "Bundled gnomAD\nany-stratum AF ≥ 1%",
         "cohort_3_genomes": "3-genome\ncohort cache",
     }
     order = list(labels)
     colors = {
         "gnomad_af_0.1": "#7AA6C2",
         "gnomad_af_0.01": "#4C78A8",
-        "gnomad_af_0.001": "#2F4B7C",
         "cohort_3_genomes": "#E07A5F",
     }
     grouped = {name: [row for row in rows if row["strategy"] == name] for name in order}
     if any(not grouped[name] for name in order):
-        raise RuntimeError("Figure requires complete results for all four strategies")
+        raise RuntimeError("Figure requires complete results for all three strategies")
     width, height = 1200, 560
     panel_width = 480
     lefts = (85, 685)
@@ -522,7 +680,7 @@ def make_svg(path: Path, rows: list[dict[str, Any]]) -> None:
                     f'<text class="label" text-anchor="middle" x="{x:.1f}" y="{447 + 17 * line_index}">{xml_escape(line)}</text>'
                 )
     svg.append(
-        '<text class="label" x="600" y="525" text-anchor="middle">Bars: median; points: three held-out genomes. The custom cache was built from three disjoint training genomes.</text>'
+        '<text class="label" x="600" y="525" text-anchor="middle">Points: three held-out genomes. Bundled caches are verified Zenodo downloads; the custom cache uses disjoint training genomes.</text>'
     )
     svg.append("</svg>")
     path.write_text("\n".join(svg) + "\n")
@@ -531,7 +689,7 @@ def make_svg(path: Path, rows: list[dict[str, Any]]) -> None:
 def collect(args: argparse.Namespace) -> None:
     """Write the strategy TSV and render its publication figure."""
     rows = collect_rows(args)
-    expected = 3 * 4
+    expected = 3 * 3
     if len(rows) != expected:
         raise RuntimeError(f"Expected {expected} complete rows, found {len(rows)}")
     tsv = args.root / "figure/cache_strategy.tsv"
@@ -545,7 +703,10 @@ def collect(args: argparse.Namespace) -> None:
 def build_parser() -> argparse.ArgumentParser:
     """Build the strategy comparison CLI."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("prepare", "execute", "collect", "all"))
+    parser.add_argument(
+        "command",
+        choices=("fetch-bundled", "prepare", "execute", "collect", "all"),
+    )
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument("--data-root", type=Path, default=DEFAULT_DATA_ROOT)
     parser.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
@@ -561,6 +722,8 @@ def main() -> None:
         setattr(args, name, getattr(args, name).expanduser().resolve())
     if args.threads < 1:
         raise ValueError("--threads must be positive")
+    if args.command in ("fetch-bundled", "all"):
+        fetch_bundled(args)
     if args.command in ("prepare", "all"):
         prepare(args)
     if args.command in ("execute", "all"):

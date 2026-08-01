@@ -74,6 +74,23 @@ cohort for estimating this cache's real-world WGS hit rate. They remain valid
 for runtime calibration conditional on observed hit rate and for disjoint
 cohort-derived cache experiments.
 
+## Bundled-cache provenance gate
+
+The publication public-cache matrix contains only cache bundles discoverable
+through VCFcache and downloaded from production Zenodo. The allow-list and
+archive checksums are frozen in `manifests/bundled_caches.tsv`:
+
+| Strategy | Shipped alias | Zenodo DOI | Archive MD5 |
+|---|---|---|---|
+| any-stratum AF ≥ 10% | `cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e` | `10.5281/zenodo.18189447` | `088cf426461a51b77bdfcd5dcd2233f4` |
+| any-stratum AF ≥ 1% | `cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e` | `10.5281/zenodo.18190046` | `3ac438461eac0cf42c75717156d7b2d4` |
+
+The runner retains the downloaded archives and writes a validated provenance
+record beside each extracted cache. Missing or conflicting provenance stops
+the benchmark. Zenodo record `18190666` is a blueprint rather than an annotated
+cache bundle and is excluded. Cohort-derived caches are separately labelled
+custom and never represented as bundled.
+
 Artifact identities are:
 
 | Artifact | Bytes | SHA-256 |

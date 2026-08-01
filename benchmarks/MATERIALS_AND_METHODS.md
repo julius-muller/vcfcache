@@ -192,6 +192,13 @@ cache. In addition, gnomAD includes an HGDP/1000 Genomes subset. The current
 1000 Genomes inputs therefore constitute source-overlap calibration data for
 this public cache, not an independent WGS validation cohort.
 
+Final bundled-cache comparisons are restricted to the two annotated GRCh38
+VEP 115.2 `--everything` bundles distributed through VCFcache and downloaded
+from production Zenodo: AF ≥ 10% (`10.5281/zenodo.18189447`) and AF ≥ 1%
+(`10.5281/zenodo.18190046`). Downloaded archives must pass their frozen Zenodo
+MD5 checks before execution. The AF ≥ 0.1% Zenodo record is blueprint-only and
+is excluded, as are all locally annotated public-cache substitutes.
+
 ## Annotation benchmark protocol
 
 For each primary WGS sample, one warm-up pair and three measured cached/uncached

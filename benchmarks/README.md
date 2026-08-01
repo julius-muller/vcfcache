@@ -11,7 +11,7 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md): source releases, citations,
   checksum chain, data-use notes, and submission-time provenance gate.
 - [manifests/](manifests/): tracked machine-readable source, sample-selection,
-  and interval snapshots for peer review and deposition.
+  interval, and bundled-Zenodo-cache snapshots for peer review and deposition.
 - [PLAN.md](PLAN.md): implementation phases and publication figure specification.
 - [DATA_SETUP.md](DATA_SETUP.md): exact public-data layout, transformations, and QC.
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md): measured VM capacity and scaling decision.
@@ -123,6 +123,19 @@ The single-sample pilot is feasibility evidence only. Before manuscript
 submission, replace all square-bracketed fields in
 `MATERIALS_AND_METHODS.md` from the full Slurm archive and complete the
 submission-time gate in `SOURCE_PROVENANCE.md`.
+
+## Bundled-cache strategy gate
+
+Publication-facing public-cache comparisons accept only the two GRCh38 VEP
+115.2 `--everything` cache aliases shipped by VCFcache and published as
+annotated Zenodo bundles. The runner downloads and MD5-verifies them before use:
+
+```bash
+.venv/bin/python benchmarks/run_strategy_comparison.py fetch-bundled
+```
+
+An unpublished local annotation or a blueprint-only Zenodo record fails this
+gate. Cohort-derived caches are reported separately as custom caches.
 
 ## Slurm cohort
 

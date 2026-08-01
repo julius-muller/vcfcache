@@ -29,10 +29,10 @@ This cache is broader than a cache selected by combined-population AF ≥ 0.01.
 The exporter selected a site when *any* ancestry, sex, or subset frequency met
 the threshold, but wrote combined `joint.freq[0]` AF into INFO. Publication
 text and figure labels must therefore say **any-stratum AF ≥ 1%**, not merely
-"gnomAD 1%". A combined-population AF ≥ 1% cache must be rebuilt as a
-different artifact before it is compared.
+"gnomAD 1%". A separately rebuilt combined-population cache is not bundled and
+is therefore ineligible for the bundled-cache benchmark.
 
-## Small strategy experiment
+## Quarantined small strategy experiment
 
 The separate strategy experiment is descriptive and is not pooled with the
 primary timing analysis. It compares identical VEP 115.2 recipes for:
@@ -46,6 +46,11 @@ primary timing analysis. It compares identical VEP 115.2 recipes for:
    locally retained 19.3-GB annotated cache is not currently listed as a
    production Zenodo cache; and
 4. a custom cache made from the union of three primary-cohort genomes.
+
+The AF ≥ 0.1% entry is excluded from every replacement/publication analysis:
+Zenodo record 18190666 is a blueprint, not a bundled annotated cache. Its local
+annotation is not a downloadable VCFcache bundle and therefore does not meet
+the cache-provenance gate.
 
 Training and evaluation identities are disjoint. The selection is frozen by
 SHA-256 ranks using seed `vcfcache-paper-cache-strategy-v1`. The three selected
@@ -70,16 +75,33 @@ and semantic comparison outcomes remain in the figure-source TSV.
 
 ## Reproduction
 
-The preparation is resumable and deliberately runs outside the active Slurm
-campaign on the data-preparation VM, where all cache artifacts already exist:
+The quarantined run was produced by commit `3039e57`; it must not be resumed.
+The replacement runner uses a new output root, downloads the two allowed
+bundled caches from production Zenodo, verifies the archive MD5 values, and
+writes a provenance marker before preparation can start:
 
 ```bash
+.venv/bin/python benchmarks/run_strategy_comparison.py fetch-bundled
 .venv/bin/python benchmarks/run_strategy_comparison.py prepare
 .venv/bin/python benchmarks/run_strategy_comparison.py execute
 .venv/bin/python benchmarks/run_strategy_comparison.py collect
 ```
 
-`all` runs the same three stages in order. Outputs are written below
+`all` runs download, preparation, execution, and collection in order. Public
+strategies are restricted to these shipped aliases:
+
+| Bundled alias | Zenodo DOI | Archive MD5 |
+|---|---|---|
+| `cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e` | `10.5281/zenodo.18189447` | `088cf426461a51b77bdfcd5dcd2233f4` |
+| `cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e` | `10.5281/zenodo.18190046` | `3ac438461eac0cf42c75717156d7b2d4` |
+
+The cohort-derived cache remains a distinct custom-cache strategy and is never
+labelled bundled. Replacement outputs are written below
+`/mnt/data/vcfcache_benchmarks/strategy_comparison_zenodo_v1`. Bundles and
+retained archives live below
+`/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches`.
+
+Quarantined exploratory outputs remain below
 `/mnt/data/vcfcache_benchmarks/strategy_comparison`:
 
 - `design.json`: frozen training/evaluation allocation;
