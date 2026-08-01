@@ -18,6 +18,9 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [PILOT_RESULTS.md](PILOT_RESULTS.md): frozen paired-pilot results and scale-up gate.
 - [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md): completed HPRC/WES/panel counts,
   checksums, storage, and QC gate.
+- [CACHE_STRATEGY_COMPARISON.md](CACHE_STRATEGY_COMPARISON.md): small,
+  leakage-free comparison of gnomAD AF thresholds and a three-genome custom
+  cache, including the vector-figure workflow.
 
 ## Prepare the public VCF cohort
 
@@ -89,7 +92,7 @@ VCFCACHE_BENCHMARK_NETWORK=1 \
 
 ## Paired publication pilot
 
-The runner uses the local gnomAD GRCh38 AF≥0.001 cache and its immutable VEP
+The runner uses the local gnomAD GRCh38 AF≥0.01 cache and its immutable VEP
 115.2 `--everything` recipe. Cached and uncached commands are identical except
 for VCFcache's `--uncached` switch.
 
