@@ -110,6 +110,14 @@ Quarantined exploratory outputs remain below
 - `figure/cache_strategy.tsv`: publication figure source; and
 - `figure/cache_strategy.svg`: editable vector figure.
 
+The provenance gate was exercised successfully on 2026-08-01. Both archives
+were downloaded independently on the preparation VM and Slurm head, matched
+their Zenodo MD5 values, and were extracted. Only the extracted cache bundles
+and provenance records were staged to all six workers. Every worker reports
+the same annotated-cache sizes: 1,709,078,405 bytes for AF ≥ 10% and
+3,950,678,136 bytes for AF ≥ 1%. Archives are retained on the two source VMs
+but are not copied to workers.
+
 ## Emergency validity assessment
 
 The 50 read-called WGS inputs are NYGC 30x 1000 Genomes samples. The 20 HPRC
@@ -130,6 +138,12 @@ VEP, divided by total output variants. The completed points fit
 with R² approximately 0.996 and median uncached time approximately 127 min.
 This is useful calibration evidence for the runtime model, despite the
 non-independent samples.
+
+The emergency re-audit of all 11 preserved warmup failures completed on
+2026-08-01. All 11 pass the current comparator, all prior mismatches are
+confined to the documented VEP `HGNC_ID` behavior, and there are zero remaining
+semantic failures. This resolves the correctness concern but does not remove
+the cohort-overlap concern.
 
 ## Replacement assay and cache design
 
