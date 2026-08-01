@@ -18,9 +18,9 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [PILOT_RESULTS.md](PILOT_RESULTS.md): frozen paired-pilot results and scale-up gate.
 - [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md): completed HPRC/WES/panel counts,
   checksums, storage, and QC gate.
-- [CACHE_STRATEGY_COMPARISON.md](CACHE_STRATEGY_COMPARISON.md): small,
-  leakage-free comparison of gnomAD AF thresholds and a three-genome custom
-  cache, including the vector-figure workflow.
+- [CACHE_STRATEGY_COMPARISON.md](CACHE_STRATEGY_COMPARISON.md): emergency
+  validity assessment, runtime model, replacement assay/cache matrix, and the
+  quarantined exploratory strategy comparison.
 
 ## Prepare the public VCF cohort
 
@@ -44,8 +44,8 @@ directory `/mnt/data/vcfcache_benchmarks/samples/GRCh38/all`.
 
 ## Prepare the assay-size and HPRC R2 cohorts
 
-The second, independent pipeline leaves the original 57-sample cohort
-immutable and adds three publication cohorts:
+The second preparation pipeline leaves the original 57-sample cohort immutable
+and adds three assay/robustness cohorts:
 
 - 20 population-stratified HPRC Release 2 graph-derived GRCh38 VCFs;
 - 50 matched capture-like WES VCFs using the official Twist Human Core Exome
@@ -53,6 +53,12 @@ immutable and adds three publication cohorts:
 - 50 matched strict-target WES controls using the unpadded Twist BED; and
 - 50 matched small-panel VCFs covering the 84 ACMG SF v3.3 genes, defined as
   Ensembl 115 MANE Select coding sequence plus 20 bp on each side.
+
+The word "independent" is intentionally not used here. The HPRC selection also
+uses 1000 Genomes identities, while the WES and panel inputs are interval
+subsets of the primary 1000 Genomes genomes. See the emergency validity
+assessment in `CACHE_STRATEGY_COMPARISON.md` before interpreting bundled-cache
+hit rates.
 
 The matched WES and panel cohorts use chromosomes 1–22 and X. The official
 1000 Genomes chrX callset is prepared as assay-only shards, so the established
@@ -92,9 +98,10 @@ VCFCACHE_BENCHMARK_NETWORK=1 \
 
 ## Paired publication pilot
 
-The runner uses the local gnomAD GRCh38 AF≥0.01 cache and its immutable VEP
-115.2 `--everything` recipe. Cached and uncached commands are identical except
-for VCFcache's `--uncached` switch.
+The runner uses the local gnomAD GRCh38 cache selected by AF≥0.01 in at least
+one `joint.freq` stratum and its immutable VEP 115.2 `--everything` recipe.
+Cached and uncached commands are identical except for VCFcache's `--uncached`
+switch.
 
 ```bash
 .venv/bin/python benchmarks/run_pilot.py preflight

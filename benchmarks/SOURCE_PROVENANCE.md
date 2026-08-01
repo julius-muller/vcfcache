@@ -62,6 +62,18 @@ blueprint with the same record count. Ensembl VEP 115.2 then annotated that
 blueprint using offline cache 115, GRCh38, `--hgvsg`, `--everything`, buffer
 500,000, eight forks, and eight bcftools threads.
 
+Consequently, artifact labels must say **any-stratum AF ≥ 1%**. A site can be
+included because one ancestry, sex, or subset stratum passes 1% even when its
+combined AF is below 1%. This distinction affects expected WGS coverage and is
+not recoverable from the exported INFO/AF field alone.
+
+gnomAD v3.1 incorporated approximately 2,500 1000 Genomes samples into its
+HGDP/1KG subset, and the v3.1.2 genomes were carried into v4. The study's NYGC
+WGS samples and the selected HPRC identities are therefore not an independent
+cohort for estimating this cache's real-world WGS hit rate. They remain valid
+for runtime calibration conditional on observed hit rate and for disjoint
+cohort-derived cache experiments.
+
 Artifact identities are:
 
 | Artifact | Bytes | SHA-256 |
@@ -137,6 +149,8 @@ for whether analysis of public de-identified data requires ethics review.
   https://doi.org/10.5281/zenodo.3597727
 - gnomAD Production Team. gnomAD v4.1 release and joint frequency resource
   (2024). https://gnomad.broadinstitute.org/news/2024-04-gnomad-v4-1
+- gnomAD Production Team. gnomAD v3.1 HGDP and 1000 Genomes subset
+  (2020). https://gnomad.broadinstitute.org/news/2020-10-gnomad-v3-1-new-content-methods-annotations-and-data-availability/
 - Genome Reference Consortium. Human reference assembly GRCh38.p14,
   GCA_000001405.29. UCSC download and checksums:
   https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/p14/

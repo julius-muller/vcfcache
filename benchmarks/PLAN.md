@@ -17,7 +17,7 @@ output.
    - Prepare 50 autosomal 1000 Genomes VCFs and seven GIAB VCFs as described in
      [DATA_SETUP.md](DATA_SETUP.md).
    - Freeze sample IDs, source checksums, transformations, and final checksums.
-2a. **Assay-size and independent robustness cohorts** — implemented
+2a. **Assay-size and representation-robustness cohorts** — implemented
    - Test the HPRC selection, ACMG gene definition, MANE BED construction,
      chrX completion, interval subsetting, final format, and QC before bulk
      preparation.
@@ -55,7 +55,7 @@ output.
      panel files. Use repeated short runs for the panel to estimate startup
      overhead and the break-even record count.
    - Run one paired annotation per HPRC R2 sample and report this graph-derived
-     cohort separately as a generalization check.
+     cohort separately as a variant-representation robustness check.
 6. **Analysis and manuscript** — pending
    - Treat samples as the statistical unit and report paired ratios, medians,
      IQRs, and bootstrap 95% confidence intervals.

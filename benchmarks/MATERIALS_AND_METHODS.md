@@ -5,6 +5,13 @@ The data-preparation text below is final for the frozen cohorts produced on
 full experiment. Items in square brackets must be replaced from the final Slurm
 run archive; pilot values must not be substituted for full-cohort values.
 
+> **Emergency protocol amendment, 2026-08-01:** The 1000 Genomes and selected
+> HPRC identities overlap the source universe represented in gnomAD. They may
+> be used to estimate runtime conditional on observed hit rate, but not to
+> estimate the public-cache hit-rate distribution of independent WGS samples.
+> The measured Slurm array is held pending the replacement design described in
+> `CACHE_STRATEGY_COMPARISON.md`.
+
 ## Study design
 
 We evaluated whether VCFcache reduces the computational cost of repeated variant
@@ -18,8 +25,9 @@ individual variants, are the statistical units.
 The primary cohort comprises 50 read-called whole genomes from the high-coverage
 1000 Genomes resource. Seven Genome in a Bottle (GIAB) genomes, 20 graph-derived
 HPRC Release 2 genomes, 50 matched capture-like exomes, 50 matched strict-target
-exome controls, and 50 matched small-panel inputs provide external, provenance,
-representation, and input-size checks. HPRC results are reported separately
+exome controls, and 50 matched small-panel inputs provide provenance,
+representation, assay-size, and runtime checks. HPRC results are reported
+separately
 because its variants are assembly/graph-derived rather than read-called by the
 1000 Genomes pipeline. The exome and panel VCFs are interval subsets of matched
 1000 Genomes genotypes and are not presented as wet-laboratory callsets.
@@ -92,7 +100,9 @@ We restricted records to chr1–22, split multiallelic sites, retained carried
 biallelic SNPs and indels with both REF and ALT shorter than 50 bp, and removed
 symbolic/star alleles. Outputs retained source INFO/AF, AC, and AN plus FORMAT/GT
 and were emitted as single-sample BGZF VCFs with tabix indexes. The graph-derived
-cohort is a generalization analysis and is not pooled with read-called WGS.
+cohort is a variant-representation robustness analysis and is not pooled with
+read-called WGS. Because its selected identities also come from 1000 Genomes,
+it is not an independent test of public-cache hit rate.
 
 ## Matched exome inputs and calibration
 
@@ -177,6 +187,11 @@ was converted to BCF with eight bcftools threads. VEP cache metadata identify
 GENCODE 49, SIFT 6.2.1, PolyPhen 2.2.3, dbSNP 156, ClinVar 202502, COSMIC 101,
 gnomAD exomes v4.1, gnomAD genomes v4.1, and regulatory build 1.0.
 
+This is an **any-stratum AF ≥ 1%** cache, not a combined-population AF ≥ 1%
+cache. In addition, gnomAD includes an HGDP/1000 Genomes subset. The current
+1000 Genomes inputs therefore constitute source-overlap calibration data for
+this public cache, not an independent WGS validation cohort.
+
 ## Annotation benchmark protocol
 
 For each primary WGS sample, one warm-up pair and three measured cached/uncached
@@ -227,11 +242,25 @@ discarded as a timing outlier.
 
 ## Outcomes and statistical analysis
 
-The primary outcome is paired end-to-end wall-time speedup,
-`T_uncached / T_cached`, for WGS. Secondary outcomes are the paired wall-time
-difference, percentage wall time saved, CPU-hours saved, variants not submitted
-to VEP, hit rate, peak memory, and I/O. Technical replicates will first be
-summarized within sample; samples remain the inferential units.
+The primary outcome is relative end-to-end wall time,
+`R_cached = T_cached / T_uncached`, with uncached annotation normalized to 1.0,
+for panel, WES, and WGS. At least 12 held-out inputs per assay and cache
+strategy will be measured. Secondary outcomes are speedup `1/R_cached`, the
+paired wall-time difference, percentage wall time saved, CPU-hours saved,
+variants not submitted to VEP, observed hit rate, peak memory, and I/O.
+Technical replicates will first be summarized within sample; samples remain the
+inferential units.
+
+Runtime will also be modeled conditional on hit rate:
+
+`T_cached ≈ T_overhead + (1 - f) * T_uncached`.
+
+Cache-build cost will be reported separately and amortized over `S` uses as
+`T_eff ≈ T_cached + T_build/S`. Exact cohort-training size is recorded as
+strategy metadata; observed `f`, rather than training size, is the main model
+axis. Absolute public-cache WGS hit-rate estimates require read-called samples
+whose identities are absent from gnomAD. Overlapping 1000 Genomes points are
+labelled source-overlap upper bounds and excluded from that estimate.
 
 We will report medians, interquartile ranges, and sample-level bootstrap 95%
 confidence intervals for speedup and resource savings. Bootstrap resampling will
@@ -239,7 +268,8 @@ resample samples with replacement and preserve all paired modes and technical
 replicates for a sampled individual; [FINAL BOOTSTRAP SEED AND REPLICATE COUNT]
 will be frozen in analysis code. Results will also be stratified descriptively
 by source superpopulation, without interpreting differences as intrinsic
-population biology. HPRC and GIAB results will be descriptive external checks.
+population biology. HPRC and GIAB results will be descriptive representation
+checks, not independent estimates of gnomAD cache coverage.
 
 For a cohort of size `N`, observed compute saved will be estimated as the sum of
 paired CPU-hour differences. Extrapolations to 10–10,000 genomes will show both
