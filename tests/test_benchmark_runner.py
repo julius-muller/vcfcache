@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
+
+import pytest
 
 from benchmarks.run_cohort import (
     build_tasks,
@@ -12,6 +15,7 @@ from benchmarks.run_cohort import (
     write_tasks,
 )
 from benchmarks.run_pilot import (
+    DEFAULT_CACHE_PROVENANCE_EXPECTED,
     PilotConfig,
     annotation_command,
     calculate_cache_hit_rate,
@@ -19,6 +23,7 @@ from benchmarks.run_pilot import (
     parse_elapsed,
     parse_gnu_time,
     semantic_compare,
+    validate_default_cache_provenance,
 )
 
 
@@ -35,6 +40,19 @@ def test_annotation_commands_differ_only_by_uncached_flag(tmp_path):
     uncached = annotation_command(config, "uncached", run_dir)
     assert uncached[:-1] == cached
     assert uncached[-1] == "--uncached"
+
+
+def test_default_cache_provenance_is_fail_closed(tmp_path):
+    provenance = tmp_path / "zenodo_provenance.json"
+    provenance.write_text(json.dumps(DEFAULT_CACHE_PROVENANCE_EXPECTED))
+    assert validate_default_cache_provenance(provenance)["source"] == (
+        "zenodo_production"
+    )
+    provenance.write_text(
+        json.dumps({**DEFAULT_CACHE_PROVENANCE_EXPECTED, "doi": "wrong"})
+    )
+    with pytest.raises(RuntimeError, match="Invalid bundled-cache provenance"):
+        validate_default_cache_provenance(provenance)
 
 
 def test_parse_elapsed_formats():

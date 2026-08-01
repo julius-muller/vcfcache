@@ -27,10 +27,19 @@ DEFAULT_INPUT = (
     DEFAULT_DATA_ROOT / "samples/GRCh38/1000g/EAS/HG02079.GRCh38.small_variants.vcf.gz"
 )
 DEFAULT_CACHE = Path(
-    "/mnt/data/vcfcache_data/caches/gnomad_v4.1_GRCh38_joint_af001/"
+    "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/"
+    "gnomad_v4.1_GRCh38_joint_af001/"
     "cache/vep115.2_everything"
 )
 DEFAULT_PARAMS = DEFAULT_CACHE / "params.snapshot.yaml"
+DEFAULT_CACHE_PROVENANCE = DEFAULT_CACHE.parents[1] / "zenodo_provenance.json"
+DEFAULT_CACHE_PROVENANCE_EXPECTED = {
+    "alias": "cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+    "doi": "10.5281/zenodo.18190046",
+    "archive_md5": "3ac438461eac0cf42c75717156d7b2d4",
+    "archive_md5_verified": True,
+    "source": "zenodo_production",
+}
 VCFCACHE_CMD = REPO_ROOT / ".venv/bin/vcfcache"
 TIME_CMD = Path("/usr/bin/time")
 MODES = ("uncached", "cached")
@@ -164,9 +173,22 @@ def _version(args: Sequence[str | Path]) -> str:
     return (result.stdout or result.stderr).splitlines()[0]
 
 
+def validate_default_cache_provenance(path: Path) -> dict[str, object]:
+    """Validate the frozen Zenodo identity of the default publication cache."""
+    value = json.loads(path.read_text())
+    differences = {
+        key: (value.get(key), wanted)
+        for key, wanted in DEFAULT_CACHE_PROVENANCE_EXPECTED.items()
+        if value.get(key) != wanted
+    }
+    if differences:
+        raise RuntimeError(f"Invalid bundled-cache provenance at {path}: {differences}")
+    return value
+
+
 def preflight(config: PilotConfig, *, require_clean: bool = True) -> dict[str, object]:
     """Validate the exact tools and immutable inputs used by the pilot."""
-    required_paths = (
+    required_paths = [
         config.input_vcf,
         Path(f"{config.input_vcf}.tbi"),
         config.cache_dir / "annotation.yaml",
@@ -175,10 +197,15 @@ def preflight(config: PilotConfig, *, require_clean: bool = True) -> dict[str, o
         config.params_file,
         VCFCACHE_CMD,
         TIME_CMD,
-    )
+    ]
+    bundled_provenance: dict[str, object] | None = None
+    if config.cache_dir == DEFAULT_CACHE:
+        required_paths.append(DEFAULT_CACHE_PROVENANCE)
     missing = [str(path) for path in required_paths if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Missing pilot prerequisites: {missing}")
+    if config.cache_dir == DEFAULT_CACHE:
+        bundled_provenance = validate_default_cache_provenance(DEFAULT_CACHE_PROVENANCE)
     for command in ("bcftools", "apptainer"):
         if shutil.which(command) is None:
             raise RuntimeError(f"Required command not found: {command}")
@@ -235,6 +262,7 @@ def preflight(config: PilotConfig, *, require_clean: bool = True) -> dict[str, o
         "input_bytes": config.input_vcf.stat().st_size,
         "input_sha256": sha256sum(config.input_vcf),
         "cache_dir": str(config.cache_dir),
+        "bundled_cache_provenance": bundled_provenance,
         "cache_bcf_bytes": (config.cache_dir / "vcfcache_annotated.bcf").stat().st_size,
         "annotation_yaml_sha256": sha256sum(config.cache_dir / "annotation.yaml"),
         "params_yaml_sha256": sha256sum(config.params_file),

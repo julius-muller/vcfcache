@@ -13,7 +13,25 @@ results_root=${VCFCACHE_RESULTS_ROOT:-/results}
 campaign_id=${VCFCACHE_CAMPAIGN_ID:?VCFCACHE_CAMPAIGN_ID is required}
 phase=${VCFCACHE_PHASE:?VCFCACHE_PHASE is required}
 task_id=${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID is required}
-cache=/mnt/data/vcfcache_data/caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+cache_root=/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001
+cache=$cache_root/cache/vep115.2_everything
+provenance=$cache_root/zenodo_provenance.json
+test -f "$provenance"
+python3 - "$provenance" <<'PY'
+import json
+import sys
+
+value = json.load(open(sys.argv[1]))
+expected = {
+    "alias": "cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+    "doi": "10.5281/zenodo.18190046",
+    "archive_md5": "3ac438461eac0cf42c75717156d7b2d4",
+    "archive_md5_verified": True,
+    "source": "zenodo_production",
+}
+if any(value.get(key) != wanted for key, wanted in expected.items()):
+    raise SystemExit(f"Invalid bundled-cache provenance: {value}")
+PY
 params=$cache/params.snapshot.yaml
 run_root=/mnt/data/tmp/vcfcache_runs/$campaign_id/$phase/task-$task_id
 phase_root=$results_root/campaigns/$campaign_id/$phase
