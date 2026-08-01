@@ -9,8 +9,9 @@ run archive; pilot values must not be substituted for full-cohort values.
 > HPRC identities overlap the source universe represented in gnomAD. They may
 > be used to estimate runtime conditional on observed hit rate, but not to
 > estimate the public-cache hit-rate distribution of independent WGS samples.
-> The measured Slurm array is held pending the replacement design described in
-> `CACHE_STRATEGY_COMPARISON.md`.
+> The superseded measured Slurm array was cancelled before execution because it
+> referenced a locally built cache. A replacement must use the bundled-Zenodo
+> provenance gate described in `CACHE_STRATEGY_COMPARISON.md`.
 
 ## Study design
 

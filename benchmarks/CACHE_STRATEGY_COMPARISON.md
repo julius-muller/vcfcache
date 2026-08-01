@@ -4,7 +4,8 @@
 > mixed-superpopulation experiment below is retained as exploratory evidence
 > only. It was stopped before the third evaluation genome completed and its
 > output was marked `quarantined_exploratory`. It must not supply the
-> publication figure. Slurm measured job 30 is held. The replacement design is
+> publication figure. Slurm measured job 30 was cancelled before execution
+> because it referenced a locally built cache. The replacement design is
 > driven by observed cache hit rate and includes more than ten panel, WES, and
 > WGS inputs per strategy; see "Replacement assay and cache design".
 
@@ -117,6 +118,10 @@ and provenance records were staged to all six workers. Every worker reports
 the same annotated-cache sizes: 1,709,078,405 bytes for AF ≥ 10% and
 3,950,678,136 bytes for AF ≥ 1%. Archives are retained on the two source VMs
 but are not copied to workers.
+
+The superseded measured Slurm array (job 30) was cancelled while still pending;
+none of its 150 tasks ran. Any replacement campaign must be prepared from a
+commit containing the Zenodo provenance gate and receives a new campaign ID.
 
 ## Emergency validity assessment
 
