@@ -8,6 +8,7 @@ import pytest
 from benchmarks.analyze_external_benchmark import scaling_rows, strategy_summary
 from benchmarks.prepare_external_wgs import (
     Candidate,
+    _download_pgp_landing,
     _select_pgp,
     _select_sgdp,
     stable_key,
@@ -46,6 +47,30 @@ def candidate(
 def test_stable_key_is_repeatable_and_namespaced():
     assert stable_key("a", "sample") == stable_key("a", "sample")
     assert stable_key("a", "sample") != stable_key("b", "sample")
+
+
+def test_pgp_landing_fetch_is_single_request(monkeypatch, tmp_path):
+    class Response:
+        content = b"<!DOCTYPE HTML><html></html>"
+
+        @staticmethod
+        def raise_for_status():
+            return None
+
+    calls = []
+
+    def get(url, *, timeout):
+        calls.append((url, timeout))
+        return Response()
+
+    monkeypatch.setattr("benchmarks.prepare_external_wgs.requests.get", get)
+    destination = tmp_path / "landing.html"
+    assert (
+        _download_pgp_landing("https://example.invalid/file", destination)
+        == destination
+    )
+    assert destination.read_bytes() == Response.content
+    assert calls == [("https://example.invalid/file", 90)]
 
 
 def test_sgdp_selection_has_disjoint_balanced_evaluation():

@@ -112,6 +112,24 @@ def _fetch(url: str) -> requests.Response:
     return response
 
 
+def _download_pgp_landing(url: str, destination: Path) -> Path:
+    """Fetch a small PGP landing page without retrying authorization failures."""
+    if destination.exists():
+        return destination
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    partial = destination.with_name(destination.name + ".partial")
+    try:
+        response = requests.get(url, timeout=90)
+        response.raise_for_status()
+    except requests.RequestException as error:
+        raise RuntimeError(f"PGP landing page is unavailable: {url}") from error
+    if len(response.content) > 10_000_000:
+        raise RuntimeError(f"PGP landing page is unexpectedly large: {url}")
+    partial.write_bytes(response.content)
+    partial.replace(destination)
+    return destination
+
+
 def _head_size(url: str) -> int:
     response = requests.head(url, allow_redirects=True, timeout=60)
     response.raise_for_status()
@@ -522,7 +540,7 @@ def probe_pgp(args: argparse.Namespace) -> Path:
         destination = args.root / "sources" / "pgp" / row.sample / row.source_name
         try:
             landing_url = row.landing_url or row.url
-            download_file(SourceFile("pgp", row.sample, landing_url), destination)
+            _download_pgp_landing(landing_url, destination)
             with destination.open("rb") as handle:
                 magic = handle.read(32).lstrip()
             resolved_url = row.url
