@@ -110,6 +110,12 @@ as a local annotation scenario, but is not itself a bundled cache. Its
 annotation YAML, parameter snapshot, output cache, and build duration become
 additional derived-artifact provenance.
 
+This gate was exercised on 2026-08-02 on the preparation VM and independently
+on the Slurm head. Identical extracted blueprint files and provenance records
+are available on `sl-w1` through `sl-w6`; the Zenodo archives are deliberately
+excluded from worker staging. The cluster was idle and its queue empty after
+staging.
+
 Artifact identities are:
 
 | Artifact | Bytes | SHA-256 |

@@ -117,6 +117,13 @@ annotation-complexity scenarios without weakening the ready-made-cache gate:
 | `bp-gnomad-v4.1-GRCh38-joint-af001` | `10.5281/zenodo.18190436` | `6b7403ff03815500ba49c52ad285746c` |
 | `bp-gnomad-v4.1-GRCh38-joint-af0001` | `10.5281/zenodo.18190666` | `1e44e7c08c8fb6aec6913eb2914ffabc` |
 
+On 2026-08-02, all three archives were downloaded and verified independently
+on both the preparation VM and Slurm head. The extracted blueprints and their
+provenance records were staged to all six workers; archives remain only on the
+two source VMs. Every worker reports the same blueprint BCF sizes: 44,776,908
+bytes (AF ≥ 10%), 102,913,821 bytes (AF ≥ 1%), and 500,655,182 bytes
+(AF ≥ 0.1%). No Slurm job was submitted during this preparation step.
+
 Quarantined exploratory outputs remain below
 `/mnt/data/vcfcache_benchmarks/strategy_comparison`:
 
