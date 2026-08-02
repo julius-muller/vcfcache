@@ -36,6 +36,7 @@ from benchmarks.run_strategy_comparison import VEP_CACHE_NAME, public_strategies
 DEFAULT_ROOT = Path("/mnt/data/vcfcache_benchmarks/external_wgs")
 DEFAULT_REFERENCE = Path("/mnt/data/resources/reference/ucsc/hg38.fa.gz")
 DEFAULT_CACHE_ROOT = Path("/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches")
+DEFAULT_PLINK2 = DEFAULT_ROOT / "tools/plink2"
 SELECTION_SEED = "vcfcache-paper-external-wgs-v1"
 AUTOSOMES = tuple(f"chr{number}" for number in range(1, 23))
 COHORT_COUNTS = {"kpgp": (3, 20), "sgdp": (3, 20), "pgp": (3, 12)}
@@ -772,7 +773,7 @@ def qc(args: argparse.Namespace) -> Path:
 
 def screen_relatedness(args: argparse.Namespace) -> Path:
     """Run PLINK2 KING screening and approve only a relationship-free design."""
-    plink2 = shutil.which("plink2")
+    plink2 = args.plink2 if args.plink2.exists() else shutil.which("plink2")
     if plink2 is None:
         raise RuntimeError("plink2 is required for the publication relatedness gate")
     qc_path = args.root / "qc/external_wgs_qc.tsv"
@@ -993,6 +994,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     result.add_argument("--reference", type=Path, default=DEFAULT_REFERENCE)
     result.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
+    result.add_argument("--plink2", type=Path, default=DEFAULT_PLINK2)
     result.add_argument("--seed", default=SELECTION_SEED)
     result.add_argument("--download-workers", type=int, default=3)
     result.add_argument("--prepare-workers", type=int, default=3)
@@ -1005,7 +1007,7 @@ def parser() -> argparse.ArgumentParser:
 def main() -> None:
     """Run a resumable external WGS preparation stage."""
     args = parser().parse_args()
-    for name in ("root", "reference", "cache_root"):
+    for name in ("root", "reference", "cache_root", "plink2"):
         setattr(args, name, getattr(args, name).expanduser().resolve())
     if min(args.download_workers, args.prepare_workers, args.threads) < 1:
         raise ValueError("Worker and thread counts must be positive")
