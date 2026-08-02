@@ -134,8 +134,18 @@ annotated Zenodo bundles. The runner downloads and MD5-verifies them before use:
 .venv/bin/python benchmarks/run_strategy_comparison.py fetch-bundled
 ```
 
-An unpublished local annotation or a blueprint-only Zenodo record fails this
-gate. Cohort-derived caches are reported separately as custom caches.
+An unpublished local annotation or a blueprint-only Zenodo record fails only
+the **ready-made-cache** gate. Official GRCh38 blueprints are valid source
+artifacts for locally building alternative annotation scenarios and have their
+own checksum-frozen allow-list:
+
+```bash
+.venv/bin/python benchmarks/run_strategy_comparison.py fetch-blueprints
+```
+
+Those derived outputs must be labelled locally built, with blueprint DOI,
+annotation/parameter hashes, cache identity, and build time reported.
+Cohort-derived caches are likewise reported separately as custom caches.
 
 ## Slurm cohort
 

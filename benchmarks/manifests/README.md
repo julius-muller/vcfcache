@@ -18,6 +18,11 @@ to the preparation VM.
 - `bundled_caches.tsv` is the allow-list for publication cache strategies. It
   freezes the shipped aliases, production Zenodo DOIs, archive names and MD5
   values, AF semantics, and separates bundled from custom caches.
+- `bundled_blueprints.tsv` is the separate allow-list for official Zenodo
+  blueprints used to build alternative annotation scenarios locally. A cache
+  derived from one of these remains a locally built scenario cache: its
+  blueprint DOI, recipe hashes, build time, and output identity must be
+  recorded, and it must not be labelled as a ready-made bundled cache.
 
 The large operational manifests remain authoritative for individual output
 artifacts: `qc/sample_qc.tsv` contains every WGS/GIAB output checksum and

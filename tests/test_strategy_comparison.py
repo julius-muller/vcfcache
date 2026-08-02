@@ -7,11 +7,13 @@ from pathlib import Path
 import pytest
 
 from benchmarks.run_strategy_comparison import (
+    BUNDLED_BLUEPRINT_SPECS,
     BUNDLED_CACHE_SPECS,
     VEP_CACHE_NAME,
     make_svg,
     public_strategies,
     select_samples,
+    verify_bundled_blueprint,
 )
 
 
@@ -113,4 +115,53 @@ def test_tracked_bundle_manifest_matches_runner_allow_list():
     assert [row["doi"] for row in rows] == [spec.doi for spec in BUNDLED_CACHE_SPECS]
     assert [row["archive_md5"] for row in rows] == [
         spec.archive_md5 for spec in BUNDLED_CACHE_SPECS
+    ]
+
+
+def test_bundled_blueprint_requires_frozen_zenodo_provenance(tmp_path):
+    spec = BUNDLED_BLUEPRINT_SPECS[0]
+    with pytest.raises(FileNotFoundError):
+        verify_bundled_blueprint(tmp_path, spec)
+
+    root = tmp_path / spec.root_name
+    (root / "blueprint").mkdir(parents=True)
+    (root / "blueprint/vcfcache.bcf").write_text("blueprint")
+    (root / "blueprint/vcfcache.bcf.csi").write_text("index")
+    provenance = {
+        "alias": spec.alias,
+        "doi": spec.doi,
+        "source": "zenodo_production",
+        "artifact_role": "blueprint_source_for_local_annotation_scenarios",
+        "archive_name": spec.archive_name,
+        "archive_bytes": spec.archive_bytes,
+        "archive_md5": spec.archive_md5,
+        "archive_md5_verified": True,
+    }
+    (root / "zenodo_blueprint_provenance.json").write_text(json.dumps(provenance))
+    verify_bundled_blueprint(tmp_path, spec)
+
+    provenance["artifact_role"] = "bundled_public_cache"
+    (root / "zenodo_blueprint_provenance.json").write_text(json.dumps(provenance))
+    with pytest.raises(RuntimeError, match="artifact_role"):
+        verify_bundled_blueprint(tmp_path, spec)
+
+
+def test_tracked_blueprint_manifest_matches_runner_allow_list():
+    manifest = (
+        Path(__file__).resolve().parents[1]
+        / "benchmarks/manifests/bundled_blueprints.tsv"
+    )
+    with manifest.open() as handle:
+        rows = list(csv.DictReader(handle, delimiter="\t"))
+    assert [row["alias"] for row in rows] == [
+        spec.alias for spec in BUNDLED_BLUEPRINT_SPECS
+    ]
+    assert [row["doi"] for row in rows] == [
+        spec.doi for spec in BUNDLED_BLUEPRINT_SPECS
+    ]
+    assert [int(row["archive_bytes"]) for row in rows] == [
+        spec.archive_bytes for spec in BUNDLED_BLUEPRINT_SPECS
+    ]
+    assert [row["archive_md5"] for row in rows] == [
+        spec.archive_md5 for spec in BUNDLED_BLUEPRINT_SPECS
     ]

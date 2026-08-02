@@ -197,8 +197,19 @@ Final bundled-cache comparisons are restricted to the two annotated GRCh38
 VEP 115.2 `--everything` bundles distributed through VCFcache and downloaded
 from production Zenodo: AF ≥ 10% (`10.5281/zenodo.18189447`) and AF ≥ 1%
 (`10.5281/zenodo.18190046`). Downloaded archives must pass their frozen Zenodo
-MD5 checks before execution. The AF ≥ 0.1% Zenodo record is blueprint-only and
-is excluded, as are all locally annotated public-cache substitutes.
+MD5 checks before execution. This ready-made-cache comparison supplies the
+basic runtime-scaling figure.
+
+Alternative annotation-complexity scenarios may instead be built locally from
+the official AF ≥ 10%, 1%, and 0.1% GRCh38 Zenodo blueprints
+(`10.5281/zenodo.18190424`, `10.5281/zenodo.18190436`, and
+`10.5281/zenodo.18190666`). Their archives must pass the independent allow-list
+in `manifests/bundled_blueprints.tsv`. Such outputs are described as **locally
+built from an official Zenodo blueprint**, never as ready-made bundled caches.
+For each scenario we record the blueprint DOI and MD5, immutable annotation
+YAML and parameter-snapshot hashes, output cache size and hash, and one-time
+build duration. This preserves the distinction between cache availability and
+reproducible cache derivation while allowing annotation complexity to vary.
 
 ## Annotation benchmark protocol
 

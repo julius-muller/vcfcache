@@ -28,6 +28,7 @@ from benchmarks.run_pilot import (
 
 DEFAULT_DATA_ROOT = Path("/mnt/data/vcfcache_benchmarks")
 DEFAULT_CACHE_ROOT = DEFAULT_DATA_ROOT / "bundled_zenodo_caches"
+DEFAULT_BLUEPRINT_ROOT = DEFAULT_DATA_ROOT / "bundled_zenodo_blueprints"
 DEFAULT_ROOT = DEFAULT_DATA_ROOT / "strategy_comparison_zenodo_v1"
 DEFAULT_SELECTION = (
     Path(__file__).resolve().parent / "manifests/selected_1000g_samples.tsv"
@@ -67,6 +68,54 @@ BUNDLED_CACHE_SPECS = (
         archive_name="cache_gnomad_v4.1_GRCh38_joint_af001.tar.gz",
         archive_md5="3ac438461eac0cf42c75717156d7b2d4",
         af_threshold=0.01,
+    ),
+)
+
+
+@dataclass(frozen=True)
+class BundledBlueprintSpec:
+    """One official Zenodo blueprint allowed for local scenario cache builds."""
+
+    name: str
+    alias: str
+    doi: str
+    root_name: str
+    archive_name: str
+    archive_bytes: int
+    archive_md5: str
+    af_threshold: float
+
+
+BUNDLED_BLUEPRINT_SPECS = (
+    BundledBlueprintSpec(
+        name="gnomad_af_0.1",
+        alias="bp-gnomad-v4.1-GRCh38-joint-af01",
+        doi="10.5281/zenodo.18190424",
+        root_name="gnomad_v4.1_GRCh38_joint_af010",
+        archive_name="bp_gnomad_v4.1_GRCh38_joint_af010.tar.gz",
+        archive_bytes=45_756_242,
+        archive_md5="c3d1ea67acd62b3fd9f30ea132d98a41",
+        af_threshold=0.1,
+    ),
+    BundledBlueprintSpec(
+        name="gnomad_af_0.01",
+        alias="bp-gnomad-v4.1-GRCh38-joint-af001",
+        doi="10.5281/zenodo.18190436",
+        root_name="gnomad_v4.1_GRCh38_joint_af001",
+        archive_name="bp_gnomad_v4.1_GRCh38_joint_af001.tar.gz",
+        archive_bytes=103_598_148,
+        archive_md5="6b7403ff03815500ba49c52ad285746c",
+        af_threshold=0.01,
+    ),
+    BundledBlueprintSpec(
+        name="gnomad_af_0.001",
+        alias="bp-gnomad-v4.1-GRCh38-joint-af0001",
+        doi="10.5281/zenodo.18190666",
+        root_name="gnomad_v4.1_GRCh38_joint_af0001",
+        archive_name="bp_gnomad_v4.1_GRCh38_joint_af0001.tar.gz",
+        archive_bytes=496_477_799,
+        archive_md5="1e44e7c08c8fb6aec6913eb2914ffabc",
+        af_threshold=0.001,
     ),
 )
 
@@ -236,6 +285,122 @@ def fetch_bundled(args: argparse.Namespace) -> None:
         )
         verify_bundled_cache(args.cache_root, spec)
         print(f"Downloaded and verified Zenodo bundle: {spec.alias}")
+
+
+def blueprint_provenance_path(blueprint_root: Path, spec: BundledBlueprintSpec) -> Path:
+    """Return the retained provenance record for a downloaded blueprint."""
+    return blueprint_root / spec.root_name / "zenodo_blueprint_provenance.json"
+
+
+def verify_bundled_blueprint(blueprint_root: Path, spec: BundledBlueprintSpec) -> None:
+    """Fail closed unless a blueprint came from its frozen Zenodo archive."""
+    root = blueprint_root / spec.root_name
+    provenance = blueprint_provenance_path(blueprint_root, spec)
+    require_paths(
+        (
+            root / "blueprint/vcfcache.bcf",
+            root / "blueprint/vcfcache.bcf.csi",
+            provenance,
+        )
+    )
+    value = json.loads(provenance.read_text())
+    expected = {
+        "alias": spec.alias,
+        "doi": spec.doi,
+        "archive_name": spec.archive_name,
+        "archive_bytes": spec.archive_bytes,
+        "archive_md5": spec.archive_md5,
+        "archive_md5_verified": True,
+        "source": "zenodo_production",
+        "artifact_role": "blueprint_source_for_local_annotation_scenarios",
+    }
+    differences = {
+        key: (value.get(key), wanted)
+        for key, wanted in expected.items()
+        if value.get(key) != wanted
+    }
+    if differences:
+        raise RuntimeError(
+            f"Blueprint lacks matching Zenodo provenance: {provenance}: {differences}"
+        )
+
+
+def fetch_blueprints(args: argparse.Namespace) -> None:
+    """Download and checksum-verify official GRCh38 blueprint inputs."""
+    zenodo = importlib.import_module("vcfcache.integrations.zenodo")
+    archive_utils = importlib.import_module("vcfcache.utils.archive")
+    args.blueprint_root.mkdir(parents=True, exist_ok=True)
+    archive_root = args.blueprint_root / "archives"
+    archive_root.mkdir(parents=True, exist_ok=True)
+    for spec in BUNDLED_BLUEPRINT_SPECS:
+        try:
+            verify_bundled_blueprint(args.blueprint_root, spec)
+            print(f"Verified existing Zenodo blueprint: {spec.alias}")
+            continue
+        except (FileNotFoundError, RuntimeError, json.JSONDecodeError):
+            pass
+
+        root = args.blueprint_root / spec.root_name
+        if root.exists():
+            raise RuntimeError(
+                f"Refusing to replace unverified blueprint directory: {root}. "
+                "Move it aside or select a clean --blueprint-root."
+            )
+        archive = archive_root / spec.archive_name
+        if not archive.exists():
+            partial = archive.with_suffix(archive.suffix + ".partial")
+            if partial.exists():
+                partial.unlink()
+            zenodo.download_doi(spec.doi, partial, sandbox=False)
+            partial_md5 = archive_utils.file_md5(partial)
+            if partial_md5 != spec.archive_md5:
+                raise RuntimeError(
+                    f"Zenodo blueprint checksum mismatch for {spec.doi}: "
+                    f"{partial_md5} != {spec.archive_md5}"
+                )
+            if partial.stat().st_size != spec.archive_bytes:
+                raise RuntimeError(
+                    f"Zenodo blueprint size mismatch for {spec.doi}: "
+                    f"{partial.stat().st_size} != {spec.archive_bytes}"
+                )
+            partial.replace(archive)
+        observed_md5 = archive_utils.file_md5(archive)
+        if (
+            observed_md5 != spec.archive_md5
+            or archive.stat().st_size != spec.archive_bytes
+        ):
+            raise RuntimeError(
+                f"Zenodo blueprint archive mismatch for {spec.doi}: "
+                f"bytes={archive.stat().st_size}, md5={observed_md5}"
+            )
+        temporary = Path(
+            tempfile.mkdtemp(prefix=f".{spec.name}-", dir=args.blueprint_root)
+        )
+        try:
+            extracted = archive_utils.extract_cache(archive, temporary)
+            if extracted.name != spec.root_name:
+                raise RuntimeError(
+                    f"Unexpected root in Zenodo blueprint {spec.doi}: {extracted.name}"
+                )
+            extracted.rename(root)
+        finally:
+            shutil.rmtree(temporary)
+        write_json_atomic(
+            blueprint_provenance_path(args.blueprint_root, spec),
+            {
+                "alias": spec.alias,
+                "doi": spec.doi,
+                "source": "zenodo_production",
+                "artifact_role": "blueprint_source_for_local_annotation_scenarios",
+                "downloaded_at": datetime.now(timezone.utc).isoformat(),
+                "archive_name": spec.archive_name,
+                "archive_bytes": spec.archive_bytes,
+                "archive_md5": observed_md5,
+                "archive_md5_verified": True,
+            },
+        )
+        verify_bundled_blueprint(args.blueprint_root, spec)
+        print(f"Downloaded and verified Zenodo blueprint: {spec.alias}")
 
 
 def public_strategies(cache_root: Path) -> list[Strategy]:
@@ -705,11 +870,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "command",
-        choices=("fetch-bundled", "prepare", "execute", "collect", "all"),
+        choices=(
+            "fetch-bundled",
+            "fetch-blueprints",
+            "prepare",
+            "execute",
+            "collect",
+            "all",
+        ),
     )
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument("--data-root", type=Path, default=DEFAULT_DATA_ROOT)
     parser.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
+    parser.add_argument("--blueprint-root", type=Path, default=DEFAULT_BLUEPRINT_ROOT)
     parser.add_argument("--selection", type=Path, default=DEFAULT_SELECTION)
     parser.add_argument("--threads", type=int, default=8)
     return parser
@@ -718,12 +891,20 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     """Run the selected resumable strategy step."""
     args = build_parser().parse_args()
-    for name in ("root", "data_root", "cache_root", "selection"):
+    for name in (
+        "root",
+        "data_root",
+        "cache_root",
+        "blueprint_root",
+        "selection",
+    ):
         setattr(args, name, getattr(args, name).expanduser().resolve())
     if args.threads < 1:
         raise ValueError("--threads must be positive")
     if args.command in ("fetch-bundled", "all"):
         fetch_bundled(args)
+    if args.command in ("fetch-blueprints", "all"):
+        fetch_blueprints(args)
     if args.command in ("prepare", "all"):
         prepare(args)
     if args.command in ("execute", "all"):

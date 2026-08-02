@@ -31,7 +31,9 @@ The exporter selected a site when *any* ancestry, sex, or subset frequency met
 the threshold, but wrote combined `joint.freq[0]` AF into INFO. Publication
 text and figure labels must therefore say **any-stratum AF ≥ 1%**, not merely
 "gnomAD 1%". A separately rebuilt combined-population cache is not bundled and
-is therefore ineligible for the bundled-cache benchmark.
+is therefore ineligible for the ready-made bundled-cache arm. It remains valid
+as an explicitly labelled local derivation in an annotation-scenario arm when
+its source blueprint, recipe, output identity, and build cost are frozen.
 
 ## Quarantined small strategy experiment
 
@@ -48,10 +50,11 @@ primary timing analysis. It compares identical VEP 115.2 recipes for:
    production Zenodo cache; and
 4. a custom cache made from the union of three primary-cohort genomes.
 
-The AF ≥ 0.1% entry is excluded from every replacement/publication analysis:
-Zenodo record 18190666 is a blueprint, not a bundled annotated cache. Its local
-annotation is not a downloadable VCFcache bundle and therefore does not meet
-the cache-provenance gate.
+The AF ≥ 0.1% entry is excluded from the ready-made-cache comparison: Zenodo
+record 18190666 is a blueprint, not a bundled annotated cache. It is retained
+as an official input for future annotation-scenario caches. Any resulting
+annotation is labelled locally built from that blueprint and must not be
+presented as a downloadable VCFcache cache bundle.
 
 Training and evaluation identities are disjoint. The selection is frozen by
 SHA-256 ranks using seed `vcfcache-paper-cache-strategy-v1`. The three selected
@@ -83,6 +86,7 @@ writes a provenance marker before preparation can start:
 
 ```bash
 .venv/bin/python benchmarks/run_strategy_comparison.py fetch-bundled
+.venv/bin/python benchmarks/run_strategy_comparison.py fetch-blueprints
 .venv/bin/python benchmarks/run_strategy_comparison.py prepare
 .venv/bin/python benchmarks/run_strategy_comparison.py execute
 .venv/bin/python benchmarks/run_strategy_comparison.py collect
@@ -101,6 +105,17 @@ labelled bundled. Replacement outputs are written below
 `/mnt/data/vcfcache_benchmarks/strategy_comparison_zenodo_v1`. Bundles and
 retained archives live below
 `/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches`.
+
+The three official GRCh38 blueprint inputs have a separate allow-list in
+`manifests/bundled_blueprints.tsv` and live below
+`/mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints`. They support
+annotation-complexity scenarios without weakening the ready-made-cache gate:
+
+| Blueprint alias | Zenodo DOI | Archive MD5 |
+|---|---|---|
+| `bp-gnomad-v4.1-GRCh38-joint-af01` | `10.5281/zenodo.18190424` | `c3d1ea67acd62b3fd9f30ea132d98a41` |
+| `bp-gnomad-v4.1-GRCh38-joint-af001` | `10.5281/zenodo.18190436` | `6b7403ff03815500ba49c52ad285746c` |
+| `bp-gnomad-v4.1-GRCh38-joint-af0001` | `10.5281/zenodo.18190666` | `1e44e7c08c8fb6aec6913eb2914ffabc` |
 
 Quarantined exploratory outputs remain below
 `/mnt/data/vcfcache_benchmarks/strategy_comparison`:

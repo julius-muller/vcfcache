@@ -88,8 +88,27 @@ archive checksums are frozen in `manifests/bundled_caches.tsv`:
 The runner retains the downloaded archives and writes a validated provenance
 record beside each extracted cache. Missing or conflicting provenance stops
 the benchmark. Zenodo record `18190666` is a blueprint rather than an annotated
-cache bundle and is excluded. Cohort-derived caches are separately labelled
-custom and never represented as bundled.
+cache bundle and is excluded from this ready-made-cache arm. Cohort-derived
+caches are separately labelled custom and never represented as bundled.
+
+## Official-blueprint provenance gate
+
+Alternative annotation scenarios use the separately verified official GRCh38
+blueprints, not an undocumented reconstruction. Their frozen input identities
+are in `manifests/bundled_blueprints.tsv`:
+
+| Strategy | Shipped blueprint alias | Zenodo DOI | Archive MD5 |
+|---|---|---|---|
+| any-stratum AF ≥ 10% | `bp-gnomad-v4.1-GRCh38-joint-af01` | `10.5281/zenodo.18190424` | `c3d1ea67acd62b3fd9f30ea132d98a41` |
+| any-stratum AF ≥ 1% | `bp-gnomad-v4.1-GRCh38-joint-af001` | `10.5281/zenodo.18190436` | `6b7403ff03815500ba49c52ad285746c` |
+| any-stratum AF ≥ 0.1% | `bp-gnomad-v4.1-GRCh38-joint-af0001` | `10.5281/zenodo.18190666` | `1e44e7c08c8fb6aec6913eb2914ffabc` |
+
+The runner retains each archive, verifies both byte size and Zenodo MD5, and
+writes a role-specific provenance record beside the extracted blueprint. A
+cache built from one of these inputs is reproducible and publication-eligible
+as a local annotation scenario, but is not itself a bundled cache. Its
+annotation YAML, parameter snapshot, output cache, and build duration become
+additional derived-artifact provenance.
 
 Artifact identities are:
 
