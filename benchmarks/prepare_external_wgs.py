@@ -477,7 +477,11 @@ def select(args: argparse.Namespace) -> Path:
             _select_pgp([row for row in candidates if row.cohort == "pgp"])
         )
     except RuntimeError as error:
-        print(f"PGP gate pending: {error}; run probe-pgp before final selection")
+        if not args.allow_missing_pgp:
+            raise RuntimeError(
+                f"PGP gate is incomplete: {error}; run probe-pgp before selection"
+            ) from error
+        print(f"PGP gate pending: {error}; writing only DDBJ selections")
     rows = [
         Selected(
             **{
@@ -1037,6 +1041,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--prepare-workers", type=int, default=3)
     result.add_argument("--threads", type=int, default=8)
     result.add_argument("--minimum-free-gib", type=int, default=200)
+    result.add_argument("--allow-missing-pgp", action="store_true")
     result.add_argument("--cohort", choices=tuple(COHORT_COUNTS))
     return result
 
