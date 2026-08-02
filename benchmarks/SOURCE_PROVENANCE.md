@@ -33,6 +33,9 @@ streams are identical (SHA-256
 | Population metadata | Phase 3 integrated call sample panel, 2013 | Population, superpopulation, and provider `gender` field used for deterministic balancing | `selected_1000g_samples.tsv` |
 | Genome in a Bottle | NIST GIAB v4.2.1; GRCh38; HG001–HG007 | External benchmark genomes | `source_files.tsv` |
 | HPRC | Release 2/v2.0 minigraph-cactus `wave.vcf.gz`; GRCh38 coordinates | Graph/assembly-derived robustness cohort | `assay_sources.tsv`, `selected_hprc_r2_samples.tsv` |
+| KPGP | DDBJ/NIG public-human-genomes autosomal gVCFs; GRCh38/hs38DH | Korean real-world WGS training and held-out evaluation | generated `external_wgs_candidates.tsv`, selection, and QC manifests |
+| SGDP | DDBJ/NIG public-human-genomes autosomal gVCFs plus Mallick et al. sample table; GRCh38/hs38DH | Region-stratified real-world WGS after documented HGDP/1000G exclusion | generated external-WGS manifests and KING report |
+| Harvard PGP | Participant-contributed public WGS VCFs | Provider-diverse real-world WGS; downloaded header must establish chr-prefixed GRCh38 | generated external-WGS manifests; no phenotype metadata retained |
 | Twist | Human Core Exome covered-target BED for hg38, file dated 2024-09 | Strict WES target control and padded capture-like footprint | `assay_sources.tsv`, `assay_regions.tsv` |
 | Ensembl | Release 115 human GTF; GRCh38 | MANE Select CDS coordinates | `assay_sources.tsv`, `assay_regions.tsv` |
 | ACMG | Secondary Findings v3.3 Table 1 | Membership of the 84-gene small panel | `config/acmg_sf_v3.3_genes.txt` |

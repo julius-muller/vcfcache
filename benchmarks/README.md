@@ -171,3 +171,55 @@ below `/results/campaigns/<campaign-id>/`. Manifests live on the same shared
 export. The controller sees it at `/mnt/data/slurm-results`; workers mount it as
 `/results`. Failed attempts are retained separately and can be resubmitted with
 the `submit` subcommand and a sparse `--task-ids` array specification.
+
+## Independent external-WGS cohort
+
+The source-overlap upper-bound campaign is complemented by held-out public
+genomes from KPGP, SGDP, and Harvard PGP. Source discovery, GRCh38 header
+validation, deterministic allocation, normalization, QC, and provenance are
+resumable:
+
+```bash
+.venv/bin/python benchmarks/prepare_external_wgs.py preflight
+.venv/bin/python benchmarks/prepare_external_wgs.py catalog
+.venv/bin/python benchmarks/prepare_external_wgs.py probe-pgp
+.venv/bin/python benchmarks/prepare_external_wgs.py select
+.venv/bin/python benchmarks/prepare_external_wgs.py download
+.venv/bin/python benchmarks/prepare_external_wgs.py prepare
+.venv/bin/python benchmarks/prepare_external_wgs.py qc
+.venv/bin/python benchmarks/prepare_external_wgs.py screen-relatedness
+for cohort in kpgp sgdp pgp; do
+  .venv/bin/python benchmarks/prepare_external_wgs.py build-cache --cohort "$cohort"
+done
+```
+
+KPGP and SGDP use open DDBJ/NIG GRCh38 autosomal gVCFs. PGP candidates are
+accepted only after a downloaded single-sample header establishes chr-prefixed
+GRCh38 coordinates; phenotype metadata is never collected. The frozen design
+uses three cache-building genomes disjoint from 20 KPGP, 20 SGDP, and 12 PGP
+evaluation genomes. PLINK2 KING kinship greater than 0.0884 fails the design
+before any benchmark campaign can be prepared.
+
+Each external task runs one common uncached baseline plus the two verified
+bundled Zenodo caches (any-stratum AF >=10% and AF >=1%) and the corresponding
+three-genome cohort cache. Condition order is balanced, every cached output is
+semantically compared with the common baseline, and only the documented VEP
+HGNC_ID discrepancy is ignored.
+
+```bash
+.venv/bin/python benchmarks/run_external_cohort.py prepare \
+  --campaign-id external-wgs-<commit>
+.venv/bin/python benchmarks/run_external_cohort.py submit-chain \
+  --campaign-id external-wgs-<commit> --concurrency 6
+.venv/bin/python benchmarks/run_external_cohort.py status \
+  --campaign-id external-wgs-<commit>
+.venv/bin/python benchmarks/run_external_cohort.py collect \
+  --campaign-id external-wgs-<commit>
+.venv/bin/python benchmarks/analyze_external_benchmark.py \
+  --metrics /mnt/data/slurm-results/campaigns/external-wgs-<commit>/publication/external_wgs_metrics.tsv \
+  --strategies /mnt/data/slurm-results/campaigns/external-wgs-<commit>/manifests/strategies.json \
+  --output /mnt/data/slurm-results/campaigns/external-wgs-<commit>/publication/figure
+```
+
+The generated model evaluates `T_eff = T_cached + T_build/S` for every integer
+cohort size from 1 through 1000 and explicitly marks S=5, 10, and 100.
