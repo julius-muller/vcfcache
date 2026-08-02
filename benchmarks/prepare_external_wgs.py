@@ -40,6 +40,7 @@ DEFAULT_CACHE_ROOT = Path("/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches")
 DEFAULT_PLINK2 = DEFAULT_ROOT / "tools/plink2"
 SELECTION_SEED = "vcfcache-paper-external-wgs-v1"
 AUTOSOMES = tuple(f"chr{number}" for number in range(1, 23))
+SOURCE_AUTOSOMES = (*tuple(str(number) for number in range(1, 23)), *AUTOSOMES)
 COHORT_COUNTS = {"kpgp": (3, 20), "sgdp": (3, 20), "pgp": (3, 12)}
 COHORT_ASSEMBLIES = {"kpgp": "GRCh38", "sgdp": "GRCh38", "pgp": "GRCh37"}
 PGP_PROVIDER_CAP = 6
@@ -732,6 +733,21 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
         return destination
     _assert_assembly_header(source, row.assembly)
     partial = destination.with_name(destination.name + ".partial")
+    first = subprocess.Popen(
+        [
+            "bcftools",
+            "view",
+            "--apply-filters",
+            "PASS,.",
+            "--targets",
+            ",".join(SOURCE_AUTOSOMES),
+            "--output-type",
+            "u",
+            str(source),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     renamed = subprocess.Popen(
         [
             "bcftools",
@@ -740,28 +756,13 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
             str(rename_map),
             "--output-type",
             "u",
-            str(source),
         ],
+        stdin=first.stdout,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-    first = subprocess.Popen(
-        [
-            "bcftools",
-            "view",
-            "--apply-filters",
-            "PASS,.",
-            "--include",
-            'CHROM~"^chr([1-9]|1[0-9]|2[0-2])$"',
-            "--output-type",
-            "u",
-        ],
-        stdin=renamed.stdout,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    assert renamed.stdout is not None
-    renamed.stdout.close()
+    assert first.stdout is not None
+    first.stdout.close()
     normalize = subprocess.Popen(
         [
             "bcftools",
@@ -773,18 +774,18 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
             "--output-type",
             "u",
         ],
-        stdin=first.stdout,
+        stdin=renamed.stdout,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-    assert first.stdout is not None
-    first.stdout.close()
+    assert renamed.stdout is not None
+    renamed.stdout.close()
     filtered = subprocess.Popen(
         [
             "bcftools",
             "view",
             "--include",
-            'GT="alt" && ALT!="<NON_REF>" && ALT!="*" && TYPE="snp" || '
+            '(GT="alt" && ALT!="<NON_REF>" && ALT!="*" && TYPE="snp") || '
             '(GT="alt" && TYPE="indel" && strlen(REF)<=50 && strlen(ALT)<=50)',
             "--output-type",
             "u",
@@ -812,11 +813,11 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
     assert filtered.stdout is not None
     filtered.stdout.close()
     errors = {
+        "view": (first.wait(), first.stderr.read() if first.stderr else b""),
         "rename": (
             renamed.wait(),
             renamed.stderr.read() if renamed.stderr else b"",
         ),
-        "view": (first.wait(), first.stderr.read() if first.stderr else b""),
         "norm": (
             normalize.wait(),
             normalize.stderr.read() if normalize.stderr else b"",
