@@ -63,7 +63,7 @@ current=$(sudo -u appuser git -C "$repo_root" rev-parse --short=12 HEAD)
 if [[ "$current" != "$target_commit" ]]; then
   [[ "$current" == "$base_commit" ]]
   sudo -u appuser git -C "$repo_root" fetch \
-    "$external_root/deployment/vcfcache-external.bundle" "$target_commit"
+    "$external_root/deployment/vcfcache-external.bundle" refs/heads/main
   sudo -u appuser git -C "$repo_root" merge --ff-only FETCH_HEAD
 fi
 
@@ -84,7 +84,7 @@ stage_worker() {
       "$data_root/bundled_zenodo_caches/$cache/" \
       "$remote:$data_root/bundled_zenodo_caches/$cache/"
   done
-  $ssh_command "$remote" "sudo chown -R appuser:appgroup '$external_root' '$data_root/bundled_zenodo_caches'; current=\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD); if [[ \"\$current\" != '$target_commit' ]]; then [[ \"\$current\" == '$base_commit' ]]; sudo -u appuser git -C '$repo_root' fetch '$external_root/deployment/vcfcache-external.bundle' '$target_commit'; sudo -u appuser git -C '$repo_root' merge --ff-only FETCH_HEAD; fi; test \"\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD)\" = '$target_commit'"
+  $ssh_command "$remote" "sudo chown -R appuser:appgroup '$external_root' '$data_root/bundled_zenodo_caches'; current=\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD); if [[ \"\$current\" != '$target_commit' ]]; then [[ \"\$current\" == '$base_commit' ]]; sudo -u appuser git -C '$repo_root' fetch '$external_root/deployment/vcfcache-external.bundle' refs/heads/main; sudo -u appuser git -C '$repo_root' merge --ff-only FETCH_HEAD; fi; test \"\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD)\" = '$target_commit'"
 }
 
 worker_pids=()
