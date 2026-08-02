@@ -70,6 +70,7 @@ class Candidate:
     documented_overlap: str = "none"
     eligibility: str = "candidate"
     exclusion_reason: str = ""
+    landing_url: str = ""
 
 
 @dataclass(frozen=True)
@@ -91,6 +92,7 @@ class Selected:
     source_bytes: int
     upstream_md5: str
     documented_overlap: str
+    landing_url: str
     selection_seed: str
     selection_key: str
 
@@ -280,6 +282,7 @@ def catalog_pgp() -> list[Candidate]:
         sample = participant.group(1)
         seen.add(sample)
         assembly = "GRCh38" if re.search(r"hg38|GRCh38", text, re.I) else "unknown"
+        landing_url = urljoin(PGP_CATALOG_URL, html.unescape(hrefs[0]))
         candidates.append(
             Candidate(
                 cohort="pgp",
@@ -290,13 +293,12 @@ def catalog_pgp() -> list[Candidate]:
                 sex="",
                 assembly=assembly,
                 source_kind="participant_WGS_VCF",
-                url=urljoin(PGP_CATALOG_URL, html.unescape(hrefs[0])),
+                url=landing_url,
                 index_url="",
                 source_name=f"{sample}.source.vcf.gz",
                 source_bytes=size,
-                eligibility=(
-                    "candidate" if assembly == "GRCh38" else "header_probe_required"
-                ),
+                eligibility="header_probe_required",
+                landing_url=landing_url,
             )
         )
     return candidates
@@ -343,7 +345,16 @@ def catalog(args: argparse.Namespace) -> Path:
     candidates.extend(enrich_sgdp(catalog_ddbj("sgdp")))
     for item in catalog_pgp():
         old = previous.get(item.sample)
-        if old and old.url == item.url and old.eligibility in {"candidate", "excluded"}:
+        preserve = old and (old.url == item.url or old.landing_url == item.url)
+        retryable = old and old.exclusion_reason.startswith("header_probe_failed")
+        verified = (
+            old
+            and old.eligibility == "candidate"
+            and bool(old.landing_url)
+            and old.url != old.landing_url
+        )
+        terminal_exclusion = old and old.eligibility == "excluded" and not retryable
+        if preserve and (verified or terminal_exclusion):
             candidates.append(old)
         else:
             candidates.append(item)
@@ -506,7 +517,31 @@ def probe_pgp(args: argparse.Namespace) -> Path:
     for row in pending:
         destination = args.root / "sources" / "pgp" / row.sample / row.source_name
         try:
-            download_file(SourceFile("pgp", row.sample, row.url), destination)
+            landing_url = row.landing_url or row.url
+            download_file(SourceFile("pgp", row.sample, landing_url), destination)
+            with destination.open("rb") as handle:
+                magic = handle.read(32).lstrip()
+            resolved_url = row.url
+            if magic.startswith(b"<!DOCTYPE HTML"):
+                landing = destination.with_suffix(destination.suffix + ".landing.html")
+                destination.replace(landing)
+                landing_text = html.unescape(landing.read_text(errors="replace"))
+                base = re.search(
+                    r"wget[^']*'(https://[^']+/_/)'", landing_text, re.I | re.S
+                )
+                files = re.findall(
+                    r'<a class="item" href="\./([^"]+)">', landing_text, re.I
+                )
+                usable = [
+                    name
+                    for name in files
+                    if re.search(r"g?vcf(?:\.gz|\.bgz)?$", name, re.I)
+                    and not re.search(r"(?:^|[._-])(?:sv|cnv)(?:[._-]|$)", name, re.I)
+                ]
+                if base is None or len(usable) != 1:
+                    raise RuntimeError("PGP landing page lacks one usable WGS VCF")
+                resolved_url = urljoin(base.group(1), usable[0])
+                download_file(SourceFile("pgp", row.sample, resolved_url), destination)
             _assert_grch38_header(destination)
             samples = run_command(
                 ["bcftools", "query", "--list-samples", str(destination)],
@@ -518,6 +553,8 @@ def probe_pgp(args: argparse.Namespace) -> Path:
                 **{
                     **asdict(row),
                     "assembly": "GRCh38",
+                    "url": resolved_url,
+                    "landing_url": landing_url,
                     "eligibility": "candidate",
                     "exclusion_reason": "",
                 }
@@ -527,7 +564,7 @@ def probe_pgp(args: argparse.Namespace) -> Path:
                 **{
                     **asdict(row),
                     "eligibility": "excluded",
-                    "exclusion_reason": f"header_probe_failed:{type(error).__name__}",
+                    "exclusion_reason": f"source_ineligible:{type(error).__name__}",
                 }
             )
         non_pgp = [item for item in candidates if item.cohort != "pgp"]
