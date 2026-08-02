@@ -7,6 +7,7 @@ import pytest
 
 from benchmarks.analyze_external_benchmark import scaling_rows, strategy_summary
 from benchmarks.prepare_external_wgs import (
+    PGP_PROVIDER_CAP,
     Candidate,
     _download_pgp_landing,
     _select_pgp,
@@ -27,6 +28,7 @@ def candidate(
     *,
     provider: str = "DDBJ_NIG",
     region: str = "",
+    assembly: str | None = None,
 ) -> Candidate:
     return Candidate(
         cohort=cohort,
@@ -35,7 +37,7 @@ def candidate(
         population="population",
         region=region,
         sex="XX",
-        assembly="GRCh38",
+        assembly=assembly or ("GRCh37" if cohort == "pgp" else "GRCh38"),
         source_kind="gVCF",
         url=f"https://example.invalid/{sample}.vcf.gz",
         index_url=f"https://example.invalid/{sample}.vcf.gz.tbi",
@@ -112,11 +114,32 @@ def test_pgp_selection_uses_distinct_training_providers_and_evaluation_cap():
     training = [row for row, role in selected if role == "training"]
     evaluation = [row for row, role in selected if role == "evaluation"]
     assert len({row.provider for row in training}) == 3
+    assert {row.assembly for row in [*training, *evaluation]} == {"GRCh37"}
     assert len(evaluation) == 12
     assert all(
-        sum(row.provider == provider for row in evaluation) <= 4
+        sum(row.provider == provider for row in evaluation) <= PGP_PROVIDER_CAP
         for provider in {row.provider for row in evaluation}
     )
+
+
+def test_pgp_selection_excludes_grch38_candidates():
+    rows = [
+        candidate("pgp", f"hg19-{provider}-{index}", provider=provider)
+        for provider in ("Nebula", "Dante", "Veritas")
+        for index in range(7)
+    ]
+    rows.extend(
+        candidate(
+            "pgp",
+            f"hg38-{provider}",
+            provider=provider,
+            assembly="GRCh38",
+        )
+        for provider in ("Nebula", "Dante", "Gencove")
+    )
+    selected = _select_pgp(rows)
+    assert len(selected) == 15
+    assert all(row.assembly == "GRCh37" for row, _role in selected)
 
 
 def test_four_condition_order_is_balanced_across_52_warmups():
@@ -132,6 +155,7 @@ def _qc(path: Path, *, relatedness: str = "PASS") -> None:
         "cohort",
         "sample",
         "role",
+        "assembly",
         "population",
         "superpopulation",
         "sex",
@@ -150,6 +174,7 @@ def _qc(path: Path, *, relatedness: str = "PASS") -> None:
                 "cohort": cohort,
                 "sample": f"{cohort}-{index}",
                 "role": "evaluation",
+                "assembly": "GRCh37" if cohort == "pgp" else "GRCh38",
                 "population": "pop",
                 "superpopulation": "region",
                 "sex": "XX",
@@ -175,6 +200,7 @@ def test_campaign_tasks_require_relatedness_and_have_one_common_baseline(tmp_pat
     samples = read_evaluation_samples(qc)
     tasks = build_tasks(samples, phase="measured", replicates=3)
     assert len(tasks) == 156
+    assert {task.assembly for task in tasks} == {"GRCh37", "GRCh38"}
     assert all(set(task.strategy_order.split(",")) == set(STRATEGIES) for task in tasks)
     assert all(task.strategy_order.split(",").count("uncached") == 1 for task in tasks)
 

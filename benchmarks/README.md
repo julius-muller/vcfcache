@@ -175,9 +175,9 @@ the `submit` subcommand and a sparse `--task-ids` array specification.
 ## Independent external-WGS cohort
 
 The source-overlap upper-bound campaign is complemented by held-out public
-genomes from KPGP, SGDP, and Harvard PGP. Source discovery, GRCh38 header
-validation, deterministic allocation, normalization, QC, and provenance are
-resumable:
+genomes from KPGP, SGDP, and Harvard PGP. Source discovery, assembly-specific
+header validation, deterministic allocation, normalization, QC, and provenance
+are resumable:
 
 ```bash
 .venv/bin/python benchmarks/prepare_external_wgs.py preflight
@@ -193,16 +193,18 @@ for cohort in kpgp sgdp pgp; do
 done
 ```
 
-KPGP and SGDP use open DDBJ/NIG GRCh38 autosomal gVCFs. PGP candidates are
-accepted only after a downloaded single-sample header establishes chr-prefixed
-GRCh38 coordinates; phenotype metadata is never collected. The frozen design
-uses three cache-building genomes disjoint from 20 KPGP, 20 SGDP, and 12 PGP
-evaluation genomes. PLINK2 KING kinship greater than 0.0884 fails the design
-before any benchmark campaign can be prepared.
+KPGP and SGDP use open DDBJ/NIG GRCh38 autosomal gVCFs. PGP uses its larger
+native GRCh37/hg19 single-sample subset; numeric contigs are renamed to UCSC
+form before normalization, without coordinate liftover. Phenotype metadata is
+never collected. The frozen design uses three cache-building genomes disjoint
+from 20 KPGP, 20 SGDP, and 12 PGP evaluation genomes. PLINK2 KING screening is
+performed separately per assembly, and kinship greater than 0.0884 fails the
+design before any benchmark campaign can be prepared.
 
-Each external task runs one common uncached baseline plus the two verified
-bundled Zenodo caches (any-stratum AF >=10% and AF >=1%) and the corresponding
-three-genome cohort cache. Condition order is balanced, every cached output is
+Each external task runs one common uncached baseline plus the two verified,
+assembly-matched bundled Zenodo caches (any-stratum AF >=10% and AF >=1%) and
+the corresponding three-genome cohort cache. GRCh37 samples never use GRCh38
+caches or vice versa. Condition order is balanced, every cached output is
 semantically compared with the common baseline, and only the documented VEP
 HGNC_ID discrepancy is ignored.
 

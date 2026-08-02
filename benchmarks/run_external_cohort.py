@@ -45,6 +45,7 @@ class ExternalTask:
     phase: str
     measured: str
     cohort: str
+    assembly: str
     sample: str
     population: str
     superpopulation: str
@@ -119,7 +120,7 @@ def build_tasks(
             f"{DEFAULT_SEED}:sample:{row['cohort']}:{row['sample']}".encode()
         ).hexdigest(),
     )
-    tasks = []
+    tasks: list[ExternalTask] = []
     for sample_rank, row in enumerate(ranked):
         for replicate in range(1, replicates + 1):
             order, key = condition_order(sample_rank, replicate)
@@ -129,6 +130,7 @@ def build_tasks(
                     phase=phase,
                     measured="true" if phase == "measured" else "false",
                     cohort=row["cohort"],
+                    assembly=row["assembly"],
                     sample=row["sample"],
                     population=row["population"],
                     superpopulation=row["superpopulation"],
@@ -163,9 +165,9 @@ def write_tasks(path: Path, tasks: Sequence[ExternalTask]) -> None:
     partial.replace(path)
 
 
-def _bundled_manifest(cache_root: Path) -> list[dict[str, Any]]:
-    strategies = public_strategies(cache_root)
-    specs = {spec.name: spec for spec in BUNDLED_CACHE_SPECS}
+def _bundled_manifest(cache_root: Path, assembly: str) -> list[dict[str, Any]]:
+    strategies = public_strategies(cache_root, assembly)
+    specs = {spec.name: spec for spec in BUNDLED_CACHE_SPECS if spec.genome == assembly}
     values = []
     for strategy in strategies:
         spec = specs[strategy.name]
@@ -175,6 +177,7 @@ def _bundled_manifest(cache_root: Path) -> list[dict[str, Any]]:
             {
                 "name": strategy.name,
                 "kind": "bundled_zenodo",
+                "assembly": assembly,
                 "alias": spec.alias,
                 "doi": spec.doi,
                 "cache_dir": str(cache),
@@ -192,13 +195,14 @@ def _bundled_manifest(cache_root: Path) -> list[dict[str, Any]]:
     return values
 
 
-def _custom_manifest(external_root: Path, cohort: str) -> dict[str, Any]:
+def _custom_manifest(external_root: Path, cohort: str, assembly: str) -> dict[str, Any]:
     root = external_root / "cohort_caches" / cohort
     cache = root / "cohort3_database/cache" / VEP_CACHE_NAME
     provenance_path = root / "cohort3_cache_provenance.json"
     provenance = json.loads(provenance_path.read_text())
     expected = {
         "cohort": cohort,
+        "assembly": assembly,
         "kind": "custom_cohort_three_disjoint_genomes",
         "complete": True,
     }
@@ -208,6 +212,7 @@ def _custom_manifest(external_root: Path, cohort: str) -> dict[str, Any]:
     return {
         "name": "cohort_3_genomes",
         "kind": "custom_cohort",
+        "assembly": assembly,
         "cache_dir": str(cache),
         "annotation_yaml_sha256": sha256sum(cache / "annotation.yaml"),
         "provenance_path": str(provenance_path),
@@ -250,26 +255,46 @@ def prepare_campaign(args: argparse.Namespace) -> None:
             "manifest": str(manifest),
             "manifest_sha256": sha256sum(manifest),
         }
-    bundled = _bundled_manifest(args.cache_root)
     cohorts = sorted({row["cohort"] for row in samples})
+    cohort_assemblies = {
+        cohort: next(row["assembly"] for row in samples if row["cohort"] == cohort)
+        for cohort in cohorts
+    }
+    if any(
+        {row["assembly"] for row in samples if row["cohort"] == cohort}
+        != {cohort_assemblies[cohort]}
+        for cohort in cohorts
+    ):
+        raise RuntimeError("Each external cohort must use exactly one assembly")
+    bundled: dict[str, list[dict[str, Any]]] = {
+        assembly: _bundled_manifest(args.cache_root, assembly)
+        for assembly in sorted(set(cohort_assemblies.values()))
+    }
+    cohort_strategies = {
+        cohort: _custom_manifest(args.external_root, cohort, cohort_assemblies[cohort])
+        for cohort in cohorts
+    }
     strategies = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "commit": git_output("rev-parse", "HEAD"),
-        "bundled_strategies": bundled,
-        "cohort_strategies": {
-            cohort: _custom_manifest(args.external_root, cohort) for cohort in cohorts
-        },
+        "bundled_strategies_by_assembly": bundled,
+        "cohort_assemblies": cohort_assemblies,
+        "cohort_strategies": cohort_strategies,
     }
     strategy_path = root / "manifests/strategies.json"
     write_json_atomic(strategy_path, strategies)
-    annotation_hashes = {
-        item["annotation_yaml_sha256"]
-        for item in [*bundled, *strategies["cohort_strategies"].values()]
-    }
-    if len(annotation_hashes) != 1:
-        raise RuntimeError(
-            "All four conditions must use an identical annotation recipe"
-        )
+    for cohort, assembly in cohort_assemblies.items():
+        annotation_hashes = {
+            item["annotation_yaml_sha256"]
+            for item in [
+                *bundled[assembly],
+                cohort_strategies[cohort],
+            ]
+        }
+        if len(annotation_hashes) != 1:
+            raise RuntimeError(
+                f"All four {cohort} conditions must use an identical recipe"
+            )
     metadata = {
         "campaign_id": args.campaign_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -281,6 +306,7 @@ def prepare_campaign(args: argparse.Namespace) -> None:
         "strategies": str(strategy_path),
         "strategies_sha256": sha256sum(strategy_path),
         "conditions": list(STRATEGIES),
+        "cohort_assemblies": cohort_assemblies,
         "evaluation_counts": {
             cohort: sum(row["cohort"] == cohort for row in samples)
             for cohort in cohorts

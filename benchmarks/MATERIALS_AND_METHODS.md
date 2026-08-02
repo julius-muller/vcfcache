@@ -282,15 +282,18 @@ whose identities are absent from gnomAD. Overlapping 1000 Genomes points are
 labelled source-overlap upper bounds and excluded from that estimate.
 
 For the independent WGS arm, we used open GRCh38 autosomal gVCFs from the
-DDBJ/NIG KPGP and SGDP reanalysis and participant-contributed WGS VCFs from
-Harvard PGP. PGP files were included only when their downloaded single-sample
-headers established chr-prefixed GRCh38 coordinates; no phenotype fields were
-collected. Three genomes per cohort were frozen for cache construction and
-excluded from the held-out evaluation sets of 20 KPGP, 20 SGDP, and 12 PGP
-genomes. Known HGDP/1000 Genomes identities were excluded from SGDP, and a
-PLINK2 KING threshold of 0.0884 excluded second-degree-or-closer relationships.
-Because gnomAD does not disclose every contributing project, these cohorts are
-described as having no documented overlap, not as confirmed absent from gnomAD.
+DDBJ/NIG KPGP and SGDP reanalysis and participant-contributed GRCh37/hg19 WGS
+VCFs from Harvard PGP. PGP files were included only when their downloaded
+headers established GRCh37 coordinates and exactly one sample. Numeric PGP
+contigs were renamed to UCSC form before normalization; no coordinate liftover
+or phenotype fields were used. Three genomes per cohort were frozen for cache
+construction and excluded from the held-out evaluation sets of 20 KPGP, 20
+SGDP, and 12 PGP genomes. Each condition used the bundled Zenodo cache matching
+the sample assembly. Known HGDP/1000 Genomes identities were excluded from
+SGDP, and assembly-stratified PLINK2 KING screening at 0.0884 excluded
+second-degree-or-closer relationships. Because gnomAD does not disclose every
+contributing project, these cohorts are described as having no documented
+overlap, not as confirmed absent from gnomAD.
 
 We will report medians, interquartile ranges, and sample-level bootstrap 95%
 confidence intervals for speedup and resource savings. Bootstrap resampling will

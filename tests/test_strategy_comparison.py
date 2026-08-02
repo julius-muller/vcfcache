@@ -102,6 +102,12 @@ def test_public_strategies_require_verified_zenodo_bundles(tmp_path):
     assert all(strategy.kind == "bundled_zenodo" for strategy in strategies)
     assert all(strategy.doi for strategy in strategies)
 
+    grch37 = public_strategies(tmp_path, "GRCh37")
+    assert [strategy.alias for strategy in grch37] == [
+        "cache-gnomad-v4.1-GRCh37-joint-af01-vep115.2-e",
+        "cache-gnomad-v4.1-GRCh37-joint-af001-vep115.2-e",
+    ]
+
 
 def test_tracked_bundle_manifest_matches_runner_allow_list():
     manifest = (

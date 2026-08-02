@@ -33,16 +33,22 @@ def read_task(path: Path, task_id: int) -> dict[str, str]:
 
 
 def load_strategies(
-    path: Path, cohort: str
+    path: Path, cohort: str, assembly: str
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Load common bundled strategies plus the cohort-specific custom cache."""
     document = json.loads(path.read_text())
-    strategies = list(document["bundled_strategies"])
+    if document["cohort_assemblies"].get(cohort) != assembly:
+        raise RuntimeError(f"Strategy assembly mismatch for {cohort}: {assembly}")
+    strategies = list(document["bundled_strategies_by_assembly"][assembly])
     strategies.append(document["cohort_strategies"][cohort])
     names = [item["name"] for item in strategies]
     if names != ["gnomad_af_0.1", "gnomad_af_0.01", "cohort_3_genomes"]:
         raise RuntimeError(f"Unexpected strategy order: {names}")
     for strategy in strategies:
+        if strategy.get("assembly") != assembly:
+            raise RuntimeError(
+                f"Strategy {strategy['name']} is not built for {assembly}"
+            )
         cache = Path(strategy["cache_dir"])
         required = (
             cache / "annotation.yaml",
@@ -93,7 +99,9 @@ def _config(
 def execute(args: argparse.Namespace) -> dict[str, Any]:
     """Run one uncached baseline and three cached conditions exactly once."""
     task = read_task(args.task_manifest, args.task_id)
-    document, strategies = load_strategies(args.strategies, task["cohort"])
+    document, strategies = load_strategies(
+        args.strategies, task["cohort"], task["assembly"]
+    )
     input_vcf = Path(task["input_vcf"])
     if sha256sum(input_vcf) != task["input_sha256"]:
         raise RuntimeError(f"Input checksum mismatch: {input_vcf}")
@@ -133,6 +141,7 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
         rows.append(
             {
                 "cohort": task["cohort"],
+                "assembly": task["assembly"],
                 "sample": task["sample"],
                 "phase": task["phase"],
                 "replicate": replicate,

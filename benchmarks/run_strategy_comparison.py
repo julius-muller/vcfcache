@@ -42,6 +42,7 @@ class BundledCacheSpec:
     """One published cache bundle discoverable through VCFcache and Zenodo."""
 
     name: str
+    genome: str
     alias: str
     doi: str
     root_name: str
@@ -53,6 +54,7 @@ class BundledCacheSpec:
 BUNDLED_CACHE_SPECS = (
     BundledCacheSpec(
         name="gnomad_af_0.1",
+        genome="GRCh38",
         alias="cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e",
         doi="10.5281/zenodo.18189447",
         root_name="gnomad_v4.1_GRCh38_joint_af010",
@@ -62,6 +64,7 @@ BUNDLED_CACHE_SPECS = (
     ),
     BundledCacheSpec(
         name="gnomad_af_0.01",
+        genome="GRCh38",
         alias="cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
         doi="10.5281/zenodo.18190046",
         root_name="gnomad_v4.1_GRCh38_joint_af001",
@@ -69,7 +72,35 @@ BUNDLED_CACHE_SPECS = (
         archive_md5="3ac438461eac0cf42c75717156d7b2d4",
         af_threshold=0.01,
     ),
+    BundledCacheSpec(
+        name="gnomad_af_0.1",
+        genome="GRCh37",
+        alias="cache-gnomad-v4.1-GRCh37-joint-af01-vep115.2-e",
+        doi="10.5281/zenodo.18189051",
+        root_name="gnomad_v4.1_GRCh37_joint_af010",
+        archive_name="cache_gnomad_v4.1_GRCh37_joint_af010.tar.gz",
+        archive_md5="96bb1edd0e067d9c933256bd112e4589",
+        af_threshold=0.1,
+    ),
+    BundledCacheSpec(
+        name="gnomad_af_0.01",
+        genome="GRCh37",
+        alias="cache-gnomad-v4.1-GRCh37-joint-af001-vep115.2-e",
+        doi="10.5281/zenodo.18189348",
+        root_name="gnomad_v4.1_GRCh37_joint_af001",
+        archive_name="cache_gnomad_v4.1_GRCh37_joint_af001.tar.gz",
+        archive_md5="f7d246a7adf44b778d6dc1383153eff2",
+        af_threshold=0.01,
+    ),
 )
+
+
+def bundled_cache_specs(genome: str = "GRCh38") -> tuple[BundledCacheSpec, ...]:
+    """Return the frozen two-cache strategy for one reference assembly."""
+    values = tuple(spec for spec in BUNDLED_CACHE_SPECS if spec.genome == genome)
+    if len(values) != 2:
+        raise RuntimeError(f"Expected two bundled cache strategies for {genome}")
+    return values
 
 
 @dataclass(frozen=True)
@@ -222,13 +253,13 @@ def verify_bundled_cache(cache_root: Path, spec: BundledCacheSpec) -> None:
 
 
 def fetch_bundled(args: argparse.Namespace) -> None:
-    """Download and checksum-verify the two published GRCh38 cache bundles."""
+    """Download and checksum-verify two published assembly-matched bundles."""
     zenodo = importlib.import_module("vcfcache.integrations.zenodo")
     archive_utils = importlib.import_module("vcfcache.utils.archive")
     args.cache_root.mkdir(parents=True, exist_ok=True)
     archive_root = args.cache_root / "archives"
     archive_root.mkdir(parents=True, exist_ok=True)
-    for spec in BUNDLED_CACHE_SPECS:
+    for spec in bundled_cache_specs(args.genome):
         try:
             verify_bundled_cache(args.cache_root, spec)
             print(f"Verified existing Zenodo bundle: {spec.alias}")
@@ -403,10 +434,10 @@ def fetch_blueprints(args: argparse.Namespace) -> None:
         print(f"Downloaded and verified Zenodo blueprint: {spec.alias}")
 
 
-def public_strategies(cache_root: Path) -> list[Strategy]:
+def public_strategies(cache_root: Path, genome: str = "GRCh38") -> list[Strategy]:
     """Resolve only published cache bundles downloaded from Zenodo."""
     values: list[Strategy] = []
-    for spec in BUNDLED_CACHE_SPECS:
+    for spec in bundled_cache_specs(genome):
         verify_bundled_cache(cache_root, spec)
         root = cache_root / spec.root_name
         values.append(
@@ -459,7 +490,7 @@ def prepare(args: argparse.Namespace) -> None:
                     "doi": spec.doi,
                     "archive_md5": spec.archive_md5,
                 }
-                for spec in BUNDLED_CACHE_SPECS
+                for spec in bundled_cache_specs(args.genome)
             ],
         }
     )
@@ -482,7 +513,7 @@ def prepare(args: argparse.Namespace) -> None:
         sample_path(args.data_root, row["sample"], row["superpopulation"])
         for row in design["training"]
     ]
-    public = public_strategies(args.cache_root)
+    public = public_strategies(args.cache_root, args.genome)
     source_cache = next(
         strategy.cache_dir for strategy in public if strategy.name == "gnomad_af_0.01"
     )
@@ -601,7 +632,10 @@ def completed_metrics(config: PilotConfig, mode: str) -> dict[str, Any] | None:
 def execute(args: argparse.Namespace) -> None:
     """Run one uncached baseline and three cache strategies per held-out sample."""
     design = load_design(args.root)
-    strategies = [*public_strategies(args.cache_root), cohort_strategy(args.root)]
+    strategies = [
+        *public_strategies(args.cache_root, args.genome),
+        cohort_strategy(args.root),
+    ]
     require_paths(
         [
             *(strategy.cache_dir / "vcfcache_annotated.bcf" for strategy in strategies),
@@ -663,7 +697,10 @@ def cache_records(path: Path) -> int:
 def collect_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     """Collect complete matrix cells into publication source rows."""
     design = load_design(args.root)
-    strategies = [*public_strategies(args.cache_root), cohort_strategy(args.root)]
+    strategies = [
+        *public_strategies(args.cache_root, args.genome),
+        cohort_strategy(args.root),
+    ]
     training = ",".join(row["sample"] for row in design["training"])
     rows: list[dict[str, Any]] = []
     for evaluation in design["evaluation"]:
@@ -884,6 +921,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
     parser.add_argument("--blueprint-root", type=Path, default=DEFAULT_BLUEPRINT_ROOT)
     parser.add_argument("--selection", type=Path, default=DEFAULT_SELECTION)
+    parser.add_argument("--genome", choices=("GRCh37", "GRCh38"), default="GRCh38")
     parser.add_argument("--threads", type=int, default=8)
     return parser
 

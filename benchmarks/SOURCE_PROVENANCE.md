@@ -35,13 +35,13 @@ streams are identical (SHA-256
 | HPRC | Release 2/v2.0 minigraph-cactus `wave.vcf.gz`; GRCh38 coordinates | Graph/assembly-derived robustness cohort | `assay_sources.tsv`, `selected_hprc_r2_samples.tsv` |
 | KPGP | DDBJ/NIG public-human-genomes autosomal gVCFs; GRCh38/hs38DH | Korean real-world WGS training and held-out evaluation | generated `external_wgs_candidates.tsv`, selection, and QC manifests |
 | SGDP | DDBJ/NIG public-human-genomes autosomal gVCFs plus Mallick et al. sample table; GRCh38/hs38DH | Region-stratified real-world WGS after documented HGDP/1000G exclusion | generated external-WGS manifests and KING report |
-| Harvard PGP | Participant-contributed public WGS VCFs | Provider-diverse real-world WGS; downloaded header must establish chr-prefixed GRCh38 | generated external-WGS manifests; no phenotype metadata retained |
+| Harvard PGP | Participant-contributed public WGS VCFs; native GRCh37/hg19 | Provider-diverse real-world WGS; downloaded header must establish GRCh37 and exactly one sample | generated external-WGS manifests; no phenotype metadata retained |
 | Twist | Human Core Exome covered-target BED for hg38, file dated 2024-09 | Strict WES target control and padded capture-like footprint | `assay_sources.tsv`, `assay_regions.tsv` |
 | Ensembl | Release 115 human GTF; GRCh38 | MANE Select CDS coordinates | `assay_sources.tsv`, `assay_regions.tsv` |
 | ACMG | Secondary Findings v3.3 Table 1 | Membership of the 84-gene small panel | `config/acmg_sf_v3.3_genes.txt` |
 | Real WES anchors | NA12878 ARUP and UCSF VCFs, Zenodo 3597727; GRCh37 | Variant-count calibration only; not performance inputs | `assay_sources.tsv` |
 | Reference sequence | UCSC GRCh38.p14 soft-masked FASTA, GCA_000001405.29 | Contig bounds when padding BED intervals | `source_catalog.tsv` |
-| Public cache universe | gnomAD v4.1 joint exome+genome sites Hail Table; GRCh38 | Variants eligible for pre-annotation | `source_catalog.tsv` and cache artifact hashes |
+| Public cache universe | gnomAD v4.1 joint exome+genome sites; native GRCh38 plus published GRCh37 liftover | Assembly-matched variants eligible for pre-annotation | `source_catalog.tsv` and cache artifact hashes |
 
 The complete direct URLs are deliberately stored in TSV rather than abbreviated
 in manuscript prose. The 1000 Genomes table records all 22 autosomal VCF/index
@@ -87,12 +87,16 @@ archive checksums are frozen in `manifests/bundled_caches.tsv`:
 |---|---|---|---|
 | any-stratum AF ≥ 10% | `cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e` | `10.5281/zenodo.18189447` | `088cf426461a51b77bdfcd5dcd2233f4` |
 | any-stratum AF ≥ 1% | `cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e` | `10.5281/zenodo.18190046` | `3ac438461eac0cf42c75717156d7b2d4` |
+| any-stratum AF ≥ 10%, GRCh37 | `cache-gnomad-v4.1-GRCh37-joint-af01-vep115.2-e` | `10.5281/zenodo.18189051` | `96bb1edd0e067d9c933256bd112e4589` |
+| any-stratum AF ≥ 1%, GRCh37 | `cache-gnomad-v4.1-GRCh37-joint-af001-vep115.2-e` | `10.5281/zenodo.18189348` | `f7d246a7adf44b778d6dc1383153eff2` |
 
 The runner retains the downloaded archives and writes a validated provenance
 record beside each extracted cache. Missing or conflicting provenance stops
 the benchmark. Zenodo record `18190666` is a blueprint rather than an annotated
 cache bundle and is excluded from this ready-made-cache arm. Cohort-derived
-caches are separately labelled custom and never represented as bundled.
+caches are separately labelled custom and never represented as bundled. The
+external runner resolves these allow-listed bundles by sample assembly and
+rejects cross-assembly cache use.
 
 ## Official-blueprint provenance gate
 

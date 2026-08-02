@@ -35,11 +35,14 @@ from benchmarks.run_strategy_comparison import VEP_CACHE_NAME, public_strategies
 
 DEFAULT_ROOT = Path("/mnt/data/vcfcache_benchmarks/external_wgs")
 DEFAULT_REFERENCE = Path("/mnt/data/resources/reference/ucsc/hg38.fa.gz")
+DEFAULT_REFERENCE_GRCH37 = Path("/mnt/data/resources/reference/ucsc/hg19.fa.gz")
 DEFAULT_CACHE_ROOT = Path("/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches")
 DEFAULT_PLINK2 = DEFAULT_ROOT / "tools/plink2"
 SELECTION_SEED = "vcfcache-paper-external-wgs-v1"
 AUTOSOMES = tuple(f"chr{number}" for number in range(1, 23))
 COHORT_COUNTS = {"kpgp": (3, 20), "sgdp": (3, 20), "pgp": (3, 12)}
+COHORT_ASSEMBLIES = {"kpgp": "GRCh38", "sgdp": "GRCh38", "pgp": "GRCh37"}
+PGP_PROVIDER_CAP = 6
 DDBJ_BASE = "https://ddbj.nig.ac.jp/public/public-human-genomes/GRCh38"
 DDBJ_COHORTS = {"kpgp": "KPGP", "sgdp": "SGDP"}
 PGP_CATALOG_URL = "https://my.pgp-hms.org/public_genetic_data"
@@ -434,8 +437,16 @@ def _select_sgdp(rows: Sequence[Candidate]) -> list[tuple[Candidate, str]]:
 
 
 def _select_pgp(rows: Sequence[Candidate]) -> list[tuple[Candidate, str]]:
-    """Select provider-diverse PGP training and held-out genomes."""
-    eligible = _ranked((row for row in rows if row.eligibility == "candidate"), "pgp")
+    """Select provider-diverse native-GRCh37 PGP training and held-out genomes."""
+    eligible = _ranked(
+        (
+            row
+            for row in rows
+            if row.eligibility == "candidate"
+            and row.assembly == COHORT_ASSEMBLIES["pgp"]
+        ),
+        "pgp",
+    )
     training: list[Candidate] = []
     used_providers: set[str] = set()
     for row in eligible:
@@ -451,7 +462,10 @@ def _select_pgp(rows: Sequence[Candidate]) -> list[tuple[Candidate, str]]:
     evaluation: list[Candidate] = []
     provider_counts: dict[str, int] = {}
     for row in eligible:
-        if row.sample in training_ids or provider_counts.get(row.provider, 0) >= 4:
+        if (
+            row.sample in training_ids
+            or provider_counts.get(row.provider, 0) >= PGP_PROVIDER_CAP
+        ):
             continue
         evaluation.append(row)
         provider_counts[row.provider] = provider_counts.get(row.provider, 0) + 1
@@ -459,7 +473,8 @@ def _select_pgp(rows: Sequence[Candidate]) -> list[tuple[Candidate, str]]:
             break
     if len(evaluation) < 12:
         raise RuntimeError(
-            f"PGP needs 12 held-out genomes under the provider cap; found {len(evaluation)}"
+            "PGP needs 12 held-out GRCh37 genomes under the provider cap; "
+            f"found {len(evaluation)}"
         )
     return [
         *((row, "training") for row in training),
@@ -521,15 +536,36 @@ def select(args: argparse.Namespace) -> Path:
     return output
 
 
+def _pgp_download_url(landing_text: str) -> str:
+    """Resolve exactly one non-SV/CNV VCF from an Arvados landing page."""
+    base = re.search(r"wget[^']*'(https://[^']+/_/)'", landing_text, re.I | re.S)
+    files = re.findall(r'<a class="item" href="\./([^"]+)">', landing_text, re.I)
+    usable = [
+        name
+        for name in files
+        if re.search(r"g?vcf(?:\.gz|\.bgz)?$", name, re.I)
+        and not re.search(r"(?:^|[._-])(?:sv|cnv)(?:[._-]|$)", name, re.I)
+    ]
+    if base is None or len(usable) != 1:
+        raise RuntimeError("PGP landing page lacks one usable WGS VCF")
+    return urljoin(base.group(1), usable[0])
+
+
 def probe_pgp(args: argparse.Namespace) -> Path:
-    """Download ranked PGP candidates until the GRCh38/provider gate is met."""
+    """Download/reclassify PGP candidates until the GRCh37 gate is met."""
     path = args.root / "manifests/external_wgs_candidates.tsv"
     candidates = read_candidates(path)
     pending = _ranked(
         (
             row
             for row in candidates
-            if row.cohort == "pgp" and row.eligibility == "header_probe_required"
+            if row.cohort == "pgp"
+            and (
+                row.eligibility == "header_probe_required"
+                or (
+                    args.root / "sources" / "pgp" / row.sample / row.source_name
+                ).exists()
+            )
         ),
         "pgp-probe",
     )
@@ -548,23 +584,17 @@ def probe_pgp(args: argparse.Namespace) -> Path:
                 landing = destination.with_suffix(destination.suffix + ".landing.html")
                 destination.replace(landing)
                 landing_text = html.unescape(landing.read_text(errors="replace"))
-                base = re.search(
-                    r"wget[^']*'(https://[^']+/_/)'", landing_text, re.I | re.S
-                )
-                files = re.findall(
-                    r'<a class="item" href="\./([^"]+)">', landing_text, re.I
-                )
-                usable = [
-                    name
-                    for name in files
-                    if re.search(r"g?vcf(?:\.gz|\.bgz)?$", name, re.I)
-                    and not re.search(r"(?:^|[._-])(?:sv|cnv)(?:[._-]|$)", name, re.I)
-                ]
-                if base is None or len(usable) != 1:
-                    raise RuntimeError("PGP landing page lacks one usable WGS VCF")
-                resolved_url = urljoin(base.group(1), usable[0])
+                resolved_url = _pgp_download_url(landing_text)
                 download_file(SourceFile("pgp", row.sample, resolved_url), destination)
-            _assert_grch38_header(destination)
+            else:
+                landing = destination.with_suffix(destination.suffix + ".landing.html")
+                if landing.exists():
+                    resolved_url = _pgp_download_url(
+                        html.unescape(landing.read_text(errors="replace"))
+                    )
+            assembly = _detect_assembly(destination)
+            if assembly != COHORT_ASSEMBLIES["pgp"]:
+                raise RuntimeError(f"assembly_mismatch:{assembly or 'unresolved'}")
             samples = run_command(
                 ["bcftools", "query", "--list-samples", str(destination)],
                 stdout=subprocess.PIPE,
@@ -574,7 +604,7 @@ def probe_pgp(args: argparse.Namespace) -> Path:
             updated[row.sample] = Candidate(
                 **{
                     **asdict(row),
-                    "assembly": "GRCh38",
+                    "assembly": assembly,
                     "url": resolved_url,
                     "landing_url": landing_url,
                     "eligibility": "candidate",
@@ -582,11 +612,14 @@ def probe_pgp(args: argparse.Namespace) -> Path:
                 }
             )
         except (RuntimeError, subprocess.CalledProcessError, OSError) as error:
+            reason = " ".join(str(error).split())[:240]
             updated[row.sample] = Candidate(
                 **{
                     **asdict(row),
                     "eligibility": "excluded",
-                    "exclusion_reason": f"source_ineligible:{type(error).__name__}",
+                    "exclusion_reason": (
+                        f"source_ineligible:{type(error).__name__}:{reason}"
+                    ),
                 }
             )
         non_pgp = [item for item in candidates if item.cohort != "pgp"]
@@ -594,11 +627,11 @@ def probe_pgp(args: argparse.Namespace) -> Path:
         write_tsv(path, current)
         try:
             _select_pgp(list(updated.values()))
-            print("PGP GRCh38/provider gate satisfied")
+            print("PGP GRCh37/provider gate satisfied")
             return path
         except RuntimeError:
             continue
-    raise RuntimeError("PGP catalogue exhausted before the GRCh38/provider gate passed")
+    raise RuntimeError("PGP catalogue exhausted before the GRCh37/provider gate passed")
 
 
 def _selected(path: Path) -> list[Selected]:
@@ -641,35 +674,77 @@ def download(args: argparse.Namespace) -> None:
 def _prepared_path(root: Path, row: Selected) -> Path:
     return (
         root
-        / "samples/GRCh38"
+        / f"samples/{row.assembly}"
         / row.cohort
-        / f"{row.sample}.GRCh38.small_variants.vcf.gz"
+        / f"{row.sample}.{row.assembly}.small_variants.vcf.gz"
     )
 
 
-def _assert_grch38_header(path: Path) -> None:
+def _detect_assembly(path: Path) -> str:
+    """Identify GRCh37 or GRCh38 from explicit metadata or chr1 length."""
     header = run_command(
         ["bcftools", "view", "--header-only", str(path)], stdout=subprocess.PIPE
     ).stdout
-    if not re.search(r"GRCh38|hg38|assembly=GRCh38", header, re.I):
-        lengths = dict(re.findall(r"##contig=<ID=(?:chr)?(\d+),length=(\d+)", header))
-        if lengths.get("1") != "248956422":
-            raise RuntimeError(f"Source does not establish GRCh38 coordinates: {path}")
-    if not re.search(r"^##contig=<ID=chr1,", header, re.MULTILINE):
+    lengths = dict(re.findall(r"##contig=<ID=(?:chr)?(\d+),length=(\d+)", header))
+    if re.search(r"GRCh38|hg38|assembly=GRCh38", header, re.I):
+        return "GRCh38"
+    if re.search(r"GRCh37|hg19|(?:^|[=/_.-])b37|hs37d5", header, re.I):
+        return "GRCh37"
+    return {"248956422": "GRCh38", "249250621": "GRCh37"}.get(lengths.get("1", ""), "")
+
+
+def _assert_assembly_header(path: Path, assembly: str) -> None:
+    observed = _detect_assembly(path)
+    if observed != assembly:
         raise RuntimeError(
-            f"Source needs chr-prefixed GRCh38 contigs for the frozen cache: {path}"
+            f"Source assembly mismatch for {path}: expected {assembly}, "
+            f"observed {observed or 'unresolved'}"
         )
 
 
-def prepare_one(root: Path, row: Selected, reference: Path) -> Path:
+def _rename_map(root: Path) -> Path:
+    """Write the stable Ensembl-to-UCSC contig mapping used before normalization."""
+    path = root / "work/normalization/numeric_to_chr.tsv"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    value = "".join(
+        f"{source}\tchr{target}\n"
+        for source, target in [
+            *((str(number), str(number)) for number in range(1, 23)),
+            ("X", "X"),
+            ("Y", "Y"),
+            ("MT", "M"),
+            ("M", "M"),
+        ]
+    )
+    if path.exists() and path.read_text() != value:
+        raise RuntimeError(f"Contig rename map changed unexpectedly: {path}")
+    if not path.exists():
+        path.write_text(value)
+    return path
+
+
+def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) -> Path:
     """Normalize one source into a compact carried-autosomal small-variant VCF."""
     source = _source_path(root, row)
     destination = _prepared_path(root, row)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists() and Path(f"{destination}.tbi").exists():
         return destination
-    _assert_grch38_header(source)
+    _assert_assembly_header(source, row.assembly)
     partial = destination.with_name(destination.name + ".partial")
+    renamed = subprocess.Popen(
+        [
+            "bcftools",
+            "annotate",
+            "--rename-chrs",
+            str(rename_map),
+            "--output-type",
+            "u",
+            str(source),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     first = subprocess.Popen(
         [
             "bcftools",
@@ -680,11 +755,13 @@ def prepare_one(root: Path, row: Selected, reference: Path) -> Path:
             'CHROM~"^chr([1-9]|1[0-9]|2[0-2])$"',
             "--output-type",
             "u",
-            str(source),
         ],
+        stdin=renamed.stdout,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
+    assert renamed.stdout is not None
+    renamed.stdout.close()
     normalize = subprocess.Popen(
         [
             "bcftools",
@@ -735,6 +812,10 @@ def prepare_one(root: Path, row: Selected, reference: Path) -> Path:
     assert filtered.stdout is not None
     filtered.stdout.close()
     errors = {
+        "rename": (
+            renamed.wait(),
+            renamed.stderr.read() if renamed.stderr else b"",
+        ),
         "view": (first.wait(), first.stderr.read() if first.stderr else b""),
         "norm": (
             normalize.wait(),
@@ -754,13 +835,22 @@ def prepare_one(root: Path, row: Selected, reference: Path) -> Path:
 def prepare(args: argparse.Namespace) -> None:
     """Prepare all downloaded selected sources."""
     rows = _selected(args.root / "manifests/external_wgs_selection.tsv")
-    if not args.reference.exists() or not Path(f"{args.reference}.fai").exists():
-        raise FileNotFoundError(
-            f"Indexed GRCh38 reference is missing: {args.reference}"
-        )
+    references = {"GRCh38": args.reference, "GRCh37": args.reference_grch37}
+    for assembly in {row.assembly for row in rows}:
+        reference = references[assembly]
+        if not reference.exists() or not Path(f"{reference}.fai").exists():
+            raise FileNotFoundError(
+                f"Indexed {assembly} reference is missing: {reference}"
+            )
+    rename_map = _rename_map(args.root)
     with ThreadPoolExecutor(max_workers=args.prepare_workers) as executor:
         list(
-            executor.map(lambda row: prepare_one(args.root, row, args.reference), rows)
+            executor.map(
+                lambda row: prepare_one(
+                    args.root, row, references[row.assembly], rename_map
+                ),
+                rows,
+            )
         )
 
 
@@ -771,6 +861,7 @@ def qc(args: argparse.Namespace) -> Path:
         "cohort",
         "sample",
         "role",
+        "assembly",
         "population",
         "superpopulation",
         "sex",
@@ -802,6 +893,7 @@ def qc(args: argparse.Namespace) -> Path:
                 "cohort": row.cohort,
                 "sample": row.sample,
                 "role": row.role,
+                "assembly": row.assembly,
                 "population": row.population,
                 "superpopulation": row.region,
                 "sex": row.sex,
@@ -841,78 +933,92 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
     passing = [row for row in rows if row["status"] == "PASS"]
     if not passing:
         raise RuntimeError("No passing external genomes are available for screening")
-    work = args.root / "work/relatedness"
-    work.mkdir(parents=True, exist_ok=True)
-    merged = work / "external_wgs_all.bcf"
-    if not merged.exists():
+    pairs: list[dict[str, str]] = []
+    assembly_reports = {}
+    for assembly in sorted({row["assembly"] for row in passing}):
+        assembly_rows = [row for row in passing if row["assembly"] == assembly]
+        work = args.root / "work/relatedness" / assembly
+        work.mkdir(parents=True, exist_ok=True)
+        merged = work / "external_wgs.bcf"
+        if not merged.exists():
+            run_command(
+                [
+                    "bcftools",
+                    "merge",
+                    "--missing-to-ref",
+                    "--force-samples",
+                    "--threads",
+                    str(args.threads),
+                    "--output-type",
+                    "b",
+                    "--output",
+                    str(merged),
+                    *(row["path"] for row in assembly_rows),
+                ]
+            )
+            run_command(["bcftools", "index", str(merged)])
+        prefix = work / "external_wgs"
         run_command(
             [
-                "bcftools",
-                "merge",
-                "--missing-to-ref",
-                "--force-samples",
-                "--threads",
-                str(args.threads),
-                "--output-type",
-                "b",
-                "--output",
+                plink2,
+                "--bcf",
                 str(merged),
-                *(row["path"] for row in passing),
+                "--allow-extra-chr",
+                "--snps-only",
+                "just-acgt",
+                "--max-alleles",
+                "2",
+                "--maf",
+                "0.05",
+                "--geno",
+                "0.02",
+                "--indep-pairwise",
+                "200",
+                "50",
+                "0.2",
+                "--out",
+                str(prefix),
             ]
         )
-        run_command(["bcftools", "index", str(merged)])
-    prefix = work / "external_wgs"
-    run_command(
-        [
-            plink2,
-            "--bcf",
-            str(merged),
-            "--allow-extra-chr",
-            "--snps-only",
-            "just-acgt",
-            "--max-alleles",
-            "2",
-            "--maf",
-            "0.05",
-            "--geno",
-            "0.02",
-            "--indep-pairwise",
-            "200",
-            "50",
-            "0.2",
-            "--out",
-            str(prefix),
-        ]
-    )
-    run_command(
-        [
-            plink2,
-            "--bcf",
-            str(merged),
-            "--allow-extra-chr",
-            "--extract",
-            f"{prefix}.prune.in",
-            "--make-king-table",
-            "--king-table-filter",
-            "0.0884",
-            "--out",
-            str(prefix),
-        ]
-    )
-    kinship_path = Path(f"{prefix}.kin0")
-    pairs: list[dict[str, str]] = []
-    if kinship_path.exists() and kinship_path.stat().st_size:
-        with kinship_path.open(newline="") as handle:
-            pairs = list(csv.DictReader(handle, delimiter="\t"))
-    report = work / "relatedness_report.json"
+        run_command(
+            [
+                plink2,
+                "--bcf",
+                str(merged),
+                "--allow-extra-chr",
+                "--extract",
+                f"{prefix}.prune.in",
+                "--make-king-table",
+                "--king-table-filter",
+                "0.0884",
+                "--out",
+                str(prefix),
+            ]
+        )
+        kinship_path = Path(f"{prefix}.kin0")
+        assembly_pairs: list[dict[str, str]] = []
+        if kinship_path.exists() and kinship_path.stat().st_size:
+            with kinship_path.open(newline="") as handle:
+                assembly_pairs = list(csv.DictReader(handle, delimiter="\t"))
+        pairs.extend({"assembly": assembly, **pair} for pair in assembly_pairs)
+        assembly_reports[assembly] = {
+            "samples": len(assembly_rows),
+            "related_pairs": assembly_pairs,
+            "merged_bcf": str(merged),
+        }
+    report = args.root / "work/relatedness/relatedness_report.json"
     write_json_atomic(
         report,
         {
             "created_at": datetime.now(timezone.utc).isoformat(),
-            "method": "PLINK2 KING robust kinship on LD-pruned autosomal SNPs",
+            "method": (
+                "PLINK2 KING robust kinship on LD-pruned autosomal SNPs, "
+                "screened separately by reference assembly"
+            ),
             "second_degree_threshold": 0.0884,
             "samples": len(passing),
             "related_pairs": pairs,
+            "assemblies": assembly_reports,
         },
     )
     if pairs:
@@ -947,7 +1053,13 @@ def build_cache(args: argparse.Namespace) -> None:
         raise RuntimeError(
             f"Expected exactly three passing {args.cohort} training samples"
         )
-    public = public_strategies(args.cache_root)
+    assemblies = {row["assembly"] for row in rows}
+    if assemblies != {COHORT_ASSEMBLIES[args.cohort]}:
+        raise RuntimeError(
+            f"Unexpected training assemblies for {args.cohort}: {assemblies}"
+        )
+    assembly = assemblies.pop()
+    public = public_strategies(args.cache_root, assembly)
     source_cache = next(item for item in public if item.name == "gnomad_af_0.01")
     database = args.root / "cohort_caches" / args.cohort / "cohort3_database"
     database.parent.mkdir(parents=True, exist_ok=True)
@@ -1001,6 +1113,7 @@ def build_cache(args: argparse.Namespace) -> None:
         )
     provenance = {
         "cohort": args.cohort,
+        "assembly": assembly,
         "kind": "custom_cohort_three_disjoint_genomes",
         "training_samples": sorted(row["sample"] for row in rows),
         "training_input_sha256": {row["sample"]: row["sha256"] for row in rows},
@@ -1028,7 +1141,15 @@ def preflight(args: argparse.Namespace) -> None:
     free = shutil.disk_usage(args.root).free
     if free < args.minimum_free_gib * (1 << 30):
         raise RuntimeError(f"Only {free / (1 << 30):.1f} GiB free")
-    public_strategies(args.cache_root)
+    for assembly, reference in (
+        ("GRCh38", args.reference),
+        ("GRCh37", args.reference_grch37),
+    ):
+        if not reference.exists() or not Path(f"{reference}.fai").exists():
+            raise FileNotFoundError(
+                f"Indexed {assembly} reference is missing: {reference}"
+            )
+        public_strategies(args.cache_root, assembly)
     print(f"External WGS preflight OK: {free / (1 << 30):.1f} GiB free")
 
 
@@ -1052,6 +1173,9 @@ def parser() -> argparse.ArgumentParser:
     )
     result.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     result.add_argument("--reference", type=Path, default=DEFAULT_REFERENCE)
+    result.add_argument(
+        "--reference-grch37", type=Path, default=DEFAULT_REFERENCE_GRCH37
+    )
     result.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
     result.add_argument("--plink2", type=Path, default=DEFAULT_PLINK2)
     result.add_argument("--seed", default=SELECTION_SEED)
@@ -1067,7 +1191,7 @@ def parser() -> argparse.ArgumentParser:
 def main() -> None:
     """Run a resumable external WGS preparation stage."""
     args = parser().parse_args()
-    for name in ("root", "reference", "cache_root", "plink2"):
+    for name in ("root", "reference", "reference_grch37", "cache_root", "plink2"):
         setattr(args, name, getattr(args, name).expanduser().resolve())
     if min(args.download_workers, args.prepare_workers, args.threads) < 1:
         raise ValueError("Worker and thread counts must be positive")
