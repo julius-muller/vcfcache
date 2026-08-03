@@ -2,12 +2,12 @@
 #SBATCH --partition=benchmark
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=512M
-#SBATCH --time=24:00:00
+#SBATCH --time=12:00:00
 
 set -euo pipefail
 
 gate_marker=${VCFCACHE_GATE_MARKER:?VCFCACHE_GATE_MARKER is required}
-deadline=$((SECONDS + 23 * 60 * 60))
+deadline=$((SECONDS + 11 * 60 * 60))
 
 while [[ ! -s "$gate_marker" ]]; do
   if ((SECONDS >= deadline)); then

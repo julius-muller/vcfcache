@@ -37,6 +37,7 @@ STRATEGIES = ("uncached", "gnomad_af_0.1", "gnomad_af_0.01", "cohort_3_genomes")
 DEFAULT_SEED = "vcfcache-paper-external-wgs-v1"
 EXPECTED_EVALUATION = {"kpgp": 20, "sgdp": 20, "pgp": 12}
 DEFAULT_VEP_BUFFER = 100_000
+DEFAULT_MEASURED_REPLICATES = 1
 
 
 @dataclass(frozen=True)
@@ -269,7 +270,7 @@ def prepare_campaign(args: argparse.Namespace) -> None:
     phase_specs = {
         "smoke": ([smoke], 1),
         "warmup": (samples, 1),
-        "measured": (samples, 3),
+        "measured": (samples, DEFAULT_MEASURED_REPLICATES),
     }
     phase_values = {}
     for phase, (phase_samples, replicates) in phase_specs.items():
@@ -408,14 +409,14 @@ def submit_phase(
 
 
 def submit_chain(args: argparse.Namespace) -> None:
-    """Submit smoke, warmup, and measured arrays with fail-closed dependencies."""
+    """Submit one smoke then one four-condition measurement per sample."""
     root = campaign_root(args.controller_results, args.campaign_id)
     campaign = json.loads((root / "campaign.json").read_text())
     if campaign["commit"] != git_output("rev-parse", "HEAD"):
         raise RuntimeError("Prepared campaign commit differs from checkout")
     dependency = args.start_after_job
     submissions = {}
-    for phase in PHASES:
+    for phase in ("smoke", "measured"):
         job_id, command = submit_phase(args, phase, dependency)
         submissions[phase] = {
             "job_id": job_id,
@@ -449,9 +450,16 @@ def status(args: argparse.Namespace) -> None:
 
 
 def collect(args: argparse.Namespace) -> Path:
-    """Collect measured summaries into a stable publication-source TSV."""
+    """Collect one complete source phase into a publication-source TSV.
+
+    ``--phase warmup`` allows a complete, validated first pass from a legacy
+    campaign to be promoted without rerunning identical work. The source phase
+    remains recorded in every output row for auditability.
+    """
     root = campaign_root(args.controller_results, args.campaign_id)
-    summaries = sorted((root / "measured/tasks").glob("task-*/external_summary.json"))
+    summaries = sorted(
+        (root / args.phase / "tasks").glob("task-*/external_summary.json")
+    )
     rows = []
     for path in summaries:
         document = json.loads(path.read_text())
@@ -468,7 +476,7 @@ def collect(args: argparse.Namespace) -> Path:
                 }
             )
     campaign = json.loads((root / "campaign.json").read_text())
-    expected = campaign["phases"]["measured"]["tasks"] * 3
+    expected = campaign["phases"][args.phase]["tasks"] * 3
     if len(rows) != expected:
         raise RuntimeError(f"Expected {expected} strategy rows, found {len(rows)}")
     output = root / "publication/external_wgs_metrics.tsv"
@@ -479,7 +487,7 @@ def collect(args: argparse.Namespace) -> Path:
         writer.writeheader()
         writer.writerows(rows)
     partial.replace(output)
-    print(f"Collected {len(rows)} measured strategy rows -> {output}")
+    print(f"Collected {len(rows)} {args.phase} strategy rows -> {output}")
     return output
 
 
@@ -513,6 +521,9 @@ def parser() -> argparse.ArgumentParser:
     inspect.set_defaults(function=status)
     collection = commands.add_parser("collect")
     _paths(collection)
+    collection.add_argument(
+        "--phase", choices=("warmup", "measured"), default="measured"
+    )
     collection.set_defaults(function=collect)
     return root
 

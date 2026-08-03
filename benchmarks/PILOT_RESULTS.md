@@ -32,7 +32,7 @@ annotation, output writing, indexing, and final accounting.
 
 This single-sample pilot supports the mechanism and establishes feasibility. It
 does not support population-level confidence intervals or a final headline
-effect size; those require the prespecified sample-level replicates.
+effect size; those require the prespecified multi-sample cohort.
 
 ## Correctness gate
 
@@ -71,8 +71,9 @@ request 32 GiB and use cgroup memory metrics for final reporting.
 
 ## Scale-up
 
-The implementation is ready for the prespecified 50-sample matrix: one warm-up
-and three randomized measured cached/uncached pairs per sample. Start with 15
+The implementation is ready for the prespecified 50-sample matrix: one
+randomized paired measurement per sample, with samples as the independent
+units and a small repeatability control reported separately. Start with 15
 concurrent eight-CPU, 32-GiB Slurm jobs and adjust only after observing the
 first batch's cgroup memory.
 

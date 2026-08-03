@@ -63,7 +63,7 @@ Manual snapshots during uncached VEP observed approximately 20–23 GiB aggregat
 worker RSS; GNU time does not sum concurrent child RSS.
 
 Keep sequential pilots on the current VM. Use Slurm for the 50-sample,
-three-replicate annotation matrix. A conservative initial request is eight CPUs
+single-pass annotation matrix. A conservative initial request is eight CPUs
 and 32 GiB RAM per job, allowing 15 concurrent jobs within the project's
 500-GiB aggregate memory. Confirm cgroup peak memory on the first Slurm jobs
 before increasing concurrency.

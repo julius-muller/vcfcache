@@ -46,7 +46,12 @@ output.
      counting and the exact pair was repeated at commit `88c018086b21`.
    - Run cached and uncached VEP 115.2 `--everything` on all 50 1000 Genomes
      samples.
-   - Use one warm-up and three measured repetitions, randomized within sample.
+   - Use one validated paired measurement per sample, with condition order
+     balanced across samples. Samples are the independent units; a full-cohort
+     warm-up and technical triplicates do not add independent evidence.
+   - Retain a small repeatability control only: the observed HG02079 duplicate
+     differed by 0.84% uncached and 0.08% cached, far below between-sample
+     variation.
 5. **Mechanism and complexity experiments** — pending
    - Measure controlled hit rates of 0%, 25%, 50%, 75%, 90%, 95%, and 100%.
    - Compare lightweight VEP, VEP `--everything`, a pinned plugin-rich clinical

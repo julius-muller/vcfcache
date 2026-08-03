@@ -150,9 +150,10 @@ Cohort-derived caches are likewise reported separately as custom caches.
 ## Slurm cohort
 
 Prepare and submit one campaign from the controller. This creates a one-pair
-HG02079 smoke job, a 50-pair warm-up array, and a 150-pair measured array. The
-arrays are linked with `afterok` dependencies, so measured jobs cannot start
-unless the smoke and all warm-ups succeed.
+HG02079 validation smoke job followed by one paired measurement for each of 50
+samples. Condition order is balanced across samples. A legacy diagnostic
+warm-up manifest is frozen for compatibility, but is not submitted by the
+default chain; samples, not technical reruns, are the independent units.
 
 ```bash
 .venv/bin/python benchmarks/run_cohort.py prepare \
@@ -225,3 +226,12 @@ HGNC_ID discrepancy is ignored.
 
 The generated model evaluates `T_eff = T_cached + T_build/S` for every integer
 cohort size from 1 through 1000 and explicitly marks S=5, 10, and 100.
+
+Campaigns prepared before the single-pass design amendment may already contain
+a complete, validated first pass under the historical `warmup` phase. Collect
+that phase directly instead of rerunning it:
+
+```bash
+.venv/bin/python benchmarks/run_external_cohort.py collect \
+  --campaign-id external-wgs-<commit> --phase warmup
+```

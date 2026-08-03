@@ -213,12 +213,15 @@ reproducible cache derivation while allowing annotation complexity to vary.
 
 ## Annotation benchmark protocol
 
-For each primary WGS sample, one warm-up pair and three measured cached/uncached
-pairs will be executed. Pair order will be randomized within sample using
-[FINAL RANDOMIZATION SEED], generated before inspection of full-cohort results.
-Warm-ups will not enter estimates. The same input, VEP recipe, output filesystem,
-CPU allocation, memory allocation, and software environment will be used for
-both modes. Jobs will request eight CPUs and [FINAL MEMORY] GiB and run on
+For each primary WGS sample, one measured cached/uncached pair will be executed.
+Pair order is deterministically balanced across samples using [FINAL
+RANDOMIZATION SEED], generated before inspection of full-cohort results. The
+same input, VEP recipe, output filesystem, CPU allocation, memory allocation,
+and software environment will be used for both modes. A duplicate HG02079
+control differed by 0.84% uncached and 0.08% cached; full-cohort warm-ups and
+technical triplicates were therefore removed before publication collection
+because they add compute but no independent observations. Jobs will request
+eight CPUs and [FINAL MEMORY] GiB and run on
 [CPU MODEL, OPENSTACK FLAVOR, OS, STORAGE/MOUNT, SLURM VERSION]. Concurrent jobs
 will be capped at [FINAL CAP] based on the first resource-audit batch; any cap
 change and its criterion will be reported.
@@ -267,8 +270,8 @@ for panel, WES, and WGS. At least 12 held-out inputs per assay and cache
 strategy will be measured. Secondary outcomes are speedup `1/R_cached`, the
 paired wall-time difference, percentage wall time saved, CPU-hours saved,
 variants not submitted to VEP, observed hit rate, peak memory, and I/O.
-Technical replicates will first be summarized within sample; samples remain the
-inferential units.
+Samples are the inferential units. The small repeatability control is reported
+separately and is not pooled as an independent observation.
 
 Runtime will also be modeled conditional on hit rate:
 

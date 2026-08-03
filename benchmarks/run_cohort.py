@@ -24,6 +24,7 @@ PAIR_SCRIPT = REPO_ROOT / "benchmarks/slurm_pair.sh"
 MODES = ("cached", "uncached")
 PHASES = ("smoke", "warmup", "measured")
 DEFAULT_SEED = "vcfcache-paper-primary-wgs-v1"
+DEFAULT_MEASURED_REPLICATES = 1
 
 
 @dataclass(frozen=True)
@@ -212,7 +213,14 @@ def worker_path(
 
 
 def prepare_campaign(args: argparse.Namespace) -> None:
-    """Freeze smoke, warm-up, and measured manifests for one campaign."""
+    """Freeze smoke, diagnostic warm-up, and measured manifests.
+
+    The publication design uses one paired measurement per biological sample.
+    The warm-up manifest is retained for diagnostics and compatibility with
+    already archived campaigns, but the default submission chain does not run
+    it. A full-cohort warm-up would execute the same scientific comparison a
+    second time without adding an independent sample.
+    """
     root = campaign_root(args.controller_results, args.campaign_id)
     if root.exists() and any(root.iterdir()):
         raise FileExistsError(f"Campaign already exists and is nonempty: {root}")
@@ -220,7 +228,7 @@ def prepare_campaign(args: argparse.Namespace) -> None:
     specs = {
         "smoke": (args.smoke_sample, 1),
         "warmup": (None, 1),
-        "measured": (None, 3),
+        "measured": (None, DEFAULT_MEASURED_REPLICATES),
     }
     phase_values: dict[str, object] = {}
     for phase, (sample, replicates) in specs.items():
@@ -315,7 +323,7 @@ def submit_phase(
 
 
 def submit_chain(args: argparse.Namespace) -> None:
-    """Submit smoke, warm-up, and measured phases with afterok dependencies."""
+    """Submit one validation smoke followed by one measurement per sample."""
     root = campaign_root(args.controller_results, args.campaign_id)
     campaign = json.loads((root / "campaign.json").read_text())
     current_commit = git_output("rev-parse", "HEAD")
@@ -330,30 +338,17 @@ def submit_chain(args: argparse.Namespace) -> None:
         concurrency=1,
     )
     submissions["smoke"] = {"job_id": smoke_id, "command": smoke_command}
-    warmup_id, warmup_command = submit_phase(
-        campaign_id=args.campaign_id,
-        phase="warmup",
-        controller_results=args.controller_results,
-        worker_results=args.worker_results,
-        concurrency=args.concurrency,
-        dependency=smoke_id,
-    )
-    submissions["warmup"] = {
-        "job_id": warmup_id,
-        "dependency": smoke_id,
-        "command": warmup_command,
-    }
     measured_id, measured_command = submit_phase(
         campaign_id=args.campaign_id,
         phase="measured",
         controller_results=args.controller_results,
         worker_results=args.worker_results,
         concurrency=args.concurrency,
-        dependency=warmup_id,
+        dependency=smoke_id,
     )
     submissions["measured"] = {
         "job_id": measured_id,
-        "dependency": warmup_id,
+        "dependency": smoke_id,
         "command": measured_command,
     }
     value = {

@@ -209,6 +209,9 @@ def test_prepare_campaign_precreates_shared_phase_directories(
     for phase in ("smoke", "warmup", "measured"):
         assert (controller / "campaigns/run" / phase / "tasks").is_dir()
         assert (controller / "campaigns/run" / phase / "attempts").is_dir()
+    campaign = json.loads((controller / "campaigns/run/campaign.json").read_text())
+    assert campaign["phases"]["measured"]["replicates"] == 1
+    assert campaign["phases"]["measured"]["tasks"] == 50
 
 
 def test_cgroup_v2_snapshot_parses_peak_and_counters(tmp_path):
