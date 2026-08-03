@@ -321,6 +321,12 @@ check, not a performance or outcome filter. Stable public source identifiers
 and potentially non-unique internal VCF sample labels are retained in separate
 manifest columns.
 
+Relatedness screening was stratified by assembly (15 GRCh37 and 46 GRCh38
+inputs). PLINK2 normally refuses LD estimation with fewer than 50 samples, so
+the explicit `--bad-ld` acknowledgement was used for the common-SNP LD-pruning
+step. The pruned markers were used only for the subsequent KING robust kinship
+QC at 0.0884; this option did not alter or filter benchmark VCFs.
+
 We will report medians, interquartile ranges, and sample-level bootstrap 95%
 confidence intervals for speedup and resource savings. Bootstrap resampling will
 resample samples with replacement and preserve all paired modes and technical

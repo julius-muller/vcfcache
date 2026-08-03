@@ -1095,6 +1095,10 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
                 "0.05",
                 "--geno",
                 "0.02",
+                # Each assembly stratum is deliberately smaller than 50. PLINK
+                # requires this acknowledgement before estimating LD; the
+                # result is used only to prune common SNPs for KING QC.
+                "--bad-ld",
                 "--indep-pairwise",
                 "200",
                 "50",

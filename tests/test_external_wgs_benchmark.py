@@ -219,6 +219,13 @@ def test_external_stager_installs_grch37_vep_cache_on_workers():
     assert "115_GRCh37/1/all_vars.gz" in script
 
 
+def test_relatedness_screen_acknowledges_small_assembly_strata():
+    source = (
+        Path(__file__).parents[1] / "benchmarks/prepare_external_wgs.py"
+    ).read_text()
+    assert '"--bad-ld",\n                "--indep-pairwise"' in source
+
+
 def test_qc_preserves_source_id_separately_from_vcf_sample(
     tmp_path, monkeypatch, capsys
 ):
