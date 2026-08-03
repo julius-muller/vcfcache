@@ -15,6 +15,8 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [PLAN.md](PLAN.md): implementation phases and publication figure specification.
 - [DATA_SETUP.md](DATA_SETUP.md): exact public-data layout, transformations, and QC.
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md): measured VM capacity and scaling decision.
+- [STORAGE_LAYOUT.md](STORAGE_LAYOUT.md): live dev/prod storage topology, data
+  ownership, cache locations, result paths, and remaining filesystem capacity.
 - [PILOT_RESULTS.md](PILOT_RESULTS.md): frozen paired-pilot results and scale-up gate.
 - [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md): completed HPRC/WES/panel counts,
   checksums, storage, and QC gate.
