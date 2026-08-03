@@ -180,7 +180,9 @@ def test_pgp_reference_header_repair_preserves_records(tmp_path):
     with gzip.open(repaired, "rt") as handle:
         value = handle.read()
     assert value.count("##contig=<ID=chr1,length=20>") == 1
+    assert value.count("##contig=<ID=1,length=20>") == 1
     assert value.count("##contig=<ID=chr10,length=30>") == 1
+    assert value.count("##contig=<ID=10,length=30>") == 1
     assert "chr10\t2\t.\tA\tG" in value
     assert (
         _source_with_reference_contigs(tmp_path, selected, source, reference)

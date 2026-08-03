@@ -742,7 +742,7 @@ def _source_with_reference_contigs(
         raise FileNotFoundError(f"Reference index is missing: {fai}")
     destination = (
         root
-        / "work/normalization/reference_headers"
+        / "work/normalization/reference_headers_v2"
         / f"{row.sample}.{row.assembly}.vcf.gz"
     )
     if destination.exists() and destination.stat().st_size:
@@ -755,7 +755,13 @@ def _source_with_reference_contigs(
         fields = line.split("\t")
         if len(fields) < 2:
             raise RuntimeError(f"Malformed reference index line in {fai}: {line!r}")
-        contigs.append(f"##contig=<ID={fields[0]},length={fields[1]}>\n")
+        name, length = fields[:2]
+        contigs.append(f"##contig=<ID={name},length={length}>\n")
+        if re.fullmatch(r"chr(?:[1-9]|1[0-9]|2[0-2]|X|Y|M)", name):
+            alias = name.removeprefix("chr")
+            contigs.append(f"##contig=<ID={alias},length={length}>\n")
+            if alias == "M":
+                contigs.append(f"##contig=<ID=MT,length={length}>\n")
     saw_header = False
     try:
         with (
