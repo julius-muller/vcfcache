@@ -305,9 +305,12 @@ construction and excluded from the held-out evaluation sets of 20 KPGP, 20
 SGDP, and 12 PGP genomes. Each condition used the bundled Zenodo cache matching
 the sample assembly. Known HGDP/1000 Genomes identities were excluded from
 SGDP, and assembly-stratified PLINK2 KING screening at 0.0884 excluded
-second-degree-or-closer relationships. Because gnomAD does not disclose every
-contributing project, these cohorts are described as having no documented
-overlap, not as confirmed absent from gnomAD.
+second-degree-or-closer relationships across the cache-training/evaluation
+boundary. One second-degree KPGP pair was retained within the evaluation
+cohort as realistic cohort structure and is reported explicitly. Because
+gnomAD does not disclose every contributing project, these cohorts are
+described as having no documented overlap, not as confirmed absent from
+gnomAD.
 
 Prepared external inputs retained only carried, biallelic autosomal SNPs and
 short indels and were required to pass BGZF, index, contig, sample-count, and

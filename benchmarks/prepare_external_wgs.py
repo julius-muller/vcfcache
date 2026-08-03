@@ -606,7 +606,9 @@ def replace_related(args: argparse.Namespace) -> Path:
     """Replace one reported related sample and preserve an audit trail."""
     report_path = args.root / "work/relatedness/relatedness_report.json"
     report = json.loads(report_path.read_text())
-    pairs = report.get("related_pairs", [])
+    pairs = report.get(
+        "blocking_training_evaluation_pairs", report.get("related_pairs", [])
+    )
     if len(pairs) != 1:
         raise RuntimeError(
             f"Expected exactly one related pair for automatic replacement, found {len(pairs)}"
@@ -676,6 +678,109 @@ def replace_related(args: argparse.Namespace) -> Path:
     write_json_atomic(history_path, history)
     print(json.dumps(history[-1], indent=2, sort_keys=True))
     return history_path
+
+
+def retain_related_evaluation(args: argparse.Namespace) -> Path:
+    """Undo the latest replacement and confine its pair to evaluation."""
+    history_path = args.root / "manifests/relatedness_replacements.json"
+    history = json.loads(history_path.read_text())
+    if not history:
+        raise RuntimeError("No relatedness replacement is available to revise")
+    recovery = history[-1]
+    report = json.loads(Path(recovery["archived_report"]).read_text())
+    pair = recovery["related_pair"]
+    selection_path = args.root / "manifests/external_wgs_selection.tsv"
+    candidate_path = args.root / "manifests/external_wgs_candidates.tsv"
+    selected = _selected(selection_path)
+    candidates = read_candidates(candidate_path)
+    candidate_by_sample = {row.sample: row for row in candidates}
+    removed = recovery["removed_sample"]
+    replacement_sample = recovery["replacement_sample"]
+    if removed in {row.sample for row in selected}:
+        raise RuntimeError(f"Removed sample is already selected: {removed}")
+    if replacement_sample not in {row.sample for row in selected}:
+        raise RuntimeError(
+            f"Replacement sample is absent from selection: {replacement_sample}"
+        )
+    victim = candidate_by_sample[removed]
+    pair_ids = {pair["#IID1"], pair["IID2"]}
+    promotion_pool = [
+        row
+        for row in selected
+        if row.cohort == victim.cohort
+        and row.role == "evaluation"
+        and row.sample not in pair_ids
+    ]
+    if not promotion_pool:
+        raise RuntimeError("No unrelated evaluation sample can be promoted to training")
+    namespace = (
+        f"sgdp:{_replacement_stratum(victim)}"
+        if victim.cohort == "sgdp"
+        else victim.cohort
+    )
+    promoted = min(promotion_pool, key=lambda row: stable_key(namespace, row.sample))
+    retained = Selected(
+        **{
+            **{
+                key: value
+                for key, value in asdict(victim).items()
+                if key not in {"eligibility", "exclusion_reason"}
+            },
+            "role": "evaluation",
+            "selection_seed": args.seed,
+            "selection_key": stable_key(f"{victim.cohort}:evaluation", victim.sample),
+        }
+    )
+    revised = [row for row in selected if row.sample != replacement_sample]
+    revised = [
+        (
+            replace(
+                row,
+                role="training",
+                selection_key=stable_key(f"{row.cohort}:training", row.sample),
+            )
+            if row.sample == promoted.sample
+            else row
+        )
+        for row in revised
+    ]
+    revised.append(retained)
+    write_tsv(
+        selection_path,
+        sorted(revised, key=lambda row: (row.cohort, row.role, row.sample)),
+    )
+    candidates = [
+        (
+            replace(row, eligibility="candidate", exclusion_reason="")
+            if row.sample == removed
+            else row
+        )
+        for row in candidates
+    ]
+    write_tsv(candidate_path, candidates)
+    disposition_path = args.root / "manifests/relatedness_dispositions.json"
+    dispositions = (
+        json.loads(disposition_path.read_text()) if disposition_path.exists() else []
+    )
+    dispositions.append(
+        {
+            "decided_at": datetime.now(timezone.utc).isoformat(),
+            "decision": "retain_within_evaluation",
+            "rationale": (
+                "One related evaluation pair is realistic; training-evaluation "
+                "relatedness is avoided to prevent optimistic cohort-cache estimates"
+            ),
+            "related_pair": pair,
+            "retained_sample": removed,
+            "discarded_replacement": replacement_sample,
+            "promoted_training_sample": promoted.sample,
+            "source_report": recovery["archived_report"],
+            "report_samples": report["samples"],
+        }
+    )
+    write_json_atomic(disposition_path, dispositions)
+    print(json.dumps(dispositions[-1], indent=2, sort_keys=True))
+    return disposition_path
 
 
 def _pgp_download_url(landing_text: str) -> str:
@@ -1280,12 +1385,28 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
         if kinship_path.exists() and kinship_path.stat().st_size:
             with kinship_path.open(newline="") as handle:
                 assembly_pairs = list(csv.DictReader(handle, delimiter="\t"))
-        pairs.extend({"assembly": assembly, **pair} for pair in assembly_pairs)
+        row_by_vcf_sample = {row["vcf_sample"]: row for row in assembly_rows}
+        annotated_pairs = []
+        for pair in assembly_pairs:
+            row_a = row_by_vcf_sample[pair["#IID1"]]
+            row_b = row_by_vcf_sample[pair["IID2"]]
+            annotated_pairs.append(
+                {
+                    "assembly": assembly,
+                    **pair,
+                    "sample1": row_a["sample"],
+                    "role1": row_a["role"],
+                    "sample2": row_b["sample"],
+                    "role2": row_b["role"],
+                }
+            )
+        pairs.extend(annotated_pairs)
         assembly_reports[assembly] = {
             "samples": len(assembly_rows),
-            "related_pairs": assembly_pairs,
+            "related_pairs": annotated_pairs,
             "merged_bcf": str(merged),
         }
+    blocking_pairs = [pair for pair in pairs if pair["role1"] != pair["role2"]]
     report = args.root / "work/relatedness/relatedness_report.json"
     write_json_atomic(
         report,
@@ -1298,12 +1419,14 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
             "second_degree_threshold": 0.0884,
             "samples": len(passing),
             "related_pairs": pairs,
+            "blocking_training_evaluation_pairs": blocking_pairs,
             "assemblies": assembly_reports,
         },
     )
-    if pairs:
+    if blocking_pairs:
         raise RuntimeError(
-            f"Related external samples require deterministic replacement; see {report}"
+            "Training-evaluation relatedness requires a deterministic role change "
+            f"or replacement; see {report}"
         )
     fields = list(rows[0])
     partial = qc_path.with_suffix(".tsv.partial")
@@ -1448,6 +1571,7 @@ def parser() -> argparse.ArgumentParser:
             "qc",
             "screen-relatedness",
             "replace-related",
+            "retain-related-evaluation",
             "build-cache",
             "all",
         ),
@@ -1494,6 +1618,8 @@ def main() -> None:
         screen_relatedness(args)
     elif args.command == "replace-related":
         replace_related(args)
+    elif args.command == "retain-related-evaluation":
+        retain_related_evaluation(args)
     elif args.command == "build-cache":
         if not args.cohort:
             raise ValueError("--cohort is required for build-cache")

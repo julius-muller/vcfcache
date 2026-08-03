@@ -214,13 +214,20 @@ and records the decision in `manifests/relatedness_replacements.json`:
 .venv/bin/python benchmarks/prepare_external_wgs.py screen-relatedness
 ```
 
+A realistic relationship may instead be retained within the evaluation cohort.
+`retain-related-evaluation` reverses the latest replacement and deterministically
+promotes an unrelated evaluation genome to training, ensuring that a relative
+never crosses the cohort-cache training/evaluation boundary.
+
 KPGP and SGDP use open DDBJ/NIG GRCh38 autosomal gVCFs. PGP uses its larger
 native GRCh37/hg19 single-sample subset; numeric contigs are renamed to UCSC
 form before normalization, without coordinate liftover. Phenotype metadata is
 never collected. The frozen design uses three cache-building genomes disjoint
 from 20 KPGP, 20 SGDP, and 12 PGP evaluation genomes. PLINK2 KING screening is
-performed separately per assembly, and kinship greater than 0.0884 fails the
-design before any benchmark campaign can be prepared.
+performed separately per assembly. Relationships may be retained and reported
+within the evaluation cohort, but kinship greater than 0.0884 across the
+cache-training/evaluation boundary fails the design before any benchmark
+campaign can be prepared.
 
 Each external task runs one common uncached baseline plus the two verified,
 assembly-matched bundled Zenodo caches (any-stratum AF >=10% and AF >=1%) and
