@@ -1100,6 +1100,10 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
                 # ID so PLINK can LD-prune it unambiguously.
                 "--set-all-var-ids",
                 "@:#:$r:$a",
+                # Exclude every occurrence of a duplicated normalized allele
+                # key instead of choosing an arbitrary representative for QC.
+                "--rm-dup",
+                "exclude-all",
                 # Each assembly stratum is deliberately smaller than 50. PLINK
                 # requires this acknowledgement before estimating LD; the
                 # result is used only to prune common SNPs for KING QC.
@@ -1122,6 +1126,8 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
                 # generated prune.in list can be applied to this fresh import.
                 "--set-all-var-ids",
                 "@:#:$r:$a",
+                "--rm-dup",
+                "exclude-all",
                 "--extract",
                 f"{prefix}.prune.in",
                 "--make-king-table",

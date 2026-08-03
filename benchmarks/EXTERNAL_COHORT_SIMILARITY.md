@@ -25,6 +25,11 @@ it asks what fraction of an incoming sample is present in a cache. The symmetric
 Jaccard index is therefore deliberately more conservative than the hit rate
 expected from a cache built from a three-genome union.
 
+The independent PLINK2 relatedness gate uses the same allele-specific IDs and
+conservatively removes every occurrence of any duplicate allele key from its
+LD-pruned QC marker set. This affects only marker selection for relatedness QC;
+it does not modify the benchmark VCFs.
+
 ## Results
 
 | Comparison | Assembly | Records A | Records B | Intersection | Union | Jaccard | Shared from A | Shared from B |
