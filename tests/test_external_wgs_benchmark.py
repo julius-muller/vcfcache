@@ -210,6 +210,15 @@ def test_record_count_guard_accounts_for_heterogeneous_pgp_callers():
     assert COHORT_RECORD_LIMITS["sgdp"] == (2_500_000, 6_500_000)
 
 
+def test_external_stager_installs_grch37_vep_cache_on_workers():
+    script = (
+        Path(__file__).parents[1] / "benchmarks/stage_external_controller.sh"
+    ).read_text()
+    assert "115_GRCh37/" in script
+    assert "115_GRCh37/info.txt" in script
+    assert "115_GRCh37/1/all_vars.gz" in script
+
+
 def test_qc_preserves_source_id_separately_from_vcf_sample(
     tmp_path, monkeypatch, capsys
 ):

@@ -14,6 +14,7 @@ prep_host=${VCFCACHE_PREP_HOST:-appuser@10.133.255.21}
 prep_root=${VCFCACHE_PREP_ROOT:-/mnt/data/vcfcache_benchmarks}
 repo_root=${VCFCACHE_REPO_ROOT:-/mnt/data/vcfcache}
 data_root=${VCFCACHE_DATA_ROOT:-/mnt/data/vcfcache_benchmarks}
+vep_root=${VCFCACHE_VEP_ROOT:-/mnt/data/apps/ensembl-vep/115}
 results_root=${VCFCACHE_RESULTS_ROOT:-/mnt/data/slurm-results}
 identity_file=${VCFCACHE_IDENTITY_FILE:-/home/ubuntu/.ssh/id_ed25519}
 known_hosts=${VCFCACHE_KNOWN_HOSTS:-/home/ubuntu/.ssh/known_hosts}
@@ -58,6 +59,8 @@ for cache in gnomad_v4.1_GRCh37_joint_af010 gnomad_v4.1_GRCh37_joint_af001; do
     "$data_root/bundled_zenodo_caches/$cache/"
 done
 chown -R appuser:appgroup "$external_root" "$data_root/bundled_zenodo_caches"
+test -s "$vep_root/cachedir/homo_sapiens/115_GRCh37/info.txt"
+test -s "$vep_root/cachedir/homo_sapiens/115_GRCh37/1/all_vars.gz"
 
 current=$(sudo -u appuser git -C "$repo_root" rev-parse --short=12 HEAD)
 if [[ "$current" != "$target_commit" ]]; then
@@ -84,7 +87,10 @@ stage_worker() {
       "$data_root/bundled_zenodo_caches/$cache/" \
       "$remote:$data_root/bundled_zenodo_caches/$cache/"
   done
-  $ssh_command "$remote" "sudo chown -R appuser:appgroup '$external_root' '$data_root/bundled_zenodo_caches'; current=\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD); if [[ \"\$current\" != '$target_commit' ]]; then [[ \"\$current\" == '$base_commit' ]]; sudo -u appuser git -C '$repo_root' fetch '$external_root/deployment/vcfcache-external.bundle' refs/heads/main; sudo -u appuser git -C '$repo_root' merge --ff-only FETCH_HEAD; fi; test \"\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD)\" = '$target_commit'"
+  rsync -a --partial --rsync-path="sudo rsync" -e "$ssh_command" \
+    "$vep_root/cachedir/homo_sapiens/115_GRCh37/" \
+    "$remote:$vep_root/cachedir/homo_sapiens/115_GRCh37/"
+  $ssh_command "$remote" "sudo chown -R appuser:appgroup '$external_root' '$data_root/bundled_zenodo_caches' '$vep_root/cachedir/homo_sapiens/115_GRCh37'; test -s '$vep_root/cachedir/homo_sapiens/115_GRCh37/info.txt'; test -s '$vep_root/cachedir/homo_sapiens/115_GRCh37/1/all_vars.gz'; current=\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD); if [[ \"\$current\" != '$target_commit' ]]; then [[ \"\$current\" == '$base_commit' ]]; sudo -u appuser git -C '$repo_root' fetch '$external_root/deployment/vcfcache-external.bundle' refs/heads/main; sudo -u appuser git -C '$repo_root' merge --ff-only FETCH_HEAD; fi; test \"\$(sudo -u appuser git -C '$repo_root' rev-parse --short=12 HEAD)\" = '$target_commit'"
 }
 
 worker_pids=()
