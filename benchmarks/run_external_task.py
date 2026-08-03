@@ -85,13 +85,14 @@ def _config(
     input_vcf: Path,
     strategy_name: str,
     cache: Path,
+    params_file: Path,
     replicate: int,
 ) -> PilotConfig:
     return PilotConfig(
         data_root=run_root / "runs" / strategy_name,
         input_vcf=input_vcf,
         cache_dir=cache,
-        params_file=cache / "params.snapshot.yaml",
+        params_file=params_file,
         replicate=replicate,
     )
 
@@ -106,6 +107,12 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
     if sha256sum(input_vcf) != task["input_sha256"]:
         raise RuntimeError(f"Input checksum mismatch: {input_vcf}")
     replicate = int(task["replicate"])
+    runtime_params = document["runtime_params_by_assembly"][task["assembly"]]
+    params_file = Path(runtime_params["path"])
+    if not params_file.exists():
+        raise FileNotFoundError(f"Runtime params are missing: {params_file}")
+    if sha256sum(params_file) != runtime_params["sha256"]:
+        raise RuntimeError(f"Runtime params changed: {params_file}")
     order = task["strategy_order"].split(",")
     expected_order = {"uncached", *(item["name"] for item in strategies)}
     if len(order) != 4 or set(order) != expected_order:
@@ -117,7 +124,7 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
     for name in order:
         strategy = baseline_strategy if name == "uncached" else by_name[name]
         cache = Path(strategy["cache_dir"])
-        config = _config(args.run_root, input_vcf, name, cache, replicate)
+        config = _config(args.run_root, input_vcf, name, cache, params_file, replicate)
         preflight(config)
         run_one(config, "uncached" if name == "uncached" else "cached")
         completed[name] = config

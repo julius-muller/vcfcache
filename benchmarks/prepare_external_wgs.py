@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import hashlib
 import html
 import json
@@ -724,6 +725,59 @@ def _rename_map(root: Path) -> Path:
     return path
 
 
+def _source_with_reference_contigs(
+    root: Path, row: Selected, source: Path, reference: Path
+) -> Path:
+    """Return a resumable PGP source with the full reference dictionary.
+
+    Some PGP exports contain records on contigs absent from their VCF header.
+    HTSlib correctly refuses to stream those records. Replacing only the
+    ``##contig`` declarations repairs the malformed metadata without changing
+    any variant record.
+    """
+    if row.cohort != "pgp":
+        return source
+    fai = Path(f"{reference}.fai")
+    if not fai.exists():
+        raise FileNotFoundError(f"Reference index is missing: {fai}")
+    destination = (
+        root
+        / "work/normalization/reference_headers"
+        / f"{row.sample}.{row.assembly}.vcf.gz"
+    )
+    if destination.exists() and destination.stat().st_size:
+        return destination
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    partial = destination.with_name(destination.name + ".partial")
+    partial.unlink(missing_ok=True)
+    contigs = []
+    for line in fai.read_text().splitlines():
+        fields = line.split("\t")
+        if len(fields) < 2:
+            raise RuntimeError(f"Malformed reference index line in {fai}: {line!r}")
+        contigs.append(f"##contig=<ID={fields[0]},length={fields[1]}>\n")
+    saw_header = False
+    try:
+        with (
+            gzip.open(source, "rt") as incoming,
+            gzip.open(partial, "wt", compresslevel=1) as outgoing,
+        ):
+            for line in incoming:
+                if line.startswith("##contig=<"):
+                    continue
+                if line.startswith("#CHROM"):
+                    outgoing.writelines(contigs)
+                    saw_header = True
+                outgoing.write(line)
+        if not saw_header:
+            raise RuntimeError(f"VCF column header is missing from {source}")
+        partial.replace(destination)
+    except BaseException:
+        partial.unlink(missing_ok=True)
+        raise
+    return destination
+
+
 def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) -> Path:
     """Normalize one source into a compact carried-autosomal small-variant VCF."""
     source = _source_path(root, row)
@@ -732,6 +786,7 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
     if destination.exists() and Path(f"{destination}.tbi").exists():
         return destination
     _assert_assembly_header(source, row.assembly)
+    source = _source_with_reference_contigs(root, row, source, reference)
     partial = destination.with_name(destination.name + ".partial")
     first = subprocess.Popen(
         [

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import gzip
 from pathlib import Path
 
 import pytest
@@ -9,13 +10,16 @@ from benchmarks.analyze_external_benchmark import scaling_rows, strategy_summary
 from benchmarks.prepare_external_wgs import (
     PGP_PROVIDER_CAP,
     Candidate,
+    Selected,
     _download_pgp_landing,
     _select_pgp,
     _select_sgdp,
+    _source_with_reference_contigs,
     stable_key,
 )
 from benchmarks.run_external_cohort import (
     STRATEGIES,
+    _runtime_params,
     build_tasks,
     condition_order,
     read_evaluation_samples,
@@ -142,12 +146,63 @@ def test_pgp_selection_excludes_grch38_candidates():
     assert all(row.assembly == "GRCh37" for row, _role in selected)
 
 
+def test_pgp_reference_header_repair_preserves_records(tmp_path):
+    source = tmp_path / "source.vcf.gz"
+    with gzip.open(source, "wt") as handle:
+        handle.write("##fileformat=VCFv4.2\n")
+        handle.write("##contig=<ID=chr1,length=10>\n")
+        handle.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n")
+        handle.write("chr10\t2\t.\tA\tG\t.\tPASS\t.\tGT\t0/1\n")
+    reference = tmp_path / "hg19.fa.gz"
+    Path(f"{reference}.fai").write_text("chr1\t20\t0\t0\t0\nchr10\t30\t0\t0\t0\n")
+    selected = Selected(
+        cohort="pgp",
+        sample="sample",
+        role="evaluation",
+        provider="provider",
+        population="population",
+        region="region",
+        sex="XX",
+        assembly="GRCh37",
+        source_kind="VCF",
+        url="https://example.invalid/sample.vcf.gz",
+        index_url="",
+        source_name="sample.vcf.gz",
+        source_bytes=100,
+        upstream_md5="",
+        documented_overlap="none",
+        landing_url="",
+        selection_seed="seed",
+        selection_key="selection-key",
+    )
+    repaired = _source_with_reference_contigs(tmp_path, selected, source, reference)
+    with gzip.open(repaired, "rt") as handle:
+        value = handle.read()
+    assert value.count("##contig=<ID=chr1,length=20>") == 1
+    assert value.count("##contig=<ID=chr10,length=30>") == 1
+    assert "chr10\t2\t.\tA\tG" in value
+    assert (
+        _source_with_reference_contigs(tmp_path, selected, source, reference)
+        == repaired
+    )
+
+
 def test_four_condition_order_is_balanced_across_52_warmups():
     first = [condition_order(index, 1)[0][0] for index in range(52)]
     assert set(first) == set(STRATEGIES)
     assert {name: first.count(name) for name in STRATEGIES} == {
         name: 13 for name in STRATEGIES
     }
+
+
+def test_runtime_params_lower_buffer_without_mutating_cache_snapshot(tmp_path):
+    source = tmp_path / "params.snapshot.yaml"
+    source.write_text("genome_build: GRCh38\nvep_buffer: 500000\nvep_forks: 8\n")
+    manifest = _runtime_params(tmp_path / "campaign", "GRCh38", source, 100_000)
+    runtime = Path(str(manifest["path"]))
+    assert "vep_buffer: 100000" in runtime.read_text()
+    assert source.read_text().splitlines()[1] == "vep_buffer: 500000"
+    assert manifest["vep_buffer"] == 100_000
 
 
 def _qc(path: Path, *, relatedness: str = "PASS") -> None:

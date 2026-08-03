@@ -32,7 +32,8 @@ expected = {
 if any(value.get(key) != wanted for key, wanted in expected.items()):
     raise SystemExit(f"Invalid bundled-cache provenance: {value}")
 PY
-params=$cache/params.snapshot.yaml
+params=${VCFCACHE_PARAMS_FILE:-$cache/params.snapshot.yaml}
+test -f "$params"
 run_root=/mnt/data/tmp/vcfcache_runs/$campaign_id/$phase/task-$task_id
 phase_root=$results_root/campaigns/$campaign_id/$phase
 result_dir=$phase_root/tasks/task-$task_id

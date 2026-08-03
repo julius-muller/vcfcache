@@ -8,6 +8,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 from dataclasses import asdict, dataclass
@@ -35,6 +36,7 @@ PHASES = ("smoke", "warmup", "measured")
 STRATEGIES = ("uncached", "gnomad_af_0.1", "gnomad_af_0.01", "cohort_3_genomes")
 DEFAULT_SEED = "vcfcache-paper-external-wgs-v1"
 EXPECTED_EVALUATION = {"kpgp": 20, "sgdp": 20, "pgp": 12}
+DEFAULT_VEP_BUFFER = 100_000
 
 
 @dataclass(frozen=True)
@@ -222,6 +224,34 @@ def _custom_manifest(external_root: Path, cohort: str, assembly: str) -> dict[st
     }
 
 
+def _runtime_params(
+    root: Path,
+    assembly: str,
+    source: Path,
+    vep_buffer: int,
+    published_path: Path | None = None,
+) -> dict[str, str | int]:
+    """Freeze lower-memory runtime params without modifying a bundled cache."""
+    updated, replacements = re.subn(
+        r"(?m)^vep_buffer:\s*\d+\s*$",
+        f"vep_buffer: {vep_buffer}",
+        source.read_text(),
+    )
+    if replacements != 1:
+        raise RuntimeError(f"Expected one vep_buffer entry in {source}")
+    destination = root / "manifests" / f"runtime_params_{assembly}.yaml"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(updated)
+    return {
+        "path": str(published_path or destination),
+        "controller_path": str(destination),
+        "sha256": sha256sum(destination),
+        "source": str(source),
+        "source_sha256": sha256sum(source),
+        "vep_buffer": vep_buffer,
+    }
+
+
 def prepare_campaign(args: argparse.Namespace) -> None:
     """Freeze task, strategy, and provenance manifests."""
     root = campaign_root(args.controller_results, args.campaign_id)
@@ -274,12 +304,27 @@ def prepare_campaign(args: argparse.Namespace) -> None:
         cohort: _custom_manifest(args.external_root, cohort, cohort_assemblies[cohort])
         for cohort in cohorts
     }
+    runtime_params_by_assembly = {
+        assembly: _runtime_params(
+            root,
+            assembly,
+            Path(bundled[assembly][0]["cache_dir"]) / "params.snapshot.yaml",
+            args.vep_buffer,
+            worker_path(
+                root / "manifests" / f"runtime_params_{assembly}.yaml",
+                args.controller_results,
+                args.worker_results,
+            ),
+        )
+        for assembly in bundled
+    }
     strategies = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "commit": git_output("rev-parse", "HEAD"),
         "bundled_strategies_by_assembly": bundled,
         "cohort_assemblies": cohort_assemblies,
         "cohort_strategies": cohort_strategies,
+        "runtime_params_by_assembly": runtime_params_by_assembly,
     }
     strategy_path = root / "manifests/strategies.json"
     write_json_atomic(strategy_path, strategies)
@@ -307,6 +352,7 @@ def prepare_campaign(args: argparse.Namespace) -> None:
         "strategies_sha256": sha256sum(strategy_path),
         "conditions": list(STRATEGIES),
         "cohort_assemblies": cohort_assemblies,
+        "runtime_params_by_assembly": runtime_params_by_assembly,
         "evaluation_counts": {
             cohort: sum(row["cohort"] == cohort for row in samples)
             for cohort in cohorts
@@ -455,6 +501,7 @@ def parser() -> argparse.ArgumentParser:
     prepare.add_argument("--external-root", type=Path, default=DEFAULT_EXTERNAL_ROOT)
     prepare.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
     prepare.add_argument("--seed", default=DEFAULT_SEED)
+    prepare.add_argument("--vep-buffer", type=int, default=DEFAULT_VEP_BUFFER)
     prepare.set_defaults(function=prepare_campaign)
     submit = commands.add_parser("submit-chain")
     _paths(submit)
@@ -484,6 +531,8 @@ def main() -> None:
             setattr(args, name, getattr(args, name).expanduser().resolve())
     if getattr(args, "concurrency", 1) < 1:
         raise ValueError("Concurrency must be positive")
+    if getattr(args, "vep_buffer", 1) < 1:
+        raise ValueError("VEP buffer must be positive")
     args.function(args)
 
 
