@@ -4,7 +4,9 @@
 set -euo pipefail
 
 campaign_id=${VCFCACHE_CAMPAIGN_ID:?VCFCACHE_CAMPAIGN_ID is required}
-gate_job_id=${VCFCACHE_GATE_JOB_ID:?VCFCACHE_GATE_JOB_ID is required}
+# A Slurm gate can preserve an existing dependency chain, but it must not be
+# required: waiting for preparation does not need to reserve an entire worker.
+gate_job_id=${VCFCACHE_GATE_JOB_ID:-}
 smoke_job_id=${VCFCACHE_SMOKE_JOB_ID:?VCFCACHE_SMOKE_JOB_ID is required}
 warmup_job_id=${VCFCACHE_WARMUP_JOB_ID:?VCFCACHE_WARMUP_JOB_ID is required}
 measured_job_id=${VCFCACHE_MEASURED_JOB_ID:?VCFCACHE_MEASURED_JOB_ID is required}
@@ -24,17 +26,19 @@ external_root=$data_root/external_wgs
 campaign_root=$results_root/campaigns/$campaign_id
 deferred_root=$results_root/deferred/$campaign_id
 
-while :; do
-  state=$(sudo -u appuser squeue -h -j "$gate_job_id" -o %T | head -1)
-  if [[ "$state" == RUNNING ]]; then
-    break
-  fi
-  if [[ -z "$state" ]]; then
-    echo "Staging gate $gate_job_id left the queue before running" >&2
-    exit 1
-  fi
-  sleep 30
-done
+if [[ -n "$gate_job_id" ]]; then
+  while :; do
+    state=$(sudo -u appuser squeue -h -j "$gate_job_id" -o %T | head -1)
+    if [[ "$state" == RUNNING ]]; then
+      break
+    fi
+    if [[ -z "$state" ]]; then
+      echo "Staging gate $gate_job_id left the queue before running" >&2
+      exit 1
+    fi
+    sleep 30
+  done
+fi
 
 while ! $ssh_command "$prep_host" "test -s $prep_root/external_wgs/READY.json"; do
   sleep 60
