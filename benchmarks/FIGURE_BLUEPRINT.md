@@ -1,72 +1,113 @@
-# Publication figure blueprint and accelerated execution design
+# User-facing figure blueprint
 
-## Design decision
+## Communication goal
 
-The biological sample is the independent unit. The default benchmark therefore
-uses one validated paired or multi-condition execution per sample, with balanced
-condition order. Whole-cohort warm-ups and three technical reruns were removed
-before publication collection. The existing HG02079 repeat differed by 0.84%
-uncached and 0.08% cached, while the 49 completed primary WGS samples show much
-larger between-sample variation.
+This is a product benchmark, not a population-genetics study. The first figure
+must let a laboratory or company answer this within seconds:
 
-A smoke task validates staging, memory, commands, and semantic comparison. It
-may run alongside the first measurement wave because every task independently
-fails closed and archives diagnostics. It is not a second full-cohort phase.
-Any small repeatability control is shown separately and never counted as an
-independent sample.
+> My pipeline currently takes **X**, my expected cache hit rate is **f**, and I
+> process **N** samples. How much waiting and compute will VCFcache remove?
 
-## Main figure
+The headline is **same annotations, less waiting**. Population distributions,
+node metrics, confidence intervals, and cohort provenance remain available as
+supporting evidence but do not lead the story.
 
-### A. What the cache avoids
+## Hero figure: find your situation
 
-For one representative sample, show total input variants split into cache hits
-and misses, with only misses flowing into VEP. Put measured wall time under each
-stage. This is the intuitive explanation of the mechanism.
+### 1. One rule
 
-### B. Real assays
+Show the rule in plain language and small mathematical text:
 
-Plot paired relative runtime (`uncached = 1`) for at least 12 panel, 12 WES, and
-12 WGS samples using the bundled Zenodo gnomAD AF >= 1% VEP 115.2 `--everything`
-cache. Show individual samples plus median and IQR. The already completed 49
-primary WGS first-pass pairs are valid source measurements; the one cgroup-OOM
-sample is reported as an infrastructure exclusion, not silently replaced.
+`new time per sample ~= lookup time + (1 - hit rate) * current time`
 
-### C. Real independent WGS cache strategies
+Beside it, draw one full `current time` bar and four `time left with VCFcache`
+bars. The filled part is time still spent; a pale segment with a large arrow is
+time returned to the user.
 
-For all 52 held-out KPGP, SGDP, and PGP genomes, show hit rate and relative
-runtime for the bundled AF >= 10%, bundled AF >= 1%, and disjoint three-genome
-cohort cache. Each sample has one common uncached baseline and all three cached
-conditions. Facet or color by cohort and assembly rather than pooling GRCh37 and
-GRCh38 as if they were one source population.
+| Typical situation | Hit rate | Approximate annotation time left* | Approximate speedup* |
+|---|---:|---:|---:|
+| Distantly related WGS | 50% | 50% | 2x |
+| Related/cohort WGS | 80% | 20% | 5x |
+| WES | 90% | 10% | 10x |
+| Very high reuse | 95% | 5% | 20x |
 
-### D. Runtime scaling mechanism
+`* plus the small measured lookup and preprocessing overhead`
 
-On one representative sample, compare:
+The labels are examples, not biological guarantees. The measured external WGS
+and assay distributions determine the final ranges displayed around them.
 
-1. vanilla offline VEP;
-2. VEP `--everything`;
-3. vanilla VEP plus `SyntheticDelay,delay_us=N` at two calibrated delays.
+### 2. Fast pipeline or slow pipeline
 
-For each scenario, measure controlled cache hit rates and overlay
-`T_cached = T_overhead + (1-f) * T_uncached`. The synthetic plugin sleeps per
-transcript consequence, emits no field, and is invoked only for cache misses.
-This deliberately varies miss cost while holding lookup and output semantics
-constant. Calibrate delay values in a short pilot to create clearly separated,
-publication-readable baseline runtimes rather than choosing arbitrary long
-delays.
+Use a three-column lookup strip for one selected hit rate. For an 80% hit rate:
 
-## Cohort economics companion
+| Your pipeline today | Approximate time with VCFcache* | Time returned per sample* |
+|---:|---:|---:|
+| 10 minutes | 2 minutes | 8 minutes |
+| 1 hour | 12 minutes | 48 minutes |
+| 10 hours | 2 hours | 8 hours |
 
-Use the empirical external-WGS medians and measured custom-cache build cost in
-`T_eff = T_cached + T_build/S`. Plot every integer `S=1..1000`, marking 5, 10,
-and 100 samples. This is a model based on measured components, not a claim that
-100 technical reruns were performed.
+This makes the distinction intuitive: relative speedup is driven mostly by hit
+rate, while absolute compute savings become larger for expensive pipelines.
 
-## Infrastructure decision
+### 3. Two samples or one thousand
 
-Do not resize workers in the middle of the primary/external comparison. The
-current six identical nodes preserve comparability, and removing redundant
-passes reduces the critical path more than a risky flavor migration. A future
-controlled-mechanism campaign may use resized workers only if every scenario is
-run on that same hardware and the hardware change is reported as a separate
-campaign.
+Show four sample-count cards: `2`, `10`, `100`, and `1,000`. Each card reports:
+
+- original total runtime;
+- runtime with VCFcache;
+- total time or compute returned;
+- effective per-new-sample runtime.
+
+For a bundled Zenodo cache the user has no cache-build cost, so the benefit
+starts with the first sample. For a cohort-built cache, show one additional
+break-even marker calculated from the measured build time. Do not imply that
+per-sample speedup grows with cohort size: cohort size multiplies total savings
+and amortizes only the one-time build cost.
+
+### 4. Trust badge
+
+Place a visually separate check-mark card beside the performance graphic:
+
+> **Same annotations**
+> Every cached result was compared with its uncached result. Any annotation
+> difference fails the task.
+
+The small print documents the known VEP 115.2 `HGNC_ID` nondeterminism from
+Ensembl issue 1959. This is an upstream VEP behavior observed between VEP runs,
+not an annotation change introduced by VCFcache.
+
+## Supporting evidence
+
+These plots substantiate the simple hero graphic but should appear after it:
+
+1. **Real assays:** individual relative runtimes for 20 panel, 20 WES, and 49
+   completed WGS pairs using the bundled Zenodo AF >= 1% cache.
+2. **Independent WGS:** all 52 held-out KPGP, SGDP, and PGP genomes comparing
+   bundled AF >= 10%, bundled AF >= 1%, and disjoint three-genome cohort caches.
+3. **Pipeline cost:** one representative sample run with vanilla VEP, VEP
+   `--everything`, and two calibrated `SyntheticDelay` settings.
+4. **Observed versus predicted:** measured relative runtime against hit rate,
+   with the simple runtime rule overlaid. This demonstrates that users can apply
+   the calculator to their own runtime.
+
+## Rendering rules
+
+- Lead with minutes/hours saved, not p-values or hardware counters.
+- Use one consistent color: dark for time still spent, light green for time
+  returned, and a check-mark color for correctness.
+- Always show both relative runtime and a concrete time example.
+- Label modeled values as estimates and measured values as observations.
+- Never pool assembly-specific cohorts into one unexplained average.
+- Keep raw points, exact commands, resource metrics, and provenance in the
+  downloadable benchmark package.
+
+## Execution design
+
+Use one validated paired or multi-condition execution per sample, with balanced
+condition order. The biological/input sample is the independent unit. The
+existing HG02079 repeat differed by 0.84% uncached and 0.08% cached, so complete
+cohort warm-ups and three technical reruns were removed before collection.
+
+Do not resize workers during the primary/external comparison. A controlled
+pipeline-cost campaign may use different hardware only when all its scenarios
+run on that same hardware and are presented as a separate experiment.

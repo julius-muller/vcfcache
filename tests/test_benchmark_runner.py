@@ -316,6 +316,39 @@ def test_semantic_compare_ignores_csq_item_order(tmp_path):
     assert report["annotation_mismatches"] == 0
 
 
+def test_semantic_compare_ignores_domains_subfield_order(tmp_path):
+    cached = _write_annotated_vcf(
+        tmp_path / "cached.vcf.gz",
+        csq="G|missense_variant|Pfam:1&CDD:2&SFLD:3",
+        csq_format="Allele|Consequence|DOMAINS",
+    )
+    uncached = _write_annotated_vcf(
+        tmp_path / "uncached.vcf.gz",
+        csq="G|missense_variant|SFLD:3&Pfam:1&CDD:2",
+        csq_format="Allele|Consequence|DOMAINS",
+    )
+    report = semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is True
+    assert report["annotation_order_only"] == 1
+    assert report["unordered_csq_fields"] == ["DOMAINS"]
+
+
+def test_semantic_compare_detects_domains_member_difference(tmp_path):
+    cached = _write_annotated_vcf(
+        tmp_path / "cached.vcf.gz",
+        csq="G|missense_variant|Pfam:1&CDD:2",
+        csq_format="Allele|Consequence|DOMAINS",
+    )
+    uncached = _write_annotated_vcf(
+        tmp_path / "uncached.vcf.gz",
+        csq="G|missense_variant|Pfam:1&CDD:9",
+        csq_format="Allele|Consequence|DOMAINS",
+    )
+    report = semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is False
+    assert report["annotation_mismatches"] == 1
+
+
 def test_semantic_compare_ignores_split_allele_order_within_locus(tmp_path):
     cached = _write_same_locus_vcf(tmp_path / "cached.vcf.gz", ["C", "G"])
     uncached = _write_same_locus_vcf(tmp_path / "uncached.vcf.gz", ["G", "C"])

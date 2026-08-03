@@ -44,6 +44,7 @@ VCFCACHE_CMD = REPO_ROOT / ".venv/bin/vcfcache"
 TIME_CMD = Path("/usr/bin/time")
 MODES = ("uncached", "cached")
 KNOWN_VEP_IGNORED_CSQ_FIELDS = ("HGNC_ID",)
+KNOWN_VEP_UNORDERED_CSQ_FIELDS = ("DOMAINS",)
 KNOWN_VEP_ISSUE_URL = "https://github.com/Ensembl/ensembl-vep/issues/1959"
 
 
@@ -517,10 +518,17 @@ def _locus_groups(
         yield locus, records
 
 
-def _canonical_csq(value: str, ignored_indices: tuple[int, ...] = ()) -> str:
+def _canonical_csq(
+    value: str,
+    ignored_indices: tuple[int, ...] = (),
+    unordered_indices: tuple[int, ...] = (),
+) -> str:
     items: list[str] = []
     for item in value.split(","):
         values = item.split("|")
+        for index in unordered_indices:
+            if index < len(values) and values[index]:
+                values[index] = "&".join(sorted(values[index].split("&")))
         for index in ignored_indices:
             if index < len(values):
                 values[index] = ""
@@ -529,9 +537,13 @@ def _canonical_csq(value: str, ignored_indices: tuple[int, ...] = ()) -> str:
 
 
 def _canonical_record(
-    fields: list[str], ignored_indices: tuple[int, ...] = ()
+    fields: list[str],
+    ignored_indices: tuple[int, ...] = (),
+    unordered_indices: tuple[int, ...] = (),
 ) -> tuple[tuple[str, ...], str]:
-    return tuple(fields[:8]), _canonical_csq(fields[8], ignored_indices)
+    return tuple(fields[:8]), _canonical_csq(
+        fields[8], ignored_indices, unordered_indices
+    )
 
 
 def semantic_compare(
@@ -545,6 +557,10 @@ def semantic_compare(
         field for field in KNOWN_VEP_IGNORED_CSQ_FIELDS if field in csq_fields
     )
     ignored_indices = tuple(csq_fields.index(field) for field in ignored_csq_fields)
+    unordered_csq_fields = tuple(
+        field for field in KNOWN_VEP_UNORDERED_CSQ_FIELDS if field in csq_fields
+    )
+    unordered_indices = tuple(csq_fields.index(field) for field in unordered_csq_fields)
     cached = _query_process(cached_bcf)
     uncached = _query_process(uncached_bcf)
     assert cached.stdout is not None
@@ -614,10 +630,18 @@ def semantic_compare(
                 continue
             assert isinstance(cached_record, list)
             assert isinstance(uncached_record, list)
-            cached_key, cached_raw_canonical = _canonical_record(cached_record)
-            uncached_key, uncached_raw_canonical = _canonical_record(uncached_record)
-            _, cached_canonical = _canonical_record(cached_record, ignored_indices)
-            _, uncached_canonical = _canonical_record(uncached_record, ignored_indices)
+            cached_key, cached_raw_canonical = _canonical_record(
+                cached_record, unordered_indices=unordered_indices
+            )
+            uncached_key, uncached_raw_canonical = _canonical_record(
+                uncached_record, unordered_indices=unordered_indices
+            )
+            _, cached_canonical = _canonical_record(
+                cached_record, ignored_indices, unordered_indices
+            )
+            _, uncached_canonical = _canonical_record(
+                uncached_record, ignored_indices, unordered_indices
+            )
             if cached_key != uncached_key:
                 key_mismatches += 1
                 if len(examples) < mismatch_limit:
@@ -686,6 +710,7 @@ def semantic_compare(
         ),
         "ignored_annotation_mismatches": ignored_annotation_mismatches,
         "ignored_csq_fields": list(ignored_csq_fields),
+        "unordered_csq_fields": list(unordered_csq_fields),
         "ignored_difference_reference": (
             KNOWN_VEP_ISSUE_URL if ignored_annotation_mismatches else None
         ),
