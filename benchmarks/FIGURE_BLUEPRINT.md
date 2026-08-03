@@ -9,9 +9,11 @@ before publication collection. The existing HG02079 repeat differed by 0.84%
 uncached and 0.08% cached, while the 49 completed primary WGS samples show much
 larger between-sample variation.
 
-A smoke task validates staging, memory, commands, and semantic comparison. It is
-not a second full-cohort phase. Any small repeatability control is shown
-separately and never counted as an independent sample.
+A smoke task validates staging, memory, commands, and semantic comparison. It
+may run alongside the first measurement wave because every task independently
+fails closed and archives diagnostics. It is not a second full-cohort phase.
+Any small repeatability control is shown separately and never counted as an
+independent sample.
 
 ## Main figure
 
