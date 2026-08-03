@@ -1122,6 +1122,12 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
                 "--bcf",
                 str(merged),
                 "--allow-extra-chr",
+                # Match the marker universe used by the pruning pass before
+                # regenerating IDs and applying its prune.in list.
+                "--snps-only",
+                "just-acgt",
+                "--max-alleles",
+                "2",
                 # Recreate the same IDs used in the pruning pass so the
                 # generated prune.in list can be applied to this fresh import.
                 "--set-all-var-ids",

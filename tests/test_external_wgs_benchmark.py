@@ -234,6 +234,8 @@ def test_relatedness_screen_assigns_stable_allele_specific_variant_ids():
     assert source.count('"@:#:$r:$a"') == 2
     assert source.count('"--rm-dup"') == 2
     assert source.count('"exclude-all"') == 2
+    assert source.count('"--snps-only"') == 2
+    assert source.count('"--max-alleles"') == 2
 
 
 def test_qc_preserves_source_id_separately_from_vcf_sample(
