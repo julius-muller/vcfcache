@@ -201,6 +201,19 @@ for cohort in kpgp sgdp pgp; do
 done
 ```
 
+If KING reports exactly one related pair, the deterministic recovery command
+preserves the evaluation set when possible, substitutes the next eligible
+sample from the same allocation stratum, archives the rejected screening work,
+and records the decision in `manifests/relatedness_replacements.json`:
+
+```bash
+.venv/bin/python benchmarks/prepare_external_wgs.py replace-related
+.venv/bin/python benchmarks/prepare_external_wgs.py download
+.venv/bin/python benchmarks/prepare_external_wgs.py prepare
+.venv/bin/python benchmarks/prepare_external_wgs.py qc
+.venv/bin/python benchmarks/prepare_external_wgs.py screen-relatedness
+```
+
 KPGP and SGDP use open DDBJ/NIG GRCh38 autosomal gVCFs. PGP uses its larger
 native GRCh37/hg19 single-sample subset; numeric contigs are renamed to UCSC
 form before normalization, without coordinate liftover. Phenotype metadata is

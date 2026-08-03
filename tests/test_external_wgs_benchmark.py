@@ -12,6 +12,7 @@ from benchmarks.prepare_external_wgs import (
     PGP_PROVIDER_CAP,
     Candidate,
     Selected,
+    _choose_relatedness_replacement,
     _download_pgp_landing,
     _normalization_command,
     _select_pgp,
@@ -56,6 +57,31 @@ def candidate(
 def test_stable_key_is_repeatable_and_namespaced():
     assert stable_key("a", "sample") == stable_key("a", "sample")
     assert stable_key("a", "sample") != stable_key("b", "sample")
+
+
+def test_relatedness_replacement_preserves_evaluation_set_and_cohort():
+    def selected(sample: str, role: str, key: str) -> Selected:
+        source = candidate("kpgp", sample)
+        values = {
+            name: value
+            for name, value in source.__dict__.items()
+            if name not in {"eligibility", "exclusion_reason"}
+        }
+        return Selected(
+            **values,
+            role=role,
+            selection_seed="seed",
+            selection_key=key,
+        )
+
+    training = selected("training", "training", "b")
+    evaluation = selected("evaluation", "evaluation", "a")
+    reserve = candidate("kpgp", "reserve")
+    victim, replacement = _choose_relatedness_replacement(
+        [training, evaluation], [reserve], "training", "evaluation"
+    )
+    assert victim == training
+    assert replacement == reserve
 
 
 def test_pgp_landing_fetch_is_single_request(monkeypatch, tmp_path):

@@ -16,7 +16,7 @@ import tempfile
 import time
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Sequence
@@ -544,6 +544,138 @@ def select(args: argparse.Namespace) -> Path:
     write_tsv(output, sorted(rows, key=lambda row: (row.cohort, row.role, row.sample)))
     print(f"Selected {len(rows)} samples -> {output}")
     return output
+
+
+def _replacement_stratum(row: Candidate | Selected) -> str:
+    """Return the allocation stratum which a replacement must preserve."""
+    if row.cohort == "sgdp":
+        if row.region in {"SouthAsia", "CentralAsiaSiberia"}:
+            return "SouthCentralAsia"
+        return row.region
+    if row.cohort == "pgp":
+        return row.provider
+    return row.cohort
+
+
+def _choose_relatedness_replacement(
+    selected: Sequence[Selected],
+    candidates: Sequence[Candidate],
+    sample_a: str,
+    sample_b: str,
+) -> tuple[Selected, Candidate]:
+    """Choose one deterministic, allocation-preserving replacement."""
+    selected_by_sample = {row.sample: row for row in selected}
+    try:
+        pair = [selected_by_sample[sample_a], selected_by_sample[sample_b]]
+    except KeyError as error:
+        raise RuntimeError(
+            f"Relatedness sample is absent from selection: {error}"
+        ) from error
+    if pair[0].cohort != pair[1].cohort:
+        raise RuntimeError("Cannot automatically replace a cross-cohort pair")
+    training = [row for row in pair if row.role == "training"]
+    # Protect the held-out evaluation set when a training genome is implicated.
+    # Otherwise retain the lower deterministic allocation key.
+    victim = (
+        training[0]
+        if len(training) == 1
+        else max(pair, key=lambda row: row.selection_key)
+    )
+    selected_ids = {row.sample for row in selected}
+    compatible = [
+        row
+        for row in candidates
+        if row.eligibility == "candidate"
+        and row.sample not in selected_ids
+        and row.cohort == victim.cohort
+        and row.assembly == victim.assembly
+        and _replacement_stratum(row) == _replacement_stratum(victim)
+    ]
+    namespace = (
+        f"sgdp:{_replacement_stratum(victim)}"
+        if victim.cohort == "sgdp"
+        else victim.cohort
+    )
+    ranked = _ranked(compatible, namespace)
+    if not ranked:
+        raise RuntimeError(f"No compatible replacement for {victim.sample}")
+    return victim, ranked[0]
+
+
+def replace_related(args: argparse.Namespace) -> Path:
+    """Replace one reported related sample and preserve an audit trail."""
+    report_path = args.root / "work/relatedness/relatedness_report.json"
+    report = json.loads(report_path.read_text())
+    pairs = report.get("related_pairs", [])
+    if len(pairs) != 1:
+        raise RuntimeError(
+            f"Expected exactly one related pair for automatic replacement, found {len(pairs)}"
+        )
+    selection_path = args.root / "manifests/external_wgs_selection.tsv"
+    candidate_path = args.root / "manifests/external_wgs_candidates.tsv"
+    selected = _selected(selection_path)
+    candidates = read_candidates(candidate_path)
+    with (args.root / "qc/external_wgs_qc.tsv").open(newline="") as handle:
+        qc_rows = list(csv.DictReader(handle, delimiter="\t"))
+    source_by_vcf_sample = {row["vcf_sample"]: row["sample"] for row in qc_rows}
+    pair = pairs[0]
+    sample_a = source_by_vcf_sample.get(pair["#IID1"], pair["#IID1"])
+    sample_b = source_by_vcf_sample.get(pair["IID2"], pair["IID2"])
+    victim, replacement = _choose_relatedness_replacement(
+        selected, candidates, sample_a, sample_b
+    )
+    replacement_selected = Selected(
+        **{
+            **{
+                key: value
+                for key, value in asdict(replacement).items()
+                if key not in {"eligibility", "exclusion_reason"}
+            },
+            "role": victim.role,
+            "selection_seed": args.seed,
+            "selection_key": stable_key(
+                f"{replacement.cohort}:{victim.role}", replacement.sample
+            ),
+        }
+    )
+    selected = [row for row in selected if row.sample != victim.sample]
+    selected.append(replacement_selected)
+    write_tsv(
+        selection_path,
+        sorted(selected, key=lambda row: (row.cohort, row.role, row.sample)),
+    )
+    reason = f"relatedness_with:{sample_b if victim.sample == sample_a else sample_a}"
+    candidates = [
+        (
+            replace(row, eligibility="excluded", exclusion_reason=reason)
+            if row.sample == victim.sample
+            else row
+        )
+        for row in candidates
+    ]
+    write_tsv(candidate_path, candidates)
+
+    work = report_path.parent
+    archive = work.with_name(
+        f"relatedness.rejected-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    )
+    work.rename(archive)
+    history_path = args.root / "manifests/relatedness_replacements.json"
+    history = json.loads(history_path.read_text()) if history_path.exists() else []
+    history.append(
+        {
+            "replaced_at": datetime.now(timezone.utc).isoformat(),
+            "removed_sample": victim.sample,
+            "replacement_sample": replacement.sample,
+            "role": victim.role,
+            "cohort": victim.cohort,
+            "related_pair": pair,
+            "archived_report": str(archive / "relatedness_report.json"),
+        }
+    )
+    write_json_atomic(history_path, history)
+    print(json.dumps(history[-1], indent=2, sort_keys=True))
+    return history_path
 
 
 def _pgp_download_url(landing_text: str) -> str:
@@ -1315,6 +1447,7 @@ def parser() -> argparse.ArgumentParser:
             "prepare",
             "qc",
             "screen-relatedness",
+            "replace-related",
             "build-cache",
             "all",
         ),
@@ -1359,6 +1492,8 @@ def main() -> None:
         qc(args)
     elif args.command == "screen-relatedness":
         screen_relatedness(args)
+    elif args.command == "replace-related":
+        replace_related(args)
     elif args.command == "build-cache":
         if not args.cohort:
             raise ValueError("--cohort is required for build-cache")
