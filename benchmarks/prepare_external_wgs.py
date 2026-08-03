@@ -44,6 +44,14 @@ AUTOSOMES = tuple(f"chr{number}" for number in range(1, 23))
 SOURCE_AUTOSOMES = (*tuple(str(number) for number in range(1, 23)), *AUTOSOMES)
 COHORT_COUNTS = {"kpgp": (3, 20), "sgdp": (3, 20), "pgp": (3, 12)}
 COHORT_ASSEMBLIES = {"kpgp": "GRCh38", "sgdp": "GRCh38", "pgp": "GRCh37"}
+# DDBJ gVCFs are uniformly called, whereas PGP files come from several
+# participant-selected providers and filtering pipelines. These are broad
+# corruption/truncation guards, not biological inclusion thresholds.
+COHORT_RECORD_LIMITS = {
+    "kpgp": (2_500_000, 6_500_000),
+    "sgdp": (2_500_000, 6_500_000),
+    "pgp": (2_400_000, 6_500_000),
+}
 PGP_PROVIDER_CAP = 6
 DDBJ_BASE = "https://ddbj.nig.ac.jp/public/public-human-genomes/GRCh38"
 DDBJ_COHORTS = {"kpgp": "KPGP", "sgdp": "SGDP"}
@@ -971,6 +979,7 @@ def qc(args: argparse.Namespace) -> Path:
     fields = (
         "cohort",
         "sample",
+        "vcf_sample",
         "role",
         "assembly",
         "population",
@@ -994,15 +1003,18 @@ def qc(args: argparse.Namespace) -> Path:
     for row in rows:
         path = _prepared_path(args.root, row)
         result = validate_prepared_vcf(path, cohort="external")
+        vcf_sample = str(result.pop("sample"))
         count = int(result["records"])
         errors = str(result["errors"])
-        if not 2_500_000 <= count <= 6_500_000:
+        lower, upper = COHORT_RECORD_LIMITS[row.cohort]
+        if not lower <= count <= upper:
             errors = ",".join(filter(None, (errors, f"implausible_records={count}")))
             result["status"] = "FAIL"
         results.append(
             {
                 "cohort": row.cohort,
                 "sample": row.sample,
+                "vcf_sample": vcf_sample,
                 "role": row.role,
                 "assembly": row.assembly,
                 "population": row.population,

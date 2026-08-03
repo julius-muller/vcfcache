@@ -8,6 +8,7 @@ import pytest
 
 from benchmarks.analyze_external_benchmark import scaling_rows, strategy_summary
 from benchmarks.prepare_external_wgs import (
+    COHORT_RECORD_LIMITS,
     PGP_PROVIDER_CAP,
     Candidate,
     Selected,
@@ -16,6 +17,7 @@ from benchmarks.prepare_external_wgs import (
     _select_pgp,
     _select_sgdp,
     _source_with_reference_contigs,
+    qc,
     stable_key,
 )
 from benchmarks.run_external_cohort import (
@@ -200,6 +202,67 @@ def test_only_pgp_normalization_forces_malformed_auxiliary_info():
     assert "--force" in _normalization_command(reference, "pgp")
     assert "--force" not in _normalization_command(reference, "kpgp")
     assert "--force" not in _normalization_command(reference, "sgdp")
+
+
+def test_record_count_guard_accounts_for_heterogeneous_pgp_callers():
+    assert COHORT_RECORD_LIMITS["pgp"] == (2_400_000, 6_500_000)
+    assert COHORT_RECORD_LIMITS["kpgp"] == (2_500_000, 6_500_000)
+    assert COHORT_RECORD_LIMITS["sgdp"] == (2_500_000, 6_500_000)
+
+
+def test_qc_preserves_source_id_separately_from_vcf_sample(
+    tmp_path, monkeypatch, capsys
+):
+    row = Selected(
+        cohort="pgp",
+        sample="huDEFDD1",
+        role="evaluation",
+        provider="Veritas",
+        population="",
+        region="",
+        sex="",
+        assembly="GRCh37",
+        source_kind="VCF",
+        url="https://example.invalid/file",
+        index_url="",
+        source_name="source.vcf.gz",
+        source_bytes=100,
+        upstream_md5="",
+        documented_overlap="none",
+        landing_url="",
+        selection_seed="seed",
+        selection_key="key",
+    )
+    monkeypatch.setattr(
+        "benchmarks.prepare_external_wgs._selected", lambda _path: [row]
+    )
+    monkeypatch.setattr(
+        "benchmarks.prepare_external_wgs._prepared_path",
+        lambda _root, _row: tmp_path / "huDEFDD1.vcf.gz",
+    )
+    monkeypatch.setattr(
+        "benchmarks.prepare_external_wgs.validate_prepared_vcf",
+        lambda _path, *, cohort: {
+            "status": "PASS",
+            "errors": "",
+            "sample": "Sample1",
+            "records": 2_474_642,
+            "snps": 2_077_905,
+            "indels": 396_737,
+            "multiallelic": 0,
+            "contigs": "chr1,chr2",
+            "bytes": 100,
+            "sha256": "sha",
+        },
+    )
+    args = type("Args", (), {"root": tmp_path})()
+    output = qc(args)
+    capsys.readouterr()
+    with output.open(newline="") as handle:
+        value = next(csv.DictReader(handle, delimiter="\t"))
+    assert value["sample"] == "huDEFDD1"
+    assert value["vcf_sample"] == "Sample1"
+    assert value["status"] == "PASS"
 
 
 def test_four_condition_order_is_balanced_across_52_warmups():

@@ -309,6 +309,18 @@ second-degree-or-closer relationships. Because gnomAD does not disclose every
 contributing project, these cohorts are described as having no documented
 overlap, not as confirmed absent from gnomAD.
 
+Prepared external inputs retained only carried, biallelic autosomal SNPs and
+short indels and were required to pass BGZF, index, contig, sample-count, and
+nonzero-content checks. Broad record-count guards detected truncated or
+misclassified inputs: 2.5–6.5 million records for the uniformly called KPGP
+and SGDP gVCFs and 2.4–6.5 million for the heterogeneous participant-selected
+PGP callsets. The PGP lower guard was amended from 2.5 to 2.4 million before
+performance execution after one otherwise valid 2,474,642-record callset fell
+1.0% below the original round-number bound. This was a file-integrity sanity
+check, not a performance or outcome filter. Stable public source identifiers
+and potentially non-unique internal VCF sample labels are retained in separate
+manifest columns.
+
 We will report medians, interquartile ranges, and sample-level bootstrap 95%
 confidence intervals for speedup and resource savings. Bootstrap resampling will
 resample samples with replacement and preserve all paired modes and technical
