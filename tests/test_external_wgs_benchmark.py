@@ -12,6 +12,7 @@ from benchmarks.prepare_external_wgs import (
     Candidate,
     Selected,
     _download_pgp_landing,
+    _normalization_command,
     _select_pgp,
     _select_sgdp,
     _source_with_reference_contigs,
@@ -185,6 +186,13 @@ def test_pgp_reference_header_repair_preserves_records(tmp_path):
         _source_with_reference_contigs(tmp_path, selected, source, reference)
         == repaired
     )
+
+
+def test_only_pgp_normalization_forces_malformed_auxiliary_info():
+    reference = Path("/reference.fa.gz")
+    assert "--force" in _normalization_command(reference, "pgp")
+    assert "--force" not in _normalization_command(reference, "kpgp")
+    assert "--force" not in _normalization_command(reference, "sgdp")
 
 
 def test_four_condition_order_is_balanced_across_52_warmups():

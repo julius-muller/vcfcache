@@ -778,6 +778,27 @@ def _source_with_reference_contigs(
     return destination
 
 
+def _normalization_command(reference: Path, cohort: str) -> list[str]:
+    """Build normalization command, tolerating irrelevant malformed PGP INFO."""
+    command = [
+        "bcftools",
+        "norm",
+        "--fasta-ref",
+        str(reference),
+        "--multiallelics",
+        "-any",
+        "--output-type",
+        "u",
+    ]
+    if cohort == "pgp":
+        # Harvard PGP exports can contain invalid cardinalities in auxiliary
+        # INFO fields (for example INFO/AB). The benchmark retains carried
+        # alleles and GT only; --force lets HTSlib discard those malformed
+        # values while preserving the variant and genotype.
+        command.insert(2, "--force")
+    return command
+
+
 def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) -> Path:
     """Normalize one source into a compact carried-autosomal small-variant VCF."""
     source = _source_path(root, row)
@@ -819,16 +840,7 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
     assert first.stdout is not None
     first.stdout.close()
     normalize = subprocess.Popen(
-        [
-            "bcftools",
-            "norm",
-            "--fasta-ref",
-            str(reference),
-            "--multiallelics",
-            "-any",
-            "--output-type",
-            "u",
-        ],
+        _normalization_command(reference, row.cohort),
         stdin=renamed.stdout,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
