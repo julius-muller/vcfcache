@@ -23,6 +23,9 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [CACHE_STRATEGY_COMPARISON.md](CACHE_STRATEGY_COMPARISON.md): emergency
   validity assessment, runtime model, replacement assay/cache matrix, and the
   quarantined exploratory strategy comparison.
+- [EXTERNAL_COHORT_SIMILARITY.md](EXTERNAL_COHORT_SIMILARITY.md): exact
+  allele-level Jaccard and directional sharing checks for representative
+  external WGS pairs.
 
 ## Prepare the public VCF cohort
 

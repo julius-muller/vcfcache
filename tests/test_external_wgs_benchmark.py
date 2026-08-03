@@ -226,6 +226,14 @@ def test_relatedness_screen_acknowledges_small_assembly_strata():
     assert '"--bad-ld",\n                "--indep-pairwise"' in source
 
 
+def test_relatedness_screen_assigns_stable_allele_specific_variant_ids():
+    source = (
+        Path(__file__).parents[1] / "benchmarks/prepare_external_wgs.py"
+    ).read_text()
+    assert source.count('"--set-all-var-ids"') == 2
+    assert source.count('"@:#:$r:$a"') == 2
+
+
 def test_qc_preserves_source_id_separately_from_vcf_sample(
     tmp_path, monkeypatch, capsys
 ):

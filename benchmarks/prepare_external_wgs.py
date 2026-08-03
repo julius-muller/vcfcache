@@ -1095,6 +1095,11 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
                 "0.05",
                 "--geno",
                 "0.02",
+                # Public callsets frequently reuse or omit rsIDs.  Give every
+                # normalized biallelic SNP an assembly-local, allele-specific
+                # ID so PLINK can LD-prune it unambiguously.
+                "--set-all-var-ids",
+                "@:#:$r:$a",
                 # Each assembly stratum is deliberately smaller than 50. PLINK
                 # requires this acknowledgement before estimating LD; the
                 # result is used only to prune common SNPs for KING QC.
@@ -1113,6 +1118,10 @@ def screen_relatedness(args: argparse.Namespace) -> Path:
                 "--bcf",
                 str(merged),
                 "--allow-extra-chr",
+                # Recreate the same IDs used in the pruning pass so the
+                # generated prune.in list can be applied to this fresh import.
+                "--set-all-var-ids",
+                "@:#:$r:$a",
                 "--extract",
                 f"{prefix}.prune.in",
                 "--make-king-table",
