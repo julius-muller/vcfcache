@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-""":"
-Finalize the live accelerated benchmark after external staging.
-
-This controller waits for the original staging controller and assay array,
-deploys a fast-forward bundle to the head and workers, retries only missing
-assay tasks, and releases the held external jobs. It is intentionally driven by
-explicit environment variables so job IDs and commits remain auditable.
-":"""
+# Finalize the live accelerated benchmark after external staging.
+#
+# This controller waits for the original staging controller and assay array,
+# deploys a fast-forward bundle to the head and workers, retries only missing
+# assay tasks, and releases the held external jobs. It is intentionally driven
+# by explicit environment variables so job IDs and commits remain auditable.
 
 set -euo pipefail
 
