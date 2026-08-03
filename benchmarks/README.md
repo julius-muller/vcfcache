@@ -164,6 +164,8 @@ default chain; samples, not technical reruns, are the independent units.
   --campaign-id primary-wgs-<commit>
 .venv/bin/python benchmarks/run_cohort.py collect \
   --campaign-id primary-wgs-<commit>
+.venv/bin/python benchmarks/collect_paired_benchmark.py \
+  --campaign-root /mnt/data/slurm-results/campaigns/primary-wgs-<commit>
 ```
 
 Each task runs cached and uncached modes in separate Slurm steps on worker-local
@@ -234,4 +236,53 @@ that phase directly instead of rerunning it:
 ```bash
 .venv/bin/python benchmarks/run_external_cohort.py collect \
   --campaign-id external-wgs-<commit> --phase warmup
+```
+
+## Controlled pipeline-cost and hit-rate experiment
+
+The mechanism panel uses one real capture-like WES input (HG02374, about 76,000
+variants), four annotation costs, and deterministic self-caches targeting 50%,
+80%, 90%, 95%, and 100% hits. The annotation costs are vanilla VEP, VEP
+`--everything`, and vanilla VEP with a no-output plugin that pauses 5 or 20 ms
+per transcript consequence. The plugin runs only on misses and cannot alter the
+annotation schema. This is a deliberately compact 24-task experiment: one
+uncached baseline per pipeline and one cached run per pipeline/hit-rate cell,
+with no technical repeats.
+
+Prepare the self-caches on the data-preparation VM, stage the resulting
+`controlled_runtime` tree unchanged to every worker, then prepare and submit:
+
+```bash
+.venv/bin/python benchmarks/prepare_controlled_runtime.py
+.venv/bin/python benchmarks/run_controlled_cohort.py prepare \
+  --campaign-id controlled-runtime-<commit>
+.venv/bin/python benchmarks/run_controlled_cohort.py submit \
+  --campaign-id controlled-runtime-<commit> --concurrency 6
+.venv/bin/python benchmarks/run_controlled_cohort.py collect \
+  --campaign-id controlled-runtime-<commit>
+.venv/bin/python benchmarks/analyze_controlled_runtime.py \
+  --metrics /mnt/data/slurm-results/campaigns/controlled-runtime-<commit>/publication/controlled_runtime_metrics.tsv \
+  --output /mnt/data/slurm-results/campaigns/controlled-runtime-<commit>/publication/figure
+```
+
+The analysis fixes the miss-cost slope to the prespecified runtime equation and
+fits only the nonnegative median lookup/preprocessing overhead. It emits the
+model source TSV, `runtime_model.json`, and a four-panel SVG. That JSON can feed
+the simple repository graphic so its overhead is empirical:
+
+```bash
+.venv/bin/python benchmarks/render_user_impact_figure.py \
+  --model-json /path/to/runtime_model.json \
+  --output /path/to/repository-figure
+```
+
+After the primary and assay campaigns are complete, collect their paired
+metrics separately and combine them into the manuscript assay panel:
+
+```bash
+.venv/bin/python benchmarks/collect_paired_benchmark.py \
+  --campaign-root /mnt/data/slurm-results/campaigns/assay-singlepass-<commit>
+.venv/bin/python benchmarks/analyze_assay_benchmark.py \
+  --metrics /path/to/primary/paired_metrics.tsv /path/to/assay/paired_metrics.tsv \
+  --output /path/to/manuscript-assay-figure
 ```

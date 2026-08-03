@@ -38,34 +38,37 @@ output.
      scratch storage, and thread counts.
    - Capture cgroup CPU, memory peak, I/O, wall time, variant counts, hit rate,
      cache size, and output concordance.
-4. **Headline experiment** — paired pilot complete; cohort pending
+4. **Headline experiment** — paired pilot complete; Slurm cohort in progress
    - The confirmed HG02079 pilot achieved 9.56× end-to-end speedup at a 96.01%
      cache-hit rate with semantic equivalence across all 4,329,621 variants.
      See [PILOT_RESULTS.md](PILOT_RESULTS.md).
    - The memory-heavy final statistics scan was replaced with streaming
      counting and the exact pair was repeated at commit `88c018086b21`.
-   - Run cached and uncached VEP 115.2 `--everything` on all 50 1000 Genomes
-     samples.
+   - Run cached and uncached VEP 115.2 `--everything` on 49 primary WGS
+     samples, 20 capture-like WES samples, and 20 ACMG-panel samples.
    - Use one validated paired measurement per sample, with condition order
      balanced across samples. Samples are the independent units; a full-cohort
      warm-up and technical triplicates do not add independent evidence.
    - Retain a small repeatability control only: the observed HG02079 duplicate
      differed by 0.84% uncached and 0.08% cached, far below between-sample
      variation.
-5. **Mechanism and complexity experiments** — pending
-   - Measure controlled hit rates of 0%, 25%, 50%, 75%, 90%, 95%, and 100%.
-   - Compare lightweight VEP, VEP `--everything`, a pinned plugin-rich clinical
-     stack, and a lookup-only negative control.
-   - Measure the real-input-size curve with matched WGS, Twist WES, and ACMG
-     panel files. Use repeated short runs for the panel to estimate startup
-     overhead and the break-even record count.
-   - Run one paired annotation per HPRC R2 sample and report this graph-derived
-     cohort separately as a variant-representation robustness check.
-6. **Analysis and manuscript** — pending
+5. **Mechanism and complexity experiments** — implemented; run pending
+   - Use deterministic self-caches on one real capture-like WES input to measure
+     observed hit rates near 50%, 80%, 90%, 95%, and 100%.
+   - Compare vanilla VEP, VEP `--everything`, and vanilla VEP with deterministic
+     no-output delays of 5 or 20 ms per transcript consequence.
+   - Run four uncached baselines and 20 cached cells once each. This technical
+     mechanism experiment requires no repeats; every cell must pass the same
+     semantic comparison as the real-cohort runs.
+   - Use the 49 WGS, 20 WES, and 20 panel pairs for the real-input-size curve;
+     do not spend the publication window on redundant short-run repeats.
+6. **Analysis and manuscript** — implemented; final data pending
    - Treat samples as the statistical unit and report paired ratios, medians,
      IQRs, and bootstrap 95% confidence intervals.
-   - Publish raw metrics, manifests, environment locks, plotting code, and figure
-     source data.
+   - Publish raw metrics, manifests, environment locks, plotting code, model
+     JSON, and figure source data.
+   - Generate separate assay, independent-WGS/cache-strategy, controlled-model,
+     and simplified user-impact SVGs directly from the archived tables.
 
 ## Main performance figure
 

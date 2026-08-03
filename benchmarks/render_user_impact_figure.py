@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
@@ -227,6 +228,12 @@ def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--output", type=Path, required=True)
     result.add_argument("--lookup-overhead-seconds", type=float, default=0)
+    result.add_argument(
+        "--model-json",
+        type=Path,
+        help="Use measured overhead from analyze_controlled_runtime.py",
+    )
+    result.add_argument("--model-pipeline", default="everything")
     result.add_argument("--focus-hit-rate", type=float, default=0.80)
     result.add_argument(
         "--pipeline-minutes", type=float, nargs=3, default=(10, 60, 600)
@@ -245,11 +252,21 @@ def main() -> None:
         raise ValueError("Pipeline runtimes must be positive")
     if any(value <= 0 for value in args.sample_counts):
         raise ValueError("Sample counts must be positive")
+    overhead = args.lookup_overhead_seconds
+    if args.model_json:
+        model = json.loads(args.model_json.read_text())
+        try:
+            measured = model["pipelines"][args.model_pipeline]
+        except KeyError as error:
+            raise ValueError(
+                f"Pipeline {args.model_pipeline!r} is absent from {args.model_json}"
+            ) from error
+        overhead = float(measured["lookup_preprocessing_overhead_seconds"])
     rows = impact_rows(
         DEFAULT_SCENARIOS,
         args.pipeline_minutes,
         args.sample_counts,
-        args.lookup_overhead_seconds,
+        overhead,
         args.focus_hit_rate,
         args.build_minutes,
     )

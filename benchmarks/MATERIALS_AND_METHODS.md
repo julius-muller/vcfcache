@@ -23,9 +23,9 @@ and with VCFcache's `--uncached` mode. The modes differ only in whether existing
 cache annotations are reused. Samples, rather than technical repetitions or
 individual variants, are the statistical units.
 
-The primary cohort comprises 50 read-called whole genomes from the high-coverage
+The primary timed cohort comprises 49 read-called whole genomes from the high-coverage
 1000 Genomes resource. Seven Genome in a Bottle (GIAB) genomes, 20 graph-derived
-HPRC Release 2 genomes, 50 matched capture-like exomes, 50 matched strict-target
+HPRC Release 2 genomes, 50 prepared matched capture-like exomes, 50 matched strict-target
 exome controls, and 50 matched small-panel inputs provide provenance,
 representation, assay-size, and runtime checks. HPRC results are reported
 separately
@@ -243,11 +243,22 @@ VEP annotation, output assembly, compression, indexing, and final streaming
 accounting. Failed or pre-empted jobs will be rerun but never silently deleted;
 all attempts and prespecified exclusion reasons will remain in the archive.
 
-The WES, strict-target, and panel size experiments will use the same paired
-commands. Because startup overhead dominates small inputs, panel timing will use
-[FINAL NUMBER] repeated executions per sample and report the full distribution.
-Each HPRC sample will receive one paired robustness run and remain a separately
-summarized cohort.
+The primary assay-size comparison uses one paired execution for each of 20
+capture-like WES and 20 panel inputs. Technical repetition was not used because
+it does not add an independent observation and the paired repeatability control
+showed sub-percent timing differences. Strict-target WES and HPRC inputs remain
+available as labeled mechanism and representation controls but are not required
+for the main assay-size figure.
+
+The controlled mechanism experiment uses one real capture-like WES input and
+deterministic self-caches targeting hit rates of 50%, 80%, 90%, 95%, and 100%.
+Four pipelines are tested: vanilla VEP, VEP `--everything`, and vanilla VEP with
+a no-output plugin that sleeps for 5 or 20 ms per transcript consequence. The
+plugin is invoked only for cache misses. Each pipeline has one uncached baseline
+and one cached observation per target hit rate (24 tasks total, no technical
+repeats). Observed cache hit rate is used for analysis. The model slope is fixed
+to the prespecified miss fraction and the nonnegative median residual estimates
+lookup and preprocessing overhead.
 
 ## Correctness assessment
 
