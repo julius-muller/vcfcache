@@ -742,7 +742,7 @@ def _source_with_reference_contigs(
         raise FileNotFoundError(f"Reference index is missing: {fai}")
     destination = (
         root
-        / "work/normalization/reference_headers_v2"
+        / "work/normalization/reference_headers_v3"
         / f"{row.sample}.{row.assembly}.vcf.gz"
     )
     if destination.exists() and destination.stat().st_size:
@@ -762,6 +762,42 @@ def _source_with_reference_contigs(
             contigs.append(f"##contig=<ID={alias},length={length}>\n")
             if alias == "M":
                 contigs.append(f"##contig=<ID=MT,length={length}>\n")
+    declared_info: set[str] = set()
+    declared_format: set[str] = set()
+    observed_info: dict[str, bool] = {}
+    observed_format: set[str] = set()
+    with gzip.open(source, "rt") as incoming:
+        for line in incoming:
+            if line.startswith("##INFO=<ID="):
+                declared_info.add(line.removeprefix("##INFO=<ID=").split(",", 1)[0])
+                continue
+            if line.startswith("##FORMAT=<ID="):
+                declared_format.add(line.removeprefix("##FORMAT=<ID=").split(",", 1)[0])
+                continue
+            if line.startswith("#"):
+                continue
+            fields = line.rstrip("\n").split("\t")
+            if len(fields) >= 8 and fields[7] != ".":
+                for item in fields[7].split(";"):
+                    key, separator, _value = item.partition("=")
+                    if key:
+                        observed_info[key] = observed_info.get(key, False) or bool(
+                            separator
+                        )
+            if len(fields) >= 9 and fields[8] != ".":
+                observed_format.update(fields[8].split(":"))
+    recovered_fields = []
+    for name in sorted(observed_info.keys() - declared_info):
+        number, field_type = (".", "String") if observed_info[name] else ("0", "Flag")
+        recovered_fields.append(
+            f"##INFO=<ID={name},Number={number},Type={field_type},"
+            'Description="Recovered undeclared source field">\n'
+        )
+    for name in sorted(observed_format - declared_format):
+        recovered_fields.append(
+            f"##FORMAT=<ID={name},Number=.,Type=String,"
+            'Description="Recovered undeclared source field">\n'
+        )
     saw_header = False
     try:
         with (
@@ -773,6 +809,7 @@ def _source_with_reference_contigs(
                     continue
                 if line.startswith("#CHROM"):
                     outgoing.writelines(contigs)
+                    outgoing.writelines(recovered_fields)
                     saw_header = True
                 outgoing.write(line)
         if not saw_header:

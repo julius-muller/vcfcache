@@ -153,7 +153,9 @@ def test_pgp_reference_header_repair_preserves_records(tmp_path):
         handle.write("##fileformat=VCFv4.2\n")
         handle.write("##contig=<ID=chr1,length=10>\n")
         handle.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n")
-        handle.write("chr10\t2\t.\tA\tG\t.\tPASS\t.\tGT\t0/1\n")
+        handle.write(
+            "chr10\t2\t.\tA\tG\t.\tPASS\tcustomer_score=7;flagged\tGT:XY\t0/1:value\n"
+        )
     reference = tmp_path / "hg19.fa.gz"
     Path(f"{reference}.fai").write_text("chr1\t20\t0\t0\t0\nchr10\t30\t0\t0\t0\n")
     selected = Selected(
@@ -183,6 +185,9 @@ def test_pgp_reference_header_repair_preserves_records(tmp_path):
     assert value.count("##contig=<ID=1,length=20>") == 1
     assert value.count("##contig=<ID=chr10,length=30>") == 1
     assert value.count("##contig=<ID=10,length=30>") == 1
+    assert "##INFO=<ID=customer_score,Number=.,Type=String" in value
+    assert "##INFO=<ID=flagged,Number=0,Type=Flag" in value
+    assert "##FORMAT=<ID=XY,Number=.,Type=String" in value
     assert "chr10\t2\t.\tA\tG" in value
     assert (
         _source_with_reference_contigs(tmp_path, selected, source, reference)
