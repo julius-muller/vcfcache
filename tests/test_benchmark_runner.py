@@ -307,6 +307,26 @@ def _write_same_locus_vcf(path: Path, alts: list[str]) -> Path:
     return path
 
 
+def _write_multicontig_vcf(path: Path, contigs: list[str]) -> Path:
+    plain = path.with_suffix("")
+    records = {
+        "chr1": "chr1\t10\t.\tA\tG\t.\tPASS\tCSQ=G|effect\tGT\t0/1\n",
+        "chr2": "chr2\t20\t.\tC\tT\t.\tPASS\tCSQ=T|effect\tGT\t0/1\n",
+    }
+    plain.write_text(
+        "##fileformat=VCFv4.2\n"
+        + "".join(f"##contig=<ID={contig},length=1000>\n" for contig in contigs)
+        + '##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence">\n'
+        + '##FORMAT=<ID=GT,Number=1,Type=String,Description="GT">\n'
+        + "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n"
+        + "".join(records[contig] for contig in contigs)
+    )
+    with path.open("wb") as output:
+        subprocess.run(["bgzip", "--stdout", str(plain)], check=True, stdout=output)
+    subprocess.run(["tabix", "--preset", "vcf", str(path)], check=True)
+    return path
+
+
 def test_semantic_compare_ignores_csq_item_order(tmp_path):
     cached = _write_annotated_vcf(tmp_path / "cached.vcf.gz", csq="a|1,b|2")
     uncached = _write_annotated_vcf(tmp_path / "uncached.vcf.gz", csq="b|2,a|1")
@@ -357,6 +377,15 @@ def test_semantic_compare_ignores_split_allele_order_within_locus(tmp_path):
     assert report["record_order_only_loci"] == 1
     assert report["key_mismatches"] == 0
     assert report["annotation_mismatches"] == 0
+
+
+def test_semantic_compare_canonicalizes_contig_order_and_allows_missing_info(tmp_path):
+    cached = _write_multicontig_vcf(tmp_path / "cached.vcf.gz", ["chr1", "chr2"])
+    uncached = _write_multicontig_vcf(tmp_path / "uncached.vcf.gz", ["chr2", "chr1"])
+    report = semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is True
+    assert report["records_compared"] == 2
+    assert report["key_mismatches"] == 0
 
 
 def test_semantic_compare_detects_annotation_difference(tmp_path):

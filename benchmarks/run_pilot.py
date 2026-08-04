@@ -476,8 +476,22 @@ def _query_process(path: Path) -> subprocess.Popen[str]:
         r"%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/AC\t%INFO/AN"
         r"[\t%GT]\t%INFO/CSQ\n"
     )
+    contigs = sorted(
+        line.split("\t", maxsplit=1)[0]
+        for line in run_checked(["bcftools", "index", "--stats", path])
+        .stdout.strip()
+        .splitlines()
+        if line
+    )
+    command = ["bcftools", "query", "--allow-undef-tags"]
+    if contigs:
+        # VEP --fork can preserve coordinates while emitting contigs in a
+        # different header order between cached and uncached runs. Query the
+        # indexed contigs in one canonical order before streaming comparison.
+        command.extend(["--regions", ",".join(contigs)])
+    command.extend(["--format", query_format, str(path)])
     return subprocess.Popen(
-        ["bcftools", "query", "--format", query_format, str(path)],
+        command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
