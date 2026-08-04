@@ -258,7 +258,9 @@ def prepare_campaign(args: argparse.Namespace) -> None:
     root = campaign_root(args.controller_results, args.campaign_id)
     if root.exists() and any(root.iterdir()):
         raise FileExistsError(f"Campaign already exists and is nonempty: {root}")
-    if subprocess.run(["git", "diff", "--quiet"], check=False).returncode:
+    if subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "diff", "--quiet"], check=False
+    ).returncode:
         raise RuntimeError("Tracked worktree must be clean before campaign preparation")
     samples = read_evaluation_samples(args.qc)
     smoke = min(

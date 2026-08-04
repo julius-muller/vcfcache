@@ -260,6 +260,13 @@ def test_external_stager_creates_worker_receiver_parents():
     assert "sudo mkdir -p '$external_root' '$external_root/deployment'" in script
 
 
+def test_external_campaign_cleanliness_check_is_cwd_independent():
+    source = (
+        Path(__file__).parents[1] / "benchmarks/run_external_cohort.py"
+    ).read_text()
+    assert '["git", "-C", str(REPO_ROOT), "diff", "--quiet"]' in source
+
+
 def test_relatedness_screen_acknowledges_small_assembly_strata():
     source = (
         Path(__file__).parents[1] / "benchmarks/prepare_external_wgs.py"
