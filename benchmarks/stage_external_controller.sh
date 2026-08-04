@@ -77,6 +77,10 @@ fi
 stage_worker() {
   local worker=$1
   local remote="ubuntu@$worker"
+  # rsync cannot create a missing chain of parent directories on the receiver.
+  # Fresh workers may have the benchmark root but not the external campaign
+  # subtree yet, so create every receiver parent before parallel staging.
+  $ssh_command "$remote" "sudo mkdir -p '$external_root' '$external_root/deployment' '$data_root/bundled_zenodo_caches'"
   for relative in samples qc manifests cohort_caches; do
     rsync -a --partial --rsync-path="sudo rsync" -e "$ssh_command" \
       "$external_root/$relative/" "$remote:$external_root/$relative/"

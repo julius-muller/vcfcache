@@ -253,6 +253,13 @@ def test_external_stager_can_wait_without_reserving_a_slurm_worker():
     assert 'if [[ -n "$gate_job_id" ]]; then' in script
 
 
+def test_external_stager_creates_worker_receiver_parents():
+    script = (
+        Path(__file__).parents[1] / "benchmarks/stage_external_controller.sh"
+    ).read_text()
+    assert "sudo mkdir -p '$external_root' '$external_root/deployment'" in script
+
+
 def test_relatedness_screen_acknowledges_small_assembly_strata():
     source = (
         Path(__file__).parents[1] / "benchmarks/prepare_external_wgs.py"
