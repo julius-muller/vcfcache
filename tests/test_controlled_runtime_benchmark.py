@@ -10,6 +10,7 @@ from benchmarks.analyze_controlled_runtime import fit_models
 from benchmarks.prepare_controlled_runtime import (
     HIT_RATES,
     PIPELINES,
+    _placeholder_cache,
     annotation_yaml,
 )
 from benchmarks.run_controlled_cohort import prepare
@@ -35,6 +36,26 @@ def test_controlled_recipes_remove_everything_and_add_only_requested_delay():
     assert "--plugin SyntheticDelay,delay_us=5000" in delayed
     assert delayed.count("--dir_plugins") == 1
     assert "--stats_file" in delayed
+
+
+def test_placeholder_cache_has_a_valid_database_layout(tmp_path):
+    bundled_root = tmp_path / "bundled"
+    bundled = bundled_root / "cache/everything"
+    bundled.mkdir(parents=True)
+    (bundled / "vcfcache_annotated.bcf").write_bytes(b"bcf")
+    (bundled / "vcfcache_annotated.bcf.csi").write_bytes(b"csi")
+    (bundled_root / "workflow").mkdir()
+    (bundled_root / "workflow/init.yaml").write_text("genome_build: GRCh38\n")
+    params = tmp_path / "params.yaml"
+    params.write_text("genome_build: GRCh38\n")
+
+    database = tmp_path / "database"
+    cache = _placeholder_cache(database, ANNOTATION, params, bundled)
+
+    assert cache == database / "cache/placeholder"
+    assert (database / "blueprint").is_dir()
+    assert (database / "workflow/init.yaml").is_file()
+    assert (cache / "vcfcache_annotated.bcf").is_symlink()
 
 
 def _controlled_root(root: Path) -> Path:

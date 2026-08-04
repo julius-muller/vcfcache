@@ -74,8 +74,14 @@ def _records(path: Path) -> int:
 def _placeholder_cache(
     root: Path, annotation: str, params: Path, bundled_cache: Path
 ) -> Path:
-    cache = root / "placeholder"
+    cache = root / "cache" / "placeholder"
     cache.mkdir(parents=True)
+    (root / "blueprint").mkdir()
+    workflow = root / "workflow"
+    workflow.mkdir()
+    shutil.copy2(
+        bundled_cache.parents[1] / "workflow/init.yaml", workflow / "init.yaml"
+    )
     (cache / "annotation.yaml").write_text(annotation)
     shutil.copy2(params, cache / "params.snapshot.yaml")
     os.symlink(
