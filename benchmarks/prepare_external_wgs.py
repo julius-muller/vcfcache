@@ -1067,7 +1067,7 @@ def _source_with_reference_contigs(
 
 
 def _normalization_command(reference: Path, cohort: str) -> list[str]:
-    """Build normalization command, tolerating irrelevant malformed PGP INFO."""
+    """Build normalization command with one record per normalized variant key."""
     command = [
         "bcftools",
         "norm",
@@ -1075,6 +1075,8 @@ def _normalization_command(reference: Path, cohort: str) -> list[str]:
         str(reference),
         "--multiallelics",
         "-any",
+        "--rm-dup",
+        "exact",
         "--output-type",
         "u",
     ]
@@ -1085,6 +1087,33 @@ def _normalization_command(reference: Path, cohort: str) -> list[str]:
         # values while preserving the variant and genotype.
         command.insert(2, "--force")
     return command
+
+
+def _duplicate_variant_keys(path: Path) -> int:
+    """Count adjacent duplicate CHROM/POS/REF/ALT keys in a sorted VCF."""
+    process = subprocess.Popen(
+        [
+            "bcftools",
+            "query",
+            "--format",
+            r"%CHROM\t%POS\t%REF\t%ALT\n",
+            str(path),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    assert process.stdout is not None
+    previous: str | None = None
+    duplicates = 0
+    for line in process.stdout:
+        key = line.rstrip("\n")
+        duplicates += key == previous
+        previous = key
+    stderr = process.communicate()[1]
+    if process.returncode:
+        raise RuntimeError(f"Duplicate-key query failed for {path}: {stderr}")
+    return duplicates
 
 
 def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) -> Path:
@@ -1228,6 +1257,7 @@ def qc(args: argparse.Namespace) -> Path:
         "snps",
         "indels",
         "multiallelic",
+        "duplicate_keys",
         "contigs",
         "bytes",
         "sha256",
@@ -1243,6 +1273,12 @@ def qc(args: argparse.Namespace) -> Path:
         vcf_sample = str(result.pop("sample"))
         count = int(result["records"])
         errors = str(result["errors"])
+        duplicate_keys = _duplicate_variant_keys(path)
+        if duplicate_keys:
+            errors = ",".join(
+                filter(None, (errors, f"duplicate_variant_keys={duplicate_keys}"))
+            )
+            result["status"] = "FAIL"
         lower, upper = COHORT_RECORD_LIMITS[row.cohort]
         if not lower <= count <= upper:
             errors = ",".join(filter(None, (errors, f"implausible_records={count}")))
@@ -1260,6 +1296,7 @@ def qc(args: argparse.Namespace) -> Path:
                 "provider": row.provider,
                 "path": str(path),
                 **result,
+                "duplicate_keys": duplicate_keys,
                 "errors": errors,
                 "relatedness_status": "PENDING",
                 "documented_overlap": row.documented_overlap,

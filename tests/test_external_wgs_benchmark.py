@@ -228,6 +228,8 @@ def test_pgp_reference_header_repair_preserves_records(tmp_path):
 
 def test_only_pgp_normalization_forces_malformed_auxiliary_info():
     reference = Path("/reference.fa.gz")
+    assert "--rm-dup" in _normalization_command(reference, "pgp")
+    assert "exact" in _normalization_command(reference, "pgp")
     assert "--force" in _normalization_command(reference, "pgp")
     assert "--force" not in _normalization_command(reference, "kpgp")
     assert "--force" not in _normalization_command(reference, "sgdp")
@@ -350,7 +352,7 @@ def test_relatedness_screen_assigns_stable_allele_specific_variant_ids():
     ).read_text()
     assert source.count('"--set-all-var-ids"') == 2
     assert source.count('"@:#:$r:$a"') == 2
-    assert source.count('"--rm-dup"') == 2
+    assert source.count('"--rm-dup"') == 3
     assert source.count('"exclude-all"') == 2
     assert source.count('"--snps-only"') == 2
     assert source.count('"--max-alleles"') == 2
@@ -400,6 +402,9 @@ def test_qc_preserves_source_id_separately_from_vcf_sample(
             "bytes": 100,
             "sha256": "sha",
         },
+    )
+    monkeypatch.setattr(
+        "benchmarks.prepare_external_wgs._duplicate_variant_keys", lambda _path: 0
     )
     args = type("Args", (), {"root": tmp_path})()
     output = qc(args)
