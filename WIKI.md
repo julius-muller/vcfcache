@@ -1,5 +1,8 @@
 # VCFcache Wiki
 
+The central correctness, compatibility, and performance objectives are defined
+in [PROJECT_GOALS.md](PROJECT_GOALS.md).
+
 User-facing documentation for building and using VCFcache. This page is intentionally “walkthrough style”: each section includes enough context to be understood on its own.
 
 ---

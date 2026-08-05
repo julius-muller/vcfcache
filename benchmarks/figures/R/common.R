@@ -67,7 +67,7 @@ write_tsv <- function(value, path) {
   write.table(value, path, sep = "\t", row.names = FALSE, quote = FALSE, na = "")
 }
 
-save_plot <- function(plot, prefix, width, height, dpi = 200) {
+save_plot <- function(plot, prefix, width, height, dpi = 300) {
   dir.create(dirname(prefix), recursive = TRUE, showWarnings = FALSE)
 
   grDevices::svg(

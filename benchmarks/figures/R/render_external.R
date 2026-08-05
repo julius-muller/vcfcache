@@ -88,7 +88,7 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
     scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, NA)) +
     labs(
       title = "Runtime remaining by cache strategy",
-      subtitle = "Points are held-out genomes; boxes summarize only the completed snapshot",
+      subtitle = "Evaluation genomes were excluded from cohort-cache construction",
       x = NULL,
       y = "Cached / uncached wall time"
     ) +
@@ -114,7 +114,7 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
       inherit.aes = FALSE,
       color = vcf_colors[["grey"]], linewidth = 0.8, linetype = 2
     ) +
-    geom_point(color = "white", stroke = 0.35, size = 2.5, alpha = 0.68) +
+    geom_point(color = vcf_colors[["ink"]], stroke = 0.45, size = 2.5, alpha = 0.72) +
     scale_fill_manual(values = strategy_colors, labels = gsub("\n", " ", strategy_labels), name = NULL) +
     scale_shape_manual(values = cohort_shapes, labels = toupper(names(cohort_shapes)), name = NULL) +
     scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
@@ -126,8 +126,16 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
       y = "Cached / uncached wall time"
     ) +
     guides(
-      fill = guide_legend(order = 1, nrow = 1),
-      shape = guide_legend(order = 2, nrow = 1)
+      fill = guide_legend(
+        order = 1,
+        nrow = 1,
+        override.aes = list(shape = 21, size = 3.5, color = vcf_colors[["ink"]], alpha = 1)
+      ),
+      shape = guide_legend(
+        order = 2,
+        nrow = 1,
+        override.aes = list(size = 3.5, fill = vcf_colors[["light_grey"]], color = vcf_colors[["ink"]], alpha = 1)
+      )
     ) +
     theme_vcfcache() +
     theme(
@@ -198,7 +206,7 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
     plot_layout(heights = c(1.05, 0.85)) +
     plot_annotation(
       title = "Independent real-world WGS: bundled versus cohort-derived caches",
-      subtitle = "KPGP, SGDP and PGP held-out genomes · one technical execution per sample",
+      subtitle = "KPGP, SGDP and PGP evaluation genomes · excluded from cohort-cache construction · one run per sample",
       caption = paste(
         preliminary_caption(snapshot),
         "Greyed points are runtime-complete but await corrected semantic comparator post-processing; do not cite this draft.",
@@ -214,6 +222,10 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
       )
     )
 
+  panel_dir <- file.path(output_dir, "manuscript", "panels", "external_wgs")
+  save_plot(p_strategy, file.path(panel_dir, "A_cache_strategy"), 7.4, 5.0)
+  save_plot(p_model, file.path(panel_dir, "B_hit_rate_model"), 7.4, 5.0)
+  save_plot(p_economics, file.path(panel_dir, "C_build_amortization"), 14.8, 4.7)
   save_plot(combined, file.path(output_dir, "manuscript", "external_wgs_preliminary"), 15, 10)
   invisible(list(plot = combined, summary = summaries, economics = economics))
 }

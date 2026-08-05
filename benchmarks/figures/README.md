@@ -13,6 +13,11 @@ only to collect compact metrics and provenance from completed campaign output.
 - `output/preliminary/<timestamp>/manuscript/`: evidence-heavy figures.
 - `output/preliminary/<timestamp>/repository/`: simplified user-facing figure.
 
+Each assembled figure is written as SVG, PDF, and 300 dpi PNG. Its component
+plots are exported in the same three formats under `panels/<figure-name>/`, so
+individual manuscript panels can be placed or revised without cropping the
+assembled figure.
+
 Every snapshot records campaign IDs, completion counts, hashes, and validation
 status in `SNAPSHOT.json`. External rows awaiting corrected semantic comparison
 are retained for exploratory plotting but explicitly marked
@@ -61,6 +66,11 @@ every external row that has not passed corrected semantic post-processing.
   real-world WGS hit-rate estimate.
 - The external figure is deliberately watermarked preliminary until all 52
   genomes complete and the comparator fixes have been applied.
+- An external "evaluation genome" is a genome that was not one of the three
+  genomes used to construct that cohort's custom cache. This prevents the
+  custom-cache results from measuring reuse of the cache-building samples
+  themselves. For bundled gnomAD caches, the plot reports ordinary lookup
+  against the published cache rather than asserting individual-level exclusion.
 - The repository graphic currently uses the zero-overhead form of the runtime
   rule. The controlled-runtime campaign will replace that placeholder with
   measured lookup and preprocessing overhead.

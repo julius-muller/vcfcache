@@ -178,6 +178,11 @@ render_assay_figure <- function(input_dir, output_dir, snapshot) {
       )
     )
 
+  panel_dir <- file.path(output_dir, "manuscript", "panels", "assay_benchmark")
+  save_plot(p_runtime, file.path(panel_dir, "A_time_remaining"), 5.2, 4.3)
+  save_plot(p_absolute, file.path(panel_dir, "B_median_wait"), 5.2, 4.3)
+  save_plot(p_mechanism, file.path(panel_dir, "C_miss_fraction"), 5.2, 4.3)
+  save_plot(trust, file.path(panel_dir, "D_output_correctness"), 10.5, 2.1)
   save_plot(combined, file.path(output_dir, "manuscript", "assay_benchmark_preliminary"), 15, 6.5)
   invisible(list(plot = combined, summary = summaries))
 }

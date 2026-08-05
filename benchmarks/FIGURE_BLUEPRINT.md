@@ -49,9 +49,9 @@ Use a three-column lookup strip for one selected hit rate. For an 80% hit rate:
 This makes the distinction intuitive: relative speedup is driven mostly by hit
 rate, while absolute compute savings become larger for expensive pipelines.
 
-### 3. Two samples or one thousand
+### 3. Ten samples or one thousand
 
-Show four sample-count cards: `2`, `10`, `100`, and `1,000`. Each card reports:
+Show three sample-count cards: `10`, `100`, and `1,000`. Each card reports:
 
 - original total runtime;
 - runtime with VCFcache;
@@ -82,8 +82,11 @@ These plots substantiate the simple hero graphic but should appear after it:
 
 1. **Real assays:** individual relative runtimes for 20 panel, 20 WES, and 49
    completed WGS pairs using the bundled Zenodo AF >= 1% cache.
-2. **Independent WGS:** all 52 held-out KPGP, SGDP, and PGP genomes comparing
+2. **Independent WGS:** all 52 KPGP, SGDP, and PGP evaluation genomes comparing
    bundled AF >= 10%, bundled AF >= 1%, and disjoint three-genome cohort caches.
+   "Evaluation" means that none of these genomes was among the three genomes
+   used to construct its cohort cache; it does not assert individual-level
+   exclusion from the independently published gnomAD source population.
 3. **Pipeline cost:** one representative sample run with vanilla VEP, VEP
    `--everything`, and two calibrated `SyntheticDelay` settings.
 4. **Observed versus predicted:** measured relative runtime against hit rate,

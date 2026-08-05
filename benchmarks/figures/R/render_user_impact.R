@@ -49,8 +49,8 @@ render_user_impact_figure <- function(input_dir, output_dir, snapshot) {
   pipeline$sample_count <- 1
 
   sample_scale <- data.frame(
-    sample_count = c(2, 10, 100, 1000),
-    baseline_seconds = c(2, 10, 100, 1000) * 3600,
+    sample_count = c(10, 100, 1000),
+    baseline_seconds = c(10, 100, 1000) * 3600,
     hit_rate = 0.80
   )
   sample_scale$cached_seconds <- sample_scale$baseline_seconds * (1 - sample_scale$hit_rate)
@@ -143,9 +143,9 @@ render_user_impact_figure <- function(input_dir, output_dir, snapshot) {
     geom_tile(width = 0.90, height = 0.88, fill = "white", color = vcf_colors[["light_grey"]], linewidth = 1.3) +
     geom_text(aes(y = 1.18, label = label), size = 4.3, fontface = "bold", color = vcf_colors[["ink"]]) +
     geom_text(aes(y = 0.88, label = returned), size = 3.8, fontface = "bold", color = vcf_colors[["green"]]) +
-    coord_cartesian(xlim = c(0.45, 4.55), ylim = c(0.55, 1.45), clip = "off") +
+    coord_cartesian(xlim = c(0.45, 3.55), ylim = c(0.55, 1.45), clip = "off") +
     labs(
-      title = "Two samples or one thousand: savings add up",
+      title = "Ten samples or one thousand: savings add up",
       subtitle = "Example: 1-hour pipeline, 80% reuse, bundled cache with no build cost"
     ) +
     theme_void(base_size = 12) +
@@ -193,6 +193,11 @@ render_user_impact_figure <- function(input_dir, output_dir, snapshot) {
       )
     )
 
+  panel_dir <- file.path(output_dir, "repository", "panels", "user_impact")
+  save_plot(p_scenarios, file.path(panel_dir, "A_cache_reuse"), 7.4, 5.0)
+  save_plot(p_pipeline, file.path(panel_dir, "B_pipeline_duration"), 7.4, 5.0)
+  save_plot(p_scale, file.path(panel_dir, "C_sample_scale"), 7.4, 3.7)
+  save_plot(p_trust, file.path(panel_dir, "D_semantic_equivalence"), 7.4, 3.7)
   save_plot(combined, file.path(output_dir, "repository", "user_impact_model_preview"), 15, 9.2)
   invisible(list(plot = combined, source = source_rows))
 }

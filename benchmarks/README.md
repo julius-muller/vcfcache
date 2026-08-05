@@ -4,6 +4,10 @@ This directory contains the reproducible preparation and execution plan for the
 VCFcache publication benchmarks. Large datasets and results are kept outside Git
 under `/mnt/data/vcfcache_benchmarks`.
 
+The small, non-publication fastVEP diagnostic is documented separately in
+[fastvep_pilot/README.md](fastvep_pilot/README.md). It runs on ITCCcloud_dev and
+does not consume production Slurm workers.
+
 Publication and repository plots are rendered exclusively in R with ggplot2.
 See [figures/README.md](figures/README.md) for immutable source snapshots,
 current drafts, and the refresh workflow. The older Python SVG functions are
