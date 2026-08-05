@@ -24,6 +24,7 @@ from benchmarks.prepare_external_wgs import (
     stable_key,
 )
 from benchmarks.recover_external_attempts import completed_attempt, promote_attempt
+from benchmarks.repair_external_duplicate_inputs import variant_key_summary
 from benchmarks.run_external_cohort import (
     STRATEGIES,
     _runtime_params,
@@ -233,6 +234,36 @@ def test_only_pgp_normalization_forces_malformed_auxiliary_info():
     assert "--force" in _normalization_command(reference, "pgp")
     assert "--force" not in _normalization_command(reference, "kpgp")
     assert "--force" not in _normalization_command(reference, "sgdp")
+
+
+def test_variant_key_summary_counts_adjacent_duplicate_keys(monkeypatch, tmp_path):
+    class Stream:
+        stdout = iter(
+            [
+                "chr1\t1\tA\tC\tSNP\n",
+                "chr1\t1\tA\tC\tSNP\n",
+                "chr1\t2\tA\tAT\tINDEL\n",
+            ]
+        )
+
+        class Stderr:
+            @staticmethod
+            def read():
+                return ""
+
+        stderr = Stderr()
+
+        @staticmethod
+        def wait():
+            return 0
+
+    monkeypatch.setattr("subprocess.Popen", lambda *args, **kwargs: Stream())
+    result = variant_key_summary(tmp_path / "input.vcf.gz")
+    assert result["records"] == 3
+    assert result["duplicate_keys"] == 1
+    assert result["snps"] == 2
+    assert result["indels"] == 1
+    assert result["contigs"] == ["chr1"]
 
 
 def test_record_count_guard_accounts_for_heterogeneous_pgp_callers():
