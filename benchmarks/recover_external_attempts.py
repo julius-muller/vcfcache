@@ -144,6 +144,7 @@ def recover(args: argparse.Namespace) -> dict[str, Any]:
         execution_order=task["strategy_order"].split(","),
         run_dirs=run_dirs,
         run_root=attempt_run,
+        comparison_workers=args.comparison_workers,
     )
     failure = attempt_run.parent / "failure.json"
     promote_attempt(
@@ -169,6 +170,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--task-id", required=True, type=int)
     result.add_argument("--task-manifest", type=Path)
     result.add_argument("--strategies", type=Path)
+    result.add_argument("--comparison-workers", type=int, default=3)
     return result
 
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -106,17 +107,37 @@ def summarize_completed_runs(
     execution_order: list[str],
     run_dirs: dict[str, Path],
     run_root: Path,
+    comparison_workers: int = 1,
 ) -> dict[str, Any]:
     """Validate four completed conditions and write their external summary."""
     baseline_dir = run_dirs["uncached"]
     baseline = baseline_dir / "output.bcf"
     baseline_metrics = json.loads((baseline_dir / "metrics.json").read_text())
+    if comparison_workers < 1:
+        raise ValueError("comparison_workers must be at least one")
+    cached_outputs = {
+        strategy["name"]: run_dirs[strategy["name"]] / "output.bcf"
+        for strategy in strategies
+    }
+    if comparison_workers == 1:
+        comparisons = {
+            name: semantic_compare(output, baseline)
+            for name, output in cached_outputs.items()
+        }
+    else:
+        with ProcessPoolExecutor(max_workers=comparison_workers) as executor:
+            futures = {
+                name: executor.submit(semantic_compare, output, baseline)
+                for name, output in cached_outputs.items()
+            }
+            comparisons = {name: future.result() for name, future in futures.items()}
+
     rows = []
     for strategy in strategies:
         name = strategy["name"]
         run_dir = run_dirs[name]
         metrics = json.loads((run_dir / "metrics.json").read_text())
-        comparison = semantic_compare(run_dir / "output.bcf", baseline)
+        comparison = comparisons[name]
         comparison_path = run_root / f"semantic_{name}.json"
         original_path = run_root / f"semantic_{name}.original_failed.json"
         if comparison_path.exists() and not original_path.exists():
