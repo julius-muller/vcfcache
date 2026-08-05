@@ -14,6 +14,7 @@ task_id=${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID is required}
 
 export LC_ALL=C
 export LANG=C
+export PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}"
 
 srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=8 \
   "$repo_root/.venv/bin/python" \
