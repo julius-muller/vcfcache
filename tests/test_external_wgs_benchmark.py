@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import csv
 import gzip
+import json
+import os
 from pathlib import Path
 
 import pytest
@@ -21,6 +23,7 @@ from benchmarks.prepare_external_wgs import (
     qc,
     stable_key,
 )
+from benchmarks.recover_external_attempts import completed_attempt, promote_attempt
 from benchmarks.run_external_cohort import (
     STRATEGIES,
     _runtime_params,
@@ -258,6 +261,73 @@ def test_external_stager_creates_worker_receiver_parents():
         Path(__file__).parents[1] / "benchmarks/stage_external_controller.sh"
     ).read_text()
     assert "sudo mkdir -p '$external_root' '$external_root/deployment'" in script
+
+
+def _complete_attempt_run(root: Path, sample: str, replicate: int = 1) -> Path:
+    for condition in (
+        "uncached",
+        "gnomad_af_0.1",
+        "gnomad_af_0.01",
+        "cohort_3_genomes",
+    ):
+        mode = "uncached" if condition == "uncached" else "cached"
+        run = (
+            root
+            / "runs"
+            / condition
+            / "pilot"
+            / sample
+            / "commit"
+            / f"{mode}_r{replicate:02d}"
+        )
+        run.mkdir(parents=True)
+        (run / "metrics.json").write_text(json.dumps({"wall_seconds": 1}))
+        (run / "output.bcf").write_bytes(b"bcf")
+        (run / "output.bcf.csi").write_bytes(b"index")
+    return root
+
+
+def test_completed_attempt_selects_newest_four_condition_attempt(tmp_path):
+    task = tmp_path / "warmup/attempts/task-3"
+    old = _complete_attempt_run(task / "job-10/run", "sample")
+    (task / "job-10/failure.json").write_text("{}")
+    newest = _complete_attempt_run(task / "job-12/run", "sample")
+    (task / "job-12/failure.json").write_text("{}")
+    found, runs = completed_attempt(tmp_path, "warmup", 3, "sample", 1)
+    assert found == newest
+    assert set(runs) == {
+        "uncached",
+        "gnomad_af_0.1",
+        "gnomad_af_0.01",
+        "cohort_3_genomes",
+    }
+    assert found != old
+
+
+def test_promote_attempt_uses_hardlinks_and_records_recovery(tmp_path, monkeypatch):
+    attempt = tmp_path / "warmup/attempts/task-4/job-20/run"
+    attempt.mkdir(parents=True)
+    source = attempt / "large-output.bcf"
+    source.write_bytes(b"content")
+    failure = attempt.parent / "failure.json"
+    failure.write_text('{"exit_code": 1}\n')
+    result = tmp_path / "warmup/tasks/task-4"
+    monkeypatch.setenv("SLURM_JOB_ID", "99")
+    monkeypatch.setenv("SLURM_ARRAY_JOB_ID", "98")
+    monkeypatch.setenv("SLURMD_NODENAME", "sl-w5")
+    promote_attempt(
+        attempt_run=attempt,
+        result_dir=result,
+        task_id=4,
+        phase="warmup",
+        source_failure=failure,
+    )
+    assert (result / "large-output.bcf").read_bytes() == b"content"
+    assert os.stat(source).st_ino == os.stat(result / "large-output.bcf").st_ino
+    metadata = json.loads((result / "slurm-task.json").read_text())
+    assert metadata["recovered"] is True
+    assert metadata["slurm_node"] == "sl-w5"
+    assert json.loads((result / "recovery.json").read_text())["storage"] == "hardlinks"
 
 
 def test_external_campaign_cleanliness_check_is_cwd_independent():
