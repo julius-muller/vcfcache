@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Iterable, Iterator, Sequence
 from urllib.parse import urljoin
 from xml.etree import ElementTree
 
@@ -1067,7 +1067,7 @@ def _source_with_reference_contigs(
 
 
 def _normalization_command(reference: Path, cohort: str) -> list[str]:
-    """Build normalization command with one record per normalized variant key."""
+    """Build the allele normalization command."""
     command = [
         "bcftools",
         "norm",
@@ -1075,8 +1075,6 @@ def _normalization_command(reference: Path, cohort: str) -> list[str]:
         str(reference),
         "--multiallelics",
         "-any",
-        "--rm-dup",
-        "exact",
         "--output-type",
         "u",
     ]
@@ -1089,8 +1087,78 @@ def _normalization_command(reference: Path, cohort: str) -> list[str]:
     return command
 
 
+def _unique_variant_records(lines: Iterable[str]) -> Iterator[str]:
+    """Keep the first full VCF record for each CHROM/POS/REF/ALT key."""
+    position: tuple[str, str] | None = None
+    keys_at_position: set[tuple[str, str]] = set()
+    for line in lines:
+        if line.startswith("#"):
+            yield line
+            continue
+        fields = line.split("\t", 5)
+        if len(fields) < 5:
+            raise RuntimeError("Malformed VCF record during duplicate-key filtering")
+        current_position = (fields[0], fields[1])
+        if current_position != position:
+            position = current_position
+            keys_at_position.clear()
+        key = (fields[3], fields[4])
+        if key in keys_at_position:
+            continue
+        keys_at_position.add(key)
+        yield line
+
+
+def _deduplicate_variant_keys(source: Path, destination: Path) -> None:
+    """Write a compressed VCF with exactly one record per normalized allele key."""
+    with tempfile.TemporaryFile() as input_errors, tempfile.TemporaryFile() as output_errors:
+        incoming = subprocess.Popen(
+            ["bcftools", "view", "--output-type", "v", str(source)],
+            stdout=subprocess.PIPE,
+            stderr=input_errors,
+            text=True,
+        )
+        outgoing = subprocess.Popen(
+            [
+                "bcftools",
+                "view",
+                "--threads",
+                "4",
+                "--output-type",
+                "z",
+                "--output",
+                str(destination),
+            ],
+            stdin=subprocess.PIPE,
+            stderr=output_errors,
+            text=True,
+        )
+        assert incoming.stdout is not None
+        assert outgoing.stdin is not None
+        try:
+            for line in _unique_variant_records(incoming.stdout):
+                outgoing.stdin.write(line)
+            outgoing.stdin.close()
+            input_status = incoming.wait()
+            output_status = outgoing.wait()
+        except BaseException:
+            incoming.kill()
+            outgoing.kill()
+            destination.unlink(missing_ok=True)
+            raise
+        if input_status or output_status:
+            input_errors.seek(0)
+            output_errors.seek(0)
+            destination.unlink(missing_ok=True)
+            raise RuntimeError(
+                "Duplicate-key filtering failed: "
+                f"input={input_status}:{input_errors.read().decode(errors='replace')}; "
+                f"output={output_status}:{output_errors.read().decode(errors='replace')}"
+            )
+
+
 def _duplicate_variant_keys(path: Path) -> int:
-    """Count adjacent duplicate CHROM/POS/REF/ALT keys in a sorted VCF."""
+    """Count duplicate CHROM/POS/REF/ALT keys in a position-sorted VCF."""
     process = subprocess.Popen(
         [
             "bcftools",
@@ -1104,12 +1172,18 @@ def _duplicate_variant_keys(path: Path) -> int:
         text=True,
     )
     assert process.stdout is not None
-    previous: str | None = None
+    position: tuple[str, str] | None = None
+    keys_at_position: set[tuple[str, str]] = set()
     duplicates = 0
     for line in process.stdout:
-        key = line.rstrip("\n")
-        duplicates += key == previous
-        previous = key
+        chrom, pos, ref, alt = line.rstrip("\n").split("\t")
+        current_position = (chrom, pos)
+        if current_position != position:
+            position = current_position
+            keys_at_position.clear()
+        key = (ref, alt)
+        duplicates += key in keys_at_position
+        keys_at_position.add(key)
     stderr = process.communicate()[1]
     if process.returncode:
         raise RuntimeError(f"Duplicate-key query failed for {path}: {stderr}")
@@ -1126,6 +1200,9 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
     _assert_assembly_header(source, row.assembly)
     source = _source_with_reference_contigs(root, row, source, reference)
     partial = destination.with_name(destination.name + ".partial")
+    raw_partial = destination.with_name(destination.name + ".pre_dedup.partial")
+    partial.unlink(missing_ok=True)
+    raw_partial.unlink(missing_ok=True)
     first = subprocess.Popen(
         [
             "bcftools",
@@ -1189,7 +1266,7 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
             "--output-type",
             "z",
             "--output",
-            str(partial),
+            str(raw_partial),
         ],
         stdin=filtered.stdout,
         capture_output=True,
@@ -1211,7 +1288,12 @@ def prepare_one(root: Path, row: Selected, reference: Path, rename_map: Path) ->
     }
     failed = {name: value for name, value in errors.items() if value[0]}
     if failed:
+        raw_partial.unlink(missing_ok=True)
         raise RuntimeError(f"Preparation failed for {row.sample}: {failed}")
+    try:
+        _deduplicate_variant_keys(raw_partial, partial)
+    finally:
+        raw_partial.unlink(missing_ok=True)
     partial.replace(destination)
     run_command(["tabix", "--preset", "vcf", str(destination)])
     return destination

@@ -20,6 +20,7 @@ from benchmarks.prepare_external_wgs import (
     _select_pgp,
     _select_sgdp,
     _source_with_reference_contigs,
+    _unique_variant_records,
     qc,
     stable_key,
 )
@@ -229,11 +230,22 @@ def test_pgp_reference_header_repair_preserves_records(tmp_path):
 
 def test_only_pgp_normalization_forces_malformed_auxiliary_info():
     reference = Path("/reference.fa.gz")
-    assert "--rm-dup" in _normalization_command(reference, "pgp")
-    assert "exact" in _normalization_command(reference, "pgp")
     assert "--force" in _normalization_command(reference, "pgp")
     assert "--force" not in _normalization_command(reference, "kpgp")
     assert "--force" not in _normalization_command(reference, "sgdp")
+
+
+def test_unique_variant_records_preserves_distinct_alleles_and_first_duplicate():
+    lines = [
+        "##fileformat=VCFv4.2\n",
+        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n",
+        "chr1\t1\tfirst\tA\tC\t.\tPASS\t.\n",
+        "chr1\t1\tdistinct\tA\tG\t.\tPASS\t.\n",
+        "chr1\t1\tduplicate\tA\tC\t.\tPASS\t.\n",
+        "chr1\t2\tnext\tA\tC\t.\tPASS\t.\n",
+    ]
+    observed = list(_unique_variant_records(lines))
+    assert observed == [*lines[:4], lines[5]]
 
 
 def test_variant_key_summary_counts_adjacent_duplicate_keys(monkeypatch, tmp_path):
@@ -383,7 +395,8 @@ def test_relatedness_screen_assigns_stable_allele_specific_variant_ids():
     ).read_text()
     assert source.count('"--set-all-var-ids"') == 2
     assert source.count('"@:#:$r:$a"') == 2
-    assert source.count('"--rm-dup"') == 3
+    assert source.count('"--rm-dup"') == 2
+    assert "_deduplicate_variant_keys(raw_partial, partial)" in source
     assert source.count('"exclude-all"') == 2
     assert source.count('"--snps-only"') == 2
     assert source.count('"--max-alleles"') == 2

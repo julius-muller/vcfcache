@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from benchmarks.prepare_external_wgs import _deduplicate_variant_keys
 from benchmarks.run_pilot import sha256sum, write_json_atomic
 
 DEFAULT_SAMPLES = (
@@ -44,7 +45,8 @@ def variant_key_summary(path: Path) -> dict[str, Any]:
     if process.stdout is None:
         raise RuntimeError("bcftools query did not expose stdout")
     digest = hashlib.sha256()
-    previous = ""
+    position: tuple[str, str] | None = None
+    keys_at_position: set[tuple[str, str]] = set()
     records = duplicates = snps = indels = multiallelic = 0
     contigs: set[str] = set()
     for line in process.stdout:
@@ -53,13 +55,18 @@ def variant_key_summary(path: Path) -> dict[str, Any]:
             process.kill()
             raise RuntimeError(f"Malformed bcftools query output for {path}")
         chrom, pos, ref, alt, variant_type = fields
+        current_position = (chrom, pos)
+        if current_position != position:
+            position = current_position
+            keys_at_position.clear()
+        key_tuple = (ref, alt)
         key = "\t".join((chrom, pos, ref, alt))
         records += 1
-        duplicates += key == previous
-        if key != previous:
+        duplicates += key_tuple in keys_at_position
+        if key_tuple not in keys_at_position:
             digest.update(key.encode())
             digest.update(b"\n")
-        previous = key
+        keys_at_position.add(key_tuple)
         contigs.add(chrom)
         multiallelic += "," in alt
         snps += variant_type == "SNP"
@@ -92,20 +99,7 @@ def repair_vcf(source: Path, destination: Path) -> dict[str, Any]:
     partial.unlink(missing_ok=True)
     partial_index.unlink(missing_ok=True)
     try:
-        subprocess.run(
-            [
-                "bcftools",
-                "norm",
-                "--rm-dup",
-                "exact",
-                "--output-type",
-                "z",
-                "--output",
-                str(partial),
-                str(source),
-            ],
-            check=True,
-        )
+        _deduplicate_variant_keys(source, partial)
         subprocess.run(
             ["bcftools", "index", "--tbi", "--force", str(partial)], check=True
         )
@@ -198,7 +192,7 @@ def repair(root: Path, samples: Iterable[str]) -> dict[str, Any]:
     _write_qc(qc_path, rows, fields)
     report = {
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "method": "bcftools norm --rm-dup exact",
+        "method": "streaming first-record filter by CHROM/POS/REF/ALT",
         "policy": "original prepared inputs retained; repaired paths are new files",
         "cache_rebuild_required": False,
         "cache_rebuild_rationale": (
