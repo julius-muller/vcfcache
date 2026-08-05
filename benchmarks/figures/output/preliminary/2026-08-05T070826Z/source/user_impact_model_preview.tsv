@@ -1,0 +1,16 @@
+panel	label	segment	fraction	hit_rate	sample_count	baseline_seconds	cached_seconds	saved_seconds
+time_left	Distant WGS	Time remaining	0.5	0.5	1	100	50	50
+time_left	Related/cohort WGS	Time remaining	0.2	0.8	1	100	20	80
+time_left	WES	Time remaining	0.1	0.9	1	100	10	90
+time_left	Very high reuse	Time remaining	0.05	0.95	1	100	5	95
+time_left	Distant WGS	Time returned	0.5	0.5	1	100	50	50
+time_left	Related/cohort WGS	Time returned	0.8	0.8	1	100	20	80
+time_left	WES	Time returned	0.9	0.9	1	100	10	90
+time_left	Very high reuse	Time returned	0.95	0.95	1	100	5	95
+pipeline_cost	10 min		0.2	0.8	1	600	120	480
+pipeline_cost	1 hour		0.2	0.8	1	3600	720	2880
+pipeline_cost	10 hours		0.2	0.8	1	36000	7200	28800
+sample_scale	    2 samples		0.2	0.8	2	7200	1440	5760
+sample_scale	   10 samples		0.2	0.8	10	36000	7200	28800
+sample_scale	  100 samples		0.2	0.8	100	360000	72000	288000
+sample_scale	1,000 samples		0.2	0.8	1000	3600000	720000	2880000

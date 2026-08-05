@@ -92,6 +92,8 @@ These plots substantiate the simple hero graphic but should appear after it:
 
 ## Rendering rules
 
+- Produce every publication and repository plot in R with ggplot2. Python may
+  collect and validate source tables, but it is not the plotting backend.
 - Lead with minutes/hours saved, not p-values or hardware counters.
 - Use one consistent color: dark for time still spent, light green for time
   returned, and a check-mark color for correctness.

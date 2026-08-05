@@ -4,6 +4,12 @@ This directory contains the reproducible preparation and execution plan for the
 VCFcache publication benchmarks. Large datasets and results are kept outside Git
 under `/mnt/data/vcfcache_benchmarks`.
 
+Publication and repository plots are rendered exclusively in R with ggplot2.
+See [figures/README.md](figures/README.md) for immutable source snapshots,
+current drafts, and the refresh workflow. The older Python SVG functions are
+retained only as diagnostic/compatibility utilities and are not publication
+plotting backends.
+
 ## Documents
 
 - [MATERIALS_AND_METHODS.md](MATERIALS_AND_METHODS.md): publication-ready
@@ -26,6 +32,8 @@ under `/mnt/data/vcfcache_benchmarks`.
 - [EXTERNAL_COHORT_SIMILARITY.md](EXTERNAL_COHORT_SIMILARITY.md): exact
   allele-level Jaccard and directional sharing checks for representative
   external WGS pairs.
+- [figures/](figures/): provenance-tracked source snapshots and the canonical
+  R/ggplot2 plotting workflow.
 
 ## Prepare the public VCF cohort
 
@@ -245,14 +253,11 @@ HGNC_ID discrepancy is ignored.
   --campaign-id external-wgs-<commit>
 .venv/bin/python benchmarks/run_external_cohort.py collect \
   --campaign-id external-wgs-<commit>
-.venv/bin/python benchmarks/analyze_external_benchmark.py \
-  --metrics /mnt/data/slurm-results/campaigns/external-wgs-<commit>/publication/external_wgs_metrics.tsv \
-  --strategies /mnt/data/slurm-results/campaigns/external-wgs-<commit>/manifests/strategies.json \
-  --output /mnt/data/slurm-results/campaigns/external-wgs-<commit>/publication/figure
 ```
 
-The generated model evaluates `T_eff = T_cached + T_build/S` for every integer
-cohort size from 1 through 1000 and explicitly marks S=5, 10, and 100.
+The ggplot2 figure workflow evaluates
+`T_eff = T_cached + T_build/S` across cohort sizes 1 through 1000 and retains
+the exact source grid beside the rendered output.
 
 Campaigns prepared before the single-pass design amendment may already contain
 a complete, validated first pass under the historical `warmup` phase. Collect
@@ -285,21 +290,12 @@ Prepare the self-caches on the data-preparation VM, stage the resulting
   --campaign-id controlled-runtime-<commit> --concurrency 6
 .venv/bin/python benchmarks/run_controlled_cohort.py collect \
   --campaign-id controlled-runtime-<commit>
-.venv/bin/python benchmarks/analyze_controlled_runtime.py \
-  --metrics /mnt/data/slurm-results/campaigns/controlled-runtime-<commit>/publication/controlled_runtime_metrics.tsv \
-  --output /mnt/data/slurm-results/campaigns/controlled-runtime-<commit>/publication/figure
 ```
 
 The analysis fixes the miss-cost slope to the prespecified runtime equation and
-fits only the nonnegative median lookup/preprocessing overhead. It emits the
-model source TSV, `runtime_model.json`, and a four-panel SVG. That JSON can feed
-the simple repository graphic so its overhead is empirical:
-
-```bash
-.venv/bin/python benchmarks/render_user_impact_figure.py \
-  --model-json /path/to/runtime_model.json \
-  --output /path/to/repository-figure
-```
+fits only the nonnegative median lookup/preprocessing overhead. The final
+controlled metrics and fitted values feed the R/ggplot2 mechanism panel and the
+simple repository graphic so its overhead is empirical.
 
 After the primary and assay campaigns are complete, collect their paired
 metrics separately and combine them into the manuscript assay panel:
@@ -307,7 +303,6 @@ metrics separately and combine them into the manuscript assay panel:
 ```bash
 .venv/bin/python benchmarks/collect_paired_benchmark.py \
   --campaign-root /mnt/data/slurm-results/campaigns/assay-singlepass-<commit>
-.venv/bin/python benchmarks/analyze_assay_benchmark.py \
-  --metrics /path/to/primary/paired_metrics.tsv /path/to/assay/paired_metrics.tsv \
-  --output /path/to/manuscript-assay-figure
+Rscript --vanilla benchmarks/figures/R/render_all.R \
+  /path/to/frozen/source-snapshot /path/to/figure-output
 ```

@@ -1,0 +1,52 @@
+{
+  "campaigns": {
+    "assay": "assay-singlepass-32a760323fc5",
+    "external": "external-wgs-6c422804f208-hg19",
+    "primary": "primary-wgs-32a760323fc5-bundled-af1"
+  },
+  "created_at": "2026-08-05T07:08:36.415035+00:00",
+  "created_on_host": "sl-head",
+  "external_validation_status": {
+    "comparator_pending_failure": 84,
+    "semantically_validated": 12
+  },
+  "files": {
+    "assay_metrics.tsv": {
+      "bytes": 11359,
+      "sha256": "ef242b3881eb6acfc1699fda2bfab132ed9cbfadf9412f4c02e410c9399de855"
+    },
+    "external_strategies.json": {
+      "bytes": 7515,
+      "sha256": "03adaff0b9c426726cec4c4884f85b1172148e6ecdb07ca61eac958877615704"
+    },
+    "external_wgs_preliminary_metrics.tsv": {
+      "bytes": 20777,
+      "sha256": "033b04fc7d7d8450ff348b7bc495dd97f6c083565a78917655a084105fb26c92"
+    },
+    "primary_wgs_metrics.tsv": {
+      "bytes": 15719,
+      "sha256": "ea7fe08df4ae0f14393c998badb76bd9f6b05ca89e75370a1c28540414279963"
+    }
+  },
+  "notes": [
+    "Primary WGS contains the 49 successful samples; HG02888 is the documented cgroup-OOM exclusion.",
+    "Comparator-pending external rows are exploratory only until corrected semantic post-processing passes.",
+    "No BCF or other bulky run output is included in this snapshot."
+  ],
+  "row_counts": {
+    "assay_metrics.tsv": 40,
+    "external_wgs_preliminary_metrics.tsv": 96,
+    "primary_wgs_metrics.tsv": 49
+  },
+  "sample_counts": {
+    "assay_by_type": {
+      "panel": 20,
+      "wes": 20
+    },
+    "external_completed": 32,
+    "external_expected": 52,
+    "external_semantically_validated": 4,
+    "primary_wgs": 49
+  },
+  "status": "PRELIMINARY"
+}

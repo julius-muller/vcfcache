@@ -68,7 +68,8 @@ output.
    - Publish raw metrics, manifests, environment locks, plotting code, model
      JSON, and figure source data.
    - Generate separate assay, independent-WGS/cache-strategy, controlled-model,
-     and simplified user-impact SVGs directly from the archived tables.
+     and simplified user-impact figures in R/ggplot2 directly from archived,
+     provenance-tracked tables.
 
 ## Main performance figure
 
