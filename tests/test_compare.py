@@ -209,6 +209,19 @@ def test_compare_runs_missing_timing(completion_flag_uncached, completion_flag_c
     compare_runs(completion_flag_uncached, completion_flag_cached)
 
 
+def test_compare_runs_explains_light_statistics_hashes(
+    completion_flag_uncached, completion_flag_cached, capsys
+):
+    """Light comparisons retain performance output but explain missing hashes."""
+    for directory in (completion_flag_uncached, completion_flag_cached):
+        stats_file = directory / "compare_stats.yaml"
+        stats_file.write_text("statistics_level: light\n" + stats_file.read_text())
+
+    compare_runs(completion_flag_uncached, completion_flag_cached)
+
+    assert "Hashes were not collected in light mode" in capsys.readouterr().out
+
+
 def test_compare_runs_success(
     completion_flag_uncached,
     completion_flag_cached,

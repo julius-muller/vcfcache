@@ -9,9 +9,9 @@ user VCF files using the annotated database.
 
 import hashlib
 import shutil
-import tempfile
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime
 from logging import Logger
@@ -82,7 +82,10 @@ class DatabaseAnnotator(VCFDatabase):
             read_only: If True, skip cache setup (for operating on existing cache)
         """
         super().__init__(
-            Path(db_path) if isinstance(db_path, str) else db_path, verbosity, debug, bcftools_path
+            Path(db_path) if isinstance(db_path, str) else db_path,
+            verbosity,
+            debug,
+            bcftools_path,
         )
 
         self.cached_annotations = AnnotatedCacheOutput(
@@ -114,13 +117,12 @@ class DatabaseAnnotator(VCFDatabase):
             assert wfi.exists(), f"Workflow init params file not found: {wfi}"
             shutil.copyfile(wfi, self.params_file)
             assert (
-
-
                 self.params_file.exists()
             ), f"Workflow params file not found: {self.params_file}"
 
         # Initialize workflow backend (pure Python)
         from vcfcache.database.base import create_workflow
+
         self.nx_workflow = create_workflow(
             input_file=self.blueprint_bcf,
             output_dir=self.output_dir,
@@ -157,12 +159,12 @@ class DatabaseAnnotator(VCFDatabase):
 
         # First, fix any double (or more) backslashes before variables (from old buggy code)
         cleanup_patterns = [
-            (r'\\+\$\{INPUT_BCF\}', '\\${INPUT_BCF}'),  # Replace \\+${...} with \${...}
-            (r'\\+\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),
-            (r'\\+\$\{OUTPUT_BCF\}', '\\${OUTPUT_BCF}'),
-            (r'\\+\$OUTPUT_BCF(?![_{])', '\\$OUTPUT_BCF'),
-            (r'\\+\$\{AUXILIARY_DIR\}', '\\${AUXILIARY_DIR}'),
-            (r'\\+\$AUXILIARY_DIR(?![_{])', '\\$AUXILIARY_DIR'),
+            (r"\\+\$\{INPUT_BCF\}", "\\${INPUT_BCF}"),  # Replace \\+${...} with \${...}
+            (r"\\+\$INPUT_BCF(?![_{])", "\\$INPUT_BCF"),
+            (r"\\+\$\{OUTPUT_BCF\}", "\\${OUTPUT_BCF}"),
+            (r"\\+\$OUTPUT_BCF(?![_{])", "\\$OUTPUT_BCF"),
+            (r"\\+\$\{AUXILIARY_DIR\}", "\\${AUXILIARY_DIR}"),
+            (r"\\+\$AUXILIARY_DIR(?![_{])", "\\$AUXILIARY_DIR"),
         ]
 
         modified_content = content
@@ -170,18 +172,23 @@ class DatabaseAnnotator(VCFDatabase):
             before = modified_content
             modified_content = re.sub(pattern, replacement, modified_content)
             if before != modified_content and self.logger:
-                self.logger.debug(f"Cleanup: Fixed double backslashes for pattern: {pattern}")
+                self.logger.debug(
+                    f"Cleanup: Fixed double backslashes for pattern: {pattern}"
+                )
 
         # Then, add backslashes where missing (for unescaped variables)
         # Pattern explanation: negative lookbehind (?<!\\) ensures we don't match if backslash already present
         # Note: Use regular strings for replacements, not raw strings, so \\$ = one backslash
         add_escape_patterns = [
-            (r'(?<!\\)\$\{INPUT_BCF\}', '\\${INPUT_BCF}'),
-            (r'(?<!\\)\$INPUT_BCF(?![_{])', '\\$INPUT_BCF'),  # Don't match if followed by _ or {
-            (r'(?<!\\)\$\{OUTPUT_BCF\}', '\\${OUTPUT_BCF}'),
-            (r'(?<!\\)\$OUTPUT_BCF(?![_{])', '\\$OUTPUT_BCF'),
-            (r'(?<!\\)\$\{AUXILIARY_DIR\}', '\\${AUXILIARY_DIR}'),
-            (r'(?<!\\)\$AUXILIARY_DIR(?![_{])', '\\$AUXILIARY_DIR'),
+            (r"(?<!\\)\$\{INPUT_BCF\}", "\\${INPUT_BCF}"),
+            (
+                r"(?<!\\)\$INPUT_BCF(?![_{])",
+                "\\$INPUT_BCF",
+            ),  # Don't match if followed by _ or {
+            (r"(?<!\\)\$\{OUTPUT_BCF\}", "\\${OUTPUT_BCF}"),
+            (r"(?<!\\)\$OUTPUT_BCF(?![_{])", "\\$OUTPUT_BCF"),
+            (r"(?<!\\)\$\{AUXILIARY_DIR\}", "\\${AUXILIARY_DIR}"),
+            (r"(?<!\\)\$AUXILIARY_DIR(?![_{])", "\\$AUXILIARY_DIR"),
         ]
 
         # Apply each regex replacement
@@ -193,9 +200,11 @@ class DatabaseAnnotator(VCFDatabase):
 
         if self.logger:
             # Debug: Check final state of variables in the preprocessed content
-            import_bcf_count = modified_content.count('\\${INPUT_BCF}')
-            double_backslash_count = modified_content.count('\\\\${INPUT_BCF}')
-            self.logger.debug(f"Preprocessing result: \\${{INPUT_BCF}} count={import_bcf_count}, \\\\${{INPUT_BCF}} count={double_backslash_count}")
+            import_bcf_count = modified_content.count("\\${INPUT_BCF}")
+            double_backslash_count = modified_content.count("\\\\${INPUT_BCF}")
+            self.logger.debug(
+                f"Preprocessing result: \\${{INPUT_BCF}} count={import_bcf_count}, \\\\${{INPUT_BCF}} count={double_backslash_count}"
+            )
 
         output_cfg = self.output_dir / "annotation.yaml"
         with open(output_cfg, "w") as f:
@@ -233,7 +242,9 @@ class DatabaseAnnotator(VCFDatabase):
                     )
 
         if self.logger:
-            self.logger.debug(f"Creating cache structure: {self.cached_annotations.annotation_dir}")
+            self.logger.debug(
+                f"Creating cache structure: {self.cached_annotations.annotation_dir}"
+            )
         self.cached_annotations.create_structure()
 
     def annotate(self, extra_files: bool = True) -> None:
@@ -264,10 +275,11 @@ class DatabaseAnnotator(VCFDatabase):
 
             # Write completion flag
             from vcfcache.utils.completion import write_completion_flag
+
             write_completion_flag(
                 output_dir=self.cached_annotations.root_dir,
                 command="cache-build",
-                mode="cache-build"
+                mode="cache-build",
             )
 
         except subprocess.CalledProcessError as e:
@@ -336,10 +348,11 @@ class VCFAnnotator(VCFDatabase):
         bcftools_path: Path,
         params_file: Optional[Path | str] = None,
         stats_dir: Optional[Path | str] = None,
-        no_stats: bool = False,
+        no_stats: Optional[bool] = None,
         verbosity: int = 0,
         force: bool = False,
         debug: bool = False,
+        statistics: str = "light",
     ):
         """Initialize database annotator.
 
@@ -350,9 +363,17 @@ class VCFAnnotator(VCFDatabase):
             force: Whether to overwrite existing output directory
             debug: Whether to enable debug mode
             verbosity: Logging verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+            statistics: Statistics detail: light (default), full, or none
         """
         self.input_vcf = Path(input_vcf).expanduser().resolve()
-        self.no_stats = no_stats
+        if no_stats is not None:
+            # Backward-compatible Python API: explicitly passing the old
+            # boolean preserves its previous full/none behavior.
+            statistics = "none" if no_stats else "full"
+        if statistics not in {"light", "full", "none"}:
+            raise ValueError("statistics must be one of: light, full, none")
+        self.statistics = statistics
+        self.no_stats = statistics == "none"
         self.vcf_name, fext = self._validate_and_extract_sample_name()
 
         if not self.input_vcf.exists():
@@ -366,7 +387,10 @@ class VCFAnnotator(VCFDatabase):
         self.annotation_db_path = self.cached_annotations.annotation_dir
         self.annotation_name = self.cached_annotations.name
         super().__init__(
-            self.cached_annotations.cache_output.root_dir, verbosity, debug, bcftools_path
+            self.cached_annotations.cache_output.root_dir,
+            verbosity,
+            debug,
+            bcftools_path,
         )
 
         self.output_to_stdout = str(output_file) in {"-", "stdout"}
@@ -407,7 +431,9 @@ class VCFAnnotator(VCFDatabase):
 
         input_stats_name = f"{self._input_basename()}_vcstats"
         if self.no_stats:
-            stats_output_dir = Path(tempfile.mkdtemp(prefix="vcfcache_stats_")).resolve()
+            stats_output_dir = Path(
+                tempfile.mkdtemp(prefix="vcfcache_stats_")
+            ).resolve()
         elif stats_dir:
             stats_output_dir = Path(stats_dir).expanduser().resolve() / input_stats_name
         else:
@@ -448,7 +474,9 @@ class VCFAnnotator(VCFDatabase):
                 wfi.exists()
             ), f"Workflow annotation params file not found: {wfi}, required if no yaml provided!"
             shutil.copyfile(wfi, self.params_file)
-            print(f"Using default params from cache: {wfi.relative_to(wfi.parent.parent.parent)}")
+            print(
+                f"Using default params from cache: {wfi.relative_to(wfi.parent.parent.parent)}"
+            )
         assert (
             self.params_file.exists()
         ), f"Workflow params file not found: {self.params_file}"
@@ -459,6 +487,7 @@ class VCFAnnotator(VCFDatabase):
 
         # Initialize workflow backend (pure Python)
         from vcfcache.database.base import create_workflow
+
         self.nx_workflow = create_workflow(
             input_file=self.input_vcf,
             output_dir=self.output_dir,
@@ -545,7 +574,9 @@ class VCFAnnotator(VCFDatabase):
                 )
 
         if self.logger:
-            self.logger.debug(f"Creating output structure: {self.output_annotations.root_dir}")
+            self.logger.debug(
+                f"Creating output structure: {self.output_annotations.root_dir}"
+            )
         self.output_annotations.create_structure()
 
     def _validate_and_extract_sample_name(self) -> tuple[str, str]:
@@ -762,7 +793,14 @@ class VCFAnnotator(VCFDatabase):
         for field in gnomad_fields:
             info.pop(field, None)
 
-    def annotate(self, uncached: bool = False, convert_parquet: bool = False, preserve_unannotated: bool = False, skip_split_multiallelic: bool = False, md5_all: bool = False) -> None:
+    def annotate(
+        self,
+        uncached: bool = False,
+        convert_parquet: bool = False,
+        preserve_unannotated: bool = False,
+        skip_split_multiallelic: bool = False,
+        md5_all: bool = False,
+    ) -> None:
         """Run annotation workflow on input VCF file.
 
         Args:
@@ -778,6 +816,9 @@ class VCFAnnotator(VCFDatabase):
              annotation_db="~/tmp/test/test_out/cache/testor", output_file="~/tmp/test/aout.bcf", stats_dir="~/tmp/test/aout_stats", force=True)
 
         """
+        if md5_all and getattr(self, "statistics", "full") != "full":
+            raise ValueError("md5_all requires statistics='full'")
+
         start_time = time.time()
         if self.logger:
             self.logger.debug("Starting VCF annotation")
@@ -802,6 +843,7 @@ class VCFAnnotator(VCFDatabase):
 
             if not self.no_stats:
                 from vcfcache.utils.completion import write_completion_flag
+
                 mode = "uncached" if uncached else "cached"
                 write_completion_flag(
                     output_dir=self.output_annotations.root_dir,
@@ -809,11 +851,17 @@ class VCFAnnotator(VCFDatabase):
                     mode=mode,
                     output_file=str(self.output_vcf) if self.output_vcf else "stdout",
                 )
-                self._write_compare_stats(mode=mode, md5_all=md5_all)
+                self._write_compare_stats(
+                    mode=mode,
+                    md5_all=md5_all,
+                    preserve_unannotated=preserve_unannotated,
+                )
 
             if convert_parquet:
                 if self.output_vcf is None:
-                    raise ValueError("Parquet conversion is not supported when output is stdout.")
+                    raise ValueError(
+                        "Parquet conversion is not supported when output is stdout."
+                    )
                 # threads = self.nx_workflow.nf_config_content['params'].get('vep_max_forks',1) * self.nx_workflow.nf_config_content['params'].get('vep_max_chr_parallel', 1)
                 self._convert_to_parquet(self.output_vcf)  # , threads=threads)
 
@@ -835,12 +883,18 @@ class VCFAnnotator(VCFDatabase):
             return name[: -len(suffixes)]
         return self.input_vcf.stem
 
-    def _write_compare_stats(self, mode: str, md5_all: bool = False) -> None:
+    def _write_compare_stats(
+        self,
+        mode: str,
+        md5_all: bool = False,
+        preserve_unannotated: bool = False,
+    ) -> None:
         stats_file = self.output_dir / "compare_stats.yaml"
         output_file = str(self.output_vcf) if self.output_vcf else "stdout"
         anno_md5 = None
         if self.anno_snapshot_file.exists():
             from vcfcache.utils.validation import compute_md5
+
             anno_md5 = compute_md5(self.anno_snapshot_file)
 
         threads = None
@@ -857,10 +911,17 @@ class VCFAnnotator(VCFDatabase):
             "cache_name": self.annotation_name,
             "cache_path": str(self.annotation_db_path),
             "annotation_yaml_md5": anno_md5,
-            "genome_build_params": self.nx_workflow.params_file_content.get("genome_build"),
-            "genome_build_annotation": self.nx_workflow.nfa_config_content.get("genome_build"),
-            "vcfcache_version": getattr(sys.modules.get("vcfcache"), "__version__", "unknown"),
+            "genome_build_params": self.nx_workflow.params_file_content.get(
+                "genome_build"
+            ),
+            "genome_build_annotation": self.nx_workflow.nfa_config_content.get(
+                "genome_build"
+            ),
+            "vcfcache_version": getattr(
+                sys.modules.get("vcfcache"), "__version__", "unknown"
+            ),
             "threads": threads,
+            "statistics_level": getattr(self, "statistics", "full"),
             "variant_counts": {
                 "total_output": None,
                 "annotated_output": None,
@@ -880,18 +941,54 @@ class VCFAnnotator(VCFDatabase):
         last_stats = getattr(self.nx_workflow, "last_run_stats", {}) or {}
         stats["variant_counts"]["dropped_variants"] = last_stats.get("dropped_variants")
         stats["variant_counts"]["missing_variants"] = last_stats.get("missing_variants")
-        stats["variant_counts"]["missing_annotated"] = last_stats.get("missing_annotated")
+        stats["variant_counts"]["missing_annotated"] = last_stats.get(
+            "missing_annotated"
+        )
         stats["variant_counts"]["input_variants"] = last_stats.get("input_variants")
 
         if self.output_vcf and self.output_vcf.exists():
-            stats["variant_counts"]["total_output"] = self._count_variants(self.output_vcf)
-            tag = self.nx_workflow.nfa_config_content.get("must_contain_info_tag")
-            stats["variant_counts"]["annotated_output"] = self._count_annotated_variants(self.output_vcf, tag)
-            top_md5, bottom_md5 = self._compute_top_bottom_md5(self.output_vcf)
-            stats["variant_md5"]["top10"] = top_md5
-            stats["variant_md5"]["bottom10"] = bottom_md5
-            if md5_all:
-                stats["variant_md5"]["all"] = self._compute_all_md5(self.output_vcf)
+            stats["variant_counts"]["total_output"] = last_stats.get("output_variants")
+            if stats["variant_counts"]["total_output"] is None:
+                stats["variant_counts"]["total_output"] = self._count_variants(
+                    self.output_vcf
+                )
+            if getattr(self, "statistics", "full") == "full":
+                tag = self.nx_workflow.nfa_config_content.get("must_contain_info_tag")
+                stats["variant_counts"]["annotated_output"] = (
+                    self._count_annotated_variants(self.output_vcf, tag)
+                )
+                top_md5, bottom_md5 = self._compute_top_bottom_md5(self.output_vcf)
+                stats["variant_md5"]["top10"] = top_md5
+                stats["variant_md5"]["bottom10"] = bottom_md5
+                if md5_all:
+                    stats["variant_md5"]["all"] = self._compute_all_md5(self.output_vcf)
+            elif mode == "uncached":
+                # The direct workflow validates that the required annotation
+                # tag exists in the annotator output.
+                stats["variant_counts"]["annotated_output"] = stats["variant_counts"][
+                    "total_output"
+                ]
+            elif mode == "cached":
+                input_variants = last_stats.get("input_variants")
+                missing_variants = last_stats.get("missing_variants")
+                missing_annotated = last_stats.get("missing_annotated")
+                if all(
+                    value is not None
+                    for value in (
+                        input_variants,
+                        missing_variants,
+                        missing_annotated,
+                    )
+                ):
+                    stats["variant_counts"]["annotated_output"] = (
+                        input_variants - missing_variants + missing_annotated
+                    )
+                elif not preserve_unannotated:
+                    # The final cached filter guarantees that every retained
+                    # record has the required annotation tag.
+                    stats["variant_counts"]["annotated_output"] = stats[
+                        "variant_counts"
+                    ]["total_output"]
 
         tool_annotated = None
         if mode == "cached":
@@ -917,7 +1014,9 @@ class VCFAnnotator(VCFDatabase):
         except ValueError:
             return None
 
-    def _count_annotated_variants(self, bcf_path: Path, tag: Optional[str]) -> Optional[int]:
+    def _count_annotated_variants(
+        self, bcf_path: Path, tag: Optional[str]
+    ) -> Optional[int]:
         if not tag:
             return None
         try:
@@ -941,7 +1040,9 @@ class VCFAnnotator(VCFDatabase):
         except OSError:
             return None
 
-    def _compute_top_bottom_md5(self, bcf_path: Path) -> tuple[Optional[str], Optional[str]]:
+    def _compute_top_bottom_md5(
+        self, bcf_path: Path
+    ) -> tuple[Optional[str], Optional[str]]:
         try:
             proc = subprocess.Popen(
                 [str(self.bcftools_path), "view", "-H", str(bcf_path)],
@@ -973,7 +1074,11 @@ class VCFAnnotator(VCFDatabase):
 
         top_md5 = _md5(top_lines)
         bottom_md5 = _md5(bottom_lines)
-        if len(top_lines) <= 10 and len(bottom_lines) <= 10 and len(top_lines) == len(bottom_lines):
+        if (
+            len(top_lines) <= 10
+            and len(bottom_lines) <= 10
+            and len(top_lines) == len(bottom_lines)
+        ):
             bottom_md5 = top_md5
         return top_md5, bottom_md5
 

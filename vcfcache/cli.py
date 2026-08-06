@@ -21,25 +21,25 @@ Date: 16-03-2025
 
 import argparse
 import os
-import sys
-import subprocess
 import re
+import subprocess
+import sys
 from importlib.metadata import version as pkg_version
 from pathlib import Path
 
 import requests
 import yaml
 
-from vcfcache.integrations.zenodo import (
-    download_doi,
-    search_zenodo_records,
-    ZenodoError,
-)
 from vcfcache.database.annotator import DatabaseAnnotator, VCFAnnotator
 from vcfcache.database.initializer import DatabaseInitializer
 from vcfcache.database.updater import DatabaseUpdater
-from vcfcache.utils.logging import log_command, setup_logging
+from vcfcache.integrations.zenodo import (
+    ZenodoError,
+    download_doi,
+    search_zenodo_records,
+)
 from vcfcache.utils.archive import extract_cache, tar_cache_subset
+from vcfcache.utils.logging import log_command, setup_logging
 from vcfcache.utils.paths import get_project_root
 from vcfcache.utils.validation import check_bcftools_installed
 
@@ -87,7 +87,7 @@ def _show_detailed_timings(workflow_log: Path) -> None:
     if not workflow_log.exists():
         return
 
-    timing_pattern = re.compile(r'Command completed in ([\d.]+)s: (.+)')
+    timing_pattern = re.compile(r"Command completed in ([\d.]+)s: (.+)")
     operations = []
 
     with workflow_log.open() as f:
@@ -121,7 +121,9 @@ def _show_detailed_timings(workflow_log: Path) -> None:
         print(f"    {'Total':30s}: {total_str:>10s}")
 
 
-def _print_annotation_command(path_hint: Path, params_override: Path | None = None) -> None:
+def _print_annotation_command(
+    path_hint: Path, params_override: Path | None = None
+) -> None:
     """Print cache requirements and the stored annotation command.
 
     Args:
@@ -151,9 +153,13 @@ def _print_annotation_command(path_hint: Path, params_override: Path | None = No
                     )
             else:
                 # Multiple caches, ask user to specify
-                print(f"Multiple caches found. Please specify which one:")
+                print("Multiple caches found. Please specify which one:")
                 for cache in sorted(caches):
-                    status = "" if (cache / "vcfcache_annotated.bcf").exists() else " (incomplete)"
+                    status = (
+                        ""
+                        if (cache / "vcfcache_annotated.bcf").exists()
+                        else " (incomplete)"
+                    )
                     print(f"  vcfcache annotate --requirements -a {cache}{status}")
                 return
         except Exception as e:
@@ -194,7 +200,9 @@ def _print_annotation_command(path_hint: Path, params_override: Path | None = No
         return f"{C_RED}{text}{C_RESET}"
 
     # Extract required ${params.*} keys from annotation_cmd
-    required_keys = sorted(set(re.findall(r"\$\{params\.([A-Za-z0-9_\\.]+)\}", command)))
+    required_keys = sorted(
+        set(re.findall(r"\$\{params\.([A-Za-z0-9_\\.]+)\}", command))
+    )
 
     print(_hdr("Cache annotation recipe"))
     print(f"  annotation.yaml: {params_file}")
@@ -243,7 +251,9 @@ def _print_annotation_command(path_hint: Path, params_override: Path | None = No
     print("\n" + _hdr("Tool checks"))
     bcftools_cmd = params.get("bcftools_cmd") or "bcftools"
     try:
-        res = subprocess.run([str(bcftools_cmd), "--version-only"], capture_output=True, text=True)
+        res = subprocess.run(
+            [str(bcftools_cmd), "--version-only"], capture_output=True, text=True
+        )
         if res.returncode == 0:
             print(f"  bcftools: {res.stdout.strip()}  {_ok('✓')}")
         else:
@@ -254,15 +264,21 @@ def _print_annotation_command(path_hint: Path, params_override: Path | None = No
     tool_version_cmd = params.get("tool_version_command")
     if tool_version_cmd:
         try:
-            res = subprocess.run(tool_version_cmd, shell=True, capture_output=True, text=True)
+            res = subprocess.run(
+                tool_version_cmd, shell=True, capture_output=True, text=True
+            )
             if res.returncode == 0:
                 print(f"  annotation tool: {res.stdout.strip()}  {_ok('✓')}")
             else:
-                print(f"  annotation tool: ERROR ({res.stderr.strip() or 'failed'})  {_bad('✗')}")
+                print(
+                    f"  annotation tool: ERROR ({res.stderr.strip() or 'failed'})  {_bad('✗')}"
+                )
         except Exception as exc:
             print(f"  annotation tool: ERROR ({exc})  {_bad('✗')}")
     else:
-        print(f"  annotation tool: {_bad('no tool_version_command provided')}  {_bad('✗')}")
+        print(
+            f"  annotation tool: {_bad('no tool_version_command provided')}  {_bad('✗')}"
+        )
 
     print("\n" + _hdr("Cache contigs (bcftools index -s)"))
     cache_bcf = cache_dir / "vcfcache_annotated.bcf"
@@ -274,7 +290,9 @@ def _print_annotation_command(path_hint: Path, params_override: Path | None = No
                 text=True,
             )
             if res.returncode == 0:
-                contigs = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+                contigs = [
+                    line.strip() for line in res.stdout.splitlines() if line.strip()
+                ]
                 if contigs:
                     max_lines = 50
                     for line in contigs[:max_lines]:
@@ -300,6 +318,7 @@ def _print_annotation_command(path_hint: Path, params_override: Path | None = No
                     return match.group(0)
                 cur = cur[part]
             return str(cur)
+
         return re.sub(r"\$\{params\.([A-Za-z0-9_\\.]+)\}", _replace, text)
 
     substituted = _substitute_params(command, params)
@@ -314,7 +333,6 @@ def _find_cache_dir(path_hint: Path) -> Path:
     annotation directory (e.g., /cache/db/cache/vep_gnomad). Returns the path to
     the cache directory that contains annotation subfolders.
     """
-
     if (path_hint / "cache").exists():
         return path_hint / "cache"
 
@@ -367,6 +385,7 @@ def main() -> None:
         version_str = pkg_version("vcfcache")
     except Exception:
         from vcfcache import __version__
+
         version_str = __version__
 
     parser.add_argument(
@@ -436,7 +455,7 @@ def main() -> None:
         action="store_true",
         default=False,
         help="(optional) Keep intermediate work directory for debugging. "
-             "Also uses Zenodo sandbox instead of production for list/download operations.",
+        "Also uses Zenodo sandbox instead of production for list/download operations.",
     )
 
     # init command
@@ -448,7 +467,7 @@ def main() -> None:
             "Initialize a blueprint from either a local VCF/BCF file or by downloading from Zenodo. "
             "When creating from VCF: removes genotypes and INFO fields, splits multiallelic sites. "
             "When downloading from Zenodo: extracts blueprint to specified directory."
-        )
+        ),
     )
 
     # Create mutually exclusive group for source
@@ -458,13 +477,13 @@ def main() -> None:
         "--vcf",
         dest="i",
         metavar="VCF",
-        help="Input VCF/BCF file to create blueprint from (must be indexed with .csi)"
+        help="Input VCF/BCF file to create blueprint from (must be indexed with .csi)",
     )
     source_group.add_argument(
         "--doi",
         dest="doi",
         metavar="DOI",
-        help="Zenodo DOI to download blueprint from (e.g., 10.5281/zenodo.XXXXX)"
+        help="Zenodo DOI to download blueprint from (e.g., 10.5281/zenodo.XXXXX)",
     )
 
     init_parser.add_argument(
@@ -473,7 +492,7 @@ def main() -> None:
         dest="output",
         default="./cache",
         metavar="DIR",
-        help="(optional) Output directory (default: ./cache)"
+        help="(optional) Output directory (default: ./cache)",
     )
     init_parser.add_argument(
         "-y",
@@ -497,7 +516,7 @@ def main() -> None:
         dest="force",
         action="store_true",
         default=False,
-        help="(optional) Force overwrite if output directory exists"
+        help="(optional) Force overwrite if output directory exists",
     )
 
     # blueprint-extend command
@@ -505,7 +524,7 @@ def main() -> None:
         "blueprint-extend",
         help="Add variants to existing blueprint",
         parents=[init_parent_parser],
-        description="Extend an existing blueprint by adding variants from a new VCF/BCF file."
+        description="Extend an existing blueprint by adding variants from a new VCF/BCF file.",
     )
     extend_parser.add_argument(
         "-d",
@@ -513,7 +532,7 @@ def main() -> None:
         dest="db",
         required=True,
         metavar="DIR",
-        help="Path to existing blueprint directory"
+        help="Path to existing blueprint directory",
     )
     extend_parser.add_argument(
         "-i",
@@ -521,7 +540,7 @@ def main() -> None:
         dest="i",
         required=True,
         metavar="VCF",
-        help="Input VCF/BCF file to add (must be indexed with .csi)"
+        help="Input VCF/BCF file to add (must be indexed with .csi)",
     )
     extend_parser.add_argument(
         "-n",
@@ -551,7 +570,7 @@ def main() -> None:
             "Two modes:\n"
             "1. Build from blueprint (local or Zenodo): Requires -a/--anno-config to define annotation workflow.\n"
             "2. Download pre-built cache from Zenodo: DOI points to cache, -a forbidden, -n optional."
-        )
+        ),
     )
     # Source: local blueprint directory OR Zenodo DOI (blueprint or cache)
     source = cache_build_parser.add_mutually_exclusive_group(required=True)
@@ -560,13 +579,13 @@ def main() -> None:
         "--db",
         dest="db",
         metavar="DIR",
-        help="Path to existing blueprint directory (requires -a)"
+        help="Path to existing blueprint directory (requires -a)",
     )
     source.add_argument(
         "--doi",
         dest="doi",
         metavar="DOI",
-        help="Zenodo DOI (blueprint or cache). If blueprint: requires -a. If cache: forbids -a."
+        help="Zenodo DOI (blueprint or cache). If blueprint: requires -a. If cache: forbids -a.",
     )
     cache_build_parser.add_argument(
         "-o",
@@ -585,7 +604,7 @@ def main() -> None:
         dest="name",
         required=False,
         metavar="NAME",
-        help="(Optional) Name for the cache. Required when building from blueprint. Ignored when downloading pre-built cache."
+        help="(Optional) Name for the cache. Required when building from blueprint. Ignored when downloading pre-built cache.",
     )
     cache_build_parser.add_argument(
         "-a",
@@ -593,7 +612,7 @@ def main() -> None:
         dest="anno_config",
         required=False,
         metavar="YAML",
-        help="(Optional) Annotation config YAML. Required when building cache from blueprint."
+        help="(Optional) Annotation config YAML. Required when building cache from blueprint.",
     )
     cache_build_parser.add_argument(
         "-y",
@@ -601,7 +620,7 @@ def main() -> None:
         dest="params",
         required=False,
         metavar="YAML",
-        help="(optional) Params YAML file with tool paths and resources. Auto-generated if not provided."
+        help="(optional) Params YAML file with tool paths and resources. Auto-generated if not provided.",
     )
     cache_build_parser.add_argument(
         "-f",
@@ -609,7 +628,7 @@ def main() -> None:
         dest="force",
         action="store_true",
         default=False,
-        help="(optional) Force overwrite if cache already exists"
+        help="(optional) Force overwrite if cache already exists",
     )
     # Main functionality, apply to user vcf
     vcf_parser = subparsers.add_parser(
@@ -657,8 +676,7 @@ def main() -> None:
             "If no extension is provided, '.bcf' is appended."
         ),
     )
-    stats_group = vcf_parser.add_mutually_exclusive_group()
-    stats_group.add_argument(
+    vcf_parser.add_argument(
         "--stats-dir",
         dest="stats_dir",
         required=False,
@@ -669,11 +687,24 @@ def main() -> None:
             "If omitted, stats are written to <cwd>/<input_basename>_vcstats."
         ),
     )
-    stats_group.add_argument(
+    statistics_group = vcf_parser.add_mutually_exclusive_group()
+    statistics_group.add_argument(
+        "--statistics",
+        choices=("light", "full", "none"),
+        default="light",
+        help=(
+            "Statistics detail level (default: light). 'light' records workflow counters "
+            "and indexed record counts without rescanning the output; 'full' additionally "
+            "counts annotated records and computes comparison hashes; 'none' discards the "
+            "statistics/log directory."
+        ),
+    )
+    statistics_group.add_argument(
         "--no-stats",
-        action="store_true",
-        default=False,
-        help="(optional) Disable stats/logs output (disables vcfcache compare).",
+        dest="statistics",
+        action="store_const",
+        const="none",
+        help="Deprecated alias for --statistics none.",
     )
     vcf_parser.add_argument(
         "--md5-all",
@@ -793,7 +824,7 @@ def main() -> None:
             "Auto-detects blueprint vs cache and generates appropriate naming: "
             "bp_{name}.tar.gz for blueprints, cache_{name}.tar.gz for caches. "
             "Requires ZENODO_TOKEN environment variable (or ZENODO_SANDBOX_TOKEN for --test mode)."
-        )
+        ),
     )
     push_parser.add_argument(
         "--cache-dir",
@@ -809,7 +840,7 @@ def main() -> None:
         choices=["zenodo"],
         default="zenodo",
         metavar="DEST",
-        help="(optional) Upload destination: zenodo (default: zenodo)"
+        help="(optional) Upload destination: zenodo (default: zenodo)",
     )
     push_parser.add_argument(
         "--test",
@@ -818,7 +849,7 @@ def main() -> None:
             "(optional) Upload to test/sandbox environment instead of production. "
             "Uses ZENODO_SANDBOX_TOKEN instead of ZENODO_TOKEN. "
             "Test uploads do not affect production and can be safely deleted."
-        )
+        ),
     )
     push_parser.add_argument(
         "--metadata",
@@ -841,7 +872,7 @@ def main() -> None:
             "(optional) Publish the dataset immediately after upload. "
             "If not set, upload will remain as a draft for manual review. "
             "WARNING: Published datasets cannot be deleted, only versioned."
-        )
+        ),
     )
 
     # demo command
@@ -905,6 +936,10 @@ def main() -> None:
             parser.error(
                 "annotate command requires -i/--vcf and -o/--output unless --requirements is used"
             )
+        if args.statistics == "none" and args.stats_dir:
+            parser.error("--statistics none/--no-stats cannot be used with --stats-dir")
+        if args.md5_all and args.statistics != "full":
+            parser.error("--md5-all requires --statistics full")
 
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)
@@ -914,6 +949,7 @@ def main() -> None:
     bcftools_path = None
     if not (show_command_only or list_only or args.command in ["list", "push"]):
         from vcfcache.utils.validation import MIN_BCFTOOLS_VERSION
+
         logger.debug(f"Minimum required bcftools version: {MIN_BCFTOOLS_VERSION}")
         bcftools_path = check_bcftools_installed()
 
@@ -922,9 +958,13 @@ def main() -> None:
             if args.doi:
                 # Download blueprint from Zenodo
                 zenodo_env = "sandbox" if args.debug else "production"
-                logger.info(f"Downloading blueprint from Zenodo ({zenodo_env}) DOI: {args.doi}")
+                logger.info(
+                    f"Downloading blueprint from Zenodo ({zenodo_env}) DOI: {args.doi}"
+                )
                 if args.output == "./cache":
-                    base = Path(os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")).expanduser()
+                    base = Path(
+                        os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")
+                    ).expanduser()
                     output_dir = (base / "blueprints").resolve()
                 else:
                     output_dir = Path(args.output).expanduser().resolve()
@@ -932,6 +972,7 @@ def main() -> None:
 
                 # Download to temporary tarball
                 import tempfile
+
                 with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp:
                     tar_path = Path(tmp.name)
 
@@ -952,7 +993,9 @@ def main() -> None:
 
                 initializer = DatabaseInitializer(
                     input_file=Path(args.i),
-                    params_file=Path(args.params) if getattr(args, "params", None) else None,
+                    params_file=(
+                        Path(args.params) if getattr(args, "params", None) else None
+                    ),
                     output_dir=Path(args.output),
                     verbosity=args.verbose,
                     force=args.force,
@@ -972,7 +1015,9 @@ def main() -> None:
             updater = DatabaseUpdater(
                 db_path=args.db,
                 input_file=args.i,
-                params_file=Path(args.params) if getattr(args, "params", None) else None,
+                params_file=(
+                    Path(args.params) if getattr(args, "params", None) else None
+                ),
                 verbosity=args.verbose,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
@@ -997,7 +1042,11 @@ def main() -> None:
                 cache_dir = directory / "cache"
 
                 has_blueprint = blueprint_marker.exists()
-                has_cache = cache_dir.exists() and cache_dir.is_dir() and any(cache_dir.iterdir())
+                has_cache = (
+                    cache_dir.exists()
+                    and cache_dir.is_dir()
+                    and any(cache_dir.iterdir())
+                )
 
                 # If has both blueprint and cache → it's an annotated cache
                 if has_blueprint and has_cache:
@@ -1015,7 +1064,9 @@ def main() -> None:
                 return True
 
             # Handle source: local directory or Zenodo DOI
-            skip_annotation = False  # Initialize - may be set to True for existing caches
+            skip_annotation = (
+                False  # Initialize - may be set to True for existing caches
+            )
 
             if args.doi:
                 zenodo_env = "sandbox" if args.debug else "production"
@@ -1023,6 +1074,7 @@ def main() -> None:
 
                 # Download to appropriate cache directory
                 import tempfile
+
                 with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp:
                     tar_path = Path(tmp.name)
 
@@ -1063,11 +1115,14 @@ def main() -> None:
                         )
 
                     # Move to blueprints cache
-                    blueprint_store = cache_base / "blueprints" if store_subdirs else cache_base
+                    blueprint_store = (
+                        cache_base / "blueprints" if store_subdirs else cache_base
+                    )
                     blueprint_store.mkdir(parents=True, exist_ok=True)
                     final_dir = blueprint_store / extracted_dir.name
                     if final_dir.exists():
                         import shutil
+
                         shutil.rmtree(final_dir)
                     extracted_dir.rename(final_dir)
                     temp_extract.rmdir()
@@ -1090,6 +1145,7 @@ def main() -> None:
                     final_dir = cache_store / extracted_dir.name
                     if final_dir.exists():
                         import shutil
+
                         shutil.rmtree(final_dir)
                     extracted_dir.rename(final_dir)
                     temp_extract.rmdir()
@@ -1141,7 +1197,11 @@ def main() -> None:
 
         elif args.command == "annotate":
             if args.requirements:
-                params_override = Path(args.params).expanduser().resolve() if getattr(args, "params", None) else None
+                params_override = (
+                    Path(args.params).expanduser().resolve()
+                    if getattr(args, "params", None)
+                    else None
+                )
                 _print_annotation_command(Path(args.a), params_override=params_override)
                 return
 
@@ -1166,15 +1226,15 @@ def main() -> None:
                 params_file=Path(args.params) if args.params else None,
                 output_file=args.output_file,
                 stats_dir=args.stats_dir,
-                no_stats=args.no_stats,
+                statistics=args.statistics,
                 verbosity=args.verbose,
                 force=args.force,
                 debug=args.debug,
                 bcftools_path=bcftools_path,
             )
 
-            preserve_unannotated = getattr(args, 'preserve_unannotated', False)
-            skip_split_multiallelic = getattr(args, 'skip_split_multiallelic', False)
+            preserve_unannotated = getattr(args, "preserve_unannotated", False)
+            skip_split_multiallelic = getattr(args, "skip_split_multiallelic", False)
             vcf_annotator.annotate(
                 uncached=args.uncached,
                 convert_parquet=args.parquet,
@@ -1185,8 +1245,14 @@ def main() -> None:
 
             # Show detailed timing if --debug is enabled
             if args.debug and args.stats_dir:
-                output_name = Path(args.output_file).name if args.output_file not in ("-", "stdout") else "stdout"
-                workflow_log = Path(args.stats_dir) / f"{output_name}_vcstats" / "workflow.log"
+                output_name = (
+                    Path(args.output_file).name
+                    if args.output_file not in ("-", "stdout")
+                    else "stdout"
+                )
+                workflow_log = (
+                    Path(args.stats_dir) / f"{output_name}_vcstats" / "workflow.log"
+                )
                 _show_detailed_timings(workflow_log)
 
         elif args.command == "list":
@@ -1201,7 +1267,9 @@ def main() -> None:
                     if p.exists():
                         return p.resolve()
 
-                    cache_base = Path(os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")).expanduser()
+                    cache_base = Path(
+                        os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")
+                    ).expanduser()
                     for sub in ("caches", "blueprints"):
                         cand = (cache_base / sub / s).expanduser()
                         if cand.exists():
@@ -1212,13 +1280,19 @@ def main() -> None:
                     )
 
                 def is_cache_root(root: Path) -> bool:
-                    return (root / "blueprint" / "vcfcache.bcf").exists() and (root / "cache").is_dir()
+                    return (root / "blueprint" / "vcfcache.bcf").exists() and (
+                        root / "cache"
+                    ).is_dir()
 
                 def is_annotation_dir(p: Path) -> bool:
-                    return (p / "annotation.yaml").exists() and (p / "vcfcache_annotated.bcf").exists()
+                    return (p / "annotation.yaml").exists() and (
+                        p / "vcfcache_annotated.bcf"
+                    ).exists()
 
                 def parse_required_params(annotation_text: str) -> list[str]:
-                    keys = set(re.findall(r"\$\{params\.([A-Za-z0-9_]+)\}", annotation_text))
+                    keys = set(
+                        re.findall(r"\$\{params\.([A-Za-z0-9_]+)\}", annotation_text)
+                    )
                     return sorted(keys)
 
                 target = resolve_path(path_or_alias)
@@ -1254,7 +1328,9 @@ def main() -> None:
                 if not annotation_dirs:
                     print("Cache: (none found)")
                     print("This looks like a blueprint-only directory.")
-                    print("Build a cache with: vcfcache cache-build --db <dir> -a <annotation.yaml> -n <name>")
+                    print(
+                        "Build a cache with: vcfcache cache-build --db <dir> -a <annotation.yaml> -n <name>"
+                    )
                     print("=" * 80)
                     return
 
@@ -1283,7 +1359,10 @@ def main() -> None:
                 required_keys = parse_required_params(anno_text)
                 params = {}
                 if params_snapshot.exists():
-                    params = yaml.safe_load(params_snapshot.read_text(encoding="utf-8")) or {}
+                    params = (
+                        yaml.safe_load(params_snapshot.read_text(encoding="utf-8"))
+                        or {}
+                    )
 
                 def get_nested(d: dict, dotted: str):
                     cur = d
@@ -1316,7 +1395,9 @@ def main() -> None:
                 if required_keys:
                     print("params:")
                     for k in required_keys:
-                        print(f"  {k}: {get_nested(params, k) if get_nested(params, k) is not None else '<fill-me>'}")
+                        print(
+                            f"  {k}: {get_nested(params, k) if get_nested(params, k) is not None else '<fill-me>'}"
+                        )
                 print("=" * 80)
 
             def _dir_size_mb(root: Path) -> float:
@@ -1392,14 +1473,22 @@ def main() -> None:
                     pass
                 return None
 
-            def _matches_filters(root: Path, item_type: str, genome_filter: str | None, source_filter: str | None) -> bool:
+            def _matches_filters(
+                root: Path,
+                item_type: str,
+                genome_filter: str | None,
+                source_filter: str | None,
+            ) -> bool:
                 """Check if item matches genome and source filters."""
                 from vcfcache.utils.naming import CacheName
 
                 # Apply genome filter
                 if genome_filter:
                     genome_build = _get_genome_build(root, item_type)
-                    if not genome_build or genome_build.lower() != genome_filter.lower():
+                    if (
+                        not genome_build
+                        or genome_build.lower() != genome_filter.lower()
+                    ):
                         return False
 
                 # Apply source filter
@@ -1447,6 +1536,7 @@ def main() -> None:
 
             def _blueprint_variant_count(root: Path) -> int | None:
                 from vcfcache.utils.validation import find_bcftools
+
                 bcftools = find_bcftools()
                 if not bcftools:
                     return None
@@ -1481,6 +1571,7 @@ def main() -> None:
 
             def _cache_variant_count(root: Path) -> int | None:
                 from vcfcache.utils.validation import find_bcftools
+
                 bcftools = find_bcftools()
                 if not bcftools:
                     return None
@@ -1523,8 +1614,15 @@ def main() -> None:
                 except Exception:
                     return None
 
-            def _list_local(item_type: str, base_dir: str | None, genome_filter: str | None = None, source_filter: str | None = None) -> None:
-                default_base = Path(os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")).expanduser()
+            def _list_local(
+                item_type: str,
+                base_dir: str | None,
+                genome_filter: str | None = None,
+                source_filter: str | None = None,
+            ) -> None:
+                default_base = Path(
+                    os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")
+                ).expanduser()
                 base = Path(base_dir).expanduser() if base_dir else default_base
 
                 # If the user provided a path, treat it as:
@@ -1558,7 +1656,9 @@ def main() -> None:
                             continue
 
                     # Apply genome and source filters
-                    if not _matches_filters(root, item_type, genome_filter, source_filter):
+                    if not _matches_filters(
+                        root, item_type, genome_filter, source_filter
+                    ):
                         continue
 
                     if item_type == "blueprints":
@@ -1589,29 +1689,46 @@ def main() -> None:
                         size_mb = _cache_dir_size_mb(root)
                     mtime = ""
                     try:
-                        mtime = __import__("datetime").datetime.fromtimestamp(root.stat().st_mtime).date().isoformat()
+                        mtime = (
+                            __import__("datetime")
+                            .datetime.fromtimestamp(root.stat().st_mtime)
+                            .date()
+                            .isoformat()
+                        )
                     except Exception:
                         mtime = "Unknown"
 
                     title = root.name
                     # If the directory name is an alias, format it like Zenodo titles.
                     fake_record = {"title": "", "keywords": [root.name]}
-                    title = _display_title(fake_record, "caches" if item_type == "caches" else "blueprints")
+                    title = _display_title(
+                        fake_record, "caches" if item_type == "caches" else "blueprints"
+                    )
 
                     print(f"\n{title}")
                     if item_type == "blueprints":
                         variants = _blueprint_variant_count(root)
-                        variants_str = f"{variants:,}" if variants is not None else "N/A"
-                        print(f"  Path: {root} | Updated: {mtime} | Size: {size_mb:.1f} MB | Variants: {variants_str}")
+                        variants_str = (
+                            f"{variants:,}" if variants is not None else "N/A"
+                        )
+                        print(
+                            f"  Path: {root} | Updated: {mtime} | Size: {size_mb:.1f} MB | Variants: {variants_str}"
+                        )
                     else:
                         variants = _cache_variant_count(root)
-                        variants_str = f"{variants:,}" if variants is not None else "N/A"
-                        print(f"  Path: {root} | Updated: {mtime} | Size: {size_mb:.1f} MB | Variants: {variants_str}")
+                        variants_str = (
+                            f"{variants:,}" if variants is not None else "N/A"
+                        )
+                        print(
+                            f"  Path: {root} | Updated: {mtime} | Size: {size_mb:.1f} MB | Variants: {variants_str}"
+                        )
 
                 print(f"\n{'=' * 80}")
                 print(f"Total: {len(entries)} {item_type} found")
                 if item_type == "caches":
-                    print("Inspect: vcfcache list --inspect <path-to-cache-root-or-annotation-dir>")
+                    print(
+                        "Inspect: vcfcache list --inspect <path-to-cache-root-or-annotation-dir>"
+                    )
 
             def _pretty_source(s: str) -> str:
                 if s.lower() == "gnomad":
@@ -1625,6 +1742,7 @@ def main() -> None:
 
             def _format_release(release: str) -> str:
                 import re
+
                 m = re.match(r"^(\d+(?:\.\d+)*)(.*)$", release)
                 if not m:
                     return release
@@ -1638,6 +1756,7 @@ def main() -> None:
                 # Convention: AF#### where ####/1000 is allele frequency threshold.
                 # Example: AF0100 -> 0.100 (10%)
                 import re
+
                 m = re.match(r"^AF(\d+)$", filt)
                 if not m:
                     return filt
@@ -1649,11 +1768,23 @@ def main() -> None:
                 from vcfcache.utils.naming import CacheName
 
                 title = record.get("title")
-                if isinstance(title, str) and title.strip() and title.strip() != "Unknown":
+                if (
+                    isinstance(title, str)
+                    and title.strip()
+                    and title.strip() != "Unknown"
+                ):
                     return title.strip()
 
                 keywords = record.get("keywords") or []
-                alias = next((k for k in keywords if isinstance(k, str) and (k.startswith("cache-") or k.startswith("bp-"))), None)
+                alias = next(
+                    (
+                        k
+                        for k in keywords
+                        if isinstance(k, str)
+                        and (k.startswith("cache-") or k.startswith("bp-"))
+                    ),
+                    None,
+                )
                 if not alias:
                     return record.get("title", "Unknown")
                 try:
@@ -1727,7 +1858,9 @@ def main() -> None:
             cache_location = os.environ.get("VCFCACHE_DIR", "~/.cache/vcfcache")
             debug_flag = " --debug" if args.debug else ""
             if item_type == "blueprints":
-                print(f"Download: vcfcache blueprint-init --doi <DOI> -o <output_dir>{debug_flag}")
+                print(
+                    f"Download: vcfcache blueprint-init --doi <DOI> -o <output_dir>{debug_flag}"
+                )
                 print(
                     f"Or build cache: vcfcache cache-build --doi <DOI> -a <annotation.yaml> -n <name>{debug_flag}"
                 )
@@ -1738,12 +1871,15 @@ def main() -> None:
                 print(
                     f"Then use: vcfcache annotate -a {cache_location}/caches/<cache_name> -i sample.vcf -o sample_vc.bcf [--stats-dir output/]"
                 )
-                print(f"\nTip: Set VCFCACHE_DIR=/path/to/large/disk to change download location\n")
+                print(
+                    "\nTip: Set VCFCACHE_DIR=/path/to/large/disk to change download location\n"
+                )
 
         elif args.command == "push":
+            import json
+
             from vcfcache.integrations import zenodo
             from vcfcache.utils.archive import file_md5
-            import json
 
             # Use --test flag to determine sandbox mode
             sandbox = args.test
@@ -1767,7 +1903,9 @@ def main() -> None:
             base_dir = cache_dir
 
             if cache_dir.name == "cache" and cache_dir.is_dir():
-                is_cache_root = (cache_dir.parent / "blueprint").is_dir() and not (cache_dir / "blueprint").is_dir()
+                is_cache_root = (cache_dir.parent / "blueprint").is_dir() and not (
+                    cache_dir / "blueprint"
+                ).is_dir()
                 if is_cache_root:
                     raise ValueError(
                         f"Cache directory {cache_dir} is the cache root. "
@@ -1797,9 +1935,13 @@ def main() -> None:
                 try:
                     complete_data = yaml.safe_load(complete_file.read_text()) or {}
                 except Exception as exc:
-                    raise ValueError(f"Invalid .vcfcache_complete in {path}: {exc}") from exc
+                    raise ValueError(
+                        f"Invalid .vcfcache_complete in {path}: {exc}"
+                    ) from exc
                 if complete_data.get("completed") is not True:
-                    raise ValueError(f"Incomplete run in {path} (.vcfcache_complete completed != true)")
+                    raise ValueError(
+                        f"Incomplete run in {path} (.vcfcache_complete completed != true)"
+                    )
                 if complete_data.get("mode") != expected_mode:
                     raise ValueError(
                         f"Unexpected .vcfcache_complete mode in {path}: "
@@ -1823,7 +1965,11 @@ def main() -> None:
                     "Blueprint upload selected: existing cache contents will be excluded."
                 )
 
-            upload_kind = "blueprint-only" if is_blueprint else f"cache + blueprint ({selected_cache_name})"
+            upload_kind = (
+                "blueprint-only"
+                if is_blueprint
+                else f"cache + blueprint ({selected_cache_name})"
+            )
             print("Upload plan:")
             print(f"  Base directory: {base_dir}")
             print(f"  Upload type: {upload_kind}")
@@ -1843,7 +1989,9 @@ def main() -> None:
                     print("Upload cancelled.")
                     return
 
-            logger.info(f"Detected {'blueprint' if is_blueprint else 'cache'}: {dir_name}")
+            logger.info(
+                f"Detected {'blueprint' if is_blueprint else 'cache'}: {dir_name}"
+            )
             logger.info(f"Creating archive: {tar_name}")
 
             tar_cache_subset(
@@ -1875,7 +2023,9 @@ def main() -> None:
                 from vcfcache.utils.naming import CacheName
 
                 parsed = CacheName.parse(dir_name)
-                keywords.extend([parsed.genome, parsed.source, parsed.release, parsed.filt])
+                keywords.extend(
+                    [parsed.genome, parsed.source, parsed.release, parsed.filt]
+                )
                 if parsed.tool:
                     keywords.append(parsed.tool)
                 if parsed.tool_version:
@@ -1919,7 +2069,9 @@ def main() -> None:
                     timeout=30,
                 )
                 if not resp.ok:
-                    error_msg = f"Failed to update metadata: {resp.status_code} {resp.reason}"
+                    error_msg = (
+                        f"Failed to update metadata: {resp.status_code} {resp.reason}"
+                    )
                     try:
                         error_detail = resp.json()
                         error_msg += f"\nZenodo error: {error_detail}"
@@ -1941,7 +2093,7 @@ def main() -> None:
 
             # Run smoke test (only mode now)
             # Derive quiet mode from verbosity: quiet when verbosity is 0 (via -q flag)
-            quiet = (args.verbose == 0)
+            quiet = args.verbose == 0
             exit_code = run_smoke_test(keep_files=args.debug, quiet=quiet)
             sys.exit(exit_code)
 

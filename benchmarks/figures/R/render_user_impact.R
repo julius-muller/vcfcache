@@ -156,7 +156,8 @@ render_user_impact_figure <- function(input_dir, output_dir, snapshot) {
     )
 
   validated <- snapshot$sample_counts$primary_wgs +
-    sum(unlist(snapshot$sample_counts$assay_by_type))
+    sum(unlist(snapshot$sample_counts$assay_by_type)) +
+    snapshot$sample_counts$external_semantically_validated
   p_trust <- ggplot() +
     annotate("rect", xmin = 0, xmax = 1, ymin = 0, ymax = 1, fill = "#EAF6EE", color = NA) +
     annotate(
@@ -165,7 +166,7 @@ render_user_impact_figure <- function(input_dir, output_dir, snapshot) {
     ) +
     annotate(
       "text", x = 0.06, y = 0.43, hjust = 0, size = 4.2,
-      color = vcf_colors[["ink"]], label = sprintf("%d/%d completed paired benchmark outputs pass", validated, validated)
+      color = vcf_colors[["ink"]], label = sprintf("%d/%d benchmark samples pass output-equivalence checks", validated, validated)
     ) +
     annotate(
       "text", x = 0.06, y = 0.20, hjust = 0, size = 3.4,
@@ -181,7 +182,7 @@ render_user_impact_figure <- function(input_dir, output_dir, snapshot) {
       subtitle = "New time ≈ lookup + (1 − cache hit rate) × your current annotation time",
       caption = paste(
         "MODELED PREVIEW: zero lookup overhead is shown until the controlled-runtime campaign supplies the measured value.",
-        "Very short pipelines can be dominated by lookup overhead; preliminary panel runs demonstrate this break-even behavior.",
+        "Very short pipelines can be dominated by lookup overhead; source-overlap calibration runs demonstrate this break-even behavior.",
         preliminary_caption(snapshot),
         sep = "\n"
       ),

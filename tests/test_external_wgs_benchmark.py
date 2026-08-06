@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pytest
 
+import benchmarks.recover_external_attempts as recovery
+import benchmarks.validate_external_completion as completion_validator
 from benchmarks.analyze_external_benchmark import scaling_rows, strategy_summary
 from benchmarks.prepare_external_wgs import (
     COHORT_RECORD_LIMITS,
@@ -26,12 +28,18 @@ from benchmarks.prepare_external_wgs import (
 )
 from benchmarks.recover_external_attempts import completed_attempt, promote_attempt
 from benchmarks.repair_external_duplicate_inputs import variant_key_summary
+from benchmarks.run_cohort import sha256sum
 from benchmarks.run_external_cohort import (
     STRATEGIES,
     _runtime_params,
     build_tasks,
     condition_order,
     read_evaluation_samples,
+    validate_strategy_document,
+)
+from benchmarks.validate_external_completion import (
+    MissingCompletedTaskError,
+    validate_with_visibility_retry,
 )
 
 
@@ -375,6 +383,91 @@ def test_promote_attempt_uses_hardlinks_and_records_recovery(tmp_path, monkeypat
     assert json.loads((result / "recovery.json").read_text())["storage"] == "hardlinks"
 
 
+def test_promote_attempt_ignores_stale_legacy_partial(tmp_path, monkeypatch):
+    attempt = tmp_path / "warmup/attempts/task-4/job-20/run"
+    attempt.mkdir(parents=True)
+    (attempt / "output.bcf").write_bytes(b"validated")
+    failure = attempt.parent / "failure.json"
+    failure.write_text('{"exit_code": 1}\n')
+    result = tmp_path / "warmup/tasks/task-4"
+    stale = result.with_name("task-4.partial-recovery-99")
+    stale.mkdir(parents=True)
+    (stale / "incomplete").write_text("do not promote")
+    monkeypatch.setenv("SLURM_JOB_ID", "99")
+
+    promote_attempt(
+        attempt_run=attempt,
+        result_dir=result,
+        task_id=4,
+        phase="warmup",
+        source_failure=failure,
+    )
+
+    assert (result / "output.bcf").read_bytes() == b"validated"
+    assert stale.exists()
+
+
+def test_promote_attempt_accepts_nfs_replayed_mkdir(tmp_path, monkeypatch):
+    attempt = tmp_path / "warmup/attempts/task-4/job-20/run"
+    attempt.mkdir(parents=True)
+    (attempt / "output.bcf").write_bytes(b"validated")
+    failure = attempt.parent / "failure.json"
+    failure.write_text('{"exit_code": 1}\n')
+    result = tmp_path / "warmup/tasks/task-4"
+    monkeypatch.setenv("SLURM_JOB_ID", "99")
+    monkeypatch.setattr(recovery.os, "getpid", lambda: 123)
+    monkeypatch.setattr(
+        recovery.uuid,
+        "uuid4",
+        lambda: type("UUID", (), {"hex": "nfs-replay"})(),
+    )
+    replayed = result.with_name("task-4.partial-recovery-99-123-nfs-replay")
+    replayed.mkdir(parents=True)
+
+    promote_attempt(
+        attempt_run=attempt,
+        result_dir=result,
+        task_id=4,
+        phase="warmup",
+        source_failure=failure,
+    )
+
+    assert (result / "output.bcf").read_bytes() == b"validated"
+    assert not replayed.exists()
+
+
+def test_completion_validator_retries_only_missing_nfs_task(monkeypatch, tmp_path):
+    calls = 0
+
+    def transient(_root, _phase):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise MissingCompletedTaskError("not visible yet")
+        return {"complete": True}
+
+    monkeypatch.setattr(completion_validator, "validate", transient)
+    monkeypatch.setattr(completion_validator.time, "sleep", lambda _seconds: None)
+    assert validate_with_visibility_retry(
+        tmp_path, "warmup", attempts=2, poll_seconds=0
+    ) == {"complete": True}
+    assert calls == 2
+
+
+def test_completion_validator_does_not_retry_semantic_failure(monkeypatch, tmp_path):
+    calls = 0
+
+    def invalid(_root, _phase):
+        nonlocal calls
+        calls += 1
+        raise RuntimeError("semantic failure")
+
+    monkeypatch.setattr(completion_validator, "validate", invalid)
+    with pytest.raises(RuntimeError, match="semantic failure"):
+        validate_with_visibility_retry(tmp_path, "warmup", attempts=60)
+    assert calls == 1
+
+
 def test_external_campaign_cleanliness_check_is_cwd_independent():
     source = (
         Path(__file__).parents[1] / "benchmarks/run_external_cohort.py"
@@ -460,7 +553,7 @@ def test_qc_preserves_source_id_separately_from_vcf_sample(
     assert value["status"] == "PASS"
 
 
-def test_four_condition_order_is_balanced_across_52_warmups():
+def test_four_condition_order_is_balanced_across_52_measurements():
     first = [condition_order(index, 1)[0][0] for index in range(52)]
     assert set(first) == set(STRATEGIES)
     assert {name: first.count(name) for name in STRATEGIES} == {
@@ -526,15 +619,83 @@ def test_campaign_tasks_require_relatedness_and_have_one_common_baseline(tmp_pat
     qc = tmp_path / "qc.tsv"
     _qc(qc)
     samples = read_evaluation_samples(qc)
-    tasks = build_tasks(samples, phase="measured", replicates=3)
-    assert len(tasks) == 156
+    tasks = build_tasks(samples, phase="measured")
+    assert len(tasks) == 52
     assert {task.assembly for task in tasks} == {"GRCh37", "GRCh38"}
+    assert len({(task.sample, task.tool) for task in tasks}) == 52
     assert all(set(task.strategy_order.split(",")) == set(STRATEGIES) for task in tasks)
     assert all(task.strategy_order.split(",").count("uncached") == 1 for task in tasks)
+
+    fastvep = build_tasks(samples, phase="measured", tool="fastvep")
+    assert [task.sample for task in fastvep] == [task.sample for task in tasks]
+    assert [task.strategy_order for task in fastvep] == [
+        task.strategy_order for task in tasks
+    ]
+    assert {task.tool for task in fastvep} == {"fastvep"}
+    with pytest.raises(ValueError, match="exactly one run"):
+        build_tasks(samples, phase="measured", replicates=2)
 
     _qc(qc, relatedness="PENDING")
     with pytest.raises(RuntimeError, match="incomplete"):
         read_evaluation_samples(qc)
+
+
+def test_fastvep_strategy_bundle_requires_exact_assemblies_and_recipes(tmp_path):
+    cohort_assemblies = {"kpgp": "GRCh38", "sgdp": "GRCh38", "pgp": "GRCh37"}
+    bundled = {}
+    custom = {}
+    runtime = {}
+    for assembly in ("GRCh37", "GRCh38"):
+        recipe = f"genome_build: {assembly}\nmust_contain_info_tag: CSQ\n"
+        values = []
+        for name in ("gnomad_af_0.1", "gnomad_af_0.01"):
+            cache = tmp_path / assembly / name
+            cache.mkdir(parents=True)
+            (cache / "annotation.yaml").write_text(recipe)
+            (cache / "params.snapshot.yaml").write_text(f"genome_build: {assembly}\n")
+            (cache / "vcfcache_annotated.bcf").write_bytes(b"bcf")
+            (cache / "vcfcache_annotated.bcf.csi").write_bytes(b"csi")
+            values.append(
+                {
+                    "name": name,
+                    "assembly": assembly,
+                    "cache_dir": str(cache),
+                    "annotation_yaml_sha256": sha256sum(cache / "annotation.yaml"),
+                }
+            )
+        bundled[assembly] = values
+        params = tmp_path / assembly / "runtime.yaml"
+        params.write_text(f"genome_build: {assembly}\n")
+        runtime[assembly] = {"path": str(params), "sha256": sha256sum(params)}
+    for cohort, assembly in cohort_assemblies.items():
+        cache = tmp_path / assembly / f"cohort-{cohort}"
+        cache.mkdir(parents=True)
+        (cache / "annotation.yaml").write_text(
+            f"genome_build: {assembly}\nmust_contain_info_tag: CSQ\n"
+        )
+        (cache / "params.snapshot.yaml").write_text(f"genome_build: {assembly}\n")
+        (cache / "vcfcache_annotated.bcf").write_bytes(b"bcf")
+        (cache / "vcfcache_annotated.bcf.csi").write_bytes(b"csi")
+        custom[cohort] = {
+            "name": "cohort_3_genomes",
+            "assembly": assembly,
+            "cache_dir": str(cache),
+            "annotation_yaml_sha256": sha256sum(cache / "annotation.yaml"),
+        }
+    document = {
+        "tool": "fastvep",
+        "cohort_assemblies": cohort_assemblies,
+        "bundled_strategies_by_assembly": bundled,
+        "cohort_strategies": custom,
+        "runtime_params_by_assembly": runtime,
+    }
+    validate_strategy_document(
+        document, tool="fastvep", cohort_assemblies=cohort_assemblies
+    )
+    with pytest.raises(RuntimeError, match="not vep"):
+        validate_strategy_document(
+            document, tool="vep", cohort_assemblies=cohort_assemblies
+        )
 
 
 def test_scaling_model_amortizes_only_custom_build_cost():

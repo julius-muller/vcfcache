@@ -705,6 +705,8 @@ def vcfcache_command(
         run_dir / "output.bcf",
         "--stats-dir",
         run_dir / "stats",
+        "--statistics",
+        "full",
         "-y",
         config.params,
         "--skip-split-multiallelic",

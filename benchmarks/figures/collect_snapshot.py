@@ -244,10 +244,23 @@ def run(args: argparse.Namespace) -> None:
     primary = paired_rows(args.primary, "warmup")
     assay = paired_rows(args.assay, "measured")
     external = external_rows(args.external, "warmup")
+    expected_external = len(manifest_tasks(args.external / "manifests" / "warmup.tsv"))
+    external_tasks = {int(row["task_id"]) for row in external}
+    validated_external_tasks = {
+        int(row["task_id"])
+        for row in external
+        if row["validation_status"] == "semantically_validated"
+    }
+    external_complete = (
+        len(external_tasks) == expected_external
+        and validated_external_tasks == external_tasks
+        and len(external) == expected_external * 3
+    )
+    status = "FINAL" if external_complete else "PRELIMINARY"
     paths = {
         "primary_wgs_metrics.tsv": primary,
         "assay_metrics.tsv": assay,
-        "external_wgs_preliminary_metrics.tsv": external,
+        "external_wgs_metrics.tsv": external,
     }
     for name, rows in paths.items():
         write_tsv(args.output / name, rows)
@@ -256,16 +269,10 @@ def run(args: argparse.Namespace) -> None:
     strategies_target = args.output / "external_strategies.json"
     shutil.copyfile(strategies_source, strategies_target)
     files = [args.output / name for name in paths] + [strategies_target]
-    external_tasks = {int(row["task_id"]) for row in external}
-    validated_external_tasks = {
-        int(row["task_id"])
-        for row in external
-        if row["validation_status"] == "semantically_validated"
-    }
     snapshot = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "created_on_host": platform.node(),
-        "status": "PRELIMINARY",
+        "status": status,
         "campaigns": {
             "primary": read_json(args.primary / "campaign.json")["campaign_id"],
             "assay": read_json(args.assay / "campaign.json")["campaign_id"],
@@ -277,12 +284,16 @@ def run(args: argparse.Namespace) -> None:
             "assay_by_type": count_values(assay, "assay"),
             "external_completed": len(external_tasks),
             "external_semantically_validated": len(validated_external_tasks),
-            "external_expected": 52,
+            "external_expected": expected_external,
         },
         "external_validation_status": count_values(external, "validation_status"),
         "notes": [
             "Primary WGS contains the 49 successful samples; HG02888 is the documented cgroup-OOM exclusion.",
-            "Comparator-pending external rows are exploratory only until corrected semantic post-processing passes.",
+            (
+                "All external WGS tasks and all three cache strategies passed corrected semantic validation."
+                if external_complete
+                else "Comparator-pending external rows are exploratory only until corrected semantic post-processing passes."
+            ),
             "No BCF or other bulky run output is included in this snapshot.",
         ],
         "files": {

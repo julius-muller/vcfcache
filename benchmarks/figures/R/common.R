@@ -115,13 +115,23 @@ format_duration <- function(seconds) {
 
 preliminary_caption <- function(snapshot) {
   counts <- snapshot$sample_counts
-  sprintf(
-    "PRELIMINARY SNAPSHOT %s | external WGS %d/%d complete, %d formally revalidated",
-    sub("T", " ", sub("\\+00:00$", " UTC", snapshot$created_at)),
-    counts$external_completed,
-    counts$external_expected,
-    counts$external_semantically_validated
-  )
+  timestamp <- sub("T", " ", sub("\\+00:00$", " UTC", snapshot$created_at))
+  if (identical(snapshot$status, "FINAL")) {
+    sprintf(
+      "FINAL SNAPSHOT %s | external WGS %d/%d complete and semantically validated",
+      timestamp,
+      counts$external_completed,
+      counts$external_expected
+    )
+  } else {
+    sprintf(
+      "PRELIMINARY SNAPSHOT %s | external WGS %d/%d complete, %d formally revalidated",
+      timestamp,
+      counts$external_completed,
+      counts$external_expected,
+      counts$external_semantically_validated
+    )
+  }
 }
 
 as_logical_semantic <- function(value) {

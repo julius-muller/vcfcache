@@ -1,12 +1,10 @@
 # Follow-up benchmark: ANNOVAR, SnpEff, and fastVEP
 
-> **Current priority:** Before this larger publication-quality matrix, run the
-> exploratory [fastVEP pilot](fastvep_pilot/README.md). The pilot uses one WGS
-> on ITCCcloud_dev to test output equality and current-engine speed at 80%, 90%,
-> and 100% hits. If the current engine misses the product gate, use its stage
-> profile to decide among the separately scoped native options in
-> [FAST_ANNOTATOR_FOLLOWUP.md](fastvep_pilot/FAST_ANNOTATOR_FOLLOWUP.md). Do not
-> schedule the matrix below until that decision is available.
+> **Current priority:** The exploratory [fastVEP pilot](fastvep_pilot/README.md)
+> and dense follow-up are complete. fastVEP now receives the same real-world
+> publication campaign as VEP. Native streaming options remain a separate
+> engineering follow-up in
+> [FAST_ANNOTATOR_FOLLOWUP.md](fastvep_pilot/FAST_ANNOTATOR_FOLLOWUP.md).
 
 ## Question and primary comparison
 
@@ -22,14 +20,71 @@ Cross-tool wall times may be shown as context, but they are not VCFcache
 speedups because ANNOVAR, SnpEff, fastVEP, and Ensembl VEP do not implement
 identical annotation semantics.
 
-## Why a compact campaign is sufficient
+## Non-repetition rule
+
+Every unique sample, annotator, and condition is executed once. A real WGS may
+not appear again under a differently named smoke, warm-up, or replicate phase.
+The direct baseline is run once inside the sample task and is shared by all
+three cached comparisons. Small-input adapter gates and cache construction are
+untimed setup, not duplicate publication observations.
+
+## Exact fastVEP peer campaign
+
+The fastVEP campaign mirrors the VEP external-WGS campaign without subsampling:
+
+- the same 20 KPGP, 20 SGDP, and 12 PGP evaluation genomes;
+- the same GRCh38/GRCh37 assemblies and normalized input checksums;
+- one direct run, bundled gnomAD AF >= 10%, bundled gnomAD AF >= 1%, and the
+  cohort cache built from three disjoint genomes;
+- the same deterministic, balanced condition order;
+- the same CPU, memory, local-storage, timing, and cgroup measurements within
+  the campaign; and
+- exact direct-versus-cached annotation comparison for every condition.
+
+This is 52 tasks and 208 unique executions, with no technical repeats. Cache
+membership comes from the exact frozen VEP blueprints, including the two
+bundled Zenodo strategies. Each cache is re-annotated with the immutable,
+assembly-matched fastVEP recipe; a VEP-annotated cache is never passed off as a
+fastVEP cache. Both GRCh37 and GRCh38 fastVEP transcript/reference assets must
+pass the integration gate before submission, so the 12 PGP genomes cannot be
+silently omitted.
+
+The implementation is shared rather than forked: `run_external_cohort.py`
+prepares either `--tool vep` or `--tool fastvep`, and both use
+`run_external_task.py` and `slurm_external_multi.sh`. The tool-specific cache
+bundle is created with `prepare_external_fastvep.py`. This makes sample lists,
+condition ordering, validation, and result columns identical by construction.
+
+Preparation and submission therefore follow this contract (paths are deployment
+specific):
+
+```bash
+.venv/bin/python benchmarks/prepare_external_fastvep.py \
+  --vep-strategies /results/campaigns/EXTERNAL_VEP/manifests/strategies.json \
+  --output-root /mnt/data/vcfcache_benchmarks/fastvep_external_caches \
+  --recipe-grch37 FASTVEP_GRCH37_ANNOTATION.yaml \
+  --params-grch37 FASTVEP_GRCH37_PARAMS.yaml \
+  --recipe-grch38 FASTVEP_GRCH38_ANNOTATION.yaml \
+  --params-grch38 FASTVEP_GRCH38_PARAMS.yaml
+
+.venv/bin/python benchmarks/run_external_cohort.py prepare \
+  --campaign-id external-fastvep-publication \
+  --tool fastvep \
+  --strategy-manifest \
+  /mnt/data/vcfcache_benchmarks/fastvep_external_caches/fastvep_strategies.json
+
+.venv/bin/python benchmarks/run_external_cohort.py submit-chain \
+  --campaign-id external-fastvep-publication --concurrency 6
+```
+
+## Later compact campaigns for ANNOVAR and SnpEff
 
 Cache hit rate is determined by the input variants and the blueprint, not by
-the annotator used to populate that blueprint. The completed real-world WGS
-campaign therefore supplies the empirical hit-rate distributions. The new
-campaign needs to measure only each pipeline's uncached per-variant cost and
-VCFcache lookup/preprocessing overhead, then verify the fitted runtime model on
-a small number of independent genomes.
+the annotator used to populate that blueprint. The completed VEP and fastVEP
+real-world campaigns therefore supply the empirical hit-rate distributions.
+Later ANNOVAR/SnpEff campaigns may measure each pipeline's uncached per-variant
+cost and VCFcache lookup/preprocessing overhead, then verify the fitted runtime
+model on a small number of independent genomes.
 
 Use the same bundled Zenodo blueprints as the current campaign. Build new,
 annotator-specific caches locally from those blueprints; do not treat an
@@ -86,7 +141,7 @@ Report measured points, fitted lines, `T_lookup`, and the break-even hit rate.
 The break-even hit rate is essential for fastVEP because its annotation stage
 may already be shorter than VCFcache preprocessing.
 
-### Real-world validation
+### Real-world validation for later annotators
 
 Select three evaluation genomes from the existing external cohort before
 looking at new runtimes: one near the low, median, and high observed cache-hit

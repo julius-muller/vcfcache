@@ -150,6 +150,7 @@ def summarize_completed_runs(
         rows.append(
             {
                 "cohort": task["cohort"],
+                "tool": task.get("tool", document.get("tool", "vep")),
                 "assembly": task["assembly"],
                 "sample": task["sample"],
                 "phase": task["phase"],
@@ -191,6 +192,8 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
     document, strategies = load_strategies(
         args.strategies, task["cohort"], task["assembly"]
     )
+    if task.get("tool", "vep") != document.get("tool", "vep"):
+        raise RuntimeError("Task annotator does not match strategy bundle")
     input_vcf = Path(task["input_vcf"])
     if sha256sum(input_vcf) != task["input_sha256"]:
         raise RuntimeError(f"Input checksum mismatch: {input_vcf}")

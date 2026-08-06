@@ -9,9 +9,9 @@ render_assay_figure <- function(input_dir, output_dir, snapshot) {
 
   assay_levels <- c("panel", "wes", "wgs")
   assay_labels <- c(
-    panel = "Panel",
-    wes = "WES",
-    wgs = "1000 Genomes WGS"
+    panel = "1000G-derived panel",
+    wes = "1000G-derived WES",
+    wgs = "1000G WGS"
   )
   assay_colors <- c(
     panel = vcf_colors[["green"]],
@@ -72,8 +72,8 @@ render_assay_figure <- function(input_dir, output_dir, snapshot) {
     scale_color_manual(values = assay_colors, guide = "none") +
     scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = expansion(mult = c(0.03, 0.08))) +
     labs(
-      title = "Time remaining after caching",
-      subtitle = "Each point is one biological sample; line = no runtime benefit",
+      title = "Observed time remaining",
+      subtitle = "Source-overlap calibration only; line = no runtime benefit",
       x = NULL,
       y = "Cached / uncached wall time"
     ) +
@@ -110,7 +110,7 @@ render_assay_figure <- function(input_dir, output_dir, snapshot) {
     scale_y_log10(labels = scales::label_number(accuracy = 0.1), breaks = c(0.25, 0.5, 1, 3, 10, 30, 100, 300)) +
     labs(
       title = "Median wait per sample",
-      subtitle = "The panel pipeline is too short for lookup overhead to pay back",
+      subtitle = "The small panel workload exposes fixed lookup overhead",
       x = NULL,
       y = "Wall time (minutes, log scale)",
       fill = NULL
@@ -133,7 +133,7 @@ render_assay_figure <- function(input_dir, output_dir, snapshot) {
     scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     labs(
       title = "Misses drive annotation work",
-      subtitle = "Dashed line: zero-overhead runtime rule",
+      subtitle = "Runtime mechanics conditional on observed hit rate",
       x = "Variants not found in cache",
       y = "Cached / uncached wall time"
     ) +
@@ -162,11 +162,12 @@ render_assay_figure <- function(input_dir, output_dir, snapshot) {
   combined <- (p_runtime | p_absolute | p_mechanism) / trust +
     plot_layout(heights = c(1, 0.23)) +
     plot_annotation(
-      title = "VCFcache impact across assay sizes",
-      subtitle = "Bundled Zenodo gnomAD AF ≥ 1% cache · VEP 115.2 --everything · one paired run per sample",
+      title = "Source-overlap calibration across assay sizes",
+      subtitle = "1000 Genomes-derived inputs · bundled Zenodo gnomAD AF ≥ 1% cache · VEP 115.2 --everything",
       caption = paste(
         preliminary_caption(snapshot),
-        "WGS assay-size points are 1000 Genomes samples and are not used as the independent real-world WGS estimate.",
+        "CALIBRATION ONLY: these identities occur in the gnomAD source universe; their hit rates and speedups are not real-world estimates.",
+        "Use the external KPGP, SGDP and PGP cohorts for the primary WGS benefit estimate.",
         sep = "\n"
       ),
       tag_levels = "A",
@@ -178,11 +179,14 @@ render_assay_figure <- function(input_dir, output_dir, snapshot) {
       )
     )
 
-  panel_dir <- file.path(output_dir, "manuscript", "panels", "assay_benchmark")
+  panel_dir <- file.path(
+    output_dir, "manuscript", "panels", "assay_source_overlap_calibration"
+  )
   save_plot(p_runtime, file.path(panel_dir, "A_time_remaining"), 5.2, 4.3)
   save_plot(p_absolute, file.path(panel_dir, "B_median_wait"), 5.2, 4.3)
   save_plot(p_mechanism, file.path(panel_dir, "C_miss_fraction"), 5.2, 4.3)
   save_plot(trust, file.path(panel_dir, "D_output_correctness"), 10.5, 2.1)
-  save_plot(combined, file.path(output_dir, "manuscript", "assay_benchmark_preliminary"), 15, 6.5)
+  figure_name <- "assay_source_overlap_calibration"
+  save_plot(combined, file.path(output_dir, "manuscript", figure_name), 15, 6.5)
   invisible(list(plot = combined, summary = summaries))
 }

@@ -32,7 +32,8 @@ DEFAULT_CACHE_ROOT = DEFAULT_DATA_ROOT / "bundled_zenodo_caches"
 DEFAULT_CONTROLLER_RESULTS = Path("/mnt/data/slurm-results")
 DEFAULT_WORKER_RESULTS = Path("/results")
 SLURM_SCRIPT = REPO_ROOT / "benchmarks/slurm_external_multi.sh"
-PHASES = ("smoke", "warmup", "measured")
+PHASES = ("measured",)
+LEGACY_COLLECTION_PHASES = ("warmup", "measured")
 STRATEGIES = ("uncached", "gnomad_af_0.1", "gnomad_af_0.01", "cohort_3_genomes")
 DEFAULT_SEED = "vcfcache-paper-external-wgs-v1"
 EXPECTED_EVALUATION = {"kpgp": 20, "sgdp": 20, "pgp": 12}
@@ -42,9 +43,10 @@ DEFAULT_MEASURED_REPLICATES = 1
 
 @dataclass(frozen=True)
 class ExternalTask:
-    """One sample/replicate task containing all four benchmark conditions."""
+    """One sample/tool task containing all four benchmark conditions."""
 
     task_id: int
+    tool: str
     phase: str
     measured: str
     cohort: str
@@ -101,22 +103,35 @@ def read_evaluation_samples(
     return sorted(eligible, key=lambda row: (row["cohort"], row["sample"]))
 
 
-def condition_order(sample_rank: int, replicate: int) -> tuple[list[str], str]:
+def condition_order(
+    sample_rank: int, replicate: int = 1, seed: str = DEFAULT_SEED
+) -> tuple[list[str], str]:
     """Return balanced cyclic condition order and an audit hash."""
     rotation = (sample_rank + replicate - 1) % len(STRATEGIES)
     order = [*STRATEGIES[rotation:], *STRATEGIES[:rotation]]
     key = hashlib.sha256(
-        f"{DEFAULT_SEED}:{sample_rank}:{replicate}:{','.join(order)}".encode()
+        f"{seed}:{sample_rank}:{replicate}:{','.join(order)}".encode()
     ).hexdigest()
     return order, key
 
 
 def build_tasks(
-    samples: Sequence[dict[str, str]], *, phase: str, replicates: int
+    samples: Sequence[dict[str, str]],
+    *,
+    phase: str = "measured",
+    replicates: int = 1,
+    tool: str = "vep",
+    seed: str = DEFAULT_SEED,
 ) -> list[ExternalTask]:
     """Build a deterministic task matrix with balanced first conditions."""
-    if phase not in PHASES or replicates < 1:
-        raise ValueError("Invalid phase or replicate count")
+    if phase not in PHASES:
+        raise ValueError(f"Unknown publication phase: {phase}")
+    if replicates != 1:
+        raise ValueError(
+            "Publication campaigns permit exactly one run per sample/tool/condition"
+        )
+    if tool not in {"vep", "fastvep"}:
+        raise ValueError(f"Unsupported annotator: {tool}")
     ranked = sorted(
         samples,
         key=lambda row: hashlib.sha256(
@@ -125,28 +140,28 @@ def build_tasks(
     )
     tasks: list[ExternalTask] = []
     for sample_rank, row in enumerate(ranked):
-        for replicate in range(1, replicates + 1):
-            order, key = condition_order(sample_rank, replicate)
-            tasks.append(
-                ExternalTask(
-                    task_id=len(tasks),
-                    phase=phase,
-                    measured="true" if phase == "measured" else "false",
-                    cohort=row["cohort"],
-                    assembly=row["assembly"],
-                    sample=row["sample"],
-                    population=row["population"],
-                    superpopulation=row["superpopulation"],
-                    sex=row["sex"],
-                    provider=row["provider"],
-                    input_vcf=row["path"],
-                    input_records=int(row["records"]),
-                    input_sha256=row["sha256"],
-                    replicate=replicate,
-                    strategy_order=",".join(order),
-                    randomization_key=key,
-                )
+        order, key = condition_order(sample_rank, 1, seed)
+        tasks.append(
+            ExternalTask(
+                task_id=len(tasks),
+                tool=tool,
+                phase=phase,
+                measured="true",
+                cohort=row["cohort"],
+                assembly=row["assembly"],
+                sample=row["sample"],
+                population=row["population"],
+                superpopulation=row["superpopulation"],
+                sex=row["sex"],
+                provider=row["provider"],
+                input_vcf=row["path"],
+                input_records=int(row["records"]),
+                input_sha256=row["sha256"],
+                replicate=1,
+                strategy_order=",".join(order),
+                randomization_key=key,
             )
+        )
     return tasks
 
 
@@ -253,6 +268,122 @@ def _runtime_params(
     }
 
 
+def validate_strategy_document(
+    document: dict[str, Any],
+    *,
+    tool: str,
+    cohort_assemblies: dict[str, str],
+) -> None:
+    """Fail closed on an annotator-specific three-cache strategy bundle."""
+    if document.get("tool", "vep") != tool:
+        raise RuntimeError(
+            f"Strategy bundle is for {document.get('tool', 'vep')}, not {tool}"
+        )
+    if document.get("cohort_assemblies") != cohort_assemblies:
+        raise RuntimeError(
+            "Strategy bundle does not cover the exact evaluation cohorts"
+        )
+    bundled = document.get("bundled_strategies_by_assembly", {})
+    custom = document.get("cohort_strategies", {})
+    runtime = document.get("runtime_params_by_assembly", {})
+    for cohort, assembly in cohort_assemblies.items():
+        values = [*bundled.get(assembly, []), custom.get(cohort)]
+        if any(value is None for value in values):
+            raise RuntimeError(f"Strategy bundle is incomplete for {cohort}")
+        names = [value["name"] for value in values]
+        if names != ["gnomad_af_0.1", "gnomad_af_0.01", "cohort_3_genomes"]:
+            raise RuntimeError(f"Unexpected strategy set for {cohort}: {names}")
+        recipe_hashes = set()
+        for value in values:
+            if value.get("assembly") != assembly:
+                raise RuntimeError(f"Strategy assembly mismatch for {value['name']}")
+            cache = Path(value.get("controller_cache_dir", value["cache_dir"]))
+            required = (
+                cache / "annotation.yaml",
+                cache / "params.snapshot.yaml",
+                cache / "vcfcache_annotated.bcf",
+                cache / "vcfcache_annotated.bcf.csi",
+            )
+            missing = [str(path) for path in required if not path.exists()]
+            if missing:
+                raise FileNotFoundError(f"Incomplete {tool} cache: {missing}")
+            observed = sha256sum(cache / "annotation.yaml")
+            if observed != value.get("annotation_yaml_sha256"):
+                raise RuntimeError(f"Recipe checksum mismatch for {value['name']}")
+            recipe_hashes.add(observed)
+        if len(recipe_hashes) != 1:
+            raise RuntimeError(
+                f"All four {tool}/{cohort} conditions must use one recipe"
+            )
+        params = runtime.get(assembly)
+        if not params:
+            raise RuntimeError(f"Runtime params are absent for {assembly}")
+        params_path = Path(params.get("controller_path", params["path"]))
+        if not params_path.exists() or sha256sum(params_path) != params.get("sha256"):
+            raise RuntimeError(f"Runtime params are invalid for {assembly}")
+
+
+def _external_strategy_bundle(
+    args: argparse.Namespace,
+    root: Path,
+    cohort_assemblies: dict[str, str],
+) -> dict[str, Any]:
+    """Create VEP strategies or freeze a prepared fastVEP strategy bundle."""
+    tool = getattr(args, "tool", "vep")
+    if tool == "fastvep":
+        source = getattr(args, "strategy_manifest", None)
+        if source is None:
+            raise ValueError("--strategy-manifest is required for fastvep")
+        document = json.loads(source.read_text())
+        validate_strategy_document(
+            document, tool="fastvep", cohort_assemblies=cohort_assemblies
+        )
+        return {
+            **document,
+            "commit": git_output("rev-parse", "HEAD"),
+            "source_manifest": str(source),
+            "source_manifest_sha256": sha256sum(source),
+        }
+
+    if getattr(args, "strategy_manifest", None) is not None:
+        raise ValueError("--strategy-manifest is only used with --tool fastvep")
+    bundled: dict[str, list[dict[str, Any]]] = {
+        assembly: _bundled_manifest(args.cache_root, assembly)
+        for assembly in sorted(set(cohort_assemblies.values()))
+    }
+    cohort_strategies = {
+        cohort: _custom_manifest(args.external_root, cohort, cohort_assemblies[cohort])
+        for cohort in cohort_assemblies
+    }
+    runtime_params_by_assembly = {
+        assembly: _runtime_params(
+            root,
+            assembly,
+            Path(bundled[assembly][0]["cache_dir"]) / "params.snapshot.yaml",
+            args.vep_buffer,
+            worker_path(
+                root / "manifests" / f"runtime_params_{assembly}.yaml",
+                args.controller_results,
+                args.worker_results,
+            ),
+        )
+        for assembly in bundled
+    }
+    document = {
+        "tool": "vep",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "commit": git_output("rev-parse", "HEAD"),
+        "bundled_strategies_by_assembly": bundled,
+        "cohort_assemblies": cohort_assemblies,
+        "cohort_strategies": cohort_strategies,
+        "runtime_params_by_assembly": runtime_params_by_assembly,
+    }
+    validate_strategy_document(
+        document, tool="vep", cohort_assemblies=cohort_assemblies
+    )
+    return document
+
+
 def prepare_campaign(args: argparse.Namespace) -> None:
     """Freeze task, strategy, and provenance manifests."""
     root = campaign_root(args.controller_results, args.campaign_id)
@@ -263,22 +394,18 @@ def prepare_campaign(args: argparse.Namespace) -> None:
     ).returncode:
         raise RuntimeError("Tracked worktree must be clean before campaign preparation")
     samples = read_evaluation_samples(args.qc)
-    smoke = min(
-        samples,
-        key=lambda row: hashlib.sha256(
-            f"{args.seed}:smoke:{row['cohort']}:{row['sample']}".encode()
-        ).hexdigest(),
-    )
-    phase_specs = {
-        "smoke": ([smoke], 1),
-        "warmup": (samples, 1),
-        "measured": (samples, DEFAULT_MEASURED_REPLICATES),
-    }
+    phase_specs = {"measured": (samples, DEFAULT_MEASURED_REPLICATES)}
     phase_values = {}
     for phase, (phase_samples, replicates) in phase_specs.items():
         (root / phase / "tasks").mkdir(parents=True, exist_ok=True)
         (root / phase / "attempts").mkdir(parents=True, exist_ok=True)
-        tasks = build_tasks(phase_samples, phase=phase, replicates=replicates)
+        tasks = build_tasks(
+            phase_samples,
+            phase=phase,
+            replicates=replicates,
+            tool=getattr(args, "tool", "vep"),
+            seed=args.seed,
+        )
         manifest = root / "manifests" / f"{phase}.tsv"
         write_tasks(manifest, tasks)
         phase_values[phase] = {
@@ -299,52 +426,12 @@ def prepare_campaign(args: argparse.Namespace) -> None:
         for cohort in cohorts
     ):
         raise RuntimeError("Each external cohort must use exactly one assembly")
-    bundled: dict[str, list[dict[str, Any]]] = {
-        assembly: _bundled_manifest(args.cache_root, assembly)
-        for assembly in sorted(set(cohort_assemblies.values()))
-    }
-    cohort_strategies = {
-        cohort: _custom_manifest(args.external_root, cohort, cohort_assemblies[cohort])
-        for cohort in cohorts
-    }
-    runtime_params_by_assembly = {
-        assembly: _runtime_params(
-            root,
-            assembly,
-            Path(bundled[assembly][0]["cache_dir"]) / "params.snapshot.yaml",
-            args.vep_buffer,
-            worker_path(
-                root / "manifests" / f"runtime_params_{assembly}.yaml",
-                args.controller_results,
-                args.worker_results,
-            ),
-        )
-        for assembly in bundled
-    }
-    strategies = {
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "commit": git_output("rev-parse", "HEAD"),
-        "bundled_strategies_by_assembly": bundled,
-        "cohort_assemblies": cohort_assemblies,
-        "cohort_strategies": cohort_strategies,
-        "runtime_params_by_assembly": runtime_params_by_assembly,
-    }
+    strategies = _external_strategy_bundle(args, root, cohort_assemblies)
     strategy_path = root / "manifests/strategies.json"
     write_json_atomic(strategy_path, strategies)
-    for cohort, assembly in cohort_assemblies.items():
-        annotation_hashes = {
-            item["annotation_yaml_sha256"]
-            for item in [
-                *bundled[assembly],
-                cohort_strategies[cohort],
-            ]
-        }
-        if len(annotation_hashes) != 1:
-            raise RuntimeError(
-                f"All four {cohort} conditions must use an identical recipe"
-            )
     metadata = {
         "campaign_id": args.campaign_id,
+        "tool": getattr(args, "tool", "vep"),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "commit": git_output("rev-parse", "HEAD"),
         "commit_short": git_output("rev-parse", "--short=12", "HEAD"),
@@ -355,7 +442,7 @@ def prepare_campaign(args: argparse.Namespace) -> None:
         "strategies_sha256": sha256sum(strategy_path),
         "conditions": list(STRATEGIES),
         "cohort_assemblies": cohort_assemblies,
-        "runtime_params_by_assembly": runtime_params_by_assembly,
+        "runtime_params_by_assembly": strategies["runtime_params_by_assembly"],
         "evaluation_counts": {
             cohort: sum(row["cohort"] == cohort for row in samples)
             for cohort in cohorts
@@ -383,12 +470,13 @@ def submit_phase(
     root = campaign_root(args.controller_results, args.campaign_id)
     manifest = root / "manifests" / f"{phase}.tsv"
     strategies = root / "manifests/strategies.json"
+    tool = json.loads((root / "campaign.json").read_text()).get("tool", "vep")
     (root / "logs").mkdir(parents=True, exist_ok=True)
     count = _task_count(manifest)
     command = [
         "sbatch",
         "--parsable",
-        f"--job-name=external-{phase}",
+        f"--job-name=external-{tool}-{phase}",
         f"--array=0-{count - 1}%{args.concurrency}",
         f"--chdir={REPO_ROOT}",
         f"--output={args.worker_results}/campaigns/{args.campaign_id}/logs/{phase}-%A_%a.out",
@@ -411,14 +499,14 @@ def submit_phase(
 
 
 def submit_chain(args: argparse.Namespace) -> None:
-    """Submit one smoke then one four-condition measurement per sample."""
+    """Submit one four-condition measurement per sample."""
     root = campaign_root(args.controller_results, args.campaign_id)
     campaign = json.loads((root / "campaign.json").read_text())
     if campaign["commit"] != git_output("rev-parse", "HEAD"):
         raise RuntimeError("Prepared campaign commit differs from checkout")
     dependency = args.start_after_job
     submissions = {}
-    for phase in ("smoke", "measured"):
+    for phase in PHASES:
         job_id, command = submit_phase(args, phase, dependency)
         submissions[phase] = {
             "job_id": job_id,
@@ -511,6 +599,12 @@ def parser() -> argparse.ArgumentParser:
     prepare.add_argument("--external-root", type=Path, default=DEFAULT_EXTERNAL_ROOT)
     prepare.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
     prepare.add_argument("--seed", default=DEFAULT_SEED)
+    prepare.add_argument("--tool", choices=("vep", "fastvep"), default="vep")
+    prepare.add_argument(
+        "--strategy-manifest",
+        type=Path,
+        help="Prepared annotator-specific cache bundle (required for fastvep)",
+    )
     prepare.add_argument("--vep-buffer", type=int, default=DEFAULT_VEP_BUFFER)
     prepare.set_defaults(function=prepare_campaign)
     submit = commands.add_parser("submit-chain")
@@ -524,7 +618,7 @@ def parser() -> argparse.ArgumentParser:
     collection = commands.add_parser("collect")
     _paths(collection)
     collection.add_argument(
-        "--phase", choices=("warmup", "measured"), default="measured"
+        "--phase", choices=LEGACY_COLLECTION_PHASES, default="measured"
     )
     collection.set_defaults(function=collect)
     return root
@@ -539,8 +633,9 @@ def main() -> None:
         "qc",
         "external_root",
         "cache_root",
+        "strategy_manifest",
     ):
-        if hasattr(args, name):
+        if hasattr(args, name) and getattr(args, name) is not None:
             setattr(args, name, getattr(args, name).expanduser().resolve())
     if getattr(args, "concurrency", 1) < 1:
         raise ValueError("Concurrency must be positive")

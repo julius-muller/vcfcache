@@ -686,8 +686,9 @@ Annotate a sample VCF/BCF using a cache.
 - `-i/--vcf`: input sample VCF/BCF.
 - `-o/--output`: output BCF file (use `-`/`stdout` to stream).
 - `--stats-dir`: optional directory for logs/workflow/auxiliary. If provided, stats are written under `<stats_dir>/<input_basename>_vcstats`; if omitted, they default to `<cwd>/<input_basename>_vcstats`.
-- `--no-stats`: disable stats/logs output (also disables `vcfcache compare`).
-- `--md5-all`: compute full MD5 of all variants (no header) and store in stats (slow; may differ between runs).
+- `--statistics {light,full,none}`: statistics detail. `light` (default) reuses workflow/index counters and does not rescan the output; `full` additionally recounts annotated records and computes top/bottom comparison hashes; `none` discards the stats/log directory.
+- `--no-stats`: deprecated alias for `--statistics none`.
+- `--md5-all`: compute full MD5 of all variants (no header) and store in stats. This requires `--statistics full` and adds another full-output scan.
 - `-y/--yaml`: params YAML for runtime (copied to workflow `params.snapshot.yaml`).
 - `-f/--force`: overwrite outputs.
 - `--uncached`: run annotation without using the cache (debug/benchmark).
@@ -696,6 +697,10 @@ Annotate a sample VCF/BCF using a cache.
 - `--list`: list annotation caches under `-a` (when `-a` points to a directory of caches).
 - `--debug`: keep intermediate files and use sandbox for alias resolution/downloads.
 - `-v/--verbose`: increase logging (`-v` INFO, `-vv` DEBUG).
+
+Light statistics are sufficient for timings, hit rates, input/output/tool
+counts, and `vcfcache compare` performance summaries. Run both comparator arms
+with `--statistics full` when their output hashes must also be compared.
 
 ### `vcfcache list`
 

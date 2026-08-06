@@ -16,6 +16,25 @@ The completed exploratory outcome is documented in
 [FASTVEP_PILOT_RESULTS.md](FASTVEP_PILOT_RESULTS.md). The rendered diagnostic
 and its separate high-resolution panels are under `output/`.
 
+The follow-up dense supplementary-annotation stress result and clean 100%-hit
+micro-profile are documented in
+[HEAVY_FASTVEP_RESULTS.md](HEAVY_FASTVEP_RESULTS.md). Reproduce them with
+`heavy.py` and `profile_100_hit.py`; these are intentionally one-run engineering
+diagnostics rather than publication benchmark cells.
+
+The matched 1-, 10-, and 32-logical-CPU comparison at 90% cache hits is
+documented in [CORE_SCALING_RESULTS.md](CORE_SCALING_RESULTS.md) and reproduced
+with `core_scaling.py`. The heavy and CPU-scaling combined figures, their
+separate high-resolution panels, and PNG/PDF/SVG variants are under `output/`.
+Render both sets from their frozen source tables with:
+
+```bash
+Rscript --vanilla benchmarks/fastvep_pilot/plot_followup.R \
+  benchmarks/fastvep_pilot/source_data/core_scaling.tsv \
+  benchmarks/fastvep_pilot/source_data/heavy_summary.tsv \
+  benchmarks/fastvep_pilot/output
+```
+
 ## Frozen exploratory configuration
 
 - host: `appuser@10.133.255.21` (`gvbrowse-preproc`, ITCCcloud_dev);

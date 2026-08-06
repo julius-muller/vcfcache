@@ -1,5 +1,7 @@
 render_external_figure <- function(input_dir, output_dir, snapshot) {
-  rows <- read_tsv(file.path(input_dir, "external_wgs_preliminary_metrics.tsv"))
+  generic_metrics <- file.path(input_dir, "external_wgs_metrics.tsv")
+  legacy_metrics <- file.path(input_dir, "external_wgs_preliminary_metrics.tsv")
+  rows <- read_tsv(if (file.exists(generic_metrics)) generic_metrics else legacy_metrics)
   strategies_manifest <- jsonlite::fromJSON(
     file.path(input_dir, "external_strategies.json"),
     simplifyVector = FALSE
@@ -71,7 +73,13 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
     })
   )
   summaries <- summaries[order(summaries$cohort, match(summaries$strategy, strategy_levels)), ]
-  write_tsv(summaries, file.path(output_dir, "source", "external_wgs_summary_preliminary.tsv"))
+  final_snapshot <- identical(snapshot$status, "FINAL")
+  summary_name <- if (final_snapshot) {
+    "external_wgs_summary.tsv"
+  } else {
+    "external_wgs_summary_preliminary.tsv"
+  }
+  write_tsv(summaries, file.path(output_dir, "source", summary_name))
 
   p_strategy <- ggplot(rows, aes(x = strategy_label, y = relative_runtime, color = strategy)) +
     geom_boxplot(width = 0.60, outlier.shape = NA, color = vcf_colors[["ink"]], fill = "white") +
@@ -88,7 +96,7 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
     scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, NA)) +
     labs(
       title = "Runtime remaining by cache strategy",
-      subtitle = "Evaluation genomes were excluded from cohort-cache construction",
+      subtitle = "No documented gnomAD project overlap; held out from cohort-cache construction",
       x = NULL,
       y = "Cached / uncached wall time"
     ) +
@@ -183,8 +191,15 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
       )
     })
   )
-  write_tsv(economics, file.path(output_dir, "source", "external_cohort_economics_preliminary.tsv"))
-  write_tsv(break_even, file.path(output_dir, "source", "external_cohort_break_even_preliminary.tsv"))
+  economics_suffix <- if (final_snapshot) "" else "_preliminary"
+  write_tsv(
+    economics,
+    file.path(output_dir, "source", paste0("external_cohort_economics", economics_suffix, ".tsv"))
+  )
+  write_tsv(
+    break_even,
+    file.path(output_dir, "source", paste0("external_cohort_break_even", economics_suffix, ".tsv"))
+  )
 
   economics$cohort_label <- factor(economics$cohort_label, levels = cohort_labels[c("kpgp", "sgdp", "pgp")])
   p_economics <- ggplot(economics, aes(x = cohort_size, y = effective_speedup, color = cohort)) +
@@ -205,11 +220,16 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
   combined <- (p_strategy | p_model) / p_economics +
     plot_layout(heights = c(1.05, 0.85)) +
     plot_annotation(
-      title = "Independent real-world WGS: bundled versus cohort-derived caches",
-      subtitle = "KPGP, SGDP and PGP evaluation genomes · excluded from cohort-cache construction · one run per sample",
+      title = "Real-world WGS: bundled versus cohort-derived caches",
+      subtitle = "KPGP, SGDP and PGP · no documented gnomAD project overlap · one run per sample",
       caption = paste(
         preliminary_caption(snapshot),
-        "Greyed points are runtime-complete but await corrected semantic comparator post-processing; do not cite this draft.",
+        if (final_snapshot) {
+          "All 52 evaluation genomes and all 156 cached outputs passed semantic validation."
+        } else {
+          "Greyed points are runtime-complete but await corrected semantic comparator post-processing; do not cite this draft."
+        },
+        "Evaluation genomes were held out from cohort-cache construction; individual absence from undisclosed gnomAD contributors cannot be proven.",
         "Assembly-specific cohorts remain separated. Bundled caches are the vcfcache Zenodo releases.",
         sep = "\n"
       ),
@@ -217,7 +237,11 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
       theme = theme(
         plot.title = element_text(size = 18, face = "bold", color = vcf_colors[["ink"]]),
         plot.subtitle = element_text(size = 11, color = vcf_colors[["grey"]]),
-        plot.caption = element_text(size = 8, color = vcf_colors[["red"]], hjust = 0),
+        plot.caption = element_text(
+          size = 8,
+          color = if (final_snapshot) vcf_colors[["grey"]] else vcf_colors[["red"]],
+          hjust = 0
+        ),
         plot.tag = element_text(face = "bold", color = vcf_colors[["blue"]])
       )
     )
@@ -226,6 +250,7 @@ render_external_figure <- function(input_dir, output_dir, snapshot) {
   save_plot(p_strategy, file.path(panel_dir, "A_cache_strategy"), 7.4, 5.0)
   save_plot(p_model, file.path(panel_dir, "B_hit_rate_model"), 7.4, 5.0)
   save_plot(p_economics, file.path(panel_dir, "C_build_amortization"), 14.8, 4.7)
-  save_plot(combined, file.path(output_dir, "manuscript", "external_wgs_preliminary"), 15, 10)
+  figure_name <- if (final_snapshot) "external_wgs" else "external_wgs_preliminary"
+  save_plot(combined, file.path(output_dir, "manuscript", figure_name), 15, 10)
   invisible(list(plot = combined, summary = summaries, economics = economics))
 }

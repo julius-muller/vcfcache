@@ -6,7 +6,6 @@ runs (typically cached vs uncached) and display performance metrics.
 
 import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -28,7 +27,9 @@ def read_compare_stats(stats_dir: Path) -> Dict[str, any]:
         return {}
 
 
-def parse_workflow_log(output_dir: Path) -> Tuple[Optional[float], List[Dict[str, str]]]:
+def parse_workflow_log(
+    output_dir: Path,
+) -> Tuple[Optional[float], List[Dict[str, str]]]:
     """Parse workflow.log to extract total time and detailed step timings from stats dir.
 
     Args:
@@ -70,11 +71,13 @@ def parse_workflow_log(output_dir: Path) -> Tuple[Optional[float], List[Dict[str
                     if match:
                         duration = float(match.group(1))
                         command = match.group(2).strip()
-                        step_timings.append({
-                            "duration": duration,
-                            "command": command,
-                            "step": current_step,
-                        })
+                        step_timings.append(
+                            {
+                                "duration": duration,
+                                "command": command,
+                                "step": current_step,
+                            }
+                        )
 
     except Exception:
         pass
@@ -175,9 +178,6 @@ def find_output_bcf(output_dir: Path) -> Optional[Path]:
     return None
 
 
-
-
-
 def format_time(seconds: float) -> str:
     """Format seconds into a human-readable string.
 
@@ -227,7 +227,9 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     anno1 = stats1.get("annotation_yaml_md5")
     anno2 = stats2.get("annotation_yaml_md5")
     if anno1 and anno2 and anno1 != anno2:
-        raise ValueError("annotation.yaml mismatch: the two runs used different annotation recipes.")
+        raise ValueError(
+            "annotation.yaml mismatch: the two runs used different annotation recipes."
+        )
 
     warnings = []
     if stats1.get("vcfcache_version") != stats2.get("vcfcache_version"):
@@ -264,8 +266,14 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
         if v1 != v2:
             extra_diff_keys.append(key)
 
-    extra_params1 = [f"{k}={_format_param_value(params1.get(k) if isinstance(params1, dict) else None)}" for k in extra_diff_keys]
-    extra_params2 = [f"{k}={_format_param_value(params2.get(k) if isinstance(params2, dict) else None)}" for k in extra_diff_keys]
+    extra_params1 = [
+        f"{k}={_format_param_value(params1.get(k) if isinstance(params1, dict) else None)}"
+        for k in extra_diff_keys
+    ]
+    extra_params2 = [
+        f"{k}={_format_param_value(params2.get(k) if isinstance(params2, dict) else None)}"
+        for k in extra_diff_keys
+    ]
 
     completion1 = read_completion_flag(dir1) or {}
     completion2 = read_completion_flag(dir2) or {}
@@ -284,9 +292,13 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     if stats2.get("threads") is None:
         raise ValueError(f"Missing threads in stats or params snapshot for {dir2}")
     if not stats1.get("run_timestamp"):
-        raise ValueError(f"Missing run timestamp in stats or completion flag for {dir1}")
+        raise ValueError(
+            f"Missing run timestamp in stats or completion flag for {dir1}"
+        )
     if not stats2.get("run_timestamp"):
-        raise ValueError(f"Missing run timestamp in stats or completion flag for {dir2}")
+        raise ValueError(
+            f"Missing run timestamp in stats or completion flag for {dir2}"
+        )
 
     # Determine comparator order (A = slower / longer runtime)
     if time1 is not None and time2 is not None and time1 < time2:
@@ -302,7 +314,9 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
         steps_a, steps_b = steps1, steps2
         missing_a, missing_b = missing1, missing2
 
-    def _counts(stats: Dict[str, any]) -> tuple[Optional[int], Optional[int], Optional[int], Optional[int]]:
+    def _counts(
+        stats: Dict[str, any],
+    ) -> tuple[Optional[int], Optional[int], Optional[int], Optional[int]]:
         counts = stats.get("variant_counts", {}) or {}
         total = counts.get("total_output")
         annotated = counts.get("annotated_output")
@@ -331,8 +345,12 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
             return missing
         return tool_annotated
 
-    tool_annotated_a = _fallback_tool_annotated(stats_a, tool_annotated_a, missing_a, total_a)
-    tool_annotated_b = _fallback_tool_annotated(stats_b, tool_annotated_b, missing_b, total_b)
+    tool_annotated_a = _fallback_tool_annotated(
+        stats_a, tool_annotated_a, missing_a, total_a
+    )
+    tool_annotated_b = _fallback_tool_annotated(
+        stats_b, tool_annotated_b, missing_b, total_b
+    )
 
     def _rate(count: Optional[int], duration: Optional[float]) -> Optional[float]:
         if count is None or duration is None or duration <= 0:
@@ -343,12 +361,24 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
         if not steps:
             return None
         if mode == "cached":
-            annotate_steps = [s for s in steps if s.get("step") and "Annotating" in s.get("step")]
+            annotate_steps = [
+                s for s in steps if s.get("step") and "Annotating" in s.get("step")
+            ]
             if annotate_steps:
-                return sum(s.get("duration", 0.0) for s in annotate_steps if s.get("duration") is not None)
-        view_steps = [s for s in steps if s.get("command", "").startswith("bcftools view")]
+                return sum(
+                    s.get("duration", 0.0)
+                    for s in annotate_steps
+                    if s.get("duration") is not None
+                )
+        view_steps = [
+            s for s in steps if s.get("command", "").startswith("bcftools view")
+        ]
         if view_steps:
-            return max(s.get("duration", 0.0) for s in view_steps if s.get("duration") is not None)
+            return max(
+                s.get("duration", 0.0)
+                for s in view_steps
+                if s.get("duration") is not None
+            )
         return None
 
     tool_time_a = _tool_step_time(steps_a, stats_a.get("mode", ""))
@@ -419,17 +449,47 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
             ("Version", stats.get("vcfcache_version", "unknown")),
             ("Run timestamp", stats.get("run_timestamp", "unknown")),
             ("Threads", stats.get("threads", "unknown")),
+            ("Statistics", stats.get("statistics_level", "legacy/full")),
             ("Genome build (params.yaml)", stats.get("genome_build_params", "N/A")),
-            ("Genome build (annotation.yaml)", stats.get("genome_build_annotation", "N/A")),
+            (
+                "Genome build (annotation.yaml)",
+                stats.get("genome_build_annotation", "N/A"),
+            ),
             ("Extra params", ", ".join(extra_params) if extra_params else "(none)"),
             ("Output variants (total)", f"{total:,}" if total is not None else None),
-            ("Annotated variants in output", f"{annotated:,}" if annotated is not None else None),
-            ("Annotated variants (tool)", f"{tool_annotated:,}" if tool_annotated is not None else None),
+            (
+                "Annotated variants in output",
+                f"{annotated:,}" if annotated is not None else None,
+            ),
+            (
+                "Annotated variants (tool)",
+                f"{tool_annotated:,}" if tool_annotated is not None else None,
+            ),
             ("Dropped variants", f"{dropped:,}" if dropped is not None else None),
-            ("Output variants/sec (end-to-end)", f"{total_rate:,.2f}" if total_rate is not None else None),
-            ("Annotated variants/sec (tool step)", f"{tool_rate:,.2f}" if tool_rate is not None else None),
-            ("Total time", f"{format_time(total_time)} ({total_time:,.2f}s)" if total_time is not None else None),
-            ("Tool time", f"{format_time(tool_time)} ({tool_time:,.2f}s)" if tool_time is not None else None),
+            (
+                "Output variants/sec (end-to-end)",
+                f"{total_rate:,.2f}" if total_rate is not None else None,
+            ),
+            (
+                "Annotated variants/sec (tool step)",
+                f"{tool_rate:,.2f}" if tool_rate is not None else None,
+            ),
+            (
+                "Total time",
+                (
+                    f"{format_time(total_time)} ({total_time:,.2f}s)"
+                    if total_time is not None
+                    else None
+                ),
+            ),
+            (
+                "Tool time",
+                (
+                    f"{format_time(tool_time)} ({tool_time:,.2f}s)"
+                    if tool_time is not None
+                    else None
+                ),
+            ),
         ]
         key_width = max(len(k) for k, _ in items)
         for key, value in items:
@@ -467,9 +527,12 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
         extra_params2 if stats_b is stats2 else extra_params1,
     )
 
-    print("Note: Output variants (total) can include unannotated records (e.g., --preserve-unannotated).")
+    print(
+        "Note: Output variants (total) can include unannotated records (e.g., --preserve-unannotated)."
+    )
     print()
     print(_hdr("Detailed Step Timings"))
+
     def _print_steps(label: str, steps: List[Dict[str, str]]) -> None:
         print(f"  {label}:")
         if not steps:
@@ -497,10 +560,18 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     print("+---------------------------+----------------------+----------------------+")
     print("| Metric                    | Comparator A         | Comparator B         |")
     print("+---------------------------+----------------------+----------------------+")
-    print(f"| End-to-end time           | {format_time(time_a) if time_a is not None else 'N/A':<20} | {format_time(time_b) if time_b is not None else 'N/A':<20} |")
-    print(f"| Tool time                 | {format_time(tool_time_a) if tool_time_a is not None else 'N/A':<20} | {format_time(tool_time_b) if tool_time_b is not None else 'N/A':<20} |")
-    print(f"| End-to-end rate (var/s)   | {f'{rate_a:,.2f}' if rate_a is not None else 'N/A':<20} | {f'{rate_b:,.2f}' if rate_b is not None else 'N/A':<20} |")
-    print(f"| Tool rate (var/s)         | {f'{tool_rate_a:,.2f}' if tool_rate_a is not None else 'N/A':<20} | {f'{tool_rate_b:,.2f}' if tool_rate_b is not None else 'N/A':<20} |")
+    print(
+        f"| End-to-end time           | {format_time(time_a) if time_a is not None else 'N/A':<20} | {format_time(time_b) if time_b is not None else 'N/A':<20} |"
+    )
+    print(
+        f"| Tool time                 | {format_time(tool_time_a) if tool_time_a is not None else 'N/A':<20} | {format_time(tool_time_b) if tool_time_b is not None else 'N/A':<20} |"
+    )
+    print(
+        f"| End-to-end rate (var/s)   | {f'{rate_a:,.2f}' if rate_a is not None else 'N/A':<20} | {f'{rate_b:,.2f}' if rate_b is not None else 'N/A':<20} |"
+    )
+    print(
+        f"| Tool rate (var/s)         | {f'{tool_rate_a:,.2f}' if tool_rate_a is not None else 'N/A':<20} | {f'{tool_rate_b:,.2f}' if tool_rate_b is not None else 'N/A':<20} |"
+    )
     print("+---------------------------+----------------------+----------------------+")
     if speedup is not None and time_saved is not None:
         print(f"  Speed-up (A/B): {speedup:.2f}x  (end-to-end)")
@@ -516,9 +587,23 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
         return _warn("[!]") + " differ"
 
     print("  Output verification:")
-    print(f"    Top10 MD5: {md5_a.get('top10') or 'N/A'} vs {md5_b.get('top10') or 'N/A'}  {_md5_status(md5_a.get('top10'), md5_b.get('top10'))}")
-    print(f"    Bottom10 MD5: {md5_a.get('bottom10') or 'N/A'} vs {md5_b.get('bottom10') or 'N/A'}  {_md5_status(md5_a.get('bottom10'), md5_b.get('bottom10'))}")
-    print(f"    Total MD5 (all variants): {md5_all_a or 'N/A'} vs {md5_all_b or 'N/A'}  {_md5_status(md5_all_a, md5_all_b)}")
+    if (
+        stats_a.get("statistics_level") == "light"
+        or stats_b.get("statistics_level") == "light"
+    ):
+        print(
+            f"    {_warn('[!]')} Hashes were not collected in light mode; "
+            "use --statistics full on both runs for hash verification."
+        )
+    print(
+        f"    Top10 MD5: {md5_a.get('top10') or 'N/A'} vs {md5_b.get('top10') or 'N/A'}  {_md5_status(md5_a.get('top10'), md5_b.get('top10'))}"
+    )
+    print(
+        f"    Bottom10 MD5: {md5_a.get('bottom10') or 'N/A'} vs {md5_b.get('bottom10') or 'N/A'}  {_md5_status(md5_a.get('bottom10'), md5_b.get('bottom10'))}"
+    )
+    print(
+        f"    Total MD5 (all variants): {md5_all_a or 'N/A'} vs {md5_all_b or 'N/A'}  {_md5_status(md5_all_a, md5_all_b)}"
+    )
     print()
     print("=" * 80)
     print()

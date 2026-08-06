@@ -1,19 +1,22 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (c) 2024-2026 Julius Müller
 
-from pathlib import Path
 import subprocess
 import sys
 import types
+from pathlib import Path
 
 import pytest
+import yaml
 
 from vcfcache.database import base as db_base
 from vcfcache.database.annotator import DatabaseAnnotator, VCFAnnotator
 
 
 def test_wavg():
-    assert VCFAnnotator.wavg(0.1, 0.2, 10, 5) == pytest.approx((0.1 * 10 + 0.2 * 5) / 15)
+    assert VCFAnnotator.wavg(0.1, 0.2, 10, 5) == pytest.approx(
+        (0.1 * 10 + 0.2 * 5) / 15
+    )
     assert VCFAnnotator.wavg(None, None, 0, 0) is None
     assert VCFAnnotator.wavg(None, 0.2, 0, 5) == 0.2
     assert VCFAnnotator.wavg(0.1, None, 5, 0) == 0.1
@@ -90,7 +93,9 @@ def test_list_contigs_parses_output(monkeypatch, tmp_path):
     class _Res:
         stdout = "1\t100\n2\t200\n\n"
 
-    monkeypatch.setattr("vcfcache.database.annotator.subprocess.run", lambda *a, **k: _Res())
+    monkeypatch.setattr(
+        "vcfcache.database.annotator.subprocess.run", lambda *a, **k: _Res()
+    )
     contigs = annotator._list_contigs(tmp_path / "x.bcf")
     assert contigs == ["1", "2"]
 
@@ -120,6 +125,7 @@ def test_process_region_basic(monkeypatch):
                 alts = ["T"]
                 info = {"CSQ": ["GENE1|1"], "clinvar_clnsig": ["Pathogenic"]}
                 samples = [{"AD": [10, 5], "DP": 15, "GT": (0, 1)}]
+
             return [_Rec()]
 
     monkeypatch.setattr("vcfcache.database.annotator.pysam.VariantFile", _VariantFile)
@@ -461,6 +467,98 @@ def test_count_annotated_variants_returns_none_on_failure(monkeypatch):
     assert annotator._count_annotated_variants(Path("sample.bcf"), None) is None
 
 
+def _stats_annotator(tmp_path, statistics, last_run_stats):
+    annotator = VCFAnnotator.__new__(VCFAnnotator)
+    annotator.statistics = statistics
+    annotator.output_dir = tmp_path
+    annotator.output_vcf = tmp_path / "output.bcf"
+    annotator.output_vcf.write_text("bcf")
+    annotator.input_vcf = tmp_path / "input.bcf"
+    annotator.annotation_name = "test-cache"
+    annotator.annotation_db_path = tmp_path / "cache"
+    annotator.anno_snapshot_file = tmp_path / "missing-annotation.yaml"
+    annotator.bcftools_path = Path("/fake/bcftools")
+    annotator.nx_workflow = type(
+        "Workflow",
+        (),
+        {
+            "last_run_stats": last_run_stats,
+            "params_file_content": {"threads": 4, "genome_build": "GRCh38"},
+            "nfa_config_content": {
+                "genome_build": "GRCh38",
+                "must_contain_info_tag": "CSQ",
+            },
+        },
+    )()
+    return annotator
+
+
+def test_light_statistics_use_workflow_counters_without_rescan(monkeypatch, tmp_path):
+    annotator = _stats_annotator(
+        tmp_path,
+        "light",
+        {
+            "input_variants": 100,
+            "output_variants": 97,
+            "missing_variants": 20,
+            "missing_annotated": 17,
+            "dropped_variants": 3,
+        },
+    )
+
+    monkeypatch.setattr(
+        annotator,
+        "_count_variants",
+        lambda *_args: pytest.fail("light statistics must reuse workflow counts"),
+    )
+    monkeypatch.setattr(
+        annotator,
+        "_count_annotated_variants",
+        lambda *_args: pytest.fail("light statistics must not query the VCF"),
+    )
+    monkeypatch.setattr(
+        annotator,
+        "_compute_top_bottom_md5",
+        lambda *_args: pytest.fail("light statistics must not rescan for hashes"),
+    )
+
+    annotator._write_compare_stats(mode="cached", preserve_unannotated=True)
+    stats = yaml.safe_load((tmp_path / "compare_stats.yaml").read_text())
+
+    assert stats["statistics_level"] == "light"
+    assert stats["variant_counts"]["total_output"] == 97
+    assert stats["variant_counts"]["annotated_output"] == 97
+    assert stats["variant_counts"]["tool_annotated"] == 17
+    assert stats["variant_md5"] == {"top10": None, "bottom10": None, "all": None}
+
+
+def test_full_statistics_keep_deep_output_scan(monkeypatch, tmp_path):
+    annotator = _stats_annotator(
+        tmp_path,
+        "full",
+        {"input_variants": 100, "output_variants": 95},
+    )
+    monkeypatch.setattr(annotator, "_count_annotated_variants", lambda *_args: 94)
+    monkeypatch.setattr(
+        annotator, "_compute_top_bottom_md5", lambda *_args: ("top", "bottom")
+    )
+    monkeypatch.setattr(annotator, "_compute_all_md5", lambda *_args: "all")
+
+    annotator._write_compare_stats(mode="uncached", md5_all=True)
+    stats = yaml.safe_load((tmp_path / "compare_stats.yaml").read_text())
+
+    assert stats["statistics_level"] == "full"
+    assert stats["variant_counts"]["annotated_output"] == 94
+    assert stats["variant_md5"] == {"top10": "top", "bottom10": "bottom", "all": "all"}
+
+
+def test_md5_all_requires_full_statistics(tmp_path):
+    annotator = VCFAnnotator.__new__(VCFAnnotator)
+    annotator.statistics = "light"
+    with pytest.raises(ValueError, match="requires statistics='full'"):
+        annotator.annotate(md5_all=True)
+
+
 def test_convert_to_parquet_logs(monkeypatch, tmp_path):
     class _Logger:
         def __init__(self):
@@ -725,7 +823,10 @@ def test_database_annotator_annotate_error_cleans_output(monkeypatch, tmp_path):
     annotator.nx_workflow = _WF()
     annotator.debug = False
 
-    monkeypatch.setattr("vcfcache.database.annotator.sys.exit", lambda code=0: (_ for _ in ()).throw(SystemExit(code)))
+    monkeypatch.setattr(
+        "vcfcache.database.annotator.sys.exit",
+        lambda code=0: (_ for _ in ()).throw(SystemExit(code)),
+    )
 
     with pytest.raises(SystemExit):
         annotator.annotate()
@@ -755,7 +856,15 @@ def test_database_annotator_init_minimal(monkeypatch, tmp_path):
         "genome_build: GRCh38\n"
     )
 
-    monkeypatch.setattr(db_base, "create_workflow", lambda **_kwargs: type("WF", (), {"run": lambda *_a, **_k: None, "cleanup_work_dir": lambda *_: None})())
+    monkeypatch.setattr(
+        db_base,
+        "create_workflow",
+        lambda **_kwargs: type(
+            "WF",
+            (),
+            {"run": lambda *_a, **_k: None, "cleanup_work_dir": lambda *_: None},
+        )(),
+    )
 
     annotator = DatabaseAnnotator(
         annotation_name="anno1",
@@ -799,7 +908,15 @@ def test_vcf_annotator_init_minimal(monkeypatch, tmp_path):
     input_vcf.write_text("bcf")
     (tmp_path / "sample.bcf.csi").write_text("idx")
 
-    monkeypatch.setattr(db_base, "create_workflow", lambda **_kwargs: type("WF", (), {"run": lambda *_a, **_k: None, "cleanup_work_dir": lambda *_: None})())
+    monkeypatch.setattr(
+        db_base,
+        "create_workflow",
+        lambda **_kwargs: type(
+            "WF",
+            (),
+            {"run": lambda *_a, **_k: None, "cleanup_work_dir": lambda *_: None},
+        )(),
+    )
     annotator = VCFAnnotator(
         input_vcf=input_vcf,
         annotation_db=anno_dir,

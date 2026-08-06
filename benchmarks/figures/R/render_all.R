@@ -17,6 +17,7 @@ source(file.path(script_dir, "common.R"))
 source(file.path(script_dir, "render_assay.R"))
 source(file.path(script_dir, "render_external.R"))
 source(file.path(script_dir, "render_user_impact.R"))
+source(file.path(script_dir, "render_alternatives.R"))
 
 input_dir <- normalizePath(arguments[[1]], mustWork = TRUE)
 output_dir <- arguments[[2]]
@@ -26,13 +27,14 @@ snapshot <- jsonlite::fromJSON(
   file.path(input_dir, "SNAPSHOT.json"),
   simplifyVector = FALSE
 )
-if (!identical(snapshot$status, "PRELIMINARY")) {
-  warning("The selected snapshot is not marked PRELIMINARY")
+if (!snapshot$status %in% c("PRELIMINARY", "FINAL")) {
+  stop("Snapshot status must be PRELIMINARY or FINAL")
 }
 
 render_assay_figure(input_dir, output_dir, snapshot)
 render_external_figure(input_dir, output_dir, snapshot)
 render_user_impact_figure(input_dir, output_dir, snapshot)
+render_alternative_figures(input_dir, output_dir, snapshot)
 
 session <- capture.output(sessionInfo())
 writeLines(session, file.path(output_dir, "R_SESSION_INFO.txt"))

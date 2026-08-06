@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import shutil
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -84,14 +85,29 @@ def promote_attempt(
 ) -> None:
     """Atomically hard-link one validated attempt into the immutable task area."""
     job_id = os.environ.get("SLURM_JOB_ID", "manual")
-    partial = result_dir.with_name(f"{result_dir.name}.partial-recovery-{job_id}")
     if result_dir.exists():
         return
-    if partial.exists():
-        raise FileExistsError(f"Recovery partial already exists: {partial}")
     result_dir.parent.mkdir(parents=True, exist_ok=True)
+    # A previous recovery implementation used only the Slurm job ID here.
+    # Stale NFS directory entries and duplicate recovery submissions could then
+    # collide after validation had already completed.  Use a per-process nonce
+    # so retries never reuse a partially materialized destination.
+    partial = result_dir.with_name(
+        f"{result_dir.name}.partial-recovery-{job_id}-{os.getpid()}-"
+        f"{uuid.uuid4().hex}"
+    )
     try:
-        shutil.copytree(attempt_run, partial, copy_function=os.link)
+        # NFS may successfully create the directory, lose the reply, and then
+        # report EEXIST when the client retries the same mkdir.  The path has a
+        # process ID and random UUID, so accepting an existing directory here
+        # is safe and makes the operation idempotent under NFS replay.
+        partial.mkdir(exist_ok=True)
+        shutil.copytree(
+            attempt_run,
+            partial,
+            copy_function=os.link,
+            dirs_exist_ok=True,
+        )
         write_json_atomic(
             partial / "slurm-task.json",
             {
@@ -114,11 +130,21 @@ def promote_attempt(
                 "storage": "hardlinks",
             },
         )
-        partial.replace(result_dir)
+        try:
+            partial.replace(result_dir)
+        except OSError:
+            # Another recovery for the same task may have won the atomic
+            # promotion race.  That is success only when the final result is
+            # already present; otherwise preserve the original failure.
+            if not result_dir.exists():
+                raise
     except BaseException:
         if partial.exists():
             shutil.rmtree(partial)
         raise
+    finally:
+        if partial.exists():
+            shutil.rmtree(partial)
 
 
 def recover(args: argparse.Namespace) -> dict[str, Any]:

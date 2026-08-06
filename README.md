@@ -89,6 +89,11 @@ vcfcache annotate \
   --stats-dir ./results
 ```
 
+The default `--statistics light` mode records indexed/workflow counters without
+rescanning the annotated output. Use `--statistics full` when comparison hashes
+and a deep annotated-record recount are required, or `--statistics none` to
+discard the statistics and log directory.
+
 **Input format**: The `--vcf` flag accepts VCF, VCF.gz, BCF, or stdin. VCFcache handles conversion automatically:
 ```bash
 vcfcache annotate -a <cache-alias> --vcf sample.vcf.gz --output out.bcf     # VCF.gz input

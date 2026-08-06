@@ -22,7 +22,10 @@ DEFAULT_CONTROLLER_RESULTS = Path("/mnt/data/slurm-results")
 DEFAULT_WORKER_RESULTS = Path("/results")
 PAIR_SCRIPT = REPO_ROOT / "benchmarks/slurm_pair.sh"
 MODES = ("cached", "uncached")
-PHASES = ("smoke", "warmup", "measured")
+# New campaigns have one publication phase.  Older archived campaigns may still
+# contain smoke/warmup directories and remain readable by ``collect``.
+PHASES = ("measured",)
+LEGACY_PHASES = ("smoke", "warmup", "measured")
 DEFAULT_SEED = "vcfcache-paper-primary-wgs-v1"
 DEFAULT_MEASURED_REPLICATES = 1
 
@@ -134,15 +137,17 @@ def build_tasks(
     qc_path: Path,
     *,
     phase: str = "measured",
-    replicates: int = 3,
+    replicates: int = 1,
     seed: str = DEFAULT_SEED,
     selected_sample: str | None = None,
 ) -> list[CohortTask]:
     """Build one stable campaign-phase task manifest."""
     if phase not in PHASES:
         raise ValueError(f"Unknown phase: {phase}")
-    if replicates < 1:
-        raise ValueError("replicates must be positive")
+    if replicates != 1:
+        raise ValueError(
+            "Publication campaigns permit exactly one run per sample/tool/condition"
+        )
     samples = read_eligible_samples(qc_path, selected_sample)
     patterns = _sample_patterns(samples, seed)
     tasks: list[CohortTask] = []
@@ -213,23 +218,18 @@ def worker_path(
 
 
 def prepare_campaign(args: argparse.Namespace) -> None:
-    """Freeze smoke, diagnostic warm-up, and measured manifests.
+    """Freeze one paired measurement per biological sample.
 
-    The publication design uses one paired measurement per biological sample.
-    The warm-up manifest is retained for diagnostics and compatibility with
-    already archived campaigns, but the default submission chain does not run
-    it. A full-cohort warm-up would execute the same scientific comparison a
-    second time without adding an independent sample.
+    Adapter correctness belongs in a small-input integration gate, not in a
+    second timed execution of a publication sample.  Archived multi-phase
+    campaigns remain readable, but newly prepared campaigns contain only the
+    measured phase.
     """
     root = campaign_root(args.controller_results, args.campaign_id)
     if root.exists() and any(root.iterdir()):
         raise FileExistsError(f"Campaign already exists and is nonempty: {root}")
     manifests = root / "manifests"
-    specs = {
-        "smoke": (args.smoke_sample, 1),
-        "warmup": (None, 1),
-        "measured": (None, DEFAULT_MEASURED_REPLICATES),
-    }
+    specs = {"measured": (None, DEFAULT_MEASURED_REPLICATES)}
     phase_values: dict[str, object] = {}
     for phase, (sample, replicates) in specs.items():
         # Create shared parents once on the controller. Concurrent mkdir -p
@@ -323,32 +323,24 @@ def submit_phase(
 
 
 def submit_chain(args: argparse.Namespace) -> None:
-    """Submit one validation smoke followed by one measurement per sample."""
+    """Submit exactly one paired measurement per sample."""
     root = campaign_root(args.controller_results, args.campaign_id)
     campaign = json.loads((root / "campaign.json").read_text())
     current_commit = git_output("rev-parse", "HEAD")
     if campaign["commit"] != current_commit:
         raise RuntimeError("Campaign commit does not match the checked-out commit")
     submissions: dict[str, object] = {}
-    smoke_id, smoke_command = submit_phase(
-        campaign_id=args.campaign_id,
-        phase="smoke",
-        controller_results=args.controller_results,
-        worker_results=args.worker_results,
-        concurrency=1,
-    )
-    submissions["smoke"] = {"job_id": smoke_id, "command": smoke_command}
     measured_id, measured_command = submit_phase(
         campaign_id=args.campaign_id,
         phase="measured",
         controller_results=args.controller_results,
         worker_results=args.worker_results,
         concurrency=args.concurrency,
-        dependency=smoke_id,
+        dependency=args.start_after_job,
     )
     submissions["measured"] = {
         "job_id": measured_id,
-        "dependency": smoke_id,
+        "dependency": args.start_after_job,
         "command": measured_command,
     }
     value = {
@@ -397,7 +389,7 @@ def collect(args: argparse.Namespace) -> None:
     """Report archived task summaries without modifying results."""
     root = campaign_root(args.controller_results, args.campaign_id)
     phases: dict[str, object] = {}
-    for phase in PHASES:
+    for phase in LEGACY_PHASES:
         summaries = sorted((root / phase / "tasks").glob("task-*/**/summary_r*.json"))
         passes = 0
         for path in summaries:
@@ -438,12 +430,12 @@ def parser() -> argparse.ArgumentParser:
     _add_campaign_paths(prepare_parser)
     prepare_parser.add_argument("--qc", type=Path, default=DEFAULT_QC)
     prepare_parser.add_argument("--seed", default=DEFAULT_SEED)
-    prepare_parser.add_argument("--smoke-sample", default="HG02079")
     prepare_parser.set_defaults(function=prepare_campaign)
 
     chain_parser = subparsers.add_parser("submit-chain")
     _add_campaign_paths(chain_parser)
     chain_parser.add_argument("--concurrency", type=int, default=6)
+    chain_parser.add_argument("--start-after-job")
     chain_parser.set_defaults(function=submit_chain)
 
     submit_parser = subparsers.add_parser("submit")

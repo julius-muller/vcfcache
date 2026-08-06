@@ -24,6 +24,7 @@ from benchmarks.run_pilot import (
     parse_gnu_time,
     semantic_compare,
     validate_default_cache_provenance,
+    validate_requirements_output,
 )
 
 
@@ -55,6 +56,45 @@ def test_default_cache_provenance_is_fail_closed(tmp_path):
         validate_default_cache_provenance(provenance)
 
 
+@pytest.mark.parametrize(
+    ("requirements", "expected_version"),
+    [
+        (
+            "Tool checks\n  bcftools: 1.21+htslib-1.21  ✓\n"
+            "  annotation tool: 115.2  ✓\n",
+            "115.2",
+        ),
+        (
+            "Tool checks\n  bcftools: 1.21+htslib-1.21  ✓\n"
+            "  annotation tool: fastvep 0.3.0  ✓\n",
+            "0.3.0",
+        ),
+    ],
+)
+def test_requirements_validation_accepts_cache_declared_tool_version(
+    requirements, expected_version
+):
+    validate_requirements_output(requirements, expected_tool_version=expected_version)
+
+
+def test_requirements_validation_rejects_wrong_annotation_tool_version():
+    requirements = (
+        "Tool checks\n  bcftools: 1.21+htslib-1.21  ✓\n"
+        "  annotation tool: fastvep 0.3.0  ✓\n"
+    )
+    with pytest.raises(RuntimeError, match="expected version '115.2'"):
+        validate_requirements_output(requirements, expected_tool_version="115.2")
+
+
+def test_requirements_validation_rejects_failed_bcftools_check():
+    requirements = (
+        "Tool checks\n  bcftools: ERROR (not found)  ✗\n"
+        "  annotation tool: fastvep 0.3.0  ✓\n"
+    )
+    with pytest.raises(RuntimeError, match="bcftools requirement check"):
+        validate_requirements_output(requirements, expected_tool_version="0.3.0")
+
+
 def test_parse_elapsed_formats():
     assert parse_elapsed("7.5") == 7.5
     assert parse_elapsed("2:03.5") == 123.5
@@ -80,17 +120,17 @@ def test_replicates_use_distinct_report_paths(tmp_path):
     assert second.summary_path.name == "summary_r02.json"
 
 
-def test_cohort_tasks_are_deterministic_and_replicate_specific(tmp_path):
+def test_cohort_tasks_are_deterministic_and_single_pass(tmp_path):
     qc = tmp_path / "sample_qc.tsv"
     qc.write_text(
         "cohort\tsample\tpopulation\tsuperpopulation\tsex\tpath\trecords\tsha256\tstatus\n"
         "1000g\tS1\tPOP\tEUR\tfemale\t/mnt/data/S1.vcf.gz\t10\tabc\tPASS\n"
     )
-    first = build_tasks(qc, replicates=3, seed="paper", selected_sample="S1")
-    second = build_tasks(qc, replicates=3, seed="paper", selected_sample="S1")
+    first = build_tasks(qc, seed="paper", selected_sample="S1")
+    second = build_tasks(qc, seed="paper", selected_sample="S1")
     assert first == second
-    assert [task.task_id for task in first] == [0, 1, 2]
-    assert [task.replicate for task in first] == [1, 2, 3]
+    assert [task.task_id for task in first] == [0]
+    assert [task.replicate for task in first] == [1]
     assert all(
         {task.first_mode, task.second_mode} == {"cached", "uncached"} for task in first
     )
@@ -101,6 +141,8 @@ def test_cohort_tasks_are_deterministic_and_replicate_specific(tmp_path):
         .splitlines()[0]
         .startswith("task_id\tphase\tmeasured\tsample")
     )
+    with pytest.raises(ValueError, match="exactly one run"):
+        build_tasks(qc, replicates=2, seed="paper", selected_sample="S1")
 
 
 def test_mode_order_changes_with_auditable_key():
@@ -121,12 +163,10 @@ def test_measured_full_cohort_has_exact_balanced_order(tmp_path):
         for index in range(50)
     ]
     qc.write_text(header + "".join(rows))
-    tasks = build_tasks(qc, phase="measured", replicates=3, seed="paper")
-    assert len(tasks) == 150
-    assert sum(task.first_mode == "cached" for task in tasks) == 75
-    for sample in {task.sample for task in tasks}:
-        orders = {task.first_mode for task in tasks if task.sample == sample}
-        assert orders == {"cached", "uncached"}
+    tasks = build_tasks(qc, phase="measured", seed="paper")
+    assert len(tasks) == 50
+    assert sum(task.first_mode == "cached" for task in tasks) == 25
+    assert len({task.sample for task in tasks}) == 50
 
 
 def test_worker_path_translates_export_mount():
@@ -201,14 +241,15 @@ def test_prepare_campaign_precreates_shared_phase_directories(
             "worker_results": Path("/results"),
             "qc": qc,
             "seed": "paper",
-            "smoke_sample": "HG02079",
         },
     )()
     prepare_campaign(args)
     capsys.readouterr()
-    for phase in ("smoke", "warmup", "measured"):
+    for phase in ("measured",):
         assert (controller / "campaigns/run" / phase / "tasks").is_dir()
         assert (controller / "campaigns/run" / phase / "attempts").is_dir()
+    assert not (controller / "campaigns/run/smoke").exists()
+    assert not (controller / "campaigns/run/warmup").exists()
     campaign = json.loads((controller / "campaigns/run/campaign.json").read_text())
     assert campaign["phases"]["measured"]["replicates"] == 1
     assert campaign["phases"]["measured"]["tasks"] == 50

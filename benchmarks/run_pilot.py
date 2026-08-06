@@ -187,6 +187,39 @@ def validate_default_cache_provenance(path: Path) -> dict[str, object]:
     return value
 
 
+def validate_requirements_output(
+    requirements: str, *, expected_tool_version: str
+) -> None:
+    """Require successful bcftools and annotation-tool version checks."""
+    if not expected_tool_version.strip():
+        raise RuntimeError("Cache annotation recipe has no required_tool_version")
+
+    annotation_lines = [
+        line.strip()
+        for line in requirements.splitlines()
+        if line.strip().startswith("annotation tool:")
+    ]
+    annotation_status = annotation_lines[0] if len(annotation_lines) == 1 else ""
+    if "✓" not in annotation_status or expected_tool_version not in annotation_status:
+        observed = annotation_status or "missing annotation-tool status"
+        raise RuntimeError(
+            "Annotation tool requirement check did not pass: "
+            f"expected version {expected_tool_version!r}; observed {observed!r}"
+        )
+
+    bcftools_lines = [
+        line.strip()
+        for line in requirements.splitlines()
+        if line.strip().startswith("bcftools:")
+    ]
+    bcftools_status = bcftools_lines[0] if len(bcftools_lines) == 1 else ""
+    if "✓" not in bcftools_status:
+        observed = bcftools_status or "missing bcftools status"
+        raise RuntimeError(
+            f"bcftools requirement check did not pass: observed {observed!r}"
+        )
+
+
 def preflight(config: PilotConfig, *, require_clean: bool = True) -> dict[str, object]:
     """Validate the exact tools and immutable inputs used by the pilot."""
     required_paths = [
@@ -226,10 +259,13 @@ def preflight(config: PilotConfig, *, require_clean: bool = True) -> dict[str, o
             "--requirements",
         ]
     ).stdout
-    if "annotation tool: 115.2  ✓" not in requirements:
-        raise RuntimeError("VEP 115.2 requirement check did not pass")
-    if "bcftools:" not in requirements or "✓" not in requirements:
-        raise RuntimeError("bcftools requirement check did not pass")
+    annotation = yaml.safe_load((config.cache_dir / "annotation.yaml").read_text())
+    if not isinstance(annotation, dict):
+        raise RuntimeError("Cache annotation recipe must be a YAML mapping")
+    validate_requirements_output(
+        requirements,
+        expected_tool_version=str(annotation.get("required_tool_version", "")),
+    )
 
     input_records = int(
         run_checked(["bcftools", "index", "--nrecords", config.input_vcf]).stdout
@@ -296,6 +332,8 @@ def annotation_command(config: PilotConfig, mode: str, run_dir: Path) -> list[st
         str(run_dir / "output.bcf"),
         "--stats-dir",
         str(run_dir / "stats"),
+        "--statistics",
+        "full",
         "-y",
         str(config.params_file),
         "--force",

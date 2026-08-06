@@ -1,5 +1,11 @@
 # Exploratory fastVEP pilot results
 
+> Follow-up: lightweight statistics and a ten-database supplementary stress
+> profile are now complete. The heavier pipeline reached 3.60x at 90% hits and
+> 8.57x at 100% hits with complete output equality. See
+> [HEAVY_FASTVEP_RESULTS.md](HEAVY_FASTVEP_RESULTS.md). The results below remain
+> the frozen original core-pipeline pilot with the former full statistics cost.
+
 ## Conclusion
 
 Current VCFcache is already useful with fastVEP, but it does not yet meet the
@@ -116,4 +122,3 @@ The larger ANNOVAR/SnpEff/fastVEP campaign remains gated on this decision.
 Machine-readable source tables are under `source_data/`. Raw logs, BCFs,
 resource reports, equality reports, and the environment manifest remain at
 `/mnt/data/vcfcache_benchmarks/fastvep_pilot` on ITCCcloud_dev.
-

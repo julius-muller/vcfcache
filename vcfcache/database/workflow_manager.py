@@ -10,10 +10,8 @@ the need for Java and Nextflow dependencies.
 
 import datetime
 import os
-import re
 import shutil
 import subprocess
-import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
@@ -191,6 +189,7 @@ class WorkflowManager(WorkflowBase):
 
             # Validate params.yaml schema
             from vcfcache.utils.schemas import ParamsYAMLSchema
+
             is_valid, error = ParamsYAMLSchema.validate(raw_params, self.params_file)
             if not is_valid:
                 self.logger.error(error)
@@ -229,7 +228,10 @@ class WorkflowManager(WorkflowBase):
 
             # Validate annotation.yaml schema
             from vcfcache.utils.schemas import AnnotationYAMLSchema
-            is_valid, error = AnnotationYAMLSchema.validate(self.nfa_config_content, self.nfa_config)
+
+            is_valid, error = AnnotationYAMLSchema.validate(
+                self.nfa_config_content, self.nfa_config
+            )
             if not is_valid:
                 self.logger.error(error)
                 raise ValueError(error)
@@ -314,9 +316,15 @@ class WorkflowManager(WorkflowBase):
             elif db_mode == "annotate":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for annotate mode")
-                result = self._run_annotate(db_bcf, preserve_unannotated=preserve_unannotated, skip_split_multiallelic=skip_split_multiallelic)
+                result = self._run_annotate(
+                    db_bcf,
+                    preserve_unannotated=preserve_unannotated,
+                    skip_split_multiallelic=skip_split_multiallelic,
+                )
             elif db_mode == "annotate-nocache":
-                result = self._run_annotate_nocache(skip_split_multiallelic=skip_split_multiallelic)
+                result = self._run_annotate_nocache(
+                    skip_split_multiallelic=skip_split_multiallelic
+                )
             else:
                 raise ValueError(
                     f"Invalid db_mode: {db_mode}. Must be one of: "
@@ -344,7 +352,9 @@ class WorkflowManager(WorkflowBase):
             self.logger.error(f"Unexpected error: {e}")
             raise
 
-    def _run_blueprint_init(self, normalize: bool = False) -> subprocess.CompletedProcess:
+    def _run_blueprint_init(
+        self, normalize: bool = False
+    ) -> subprocess.CompletedProcess:
         """Initialize database blueprint.
 
         Returns:
@@ -403,13 +413,17 @@ class WorkflowManager(WorkflowBase):
         input_bcf = self.input_file
 
         if normalize:
-            self.logger.info("Filtering new input (drop INFO) and splitting multiallelic sites")
+            self.logger.info(
+                "Filtering new input (drop INFO) and splitting multiallelic sites"
+            )
             step_cmd = f"""{bcftools} view -G -Ou --threads {threads} {input_bcf} | \\
                 {bcftools} annotate -x INFO -Ou --threads {threads} | \\
                 {bcftools} norm -m- -o {filtered} -Ob --write-index --threads {threads}
             """
         else:
-            self.logger.info("Filtering new input (drop INFO) (no multiallelic splitting)")
+            self.logger.info(
+                "Filtering new input (drop INFO) (no multiallelic splitting)"
+            )
             step_cmd = f"""{bcftools} view -G -Ou --threads {threads} {input_bcf} | \\
                 {bcftools} annotate -x INFO -Ou --threads {threads} | \\
                 {bcftools} view -o {filtered} -Ob --write-index --threads {threads}
@@ -421,9 +435,7 @@ class WorkflowManager(WorkflowBase):
         output_bcf = self.output_dir / "vcfcache.bcf"
         self.logger.info(f"Merging with existing blueprint: {db_bcf}")
 
-        merge_cmd = (
-            f"{bcftools} merge -m none --threads {threads} {db_bcf} {filtered} -o {output_bcf} -Ob --write-index"
-        )
+        merge_cmd = f"{bcftools} merge -m none --threads {threads} {db_bcf} {filtered} -o {output_bcf} -Ob --write-index"
 
         return BcftoolsCommand(merge_cmd, self.logger, work_task).run()
 
@@ -498,7 +510,12 @@ class WorkflowManager(WorkflowBase):
             return self.output_dir / f"{sample_name}_vc.bcf"
         return self.output_file
 
-    def _run_annotate(self, db_bcf: Path, preserve_unannotated: bool = False, skip_split_multiallelic: bool = False) -> subprocess.CompletedProcess:
+    def _run_annotate(
+        self,
+        db_bcf: Path,
+        preserve_unannotated: bool = False,
+        skip_split_multiallelic: bool = False,
+    ) -> subprocess.CompletedProcess:
         """Annotate sample using cache - 4-step caching process.
 
         This is the key performance feature that makes VCFcache fast.
@@ -557,17 +574,19 @@ class WorkflowManager(WorkflowBase):
 
         # Step 0: Split multiallelic variants and remove spanning deletions (ALT=*)
         if skip_split_multiallelic:
-            self.logger.info("Step 0/4: Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)")
+            self.logger.info(
+                "Step 0/4: Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)"
+            )
             # Still need to remove spanning deletions even when skipping split
             self.logger.info("Step 0/4: Removing spanning deletion alleles (ALT=*)")
             filtered_input = work_task / f"{sample_name}_no_span_del.bcf"
-            filter_cmd = (
-                f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
-            )
+            filter_cmd = f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
             BcftoolsCommand(filter_cmd, self.logger, work_task).run()
             input_bcf = filtered_input
         else:
-            self.logger.info("Step 0/4: Splitting multiallelic variants and removing spanning deletions")
+            self.logger.info(
+                "Step 0/4: Splitting multiallelic variants and removing spanning deletions"
+            )
             normalized_input = work_task / f"{sample_name}_normalized.bcf"
             # Combine norm and filter: split multiallelic, then remove ALT=*
             norm_cmd = (
@@ -576,6 +595,8 @@ class WorkflowManager(WorkflowBase):
             )
             BcftoolsCommand(norm_cmd, self.logger, work_task).run()
             input_bcf = normalized_input  # Use normalized input for subsequent steps
+
+        input_count = self._count_variants(Path(input_bcf), bcftools)
 
         # Step 1: Add cache annotations
         self.logger.info("Step 1/4: Adding cache annotations")
@@ -666,7 +687,9 @@ class WorkflowManager(WorkflowBase):
                 text=True,
             )
             step3_count = (
-                int(step3_count_result.stdout.strip()) if step3_count_result.returncode == 0 else 0
+                int(step3_count_result.stdout.strip())
+                if step3_count_result.returncode == 0
+                else 0
             )
 
             dropped_count = 0
@@ -717,6 +740,8 @@ class WorkflowManager(WorkflowBase):
             result = BcftoolsCommand(filter_cmd, self.logger, work_task).run()
 
         self.last_run_stats = {
+            "input_variants": input_count,
+            "output_variants": self._count_variants(Path(output_target), bcftools),
             "missing_variants": missing_count,
             "missing_annotated": step3_count,
             "dropped_variants": dropped_count if missing_count > 0 else 0,
@@ -725,7 +750,9 @@ class WorkflowManager(WorkflowBase):
 
         return result
 
-    def _run_annotate_nocache(self, skip_split_multiallelic: bool = False) -> subprocess.CompletedProcess:
+    def _run_annotate_nocache(
+        self, skip_split_multiallelic: bool = False
+    ) -> subprocess.CompletedProcess:
         """Annotate sample directly without using cache.
 
         This is for benchmarking or when cache is not available.
@@ -756,17 +783,19 @@ class WorkflowManager(WorkflowBase):
 
         # Step 0: Split multiallelic variants and remove spanning deletions (ALT=*)
         if skip_split_multiallelic:
-            self.logger.info("Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)")
+            self.logger.info(
+                "Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)"
+            )
             # Still need to remove spanning deletions even when skipping split
             self.logger.info("Removing spanning deletion alleles (ALT=*)")
             filtered_input = work_task / f"{sample_name}_no_span_del.bcf"
-            filter_cmd = (
-                f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
-            )
+            filter_cmd = f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
             BcftoolsCommand(filter_cmd, self.logger, work_task).run()
             input_bcf = filtered_input
         else:
-            self.logger.info("Splitting multiallelic variants and removing spanning deletions")
+            self.logger.info(
+                "Splitting multiallelic variants and removing spanning deletions"
+            )
             normalized_input = work_task / f"{sample_name}_normalized.bcf"
             # Combine norm and filter: split multiallelic, then remove ALT=*
             norm_cmd = (
@@ -829,7 +858,10 @@ class WorkflowManager(WorkflowBase):
             return None
 
     def _substitute_variables(
-        self, text: str, extra_vars: Optional[Dict[str, str]] = None, skip_vars: Optional[list] = None
+        self,
+        text: str,
+        extra_vars: Optional[Dict[str, str]] = None,
+        skip_vars: Optional[list] = None,
     ) -> str:
         """Replace variables in command strings.
 
@@ -868,7 +900,9 @@ class WorkflowManager(WorkflowBase):
                     text = text.replace(f"\\${{{key}}}", str(value))
                     # Then handle normal variables
                     text = text.replace(f"${{{key}}}", str(value))
-                    text = text.replace(f"${key}", str(value))  # Also support $VAR format
+                    text = text.replace(
+                        f"${key}", str(value)
+                    )  # Also support $VAR format
 
         return text
 
@@ -912,7 +946,7 @@ class WorkflowManager(WorkflowBase):
         duration = (end_time - start_time).total_seconds()
 
         with open(trace_file, "w") as f:
-            f.write(f"task_id\tname\tstatus\texit\tduration\n")
+            f.write("task_id\tname\tstatus\texit\tduration\n")
             f.write(f"1\t{mode}\tCOMPLETED\t0\t{duration:.1f}s\n")
 
         self.logger.debug(f"Trace file written to: {trace_file}")

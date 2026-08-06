@@ -80,13 +80,16 @@ not an annotation change introduced by VCFcache.
 
 These plots substantiate the simple hero graphic but should appear after it:
 
-1. **Real assays:** individual relative runtimes for 20 panel, 20 WES, and 49
-   completed WGS pairs using the bundled Zenodo AF >= 1% cache.
-2. **Independent WGS:** all 52 KPGP, SGDP, and PGP evaluation genomes comparing
+1. **Source-overlap runtime calibration:** individual relative runtimes for 20
+   panel, 20 WES, and 49 completed 1000 Genomes WGS pairs using the bundled
+   Zenodo AF >= 1% cache. These identities occur in the gnomAD source universe;
+   never present their hit rates or speedups as real-world estimates.
+2. **Real-world WGS:** all 52 KPGP, SGDP, and PGP evaluation genomes comparing
    bundled AF >= 10%, bundled AF >= 1%, and disjoint three-genome cohort caches.
    "Evaluation" means that none of these genomes was among the three genomes
-   used to construct its cohort cache; it does not assert individual-level
-   exclusion from the independently published gnomAD source population.
+   used to construct its cohort cache. These cohorts have no documented project
+   overlap with gnomAD, but this does not assert individual-level exclusion from
+   undisclosed gnomAD contributors.
 3. **Pipeline cost:** one representative sample run with vanilla VEP, VEP
    `--everything`, and two calibrated `SyntheticDelay` settings.
 4. **Observed versus predicted:** measured relative runtime against hit rate,
@@ -112,6 +115,13 @@ Use one validated paired or multi-condition execution per sample, with balanced
 condition order. The biological/input sample is the independent unit. The
 existing HG02079 repeat differed by 0.84% uncached and 0.08% cached, so complete
 cohort warm-ups and three technical reruns were removed before collection.
+
+Apply the identical 52-genome, four-condition matrix to VEP and fastVEP. For
+each annotator, one task runs one direct baseline plus the bundled AF >= 10%,
+bundled AF >= 1%, and disjoint three-genome cohort cache exactly once. Reuse the
+same blueprint membership and condition order, but rebuild cache annotations
+with that annotator's immutable recipe. Compare direct and cached output only
+within an annotator; VEP and fastVEP have different annotation semantics.
 
 Do not resize workers during the primary/external comparison. A controlled
 pipeline-cost campaign may use different hardware only when all its scenarios

@@ -23,6 +23,12 @@ and with VCFcache's `--uncached` mode. The modes differ only in whether existing
 cache annotations are reused. Samples, rather than technical repetitions or
 individual variants, are the statistical units.
 
+Each unique sample, annotator, and cache condition is timed exactly once. New
+campaigns contain only a measured phase: they do not repeat publication WGS
+inputs as smoke tests, full-cohort warm-ups, or technical replicates. Adapter
+correctness is established beforehand on a separate small VCF. Within each
+real-WGS task, condition order is balanced deterministically across samples.
+
 The primary timed cohort comprises 49 read-called whole genomes from the high-coverage
 1000 Genomes resource. Seven Genome in a Bottle (GIAB) genomes, 20 graph-derived
 HPRC Release 2 genomes, 50 prepared matched capture-like exomes, 50 matched strict-target
@@ -332,9 +338,9 @@ QC at 0.0884; this option did not alter or filter benchmark VCFs.
 
 We will report medians, interquartile ranges, and sample-level bootstrap 95%
 confidence intervals for speedup and resource savings. Bootstrap resampling will
-resample samples with replacement and preserve all paired modes and technical
-replicates for a sampled individual; [FINAL BOOTSTRAP SEED AND REPLICATE COUNT]
-will be frozen in analysis code. Results will also be stratified descriptively
+resample samples with replacement and preserve all paired conditions for a
+sampled individual; [FINAL BOOTSTRAP SEED AND BOOTSTRAP ITERATION COUNT] will be
+frozen in analysis code. Results will also be stratified descriptively
 by source superpopulation, without interpreting differences as intrinsic
 population biology. HPRC and GIAB results will be descriptive representation
 checks, not independent estimates of gnomAD cache coverage.
