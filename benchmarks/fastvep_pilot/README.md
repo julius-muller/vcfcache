@@ -22,10 +22,13 @@ micro-profile are documented in
 `heavy.py` and `profile_100_hit.py`; these are intentionally one-run engineering
 diagnostics rather than publication benchmark cells.
 
-The matched 1-, 10-, and 32-logical-CPU comparison at 90% cache hits is
+The final matched 1-, 10-, and 32-CPU comparison at 90% cache hits is
 documented in [CORE_SCALING_RESULTS.md](CORE_SCALING_RESULTS.md) and reproduced
-with `core_scaling.py`. The heavy and CPU-scaling combined figures, their
-separate high-resolution panels, and PNG/PDF/SVG variants are under `output/`.
+with `core_scaling.py`. It uses a held-out 4,795,706-variant KPGP WGS and
+enforces process-wide affinity with `taskset`. Frozen source tables and
+environment/cache manifests use the `core_scaling_kpgp00319` and
+`heavy_core_scaling_kpgp00319` prefixes under `source_data/`. The publication
+renderer combines them in Supplementary Figure 2.
 Render both sets from their frozen source tables with:
 
 ```bash

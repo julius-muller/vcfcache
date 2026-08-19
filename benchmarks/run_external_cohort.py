@@ -41,6 +41,29 @@ DEFAULT_VEP_BUFFER = 100_000
 DEFAULT_MEASURED_REPLICATES = 1
 
 
+def calibration_subset(
+    samples: Sequence[dict[str, str]], per_cohort: int, seed: str
+) -> list[dict[str, str]]:
+    """Select a deterministic small light-statistics calibration by cohort."""
+    if per_cohort < 1:
+        return list(samples)
+    selected: list[dict[str, str]] = []
+    for cohort in sorted({row["cohort"] for row in samples}):
+        cohort_rows = [row for row in samples if row["cohort"] == cohort]
+        ranked = sorted(
+            cohort_rows,
+            key=lambda row: hashlib.sha256(
+                f"{seed}:light-calibration:{cohort}:{row['sample']}".encode()
+            ).hexdigest(),
+        )
+        if len(ranked) < per_cohort:
+            raise RuntimeError(
+                f"Only {len(ranked)} {cohort} samples for calibration of {per_cohort}"
+            )
+        selected.extend(ranked[:per_cohort])
+    return selected
+
+
 @dataclass(frozen=True)
 class ExternalTask:
     """One sample/tool task containing all four benchmark conditions."""
@@ -394,6 +417,11 @@ def prepare_campaign(args: argparse.Namespace) -> None:
     ).returncode:
         raise RuntimeError("Tracked worktree must be clean before campaign preparation")
     samples = read_evaluation_samples(args.qc)
+    calibration_per_cohort = getattr(args, "calibration_per_cohort", 0)
+    if calibration_per_cohort:
+        if getattr(args, "tool", "vep") != "vep":
+            raise ValueError("--calibration-per-cohort is reserved for VEP calibration")
+        samples = calibration_subset(samples, calibration_per_cohort, args.seed)
     phase_specs = {"measured": (samples, DEFAULT_MEASURED_REPLICATES)}
     phase_values = {}
     for phase, (phase_samples, replicates) in phase_specs.items():
@@ -441,6 +469,8 @@ def prepare_campaign(args: argparse.Namespace) -> None:
         "strategies": str(strategy_path),
         "strategies_sha256": sha256sum(strategy_path),
         "conditions": list(STRATEGIES),
+        "statistics_mode": "light",
+        "calibration_per_cohort": calibration_per_cohort,
         "cohort_assemblies": cohort_assemblies,
         "runtime_params_by_assembly": strategies["runtime_params_by_assembly"],
         "evaluation_counts": {
@@ -462,7 +492,12 @@ def _task_count(path: Path) -> int:
 
 
 def submit_phase(
-    args: argparse.Namespace, phase: str, dependency: str | None = None
+    args: argparse.Namespace,
+    phase: str,
+    dependency: str | None = None,
+    *,
+    array_spec: str | None = None,
+    job_suffix: str | None = None,
 ) -> tuple[str, list[str]]:
     """Submit one external phase and return the Slurm job ID and command."""
     if shutil.which("sbatch") is None:
@@ -473,11 +508,12 @@ def submit_phase(
     tool = json.loads((root / "campaign.json").read_text()).get("tool", "vep")
     (root / "logs").mkdir(parents=True, exist_ok=True)
     count = _task_count(manifest)
+    task_array = array_spec or f"0-{count - 1}%{args.concurrency}"
     command = [
         "sbatch",
         "--parsable",
-        f"--job-name=external-{tool}-{phase}",
-        f"--array=0-{count - 1}%{args.concurrency}",
+        f"--job-name=external-{tool}-{job_suffix or phase}",
+        f"--array={task_array}",
         f"--chdir={REPO_ROOT}",
         f"--output={args.worker_results}/campaigns/{args.campaign_id}/logs/{phase}-%A_%a.out",
         "--export=ALL,"
@@ -506,14 +542,43 @@ def submit_chain(args: argparse.Namespace) -> None:
         raise RuntimeError("Prepared campaign commit differs from checkout")
     dependency = args.start_after_job
     submissions = {}
-    for phase in PHASES:
-        job_id, command = submit_phase(args, phase, dependency)
-        submissions[phase] = {
-            "job_id": job_id,
+    if getattr(args, "smoke_first", False):
+        phase = "measured"
+        smoke_id, smoke_command = submit_phase(
+            args,
+            phase,
+            dependency,
+            array_spec="0-0",
+            job_suffix="smoke",
+        )
+        submissions["smoke"] = {
+            "job_id": smoke_id,
             "dependency": dependency,
-            "command": command,
+            "command": smoke_command,
         }
-        dependency = job_id
+        count = _task_count(root / "manifests" / f"{phase}.tsv")
+        if count > 1:
+            dependency = smoke_id
+            measured_id, measured_command = submit_phase(
+                args,
+                phase,
+                dependency,
+                array_spec=f"1-{count - 1}%{args.concurrency}",
+            )
+            submissions[phase] = {
+                "job_id": measured_id,
+                "dependency": dependency,
+                "command": measured_command,
+            }
+    else:
+        for phase in PHASES:
+            job_id, command = submit_phase(args, phase, dependency)
+            submissions[phase] = {
+                "job_id": job_id,
+                "dependency": dependency,
+                "command": command,
+            }
+            dependency = job_id
     value = {
         "campaign_id": args.campaign_id,
         "submitted_at": datetime.now(timezone.utc).isoformat(),
@@ -558,6 +623,14 @@ def collect(args: argparse.Namespace) -> Path:
             rows.append(
                 {
                     **value,
+                    "statistics_mode": value.get(
+                        "statistics_mode",
+                        document.get("statistics_mode", "legacy_full_rescan"),
+                    ),
+                    "semantic_comparator": value.get(
+                        "semantic_comparator",
+                        document.get("semantic_comparator", "legacy_vep_semantic"),
+                    ),
                     "population": task["population"],
                     "superpopulation": task["superpopulation"],
                     "provider": task["provider"],
@@ -569,7 +642,7 @@ def collect(args: argparse.Namespace) -> Path:
     expected = campaign["phases"][args.phase]["tasks"] * 3
     if len(rows) != expected:
         raise RuntimeError(f"Expected {expected} strategy rows, found {len(rows)}")
-    output = root / "publication/external_wgs_metrics.tsv"
+    output = root / "publication" / args.output_name
     output.parent.mkdir(parents=True, exist_ok=True)
     partial = output.with_suffix(".tsv.partial")
     with partial.open("w", newline="") as handle:
@@ -606,11 +679,22 @@ def parser() -> argparse.ArgumentParser:
         help="Prepared annotator-specific cache bundle (required for fastvep)",
     )
     prepare.add_argument("--vep-buffer", type=int, default=DEFAULT_VEP_BUFFER)
+    prepare.add_argument(
+        "--calibration-per-cohort",
+        type=int,
+        default=0,
+        help="Prepare a deterministic VEP light-mode calibration subset",
+    )
     prepare.set_defaults(function=prepare_campaign)
     submit = commands.add_parser("submit-chain")
     _paths(submit)
     submit.add_argument("--concurrency", type=int, default=6)
     submit.add_argument("--start-after-job")
+    submit.add_argument(
+        "--smoke-first",
+        action="store_true",
+        help="Run task 0 as a gate before submitting the remaining array",
+    )
     submit.set_defaults(function=submit_chain)
     inspect = commands.add_parser("status")
     _paths(inspect)
@@ -619,6 +703,11 @@ def parser() -> argparse.ArgumentParser:
     _paths(collection)
     collection.add_argument(
         "--phase", choices=LEGACY_COLLECTION_PHASES, default="measured"
+    )
+    collection.add_argument(
+        "--output-name",
+        default="external_wgs_metrics.tsv",
+        help="Output filename below publication/; use a new name for amendments",
     )
     collection.set_defaults(function=collect)
     return root
@@ -641,6 +730,13 @@ def main() -> None:
         raise ValueError("Concurrency must be positive")
     if getattr(args, "vep_buffer", 1) < 1:
         raise ValueError("VEP buffer must be positive")
+    if getattr(args, "calibration_per_cohort", 0) < 0:
+        raise ValueError("Calibration sample count cannot be negative")
+    if hasattr(args, "output_name") and (
+        Path(args.output_name).name != args.output_name
+        or not args.output_name.endswith(".tsv")
+    ):
+        raise ValueError("--output-name must be a simple .tsv filename")
     args.function(args)
 
 

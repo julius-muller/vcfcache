@@ -1,0 +1,7 @@
+example	cache_strategy	direct_hours	cached_hours	speedup	label
+Standard VEP --everything	AF ≥ 10% cache	2.80632092885253	0.63237156810669	4.43777214281566	4.4× · 38 min
+Standard VEP --everything	AF ≥ 1% cache	2.80632092885253	0.366350443541111	7.66020890196522	7.7× · 22 min
+Heavier pipeline (4 ms)	AF ≥ 10% cache	11.1258226214519	2.23917545596474	4.96871408259449	5.0× · 2.2 h
+All-day pipeline (10 ms)	AF ≥ 10% cache	22.7057032383336	4.51649708150915	5.02728172487752	5.0× · 4.5 h
+Heavier pipeline (4 ms)	AF ≥ 1% cache	11.1258226214519	1.15495506055139	9.63312166980795	9.6× · 1.2 h
+All-day pipeline (10 ms)	AF ≥ 1% cache	22.7057032383336	2.25092491119334	10.0872770679392	10.1× · 2.3 h

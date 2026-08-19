@@ -24,4 +24,5 @@ export PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}"
   --campaign-id "$campaign_id" \
   --controller-results /results \
   --worker-results /results \
-  --concurrency 6
+  --concurrency 6 \
+  --smoke-first

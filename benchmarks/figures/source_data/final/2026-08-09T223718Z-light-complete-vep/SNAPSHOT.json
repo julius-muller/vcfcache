@@ -1,0 +1,59 @@
+{
+  "campaigns": {
+    "assay": "assay-singlepass-32a760323fc5",
+    "external": "external-vep-light-full52-bbef41d7db8e",
+    "primary": "primary-wgs-32a760323fc5-bundled-af1"
+  },
+  "created_at": "2026-08-09T22:39:17.406429+00:00",
+  "created_on_host": "ghga-laptop",
+  "external_validation_status": {
+    "semantically_validated": 156
+  },
+  "files": {
+    "assay_metrics.tsv": {
+      "bytes": 11359,
+      "sha256": "ef242b3881eb6acfc1699fda2bfab132ed9cbfadf9412f4c02e410c9399de855"
+    },
+    "external_strategies.json": {
+      "bytes": 7515,
+      "sha256": "03adaff0b9c426726cec4c4884f85b1172148e6ecdb07ca61eac958877615704"
+    },
+    "external_wgs_metrics.tsv": {
+      "bytes": 51478,
+      "sha256": "d788a6eec36ef0be2e848e14382bbe5b268e20d42963c7f57b992355ca8dd082"
+    },
+    "primary_wgs_metrics.tsv": {
+      "bytes": 15719,
+      "sha256": "ea7fe08df4ae0f14393c998badb76bd9f6b05ca89e75370a1c28540414279963"
+    }
+  },
+  "notes": [
+    "Primary WGS and assay tables are byte-identical to the original final VEP snapshot.",
+    "External WGS contains all 52 VEP --statistics light reruns and 156 semantically validated cache-strategy rows.",
+    "The historical full-rescan external WGS measurements remain frozen in the base snapshot and are not copied into this bundle.",
+    "No BCF or other bulky run output is included in this snapshot."
+  ],
+  "row_counts": {
+    "assay_metrics.tsv": 40,
+    "external_wgs_metrics.tsv": 156,
+    "primary_wgs_metrics.tsv": 49
+  },
+  "sample_counts": {
+    "assay_by_type": {
+      "panel": 20,
+      "wes": 20
+    },
+    "external_completed": 52,
+    "external_expected": 52,
+    "external_semantically_validated": 52,
+    "primary_wgs": 49
+  },
+  "source_snapshots": {
+    "annotator_light_matched": "benchmarks/figures/source_data/final/2026-08-09T223718Z-light-matched-final",
+    "base_vep_assay": "benchmarks/figures/source_data/final/2026-08-06T095303Z"
+  },
+  "statistics_mode": {
+    "external_wgs": "light"
+  },
+  "status": "FINAL"
+}

@@ -63,12 +63,26 @@ export LC_ALL=C
 export LANG=C
 export VCFCACHE_REQUIRE_CGROUP_METRICS=1
 
-srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=8 \
-  "$repo_root/.venv/bin/python" "$repo_root/benchmarks/run_external_task.py" \
+runner=(
+  "$repo_root/.venv/bin/python" "$repo_root/benchmarks/run_external_task.py"
   --task-manifest "$task_manifest" \
   --strategies "$strategies" \
   --task-id "$task_id" \
   --run-root "$run_root"
+)
+mapfile -t conditions < <("${runner[@]}" --print-order)
+if ((${#conditions[@]} != 4)); then
+  echo "Expected four publication conditions, found ${#conditions[@]}" >&2
+  exit 1
+fi
+for condition in "${conditions[@]}"; do
+  srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=8 \
+    "${runner[@]}" --condition "$condition"
+done
+
+# Comparisons and hashing are deliberately outside all timed annotation cells.
+srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=3 \
+  "${runner[@]}" --finalize
 
 test -s "$run_root/external_summary.json"
 test -d "$phase_root/tasks"

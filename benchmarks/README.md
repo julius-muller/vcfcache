@@ -274,26 +274,31 @@ that phase directly instead of rerunning it:
 
 ## Controlled pipeline-cost and hit-rate experiment
 
-The mechanism panel uses one real capture-like WES input (HG02374, about 76,000
-variants), four annotation costs, and deterministic self-caches targeting 50%,
-80%, 90%, 95%, and 100% hits. The annotation costs are vanilla VEP, VEP
-`--everything`, and vanilla VEP with a no-output plugin that pauses 5 or 20 ms
-per transcript consequence. The plugin runs only on misses and cannot alter the
-annotation schema. This is a deliberately compact 24-task experiment: one
-uncached baseline per pipeline and one cached run per pipeline/hit-rate cell,
-with no technical repeats.
+The publication pipeline-cost spectrum uses one held-out real WGS,
+KPGP-00319 (4,795,706 variants), whose bundled Zenodo gnomAD AF >= 10% cache
+hit rate was previously measured as 80.23%. The completed matched campaigns
+provide the fastVEP and zero-delay VEP anchors on that exact genome and cache
+strategy. Six additional VEP `--everything` recipes add 0.5, 1, 2, 4, 7, or
+10 ms per transcript consequence through the no-output `SyntheticDelay`
+plugin. The six paired loads run concurrently on six exclusive Slurm nodes.
+Each has one cached and one uncached timed cell, in alternating order, with no
+technical repeats. The plugin runs only on variants submitted to VEP and cannot
+alter the annotation schema.
+
+The earlier capture-WES self-cache preparation remains an engineering mechanism
+control but is not used in the final pipeline-spectrum figure.
 
 Prepare the self-caches on the data-preparation VM, stage the resulting
 `controlled_runtime` tree unchanged to every worker, then prepare and submit:
 
 ```bash
-.venv/bin/python benchmarks/prepare_controlled_runtime.py
-.venv/bin/python benchmarks/run_controlled_cohort.py prepare \
-  --campaign-id controlled-runtime-<commit>
-.venv/bin/python benchmarks/run_controlled_cohort.py submit \
-  --campaign-id controlled-runtime-<commit> --concurrency 6
-.venv/bin/python benchmarks/run_controlled_cohort.py collect \
-  --campaign-id controlled-runtime-<commit>
+.venv/bin/python benchmarks/prepare_wgs_pipeline_spectrum.py
+.venv/bin/python benchmarks/run_wgs_pipeline_spectrum.py prepare \
+  --campaign-id wgs-pipeline-spectrum-<commit>
+.venv/bin/python benchmarks/run_wgs_pipeline_spectrum.py submit \
+  --campaign-id wgs-pipeline-spectrum-<commit>
+.venv/bin/python benchmarks/run_wgs_pipeline_spectrum.py collect \
+  --campaign-id wgs-pipeline-spectrum-<commit>
 ```
 
 The analysis fixes the miss-cost slope to the prespecified runtime equation and

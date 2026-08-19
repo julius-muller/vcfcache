@@ -1,0 +1,11 @@
+configured_thread_limit	repeat	enforced_cpu_affinity	mode	wall_seconds	workflow_seconds	max_rss_kib	cpu_percent	speedup_vs_direct_same_threads	semantic_pass	workload	mode_label
+1	1	0	direct	868.398093363736	867.8	4530128	99	1	True	Core consequences	Direct fastVEP
+1	1	0	cached	576.519749425817	575.6	4389224	97	1.50627640116165	True	Core consequences	VCFcache, 90% hits
+10	1	0,1,2,3,4,5,6,7,8,9	direct	463.830625724979	463.4	4629268	374	1	True	Core consequences	Direct fastVEP
+10	1	0,1,2,3,4,5,6,7,8,9	cached	180.319621924311	178.8	4398780	468	2.57226928924946	True	Core consequences	VCFcache, 90% hits
+32	1	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31	direct	379.104176425375	378.5	4650172	552	1	True	Core consequences	Direct fastVEP
+32	1	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31	cached	148.82289005816	147.3	4405692	704	2.54735125945492	True	Core consequences	VCFcache, 90% hits
+10	1	0,1,2,3,4,5,6,7,8,9	direct	706.153799789026	705.5	6139400	317	1	True	Ten supplementary databases	Direct fastVEP
+10	1	0,1,2,3,4,5,6,7,8,9	cached	229.993516031187	228.5	5793924	413	3.07032046804864	True	Ten supplementary databases	VCFcache, 90% hits
+32	1	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31	direct	691.36114424374	690.6	6635836	474	1	True	Ten supplementary databases	Direct fastVEP
+32	1	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31	cached	205.361136035994	203.8	6252588	591	3.36656271770217	True	Ten supplementary databases	VCFcache, 90% hits

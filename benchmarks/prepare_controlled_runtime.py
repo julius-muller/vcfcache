@@ -38,6 +38,25 @@ PIPELINES = {
 }
 
 
+def ensure_runtime_database_layout(root: Path, bundled_cache: Path) -> bool:
+    """Create the database-level paths required above nested controlled caches."""
+    layout_root = root / "caches"
+    (layout_root / "blueprint").mkdir(parents=True, exist_ok=True)
+    (layout_root / "cache").mkdir(parents=True, exist_ok=True)
+    workflow = layout_root / "workflow"
+    workflow.mkdir(parents=True, exist_ok=True)
+    source_init = bundled_cache.parents[1] / "workflow/init.yaml"
+    destination_init = workflow / "init.yaml"
+    if not destination_init.exists():
+        shutil.copy2(source_init, destination_init)
+        return True
+    if sha256sum(destination_init) != sha256sum(source_init):
+        raise RuntimeError(
+            f"Controlled workflow snapshot differs from bundled source: {destination_init}"
+        )
+    return False
+
+
 def annotation_yaml(source: str, delay_us: int | None = None) -> str:
     """Return a vanilla or synthetic-delay recipe derived from `--everything`."""
     lines = [
@@ -160,6 +179,14 @@ def prepare(args: argparse.Namespace) -> None:
     if output.exists():
         ready = output / "READY.json"
         if ready.exists():
+            changed = ensure_runtime_database_layout(output, args.bundled_cache.resolve())
+            value = json.loads(ready.read_text())
+            if value.get("database_layout_version") != 1:
+                value["database_layout_version"] = 1
+                write_json_atomic(ready, value)
+                changed = True
+            if changed:
+                print(f"Repaired controlled runtime database layout: {output}")
             print(f"Controlled runtime caches already ready: {output}")
             return
         raise FileExistsError(f"Incomplete controlled runtime root exists: {output}")
@@ -239,6 +266,7 @@ def prepare(args: argparse.Namespace) -> None:
             }
             write_json_atomic(cache / "controlled_cache.json", metadata)
             cache_rows.append(metadata)
+    ensure_runtime_database_layout(partial, bundled)
     shutil.rmtree(work)
     ready = {
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -248,6 +276,7 @@ def prepare(args: argparse.Namespace) -> None:
         "hit_rates": list(HIT_RATES),
         "pipelines": PIPELINES,
         "cache_count": len(cache_rows),
+        "database_layout_version": 1,
         "complete": True,
     }
     write_json_atomic(partial / "READY.json", ready)

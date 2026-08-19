@@ -14,13 +14,14 @@ from typing import Any, Sequence
 
 from benchmarks.prepare_controlled_runtime import HIT_RATES, PIPELINES
 from benchmarks.run_cohort import campaign_root, git_output, sha256sum, worker_path
-from benchmarks.run_pilot import write_json_atomic
+from benchmarks.run_pilot import PUBLICATION_STATISTICS_MODE, write_json_atomic
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONTROLLED_ROOT = Path("/mnt/data/vcfcache_benchmarks/controlled_runtime")
 DEFAULT_RESULTS = Path("/mnt/data/slurm-results")
 DEFAULT_WORKER_RESULTS = Path("/results")
 SLURM_SCRIPT = REPO_ROOT / "benchmarks/slurm_controlled_runtime.sh"
+DEFAULT_HIT_RATES = (50, 90)
 
 
 @dataclass(frozen=True)
@@ -56,6 +57,15 @@ def write_tasks(path: Path, tasks: Sequence[ControlledTask]) -> None:
 
 def prepare(args: argparse.Namespace) -> None:
     """Freeze baseline and cached task manifests."""
+    selected_hit_rates = tuple(dict.fromkeys(args.hit_rates))
+    if not selected_hit_rates:
+        raise ValueError("At least one controlled hit rate is required")
+    invalid_hit_rates = sorted(set(selected_hit_rates) - set(HIT_RATES))
+    if invalid_hit_rates:
+        raise ValueError(
+            f"Controlled caches are unavailable for hit rates {invalid_hit_rates}; "
+            f"choose from {list(HIT_RATES)}"
+        )
     controlled = args.controlled_root.resolve()
     ready = json.loads((controlled / "READY.json").read_text())
     root = campaign_root(args.controller_results, args.campaign_id)
@@ -95,7 +105,7 @@ def prepare(args: argparse.Namespace) -> None:
             )
         )
     for pipeline, delay in PIPELINES.items():
-        for hit_rate in HIT_RATES:
+        for hit_rate in selected_hit_rates:
             cache = controlled / "caches" / pipeline / f"hit-{hit_rate:03d}"
             _validate_cache(cache, pipeline, hit_rate / 100)
             cached_tasks.append(
@@ -126,7 +136,18 @@ def prepare(args: argparse.Namespace) -> None:
         "input_vcf": str(input_vcf),
         "input_sha256": input_sha,
         "pipelines": PIPELINES,
-        "hit_rates": list(HIT_RATES),
+        "hit_rates": list(selected_hit_rates),
+        "statistics_mode": PUBLICATION_STATISTICS_MODE,
+        "source_files": {
+            path.name: sha256sum(path)
+            for path in (
+                Path(__file__),
+                REPO_ROOT / "benchmarks/run_controlled_task.py",
+                REPO_ROOT / "benchmarks/run_pilot.py",
+                SLURM_SCRIPT,
+                REPO_ROOT / "benchmarks/vep_plugins/SyntheticDelay.pm",
+            )
+        },
         "phases": {"baseline": len(baseline_tasks), "cached": len(cached_tasks)},
     }
     write_json_atomic(root / "campaign.json", metadata)
@@ -182,7 +203,7 @@ def _submit(
 
 
 def submit(args: argparse.Namespace) -> None:
-    """Submit four baselines then twenty cached conditions."""
+    """Submit four baselines followed by the selected cached conditions."""
     baseline, baseline_command = _submit(
         args, "baseline", min(4, args.concurrency), args.start_after_job
     )
@@ -214,6 +235,7 @@ def collect(args: argparse.Namespace) -> Path:
                 "relative_runtime": value["relative_runtime"],
                 "speedup": value["speedup"],
                 "semantic_pass": value["semantic_pass"],
+                "statistics_mode": value["metrics"].get("statistics_mode"),
             }
         )
     expected = json.loads((root / "campaign.json").read_text())["phases"]["cached"]
@@ -243,6 +265,14 @@ def parser() -> argparse.ArgumentParser:
     _paths(prepare_parser)
     prepare_parser.add_argument(
         "--controlled-root", type=Path, default=DEFAULT_CONTROLLED_ROOT
+    )
+    prepare_parser.add_argument(
+        "--hit-rates",
+        type=int,
+        nargs="+",
+        choices=HIT_RATES,
+        default=DEFAULT_HIT_RATES,
+        help="Prepared deterministic hit-rate caches to benchmark (default: 50 90)",
     )
     prepare_parser.set_defaults(function=prepare)
     submit_parser = commands.add_parser("submit")

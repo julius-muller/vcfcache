@@ -33,6 +33,7 @@ from benchmarks.run_external_cohort import (
     STRATEGIES,
     _runtime_params,
     build_tasks,
+    calibration_subset,
     condition_order,
     read_evaluation_samples,
     validate_strategy_document,
@@ -41,6 +42,25 @@ from benchmarks.validate_external_completion import (
     MissingCompletedTaskError,
     validate_with_visibility_retry,
 )
+
+
+def test_light_calibration_subset_is_deterministic_and_stratified():
+    rows = [
+        {
+            "cohort": cohort,
+            "sample": f"{cohort}-{index}",
+        }
+        for cohort in ("kpgp", "sgdp", "pgp")
+        for index in range(5)
+    ]
+    first = calibration_subset(rows, 2, "seed")
+    second = calibration_subset(list(reversed(rows)), 2, "seed")
+    assert first == second
+    assert len(first) == 6
+    assert {
+        cohort: sum(row["cohort"] == cohort for row in first)
+        for cohort in ("kpgp", "sgdp", "pgp")
+    } == {"kpgp": 2, "sgdp": 2, "pgp": 2}
 
 
 def candidate(
@@ -314,6 +334,23 @@ def test_external_stager_creates_worker_receiver_parents():
         Path(__file__).parents[1] / "benchmarks/stage_external_controller.sh"
     ).read_text()
     assert "sudo mkdir -p '$external_root' '$external_root/deployment'" in script
+
+
+def test_external_conditions_use_separate_slurm_steps():
+    script = (
+        Path(__file__).parents[1] / "benchmarks/slurm_external_multi.sh"
+    ).read_text()
+    assert 'for condition in "${conditions[@]}"; do' in script
+    assert '"${runner[@]}" --condition "$condition"' in script
+    assert '"${runner[@]}" --finalize' in script
+    assert script.count("srun --exclusive") == 2  # one loop body plus finalization
+
+
+def test_fastvep_scheduler_gates_full_array_on_smoke():
+    script = (
+        Path(__file__).parents[1] / "benchmarks/slurm_schedule_fastvep_external.sh"
+    ).read_text()
+    assert "--smoke-first" in script
 
 
 def _complete_attempt_run(root: Path, sample: str, replicate: int = 1) -> Path:

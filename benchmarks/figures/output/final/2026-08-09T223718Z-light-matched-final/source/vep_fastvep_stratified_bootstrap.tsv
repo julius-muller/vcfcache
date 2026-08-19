@@ -1,0 +1,19 @@
+tool	strategy	samples	median_speedup	speedup_low	speedup_high	strategy_label	tool_label
+vep	gnomad_af_0.1	52	4.7525426634096	4.522617918479	5.08079790770937	gnomAD
+AF ≥ 10%	VEP 115.2
+statistics: light
+vep	gnomad_af_0.01	52	9.20966133894268	8.50620659452083	9.65774925335726	gnomAD
+AF ≥ 1%	VEP 115.2
+statistics: light
+vep	cohort_3_genomes	52	4.58862307639404	4.45456159309435	4.73788699518703	Cohort cache
+3 genomes	VEP 115.2
+statistics: light
+fastvep	gnomad_af_0.1	52	1.84352815261955	1.78567560566967	1.9000048214398	gnomAD
+AF ≥ 10%	fastVEP 0.3.0
+statistics: light
+fastvep	gnomad_af_0.01	52	2.04500439812129	1.99054004986188	2.15883132964527	gnomAD
+AF ≥ 1%	fastVEP 0.3.0
+statistics: light
+fastvep	cohort_3_genomes	52	1.81130792763587	1.78726253554635	1.8494488004817	Cohort cache
+3 genomes	fastVEP 0.3.0
+statistics: light

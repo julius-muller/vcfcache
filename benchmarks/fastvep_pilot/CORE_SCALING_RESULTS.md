@@ -1,50 +1,59 @@
-# fastVEP 90%-hit CPU-scaling pilot
+# fastVEP CPU availability and annotation-complexity result
 
 ## Outcome
 
-VCFcache remained materially faster than direct fastVEP at every tested CPU
-limit. On the same 4,329,621-variant HG02079 WGS, a 90%-hit cache produced
-**2.17x, 2.68x, and 2.56x speedups** with 1, 10, and 32 logical CPUs,
-respectively.
+VCFcache remained faster than direct fastVEP at every enforced CPU limit. On
+the held-out 4,795,706-variant KPGP-00319 WGS, a controlled 90%-hit cache
+produced **1.51x, 2.57x and 2.55x speedups** for the core consequence recipe at
+1, 10 and 32 CPUs, respectively.
 
-| Logical CPUs | Direct fastVEP | VCFcache, 90% hits | Speedup |
+| CPUs available to process | Direct fastVEP | VCFcache, 90% hits | Speedup |
 |---:|---:|---:|---:|
-| 1 | 1,202.3 s (20.0 min) | 553.3 s (9.2 min) | 2.17x |
-| 10 | 360.1 s (6.0 min) | 134.5 s (2.2 min) | 2.68x |
-| 32 (host maximum) | 326.0 s (5.4 min) | 127.4 s (2.1 min) | 2.56x |
+| 1 | 868.4 s (14.5 min) | 576.5 s (9.6 min) | 1.51x |
+| 10 | 463.8 s (7.7 min) | 180.3 s (3.0 min) | 2.57x |
+| 32 | 379.1 s (6.3 min) | 148.8 s (2.5 min) | 2.55x |
 
-Both paths benefited from parallel execution. From 1 to 10 CPUs, direct
-fastVEP became 3.34x faster and VCFcache became 4.11x faster. Increasing the
-allocation from 10 to 32 CPUs yielded only another 1.10x and 1.06x,
-respectively, so this configuration is already close to its practical scaling
-limit at ten CPUs. The slight drop in relative VCFcache benefit at 32 CPUs is
-therefore not a loss of caching utility: it is the result of small, unequal
-marginal gains once both paths reach their serial and I/O-bound work.
+Both paths benefited from parallel execution, but marginal gains diminished.
+From 10 to 32 CPUs, direct runtime improved only 1.22-fold and cached runtime
+1.21-fold. The slight change in relative cache benefit at 32 CPUs is therefore
+not a loss of caching utility; both paths are approaching their serial and
+I/O-bound work.
 
-Every CPU-matched cached output was compared with its direct output across all
-4,329,621 ordered records after canonicalizing only INFO-tag and CSQ-entry
-order. All three comparisons had zero mismatches and the same canonical
-SHA-256:
-`15c5d795296ec1598237b907f1f3f1af0bf6bb70075ce00bfce66fb90fdacbf6`.
+Every CPU-matched cached output was compared with its direct counterpart using
+the strict fastVEP complete-record comparator. All INFO and FORMAT values and
+relevant header definitions were checked after canonicalizing only INFO-tag
+and CSQ-entry ordering. All comparisons passed.
+
+## Annotation-complexity interaction
+
+The same genome and cache design were tested with a deliberately dense recipe
+containing ten supplementary databases. At 10 CPUs, direct and cached runtime
+were 706.2 and 230.0 seconds (3.07x); at 32 CPUs, they were 691.4 and 205.4
+seconds (3.37x). The 10-CPU dense direct run was 18.7% faster than the one-CPU
+core run, confirming that extra hardware can offset annotation complexity.
+However, it remained 52.2% slower than the core run given the same 10 CPUs,
+and VCFcache returned 7.9 minutes per genome. Increasing the dense allocation
+from 10 to 32 CPUs changed direct runtime by only 2.1%, while the cache benefit
+persisted.
 
 ## Design and interpretation boundary
 
-- fastVEP Rayon workers and all VCFcache/bcftools steps received the same CPU
-  limit in each pair;
+- fastVEP Rayon workers and VCFcache/bcftools received the same CPU allocation
+  in each pair, enforced process-wide using `taskset`;
 - the cells ran serially on the otherwise idle 32-logical-CPU
   `gvbrowse-preproc` VM in ITCCcloud_dev;
-- the cache contained an observed 90.02% of this WGS, leaving 432,201 variants
-  for fastVEP;
-- VCFcache used lightweight streaming statistics;
+- the controlled cache contained 4,316,659 records, or 90.01% of this WGS;
 - there was one technical run per cell, because this is an engineering scaling
   diagnostic rather than an estimate of biological or timing variance;
 - cache construction and untimed output-equality scans were excluded.
 
-The result supports a simple user-facing claim: even around a fast native
-annotator, VCFcache cut end-to-end time by about 54-63% at a realistic 90% hit
-rate across small and large CPU allocations. It does not establish portable
-hardware-independent scaling and should not be presented with error bars.
+The result is a controlled interaction experiment, not portable
+hardware-independent scaling, and it is presented without inferential error
+bars. The biological hit-rate estimates remain those of the independent
+52-genome campaign; the controlled 90% cache here isolates computing effects.
 
-Machine-readable source data are in `source_data/core_scaling.tsv`. Raw logs,
-BCFs, resource reports, the manifest, and equality reports are stored under
-`/mnt/data/vcfcache_benchmarks/fastvep_pilot/core_scaling` on ITCCcloud_dev.
+Machine-readable source data and frozen manifests are in
+`source_data/core_scaling_kpgp00319*` and
+`source_data/heavy_core_scaling_kpgp00319*`. Raw logs, BCFs, resource reports
+and equality reports are stored under the corresponding run directories below
+`/mnt/data/vcfcache_benchmarks/fastvep_pilot/` on ITCCcloud_dev.

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="en-US">
+  <info>
+    <title>GigaScience draft numeric style</title>
+    <id>https://github.com/julius-muller/vcfcache/styles/gigascience-draft</id>
+    <link href="https://academic.oup.com/gigascience/pages/instructions_to_authors" rel="documentation"/>
+    <link href="http://www.zotero.org/styles/gigascience" rel="template"/>
+    <category citation-format="numeric"/>
+    <category field="biology"/>
+    <updated>2026-08-17T00:00:00+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">Derived for draft rendering from the GigaScience CSL style.</rights>
+  </info>
+  <macro name="author">
+    <names variable="author">
+      <name initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="title">
+    <text variable="title"/>
+  </macro>
+  <macro name="container">
+    <text variable="container-title" form="short" strip-periods="true" font-style="italic"/>
+  </macro>
+  <macro name="issued">
+    <date variable="issued">
+      <date-part name="year"/>
+    </date>
+  </macro>
+  <macro name="locator">
+    <group delimiter="">
+      <text variable="volume"/>
+      <text variable="page" prefix=":"/>
+    </group>
+  </macro>
+  <macro name="identifier">
+    <choose>
+      <if variable="DOI">
+        <text variable="DOI" prefix="doi:"/>
+      </if>
+      <else-if variable="URL">
+        <text variable="URL"/>
+      </else-if>
+    </choose>
+  </macro>
+  <citation collapse="citation-number">
+    <sort>
+      <key variable="citation-number"/>
+    </sort>
+    <layout prefix="[" suffix="]" delimiter=",">
+      <text variable="citation-number"/>
+    </layout>
+  </citation>
+  <bibliography et-al-min="7" et-al-use-first="6">
+    <layout>
+      <text variable="citation-number" suffix=". "/>
+      <group delimiter=". " suffix=".">
+        <text macro="author"/>
+        <text macro="title"/>
+        <group delimiter=" ">
+          <text macro="container"/>
+          <text macro="issued" suffix=";"/>
+          <text macro="locator"/>
+        </group>
+        <text macro="identifier"/>
+        <text variable="note"/>
+      </group>
+    </layout>
+  </bibliography>
+</style>

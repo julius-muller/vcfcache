@@ -23,6 +23,7 @@ from benchmarks.run_pilot import (
     parse_elapsed,
     parse_gnu_time,
     semantic_compare,
+    strict_semantic_compare,
     validate_default_cache_provenance,
     validate_requirements_output,
 )
@@ -41,6 +42,7 @@ def test_annotation_commands_differ_only_by_uncached_flag(tmp_path):
     uncached = annotation_command(config, "uncached", run_dir)
     assert uncached[:-1] == cached
     assert uncached[-1] == "--uncached"
+    assert cached[cached.index("--statistics") + 1] == "light"
 
 
 def test_default_cache_provenance_is_fail_closed(tmp_path):
@@ -322,15 +324,19 @@ def _write_annotated_vcf(
     return path
 
 
-def _write_same_locus_vcf(path: Path, alts: list[str]) -> Path:
+def _write_same_locus_vcf(
+    path: Path, alts: list[str], *, csq_suffix: dict[str, str] | None = None
+) -> Path:
     plain = path.with_suffix("")
     records = []
     values = {"C": ("0.1", "1"), "G": ("0.2", "2")}
+    csq_suffix = csq_suffix or {}
     for alt in alts:
         af, ac = values[alt]
         records.append(
             f"chr1\t10\t.\tA\t{alt}\t.\tPASS\t"
-            f"AF={af};AC={ac};AN=4;CSQ={alt}|effect\tGT\t0/1\n"
+            f"AF={af};AC={ac};AN=4;CSQ={alt}|{csq_suffix.get(alt, 'effect')}"
+            "\tGT\t0/1\n"
         )
     plain.write_text(
         "##fileformat=VCFv4.2\n"
@@ -475,3 +481,99 @@ def test_semantic_compare_does_not_hide_other_csq_difference_with_hgnc_rule(
     assert report["semantic_pass"] is False
     assert report["annotation_mismatches"] == 1
     assert report["ignored_annotation_mismatches"] == 0
+
+
+def _write_strict_vcf(path: Path, *, info: str, hgnc_description: str = "HGNC") -> Path:
+    plain = path.with_suffix("")
+    plain.write_text(
+        "##fileformat=VCFv4.2\n"
+        "##contig=<ID=chr1,length=1000>\n"
+        '##FILTER=<ID=PASS,Description="All filters passed">\n'
+        '##INFO=<ID=CSQ,Number=.,Type=String,Description="Format: Allele|HGNC_ID">\n'
+        f'##INFO=<ID=FV_CLINVAR,Number=1,Type=String,Description="{hgnc_description}">\n'
+        '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n'
+        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n"
+        f"chr1\t10\t.\tA\tG\t.\tPASS\t{info}\tGT\t0/1\n"
+    )
+    with path.open("wb") as output:
+        subprocess.run(["bgzip", "--stdout", str(plain)], check=True, stdout=output)
+    subprocess.run(["tabix", "--preset", "vcf", str(path)], check=True)
+    return path
+
+
+def test_strict_fastvep_compare_only_canonicalizes_info_and_csq_order(tmp_path):
+    cached = _write_strict_vcf(
+        tmp_path / "cached.vcf.gz",
+        info="FV_CLINVAR=pathogenic;CSQ=G|HGNC:2,G|HGNC:1",
+    )
+    uncached = _write_strict_vcf(
+        tmp_path / "uncached.vcf.gz",
+        info="CSQ=G|HGNC:1,G|HGNC:2;FV_CLINVAR=pathogenic",
+    )
+    report = strict_semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is True
+    assert report["ignored_fields"] == []
+
+
+def test_strict_fastvep_compare_allows_complete_record_order_within_locus(tmp_path):
+    cached = _write_same_locus_vcf(tmp_path / "cached.vcf.gz", ["C", "G"])
+    uncached = _write_same_locus_vcf(tmp_path / "uncached.vcf.gz", ["G", "C"])
+    report = strict_semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is True
+    assert report["record_mismatches"] == 0
+    assert report["record_order_only_loci"] == 1
+    assert report["ignored_fields"] == []
+
+
+def test_strict_fastvep_compare_canonicalizes_indexed_contig_order(tmp_path):
+    cached = _write_multicontig_vcf(tmp_path / "cached.vcf.gz", ["chr1", "chr2"])
+    uncached = _write_multicontig_vcf(tmp_path / "uncached.vcf.gz", ["chr2", "chr1"])
+    report = strict_semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is True
+    assert report["record_mismatches"] == 0
+    assert report["locus_mismatches"] == 0
+
+
+def test_strict_fastvep_compare_does_not_hide_same_locus_value_change(tmp_path):
+    cached = _write_same_locus_vcf(tmp_path / "cached.vcf.gz", ["C", "G"])
+    uncached = _write_same_locus_vcf(
+        tmp_path / "uncached.vcf.gz",
+        ["G", "C"],
+        csq_suffix={"G": "changed"},
+    )
+    report = strict_semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is False
+    assert report["record_mismatches"] == 1
+    assert report["record_order_only_loci"] == 0
+
+
+def test_strict_fastvep_compare_detects_supplementary_and_hgnc_changes(tmp_path):
+    cached = _write_strict_vcf(
+        tmp_path / "cached.vcf.gz",
+        info="CSQ=G|HGNC:2;FV_CLINVAR=pathogenic",
+    )
+    uncached = _write_strict_vcf(
+        tmp_path / "uncached.vcf.gz",
+        info="CSQ=G|HGNC:1;FV_CLINVAR=benign",
+    )
+    report = strict_semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is False
+    assert report["record_mismatches"] == 1
+    assert report["ignored_annotation_mismatches"] == 0
+
+
+def test_strict_fastvep_compare_detects_relevant_header_change(tmp_path):
+    cached = _write_strict_vcf(
+        tmp_path / "cached.vcf.gz",
+        info="CSQ=G|HGNC:1;FV_CLINVAR=pathogenic",
+        hgnc_description="ClinVar A",
+    )
+    uncached = _write_strict_vcf(
+        tmp_path / "uncached.vcf.gz",
+        info="CSQ=G|HGNC:1;FV_CLINVAR=pathogenic",
+        hgnc_description="ClinVar B",
+    )
+    report = strict_semantic_compare(cached, uncached)
+    assert report["semantic_pass"] is False
+    assert report["record_mismatches"] == 0
+    assert report["relevant_headers_equal"] is False

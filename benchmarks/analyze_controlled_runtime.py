@@ -34,13 +34,26 @@ def read_rows(path: Path) -> list[dict[str, str]]:
     """Read a complete, semantically validated controlled matrix."""
     with path.open(newline="") as handle:
         rows = list(csv.DictReader(handle, delimiter="\t"))
-    expected = len(PIPELINE_ORDER) * 5
-    if len(rows) != expected:
-        raise RuntimeError(f"Expected {expected} controlled rows, found {len(rows)}")
+    if len(rows) < len(PIPELINE_ORDER) * 2:
+        raise RuntimeError(
+            "Controlled input must contain at least two hit rates per pipeline"
+        )
     if any(row["semantic_pass"].lower() != "true" for row in rows):
         raise RuntimeError("Controlled input contains a failed semantic comparison")
     if {row["pipeline"] for row in rows} != set(PIPELINE_ORDER):
         raise RuntimeError("Controlled input does not contain the frozen pipelines")
+    hit_rate_sets = {
+        pipeline: {
+            float(row["target_hit_rate"])
+            for row in rows
+            if row["pipeline"] == pipeline
+        }
+        for pipeline in PIPELINE_ORDER
+    }
+    if len({tuple(sorted(values)) for values in hit_rate_sets.values()}) != 1:
+        raise RuntimeError("Controlled pipelines do not share the same hit-rate cells")
+    if any(len(values) < 2 for values in hit_rate_sets.values()):
+        raise RuntimeError("Each controlled pipeline requires at least two hit rates")
     return rows
 
 

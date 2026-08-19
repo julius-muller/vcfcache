@@ -18,6 +18,7 @@ from benchmarks.run_pilot import (
     run_one,
     semantic_compare,
     sha256sum,
+    strict_semantic_compare,
     write_json_atomic,
 )
 
@@ -119,15 +120,17 @@ def summarize_completed_runs(
         strategy["name"]: run_dirs[strategy["name"]] / "output.bcf"
         for strategy in strategies
     }
+    tool = task.get("tool", document.get("tool", "vep"))
+    comparator = strict_semantic_compare if tool == "fastvep" else semantic_compare
     if comparison_workers == 1:
         comparisons = {
-            name: semantic_compare(output, baseline)
+            name: comparator(output, baseline)
             for name, output in cached_outputs.items()
         }
     else:
         with ProcessPoolExecutor(max_workers=comparison_workers) as executor:
             futures = {
-                name: executor.submit(semantic_compare, output, baseline)
+                name: executor.submit(comparator, output, baseline)
                 for name, output in cached_outputs.items()
             }
             comparisons = {name: future.result() for name, future in futures.items()}
@@ -159,6 +162,9 @@ def summarize_completed_runs(
                 "strategy_kind": strategy["kind"],
                 "bundled_alias": strategy.get("alias", ""),
                 "zenodo_doi": strategy.get("doi", ""),
+                "source_strategy_kind": strategy.get("source_strategy_kind", ""),
+                "source_blueprint_alias": strategy.get("source_alias", ""),
+                "source_blueprint_doi": strategy.get("source_doi", ""),
                 "input_records": int(task["input_records"]),
                 "cache_hit_rate": metrics.get("cache_hit_rate"),
                 "cached_wall_seconds": cached_seconds,
@@ -166,6 +172,8 @@ def summarize_completed_runs(
                 "speedup": uncached_seconds / cached_seconds,
                 "relative_runtime": cached_seconds / uncached_seconds,
                 "semantic_pass": True,
+                "statistics_mode": metrics.get("statistics_mode"),
+                "semantic_comparator": comparison.get("comparator"),
                 "raw_annotation_mismatches": comparison.get(
                     "raw_annotation_mismatches", 0
                 ),
@@ -178,6 +186,12 @@ def summarize_completed_runs(
         "created_at": datetime.now(timezone.utc).isoformat(),
         "campaign_commit": document["commit"],
         "comparison_commit": git_output("rev-parse", "HEAD"),
+        "statistics_mode": "light",
+        "semantic_comparator": (
+            "fastvep_complete_record_and_header_v3"
+            if tool == "fastvep"
+            else "vep_semantic_with_documented_exceptions_v1"
+        ),
         "task": task,
         "execution_order": execution_order,
         "rows": rows,
@@ -186,8 +200,19 @@ def summarize_completed_runs(
     return summary
 
 
-def execute(args: argparse.Namespace) -> dict[str, Any]:
-    """Run one uncached baseline and three cached conditions exactly once."""
+def load_task_context(
+    args: argparse.Namespace,
+) -> tuple[
+    dict[str, str],
+    dict[str, Any],
+    list[dict[str, Any]],
+    Path,
+    Path,
+    int,
+    list[str],
+    dict[str, dict[str, Any]],
+]:
+    """Validate immutable inputs shared by condition steps and finalization."""
     task = read_task(args.task_manifest, args.task_id)
     document, strategies = load_strategies(
         args.strategies, task["cohort"], task["assembly"]
@@ -209,16 +234,89 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
     if len(order) != 4 or set(order) != expected_order:
         raise RuntimeError(f"Invalid four-condition order: {order}")
     by_name = {item["name"]: item for item in strategies}
+    return task, document, strategies, input_vcf, params_file, replicate, order, by_name
+
+
+def condition_run_dir(
+    args: argparse.Namespace,
+    *,
+    input_vcf: Path,
+    params_file: Path,
+    replicate: int,
+    name: str,
+    by_name: dict[str, dict[str, Any]],
+) -> tuple[PilotConfig, Path]:
+    """Resolve one condition to its deterministic config and output directory."""
     baseline_strategy = by_name["gnomad_af_0.01"]
-    completed: dict[str, Path] = {}
+    strategy = baseline_strategy if name == "uncached" else by_name[name]
+    config = _config(
+        args.run_root,
+        input_vcf,
+        name,
+        Path(strategy["cache_dir"]),
+        params_file,
+        replicate,
+    )
+    mode = "uncached" if name == "uncached" else "cached"
+    return config, config.run_dir(mode)
+
+
+def execute_condition(args: argparse.Namespace, name: str) -> dict[str, object]:
+    """Run exactly one condition inside its own Slurm job-step cgroup."""
+    (
+        _task,
+        _document,
+        _strategies,
+        input_vcf,
+        params_file,
+        replicate,
+        order,
+        by_name,
+    ) = load_task_context(args)
+    if name not in order:
+        raise RuntimeError(f"Condition {name!r} is absent from {order}")
     args.run_root.mkdir(parents=True, exist_ok=True)
-    for name in order:
-        strategy = baseline_strategy if name == "uncached" else by_name[name]
-        cache = Path(strategy["cache_dir"])
-        config = _config(args.run_root, input_vcf, name, cache, params_file, replicate)
-        preflight(config)
-        run_one(config, "uncached" if name == "uncached" else "cached")
-        completed[name] = config.run_dir("uncached" if name == "uncached" else "cached")
+    config, _run_dir = condition_run_dir(
+        args,
+        input_vcf=input_vcf,
+        params_file=params_file,
+        replicate=replicate,
+        name=name,
+        by_name=by_name,
+    )
+    preflight(config)
+    return run_one(config, "uncached" if name == "uncached" else "cached")
+
+
+def finalize(args: argparse.Namespace) -> dict[str, Any]:
+    """Compare completed condition outputs outside all timed annotation cells."""
+    (
+        task,
+        document,
+        strategies,
+        input_vcf,
+        params_file,
+        replicate,
+        order,
+        by_name,
+    ) = load_task_context(args)
+    completed = {
+        name: condition_run_dir(
+            args,
+            input_vcf=input_vcf,
+            params_file=params_file,
+            replicate=replicate,
+            name=name,
+            by_name=by_name,
+        )[1]
+        for name in order
+    }
+    for name, run_dir in completed.items():
+        for required in ("metrics.json", "output.bcf", "output.bcf.csi"):
+            if not (run_dir / required).exists():
+                raise FileNotFoundError(
+                    f"Condition {name} is incomplete: {run_dir / required}"
+                )
 
     return summarize_completed_runs(
         task=task,
@@ -227,7 +325,17 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
         execution_order=order,
         run_dirs=completed,
         run_root=args.run_root,
+        comparison_workers=3 if document.get("tool") == "fastvep" else 1,
     )
+
+
+def execute(args: argparse.Namespace) -> dict[str, Any]:
+    """Compatibility entry point: run four isolated logical cells then finalize."""
+    context = load_task_context(args)
+    order = context[6]
+    for name in order:
+        execute_condition(args, name)
+    return finalize(args)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -237,13 +345,24 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--strategies", type=Path, required=True)
     result.add_argument("--task-id", type=int, required=True)
     result.add_argument("--run-root", type=Path, required=True)
+    actions = result.add_mutually_exclusive_group()
+    actions.add_argument("--condition")
+    actions.add_argument("--finalize", action="store_true")
+    actions.add_argument("--print-order", action="store_true")
     return result
 
 
 def main() -> None:
     """Run one Slurm task."""
     args = parser().parse_args()
-    execute(args)
+    if args.print_order:
+        print("\n".join(load_task_context(args)[6]))
+    elif args.condition:
+        execute_condition(args, args.condition)
+    elif args.finalize:
+        finalize(args)
+    else:
+        execute(args)
 
 
 if __name__ == "__main__":

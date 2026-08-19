@@ -1,0 +1,625 @@
+tool	sample	cohort	assembly	strategy	strategy_kind	input_records	cache_hit_rate	uncached_wall_seconds	cached_wall_seconds	relative_runtime	speedup	semantic_pass	semantic_comparator	validation_status	strategy_label	cohort_label	time_saved_percent	tool_label
+vep	hu6ABACE	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	3749108	0.877846410399487	3979.62469646498	642.116193630965	0.161350942012533	6.19767066449679	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	83.8649057987467	VEP
+vep	hu6ABACE	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	3749108	0.956886011285885	3979.62469646498	344.378586748033	0.086535443167276	11.5559586153267	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	91.3464556832724	VEP
+vep	hu6ABACE	pgp	GRCh37	cohort_3_genomes	custom_cohort	3749108	0.814612435811398	3979.62469646498	876.961690569064	0.220362912952081	4.53796869266043	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	77.9637087047919	VEP
+vep	hu365511	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	4985467	0.787582988714999	5876.69418073795	1499.73452387797	0.255200369077168	3.91848963077957	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	74.4799630922832	VEP
+vep	hu365511	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	4985467	0.873292913181453	5876.69418073795	970.589127041982	0.1651590328153	6.05477025963403	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	83.48409671847	VEP
+vep	hu365511	pgp	GRCh37	cohort_3_genomes	custom_cohort	4985467	0.752556580958213	5876.69418073795	1724.25393998495	0.293405422667141	3.40825329985283	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	70.6594577332859	VEP
+vep	LP6005443-DNA_H08	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	5567709	0.702250782143966	11577.320972404	3691.90552572499	0.318891178237618	3.13586598891382	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	68.1108821762382	VEP
+vep	LP6005443-DNA_H08	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	5567709	0.889801352764665	11577.320972404	1690.56991108705	0.14602427583348	6.84817640280826	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	85.397572416652	VEP
+vep	LP6005443-DNA_H08	sgdp	GRCh38	cohort_3_genomes	custom_cohort	5567709	0.670542767231549	11577.320972404	4031.77962009807	0.348248064444989	2.87151631867279	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	65.1751935555011	VEP
+vep	LP6005519-DNA_G03	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4929060	0.837699480225438	10723.445264475	1971.74732953589	0.183872559695714	5.43854940429868	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	81.6127440304286	VEP
+vep	LP6005519-DNA_G03	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4929060	0.933737061427534	10723.445264475	1014.2116555	0.0945788998298817	10.5731828325207	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	90.5421100170118	VEP
+vep	LP6005519-DNA_G03	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4929060	0.805876779751109	10723.445264475	2388.81170195492	0.222765318704864	4.48902910836348	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	77.7234681295136	VEP
+vep	LP6005619-DNA_B01	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4998072	0.811334250486988	6420.12958230998	1370.472397745	0.21346491222252	4.68461064438346	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	78.653508777748	VEP
+vep	LP6005619-DNA_B01	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4998072	0.930145264013804	6420.12958230998	656.917060200009	0.102321464353317	9.77312049158119	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.7678535646683	VEP
+vep	LP6005619-DNA_B01	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4998072	0.788539460816091	6420.12958230998	1511.49122733297	0.235430018655345	4.2475467050102	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	76.4569981344655	VEP
+vep	huCDD5EE	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	4815438	0.808142893751306	5701.59442753205	1316.72144150501	0.23093916241162	4.33014474269906	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	76.906083758838	VEP
+vep	huCDD5EE	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	4815438	0.894866676717673	5701.59442753205	820.839499889989	0.14396665885709	6.94605270372124	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	85.603334114291	VEP
+vep	huCDD5EE	pgp	GRCh37	cohort_3_genomes	custom_cohort	4815438	0.774986823628505	5701.59442753205	1526.48833085399	0.267730079762045	3.73510515101175	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	73.2269920237955	VEP
+vep	KPGP-00327	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4562488	0.833128985763908	8890.981263389	1724.07999982405	0.193913354302457	5.15694240655674	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	80.6086645697543	VEP
+vep	KPGP-00327	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4562488	0.926991807978454	8890.981263389	914.927251036046	0.102905092692469	9.71769203870692	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	89.7094907307531	VEP
+vep	KPGP-00327	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4562488	0.840567690260226	8890.981263389	1704.03235112398	0.19165852459287	5.21761295055489	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.834147540713	VEP
+vep	LP6005519-DNA_A06	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4858092	0.827141190409733	9388.36858118908	1942.71456380398	0.206927811472643	4.83260318119299	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	79.3072188527357	VEP
+vep	LP6005519-DNA_A06	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4858092	0.926872731105133	9388.36858118908	998.210074131028	0.106324124952985	9.40520319769557	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.3675875047015	VEP
+vep	LP6005519-DNA_A06	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4858092	0.808293255870823	9388.36858118908	2107.10711699293	0.224438047864335	4.45557252665316	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	77.5561952135665	VEP
+vep	KPGP-00231	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4697636	0.811499230676877	9378.07203365699	2134.90181936603	0.22764826413191	4.39274159991201	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.2351735868089	VEP
+vep	KPGP-00231	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4697636	0.909322901987297	9378.07203365699	1166.13637183001	0.124347133146862	8.04200285678426	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	87.5652866853138	VEP
+vep	KPGP-00231	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4697636	0.834987001972907	9378.07203365699	1868.34662419907	0.199225023810198	5.0194497702894	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.0774976189802	VEP
+vep	KPGP-00205	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4697145	0.822667812043273	6224.29427201394	1293.43548970402	0.207804360330398	4.81221856177634	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	79.2195639669602	VEP
+vep	KPGP-00205	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4697145	0.924101129515908	6224.29427201394	670.46399410197	0.107717271195958	9.28356231918293	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	89.2282728804042	VEP
+vep	KPGP-00205	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4697145	0.834189278806594	6224.29427201394	1240.51342133095	0.199301859314175	5.01751465561403	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.0698140685825	VEP
+vep	KPGP-00354	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4995030	0.812881804513687	11026.781595799	2436.15233710199	0.220930496894045	4.52631037388915	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.9069503105955	VEP
+vep	KPGP-00354	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4995030	0.92148855962827	11026.781595799	1226.7410477571	0.111251051551112	8.98867908264729	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.8748948448888	VEP
+vep	KPGP-00354	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4995030	0.816575676222165	11026.781595799	2506.03675533191	0.227268195489304	4.40008773707654	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	77.2731804510696	VEP
+vep	LP6005443-DNA_B07	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4690406	0.832916809333776	9116.82296587201	1810.58637933398	0.198598391798519	5.03528750129315	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	80.1401608201481	VEP
+vep	LP6005443-DNA_B07	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4690406	0.930989556127977	9116.82296587201	936.034239195054	0.102671099647214	9.73983918976302	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.7328900352786	VEP
+vep	LP6005443-DNA_B07	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4690406	0.817856705794765	9116.82296587201	1967.89991982793	0.215853694559452	4.63276758843974	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	78.4146305440548	VEP
+vep	LP6005443-DNA_E05	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4835989	0.852032335061143	6265.12446059997	1099.30357493192	0.175463964338651	5.69917591779681	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	82.4536035661349	VEP
+vep	LP6005443-DNA_E05	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4835989	0.943696315272843	6265.12446059997	551.868342582951	0.0880857748403138	11.3525708528176	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	91.1914225159686	VEP
+vep	LP6005443-DNA_E05	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4835989	0.824391660113371	6265.12446059997	1280.13270073105	0.204326778946137	4.8941210993377	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	79.5673221053863	VEP
+vep	huB333AA	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	3354528	0.896584556754333	3755.08246412198	543.494340598001	0.144735660479052	6.90914731511335	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	85.5264339520948	VEP
+vep	huB333AA	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	3354528	0.968981925326007	3755.08246412198	296.897059476003	0.0790653899914882	12.6477590271502	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	92.0934610008512	VEP
+vep	huB333AA	pgp	GRCh37	cohort_3_genomes	custom_cohort	3354528	0.836564488357229	3755.08246412198	768.47809007403	0.204650123510328	4.88638845091894	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	79.5349876489672	VEP
+vep	LP6005592-DNA_C05	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	6169350	0.609203238590775	12218.029574097	4894.82606457104	0.400623196636254	2.49611107992818	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	59.9376803363746	VEP
+vep	LP6005592-DNA_C05	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	6169350	0.789815458678791	12218.029574097	2697.40272348607	0.220772319065648	4.52955336172668	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	77.9227680934352	VEP
+vep	LP6005592-DNA_C05	sgdp	GRCh38	cohort_3_genomes	custom_cohort	6169350	0.579203319636591	12218.029574097	5252.14448678202	0.429868372386076	2.32629349875006	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	57.0131627613924	VEP
+vep	hu9AF7CC	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	4839785	0.8090231280935	5732.81783369998	1314.62810824497	0.229316218721798	4.36079055190239	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	77.0683781278202	VEP
+vep	hu9AF7CC	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	4839785	0.896249936722396	5732.81783369998	837.887525100028	0.146156314295313	6.84198972053629	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	85.3843685704687	VEP
+vep	hu9AF7CC	pgp	GRCh37	cohort_3_genomes	custom_cohort	4839785	0.774045954520707	5732.81783369998	1570.67367013404	0.273979344137004	3.64991018994464	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	72.6020655862996	VEP
+vep	LP6005519-DNA_B06	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4840679	0.825479442036954	10770.060540098	2246.53359817504	0.208590619320195	4.79407944258969	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	79.1409380679805	VEP
+vep	LP6005519-DNA_B06	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4840679	0.926330582961605	10770.060540098	1178.89043902501	0.109459964002606	9.13576035870244	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.0540035997394	VEP
+vep	LP6005519-DNA_B06	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4840679	0.814090750491822	10770.060540098	2423.38225262996	0.225011014897035	4.44422687688244	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	77.4988985102965	VEP
+vep	huDEFDD1	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	2464923	0.74998732211919	1918.63938645099	555.456450273981	0.2895053933514	3.4541670827742	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	71.04946066486	VEP
+vep	huDEFDD1	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	2464923	0.856162241173457	1918.63938645099	355.597032081103	0.185338127942255	5.39554386948144	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	81.4661872057745	VEP
+vep	huDEFDD1	pgp	GRCh37	cohort_3_genomes	custom_cohort	2464923	0.7135813167389	1918.63938645099	629.701811696053	0.328202275082473	3.04690148704397	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	67.1797724917528	VEP
+vep	LP6005677-DNA_B02	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4833052	0.833598314274293	6134.19849037402	1194.34108655201	0.194702060656532	5.13605247231598	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	80.5297939343468	VEP
+vep	LP6005677-DNA_B02	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4833052	0.930735899386144	6134.19849037402	638.687893930008	0.104119208879898	9.60437570317601	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.5880791120102	VEP
+vep	LP6005677-DNA_B02	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4833052	0.819125058037861	6134.19849037402	1306.63112044206	0.21300763620422	4.69466737352672	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	78.699236379578	VEP
+vep	KPGP-00319	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4795706	0.802346932860355	10102.7553438691	2276.53764518409	0.225338293138576	4.43777214281566	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.4661706861424	VEP
+vep	KPGP-00319	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4795706	0.902593903796438	10102.7553438691	1318.861596748	0.130544742682337	7.66020890196522	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	86.9455257317663	VEP
+vep	KPGP-00319	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4795706	0.812097530582567	10102.7553438691	2218.32134902803	0.219575875444141	4.55423437559922	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	78.0424124555859	VEP
+vep	KPGP-00091	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4690148	0.813332756237117	9364.94972207292	2138.67311356694	0.228369951471939	4.37885979987554	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.1630048528061	VEP
+vep	KPGP-00091	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4690148	0.914412508944281	9364.94972207292	1174.36757448001	0.125400307458358	7.97446210673821	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	87.4599692541642	VEP
+vep	KPGP-00091	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4690148	0.83599643337481	9364.94972207292	1901.64067057392	0.203059357178588	4.92466840186298	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	79.6940642821412	VEP
+vep	LP6005677-DNA_G01	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	5700643	0.689239792774254	11178.4383546959	3655.41812369507	0.327006153069626	3.05804643311125	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	67.2993846930374	VEP
+vep	LP6005677-DNA_G01	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	5700643	0.888705537252552	11178.4383546959	1634.36644899403	0.146207045844418	6.83961565753897	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	85.3792954155582	VEP
+vep	LP6005677-DNA_G01	sgdp	GRCh38	cohort_3_genomes	custom_cohort	5700643	0.657568453242906	11178.4383546959	4039.81026780198	0.361393080108091	2.76707013787011	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	63.8606919891909	VEP
+vep	LP6005677-DNA_A03	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4785201	0.851806225067662	6204.83261660195	1109.30841111206	0.178781359571882	5.59342429431483	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	82.1218640428118	VEP
+vep	LP6005677-DNA_A03	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4785201	0.941561493446148	6204.83261660195	567.427300021052	0.0914492517498081	10.9350265952515	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	90.8550748250192	VEP
+vep	LP6005677-DNA_A03	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4785201	0.819384598473502	6204.83261660195	1309.90722044697	0.21111080691236	4.73684893078513	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	78.888919308764	VEP
+vep	LP6005519-DNA_B04	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4876494	0.833160258169086	11467.472946774	2277.10366756294	0.198570659650306	5.03599072371043	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	80.1429340349694	VEP
+vep	LP6005519-DNA_B04	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4876494	0.929866211257514	11467.472946774	1207.27986815909	0.105278632333615	9.4986036371666	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.4721367666385	VEP
+vep	LP6005519-DNA_B04	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4876494	0.804761166526607	11467.472946774	2393.09207110305	0.208685216194582	4.79190628945934	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	79.1314783805418	VEP
+vep	KPGP-00325	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4628506	0.829072707262343	9089.34296347306	1814.250412739	0.199601931628045	5.0099715561044	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	80.0398068371955	VEP
+vep	KPGP-00325	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4628506	0.924792578858059	9089.34296347306	957.270392924896	0.105317886757254	9.49506328687444	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	89.4682113242746	VEP
+vep	KPGP-00325	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4628506	0.833907960797717	9089.34296347306	1792.93423524697	0.19725674808973	5.06953505866937	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.2743251910269	VEP
+vep	KPGP-00139	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4634658	0.809636654959222	9250.84160477994	2040.28066801804	0.220550816367218	4.53410246432731	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.9449183632782	VEP
+vep	KPGP-00139	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4634658	0.909619221094631	9250.84160477994	1158.74478834996	0.125258310308894	7.98350223257796	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	87.4741689691106	VEP
+vep	KPGP-00139	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4634658	0.835400152503162	9250.84160477994	1840.12558503309	0.198914397591922	5.02728818077576	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.1085602408078	VEP
+vep	KPGP-00255	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4788584	0.815457972544702	10226.510002827	2279.33307019598	0.222884744606506	4.48662380085933	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.7115255393495	VEP
+vep	KPGP-00255	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4788584	0.919785473116896	10226.510002827	1218.35014998505	0.119136455119904	8.39373640078141	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.0863544880096	VEP
+vep	KPGP-00255	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4788584	0.828047080305994	10226.510002827	2181.71962197102	0.213339606705308	4.68736216140742	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	78.6660393294692	VEP
+vep	LP6005443-DNA_A07	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4835923	0.826488966015381	6498.68678368698	1233.04907214595	0.189738190682024	5.27042023751489	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	81.0261809317976	VEP
+vep	LP6005443-DNA_A07	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4835923	0.927794756037265	6498.68678368698	646.643889354076	0.0995037783598501	10.0498696279005	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	90.049622164015	VEP
+vep	LP6005443-DNA_A07	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4835923	0.807667119596404	6498.68678368698	1462.451496828	0.225038003139195	4.44369389192215	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	77.4961996860805	VEP
+vep	LP6005519-DNA_F03	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4827736	0.85273739077696	9286.83679373201	1677.52515378606	0.180634718908625	5.53603430194311	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	81.9365281091375	VEP
+vep	LP6005519-DNA_F03	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4827736	0.941921016393606	9286.83679373201	856.243324615993	0.0921996739722936	10.8460253373619	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	90.7800326027706	VEP
+vep	LP6005519-DNA_F03	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4827736	0.816998899691284	9286.83679373201	2003.81651329598	0.215769541104504	4.63457443938144	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	78.4230458895496	VEP
+vep	KPGP-00326	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4530456	0.832908210564235	10136.694254335	1914.894989277	0.188907245422549	5.29360320597124	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	81.1092754577451	VEP
+vep	KPGP-00326	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4530456	0.927099832776215	10136.694254335	986.791862278013	0.0973484883255708	10.2723731739482	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	90.2651511674429	VEP
+vep	KPGP-00326	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4530456	0.839409101423786	10136.694254335	1871.17439746798	0.184594143861818	5.41728994798757	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	81.5405856138182	VEP
+vep	KPGP-00320	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4684091	0.826161788914861	6250.49870865792	1208.43896384595	0.193334807376582	5.17237435705086	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	80.6665192623418	VEP
+vep	KPGP-00320	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4684091	0.923107599745607	6250.49870865792	643.643256820971	0.102974704391095	9.7111228035385	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	89.7025295608905	VEP
+vep	KPGP-00320	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4684091	0.82960728132737	6250.49870865792	1225.79614037299	0.196111734040528	5.09913394469982	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.3888265959472	VEP
+vep	hu876E3D	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	4644318	0.87125730839275	5137.78834771493	881.308015614981	0.171534511733429	5.8297306465887	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	82.8465488266571	VEP
+vep	hu876E3D	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	4644318	0.95946337007931	5137.78834771493	426.039665995049	0.0829227747741951	12.0594131434105	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	91.7077225225805	VEP
+vep	hu876E3D	pgp	GRCh37	cohort_3_genomes	custom_cohort	4644318	0.765015229361986	5137.78834771493	1479.13505550998	0.287893341532419	3.47350860800437	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	71.2106658467581	VEP
+vep	SS6004480	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	5538843	0.70049629498435	11168.8918837131	3578.62804334203	0.32041030395867	3.12099825643869	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	67.958969604133	VEP
+vep	SS6004480	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	5538843	0.888230989757247	11168.8918837131	1605.239787144	0.14372417638717	6.95777165079146	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	85.627582361283	VEP
+vep	SS6004480	sgdp	GRCh38	cohort_3_genomes	custom_cohort	5538843	0.66666756938227	11168.8918837131	3914.61883758509	0.350493037119783	2.85312372598787	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	64.9506962880217	VEP
+vep	hu57D7DD	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	3375074	0.897778241306709	3790.668804268	553.892911031027	0.146120101657888	6.84368535645632	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	85.3879898342112	VEP
+vep	hu57D7DD	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	3375074	0.971287444364183	3790.668804268	292.828909128904	0.0772499324655326	12.9449951357068	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	92.2750067534467	VEP
+vep	hu57D7DD	pgp	GRCh37	cohort_3_genomes	custom_cohort	3375074	0.838158511487452	3790.668804268	784.529765414889	0.206963416200215	4.83177180952893	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	79.3036583799785	VEP
+vep	KPGP-00347	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	5019022	0.815079113022418	10065.9411113861	2192.92168814305	0.217855604744452	4.5901963420818	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	78.2144395255548	VEP
+vep	KPGP-00347	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	5019022	0.924069470107921	10065.9411113861	1111.33865545702	0.110405837184953	9.05749211724002	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.9594162815047	VEP
+vep	KPGP-00347	kpgp	GRCh38	cohort_3_genomes	custom_cohort	5019022	0.815186305220419	10065.9411113861	2283.68406852195	0.226872385130365	4.40776430073401	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	77.3127614869635	VEP
+vep	huC8266A	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	4833985	0.800445181356583	5652.19111801893	1350.35287234199	0.238907857881366	4.18571414464135	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	76.1092142118634	VEP
+vep	huC8266A	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	4833985	0.887814711878502	5652.19111801893	880.35080876993	0.155753899751091	6.42038498938447	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	84.4246100248909	VEP
+vep	huC8266A	pgp	GRCh37	cohort_3_genomes	custom_cohort	4833985	0.763866458005145	5652.19111801893	1587.46495566994	0.280858329543949	3.56051394887869	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	71.9141670456051	VEP
+vep	LP6005442-DNA_G04	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4787146	0.855286636338227	10091.769185075	1753.35196559399	0.173740791474609	5.75570072815137	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	82.6259208525391	VEP
+vep	LP6005442-DNA_G04	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4787146	0.944030535103797	10091.769185075	900.77966999996	0.0892588458455978	11.2033713916694	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	91.0741154154402	VEP
+vep	LP6005442-DNA_G04	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4787146	0.81771393644564	10091.769185075	2177.10223659605	0.215730482601191	4.63541353981321	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	78.4269517398809	VEP
+vep	KPGP-00321	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	5050770	0.813025934659468	6789.33794420003	1517.759120545	0.223550386358597	4.47326446752769	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.6449613641403	VEP
+vep	KPGP-00321	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	5050770	0.922771379413436	6789.33794420003	753.717116773943	0.1110148180822	9.00780650074623	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.89851819178	VEP
+vep	KPGP-00321	kpgp	GRCh38	cohort_3_genomes	custom_cohort	5050770	0.814151109632789	6789.33794420003	1513.02086418599	0.222852489686204	4.48727317970774	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	77.7147510313796	VEP
+vep	LP6005442-DNA_B03	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4754466	0.860080395989791	10138.874061801	1695.30841712502	0.167208745940758	5.9805484119491	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	83.2791254059242	VEP
+vep	LP6005442-DNA_B03	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4754466	0.947099842548038	10138.874061801	963.192118313978	0.0949999095010835	10.526325817064	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	90.5000090498916	VEP
+vep	LP6005442-DNA_B03	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4754466	0.822157525156348	10138.874061801	2117.26159647806	0.208826106683286	4.78867329321348	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	79.1173893316714	VEP
+vep	huF85C76	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	3137841	0.922379750917908	3235.62049720599	379.44470559503	0.117271078583748	8.52725166406533	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	88.2728921416252	VEP
+vep	huF85C76	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	3137841	0.981365531268155	3235.62049720599	208.604839370004	0.0644713555097507	15.5107643091009	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	93.5528644490249	VEP
+vep	huF85C76	pgp	GRCh37	cohort_3_genomes	custom_cohort	3137841	0.855037587946617	3235.62049720599	589.206254575052	0.182099926454243	5.49149041117968	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	81.7900073545757	VEP
+vep	KPGP-00134	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4599548	0.817182688385902	5927.62342872703	1265.57666965295	0.21350490375613	4.68373317149766	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	78.649509624387	VEP
+vep	KPGP-00134	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4599548	0.91648070636506	5927.62342872703	697.364277499029	0.117646521558605	8.50003881756803	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.2353478441395	VEP
+vep	KPGP-00134	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4599548	0.844146424822613	5927.62342872703	1129.58333476109	0.190562600398465	5.24761940647854	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.9437399601535	VEP
+vep	LP6005443-DNA_D04	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4676153	0.833618361075867	9388.441140212	1783.92424190592	0.190012826971362	5.26280260095661	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	80.9987173028638	VEP
+vep	LP6005443-DNA_D04	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4676153	0.930625024459208	9388.441140212	947.527387958951	0.100924889852114	9.90835859682689	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.9075110147886	VEP
+vep	LP6005443-DNA_D04	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4676153	0.829960225852319	9388.441140212	1834.49805548601	0.195399643890677	5.11771659399483	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	80.4600356109323	VEP
+vep	hu6664F3	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	4989374	0.785743061153564	5733.70658268	1464.76165327907	0.25546505252008	3.91442974346325	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	74.4534947479921	VEP
+vep	hu6664F3	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	4989374	0.871610346307974	5733.70658268	963.561199877993	0.168052059515681	5.95053701145916	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	83.1947940484319	VEP
+vep	hu6664F3	pgp	GRCh37	cohort_3_genomes	custom_cohort	4989374	0.750816835939739	5733.70658268	1703.45700417901	0.29709525236689	3.36592386459638	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	70.290474763311	VEP
+vep	LP6005443-DNA_D06	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4748089	0.828386536141172	9273.22824080009	1825.15195629594	0.196819479570846	5.08079790770937	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	80.3180520429154	VEP
+vep	LP6005443-DNA_D06	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4748089	0.927992082709486	9273.22824080009	977.849865941913	0.105448700339284	9.48328425843538	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	89.4551299660716	VEP
+vep	LP6005443-DNA_D06	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4748089	0.819054992440116	9273.22824080009	1939.55688169005	0.209156599117925	4.78110661684734	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	79.0843400882075	VEP
+vep	KPGP-00086	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4789204	0.812161686994331	10041.590461762	2323.12752626906	0.23135055498583	4.3224447854091	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	76.864944501417	VEP
+vep	KPGP-00086	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4789204	0.917671496140068	10041.590461762	1227.46997977304	0.122238601987125	8.18072183208808	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	87.7761398012875	VEP
+vep	KPGP-00086	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4789204	0.825559946913934	10041.590461762	2176.13575936703	0.216712259641902	4.61441360840596	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	78.3287740358098	VEP
+vep	KPGP-00343	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	5052647	0.805709363824546	6809.978037389	1543.56088222703	0.226661653496146	4.41186228272619	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.3338346503854	VEP
+vep	KPGP-00343	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	5052647	0.916731566642198	6809.978037389	800.589306374895	0.11756121708167	8.50620659452083	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.243878291833	VEP
+vep	KPGP-00343	kpgp	GRCh38	cohort_3_genomes	custom_cohort	5052647	0.812358749780066	6809.978037389	1551.41737253196	0.227815326865104	4.38952029154793	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	77.2184673134896	VEP
+vep	KPGP-00362	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	5049460	0.811871170382576	10150.255303962	2277.45623135602	0.224374280562878	4.45683880296505	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	77.5625719437122	VEP
+vep	KPGP-00362	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	5049460	0.922618656252352	10150.255303962	1130.27058571903	0.111353907056687	8.98037640916301	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.8646092943313	VEP
+vep	KPGP-00362	kpgp	GRCh38	cohort_3_genomes	custom_cohort	5049460	0.816314417779327	10150.255303962	2330.33346312493	0.229583729013724	4.35570937146083	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	77.0416270986277	VEP
+vep	KPGP-00338	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	5084881	0.80418302807873	10891.72385761	2579.78882214497	0.236857714708079	4.22194396848114	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	76.3142285291921	VEP
+vep	KPGP-00338	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	5084881	0.916871997594437	10891.72385761	1351.39800416993	0.124075676342612	8.05959741245888	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	87.5924323657388	VEP
+vep	KPGP-00338	kpgp	GRCh38	cohort_3_genomes	custom_cohort	5084881	0.80886593019581	10891.72385761	2569.36322519102	0.23590051113863	4.23907517272117	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	76.409948886137	VEP
+vep	hu1D5A29	pgp	GRCh37	gnomad_af_0.1	bundled_zenodo	3641537	0.880677582020998	3833.17982122605	640.085458989954	0.166985502596437	5.98854382237452	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	PGP	83.3014497403563	VEP
+vep	hu1D5A29	pgp	GRCh37	gnomad_af_0.01	bundled_zenodo	3641537	0.959355623737999	3833.17982122605	346.286099834018	0.0903391220825269	11.0694013506848	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	PGP	90.9660877917473	VEP
+vep	hu1D5A29	pgp	GRCh37	cohort_3_genomes	custom_cohort	3641537	0.817044011910355	3833.17982122605	860.506638221908	0.224488982608354	4.45456159309435	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	PGP	77.5511017391646	VEP
+vep	LP6005442-DNA_B04	sgdp	GRCh38	gnomad_af_0.1	bundled_zenodo	4823693	0.848142906275337	9359.89246753592	1718.87458284304	0.183642556664495	5.44536091286808	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	SGDP	81.6357443335505	VEP
+vep	LP6005442-DNA_B04	sgdp	GRCh38	gnomad_af_0.01	bundled_zenodo	4823693	0.940855688784506	9359.89246753592	870.062458602013	0.0929564588075942	10.7577247759604	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	SGDP	90.7043541192406	VEP
+vep	LP6005442-DNA_B04	sgdp	GRCh38	cohort_3_genomes	custom_cohort	4823693	0.815355993841233	9359.89246753592	1951.54971853504	0.208501296922357	4.79613323639126	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	SGDP	79.1498703077643	VEP
+vep	KPGP-00128	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	4598973	0.819759759407155	9828.931339751	2086.37636659597	0.212268892159015	4.71100588422951	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	78.7731107840985	VEP
+vep	KPGP-00128	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	4598973	0.918309370374647	9828.931339751	1166.71242305601	0.118701859106238	8.42446788558718	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.1298140893761	VEP
+vep	KPGP-00128	kpgp	GRCh38	cohort_3_genomes	custom_cohort	4598973	0.844058010342744	9828.931339751	1869.23275729106	0.19017660136981	5.25827043283542	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	80.982339863019	VEP
+vep	KPGP-00351	kpgp	GRCh38	gnomad_af_0.1	bundled_zenodo	5003856	0.8119224454101	6654.19173378008	1459.69687288301	0.219365015509373	4.55861203609867	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 10%	KPGP	78.0634984490627	VEP
+vep	KPGP-00351	kpgp	GRCh38	gnomad_af_0.01	bundled_zenodo	5003856	0.919259666944852	6654.19173378008	750.473351848079	0.112782045043621	8.86665957877624	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	gnomAD
+AF ≥ 1%	KPGP	88.7217954956378	VEP
+vep	KPGP-00351	kpgp	GRCh38	cohort_3_genomes	custom_cohort	5003856	0.815656165964808	6654.19173378008	1458.34668904799	0.219162108245946	4.56283254438212	True	vep_semantic_with_documented_exceptions_v1	semantically_validated	Three-genome
+cohort	KPGP	78.0837891754054	VEP
+fastvep	hu6ABACE	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	3749108	0.877846410399487	167.530034275958	94.6379034899874	0.564901116978811	1.77022131828695	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	43.5098883021189	fastVEP
+fastvep	hu6ABACE	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	3749108	0.956886011285885	167.530034275958	91.1355802330654	0.543995472972598	1.83825059156397	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	45.6004527027402	fastVEP
+fastvep	hu6ABACE	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	3749108	0.814612435811398	167.530034275958	104.364519829047	0.622960057759768	1.60523935289866	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	37.7039942240232	fastVEP
+fastvep	hu365511	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4985467	0.787582988714999	334.766068379977	218.984847631073	0.654142902507412	1.52871795469595	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	34.5857097492588	fastVEP
+fastvep	hu365511	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4985467	0.873292913181453	334.766068379977	197.973201472894	0.591377741570225	1.69096658481735	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	40.8622258429775	fastVEP
+fastvep	hu365511	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4985467	0.752556580958213	334.766068379977	229.233306486974	0.684756694716093	1.4603727246721	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	31.5243305283907	fastVEP
+fastvep	LP6005443-DNA_H08	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5567709	0.702250782143966	584.869038779056	352.678180321003	0.603003675929294	1.65836468319848	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	39.6996324070706	fastVEP
+fastvep	LP6005443-DNA_H08	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5567709	0.889801352764665	584.869038779056	261.35248374904	0.446856418138712	2.23785529178543	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	55.3143581861288	fastVEP
+fastvep	LP6005443-DNA_H08	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5567709	0.670542767231549	584.869038779056	362.146473622997	0.619192416782733	1.61500685876599	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	38.0807583217267	fastVEP
+fastvep	LP6005519-DNA_G03	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4929060	0.837699480225438	404.577280340949	212.93161051604	0.52630639648523	1.90003390929349	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	47.369360351477	fastVEP
+fastvep	LP6005519-DNA_G03	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4929060	0.933737061427534	404.577280340949	187.447922101943	0.463317964725985	2.15834497285556	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	53.6682035274015	fastVEP
+fastvep	LP6005519-DNA_G03	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4929060	0.805876779751109	404.577280340949	223.159143366036	0.551585949606397	1.81295408397111	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	44.8414050393603	fastVEP
+fastvep	LP6005619-DNA_B01	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4998072	0.811334250486988	244.805619266001	138.117262367043	0.564191552388213	1.77244766563239	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	43.5808447611787	fastVEP
+fastvep	LP6005619-DNA_B01	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4998072	0.930145264013804	244.805619266001	122.317915556952	0.499653218433864	2.00138808899189	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	50.0346781566136	fastVEP
+fastvep	LP6005619-DNA_B01	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4998072	0.788539460816091	244.805619266001	144.256794913905	0.589270766522554	1.69701274322714	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	41.0729233477446	fastVEP
+fastvep	huCDD5EE	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4815438	0.808142893751306	335.677083697054	219.380290178	0.653545627130118	1.53011505010178	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	34.6454372869882	fastVEP
+fastvep	huCDD5EE	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4815438	0.894866676717673	335.677083697054	199.036017028964	0.592938948458551	1.68651427368648	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	40.7061051541449	fastVEP
+fastvep	huCDD5EE	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4815438	0.774986823628505	335.677083697054	229.699789614999	0.68428796832107	1.46137305680464	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	31.571203167893	fastVEP
+fastvep	KPGP-00327	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4562488	0.833128985763908	222.313919365988	121.513459385023	0.546585025946935	1.82954152149987	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	45.3414974053065	fastVEP
+fastvep	KPGP-00327	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4562488	0.926991807978454	222.313919365988	111.938649239019	0.503516152107137	1.98603360749234	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	49.6483847892863	fastVEP
+fastvep	KPGP-00327	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4562488	0.840567690260226	222.313919365988	120.552543603	0.542262688484829	1.84412466731606	True	fastvep_complete_record_and_header_v2	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	45.7737311515171	fastVEP
+fastvep	LP6005519-DNA_A06	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4858092	0.827141190409733	438.475847356953	218.084856397007	0.497370283247253	2.01057448280013	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	50.2629716752747	fastVEP
+fastvep	LP6005519-DNA_A06	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4858092	0.926872731105133	438.475847356953	194.07277857	0.442607682361145	2.25933719601381	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	55.7392317638855	fastVEP
+fastvep	LP6005519-DNA_A06	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4858092	0.808293255870823	438.475847356953	237.084609880927	0.540701640261435	1.8494488004817	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	45.9298359738565	fastVEP
+fastvep	KPGP-00231	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4697636	0.811499230676877	490.71029900806	252.877733353991	0.515329989741742	1.94050418160439	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	48.4670010258258	fastVEP
+fastvep	KPGP-00231	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4697636	0.909322901987297	490.71029900806	220.853749729926	0.450069522030346	2.22187895658612	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	54.9930477969654	fastVEP
+fastvep	KPGP-00231	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4697636	0.834987001972907	490.71029900806	243.506853369996	0.496233427059162	2.01518064981297	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	50.3766572940838	fastVEP
+fastvep	KPGP-00205	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4697145	0.822667812043273	391.758613415062	217.380559784942	0.554883931944671	1.80217869437191	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	44.5116068055329	fastVEP
+fastvep	KPGP-00205	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4697145	0.924101129515908	391.758613415062	192.895352580934	0.492383181825703	2.03093857977056	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	50.7616818174297	fastVEP
+fastvep	KPGP-00205	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4697145	0.834189278806594	391.758613415062	207.164117760956	0.528805521224032	1.89105438552398	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	47.1194478775968	fastVEP
+fastvep	KPGP-00354	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4995030	0.812881804513687	249.853750312002	142.32380322495	0.569628444829124	1.75553030941069	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	43.0371555170876	fastVEP
+fastvep	KPGP-00354	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4995030	0.92148855962827	249.853750312002	127.857060167007	0.511727600675783	1.95416467409498	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	48.8272399324217	fastVEP
+fastvep	KPGP-00354	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4995030	0.816575676222165	249.853750312002	148.556443103007	0.594573597224371	1.68187757523756	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	40.5426402775629	fastVEP
+fastvep	LP6005443-DNA_B07	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4690406	0.832916809333776	233.525114691001	132.528584741056	0.567513198383038	1.76207355678988	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	43.2486801616962	fastVEP
+fastvep	LP6005443-DNA_B07	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4690406	0.930989556127977	233.525114691001	117.052467499045	0.501241451712496	1.99504649223142	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	49.8758548287504	fastVEP
+fastvep	LP6005443-DNA_B07	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4690406	0.817856705794765	233.525114691001	129.065598558984	0.552684017433253	1.80935212247343	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	44.7315982566747	fastVEP
+fastvep	LP6005443-DNA_E05	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4835989	0.852032335061143	408.147944447934	199.231158070033	0.488134659944242	2.04861502789871	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	51.1865340055758	fastVEP
+fastvep	LP6005443-DNA_E05	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4835989	0.943696315272843	408.147944447934	180.272827784065	0.44168500720469	2.2640569267423	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	55.831499279531	fastVEP
+fastvep	LP6005443-DNA_E05	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4835989	0.824391660113371	408.147944447934	217.505947576952	0.532909574911993	1.87649096033815	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	46.7090425088007	fastVEP
+fastvep	huB333AA	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	3354528	0.896584556754333	82.5823502469575	56.6054670610465	0.685442674999819	1.45891120654293	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	31.4557325000181	fastVEP
+fastvep	huB333AA	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	3354528	0.968981925326007	82.5823502469575	54.1525879569817	0.65574045537626	1.52499360349241	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	34.425954462374	fastVEP
+fastvep	huB333AA	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	3354528	0.836564488357229	82.5823502469575	58.7950042840093	0.711956054873547	1.40458107372598	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	28.8043945126453	fastVEP
+fastvep	LP6005592-DNA_C05	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	6169350	0.609203238590775	307.738120894996	224.87471847597	0.73073403393108	1.3684869645668	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	26.926596606892	fastVEP
+fastvep	LP6005592-DNA_C05	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	6169350	0.789815458678791	307.738120894996	187.561872791033	0.609485338525973	1.64072855701251	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	39.0514661474027	fastVEP
+fastvep	LP6005592-DNA_C05	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	6169350	0.579203319636591	307.738120894996	230.511343208025	0.749050337142596	1.33502376330902	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	25.0949662857405	fastVEP
+fastvep	hu9AF7CC	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4839785	0.8090231280935	329.615376166999	216.035939562018	0.655418269846015	1.52574324825419	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	34.4581730153985	fastVEP
+fastvep	hu9AF7CC	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4839785	0.896249936722396	329.615376166999	201.933482555905	0.612633685066913	1.63229679394919	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	38.7366314933087	fastVEP
+fastvep	hu9AF7CC	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4839785	0.774045954520707	329.615376166999	228.514241790981	0.693275430437458	1.44242815495278	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	30.6724569562542	fastVEP
+fastvep	LP6005519-DNA_B06	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4840679	0.825479442036954	391.71397834993	216.305285930983	0.552202111454269	1.81093114143736	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	44.7797888545731	fastVEP
+fastvep	LP6005519-DNA_B06	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4840679	0.926330582961605	391.71397834993	190.849283347954	0.487215912365177	2.05247812031739	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	51.2784087634823	fastVEP
+fastvep	LP6005519-DNA_B06	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4840679	0.814090750491822	391.71397834993	221.103023973992	0.564450175879285	1.77163555391267	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	43.5549824120715	fastVEP
+fastvep	huDEFDD1	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	2464923	0.74998732211919	166.696806135005	121.409673640039	0.728326333629397	1.37301090709819	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	27.1673666370603	fastVEP
+fastvep	huDEFDD1	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	2464923	0.856162241173457	166.696806135005	114.48471042607	0.686784066716613	1.45606173535856	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	31.3215933283387	fastVEP
+fastvep	huDEFDD1	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	2464923	0.7135813167389	166.696806135005	123.974326755037	0.743711470120379	1.34460747235502	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	25.6288529879621	fastVEP
+fastvep	LP6005677-DNA_B02	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4833052	0.833598314274293	493.909059996018	235.948266012012	0.477716011149733	2.09329387472961	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	52.2283988850267	fastVEP
+fastvep	LP6005677-DNA_B02	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4833052	0.930735899386144	493.909059996018	214.174550403026	0.43363154829505	2.30610527285617	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	56.636845170495	fastVEP
+fastvep	LP6005677-DNA_B02	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4833052	0.819125058037861	493.909059996018	244.745784896077	0.495528032828654	2.01804930044348	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	50.4471967171346	fastVEP
+fastvep	KPGP-00319	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4795706	0.802346932860355	417.82035735494	229.898368780967	0.550232569414198	1.81741331863478	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	44.9767430585802	fastVEP
+fastvep	KPGP-00319	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4795706	0.902593903796438	417.82035735494	201.297037618002	0.481778913053294	2.07564086535556	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	51.8221086946706	fastVEP
+fastvep	KPGP-00319	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4795706	0.812097530582567	417.82035735494	229.094993883977	0.548309793554074	1.82378650127354	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	45.1690206445926	fastVEP
+fastvep	KPGP-00091	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4690148	0.813332756237117	230.689436818939	131.054869214888	0.568100867651555	1.76025078809306	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	43.1899132348445	fastVEP
+fastvep	KPGP-00091	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4690148	0.914412508944281	230.689436818939	119.083235966042	0.516205846301955	1.9372116901889	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	48.3794153698045	fastVEP
+fastvep	KPGP-00091	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4690148	0.83599643337481	230.689436818939	127.106292972108	0.550984452191759	1.81493324543388	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	44.9015547808241	fastVEP
+fastvep	LP6005677-DNA_G01	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5700643	0.689239792774254	467.752033708035	311.723707220983	0.666429400102955	1.50053403983305	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	33.3570599897045	fastVEP
+fastvep	LP6005677-DNA_G01	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5700643	0.888705537252552	467.752033708035	238.264071839047	0.509381156400847	1.9631664568547	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	49.0618843599153	fastVEP
+fastvep	LP6005677-DNA_G01	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5700643	0.657568453242906	467.752033708035	327.666057370952	0.700512309424778	1.42752666376576	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	29.9487690575222	fastVEP
+fastvep	LP6005677-DNA_A03	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4785201	0.851806225067662	399.033118622028	202.173128088936	0.506657514511818	1.97371986274305	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	49.3342485488182	fastVEP
+fastvep	LP6005677-DNA_A03	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4785201	0.941561493446148	399.033118622028	182.716985238018	0.457899298857673	2.18388628786878	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	54.2100701142327	fastVEP
+fastvep	LP6005677-DNA_A03	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4785201	0.819384598473502	399.033118622028	214.571369885933	0.537728223228455	1.85967549554331	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	46.2271776771545	fastVEP
+fastvep	LP6005519-DNA_B04	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4876494	0.833160258169086	241.493635265972	132.93665488204	0.550476846876849	1.8166068303754	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	44.9523153123151	fastVEP
+fastvep	LP6005519-DNA_B04	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4876494	0.929866211257514	241.493635265972	121.615879000979	0.503598692640643	1.98570809379281	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	49.6401307359357	fastVEP
+fastvep	LP6005519-DNA_B04	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4876494	0.804761166526607	241.493635265972	137.377326088026	0.568865203990673	1.75788568712738	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	43.1134796009327	fastVEP
+fastvep	KPGP-00325	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4628506	0.829072707262343	477.246380808996	228.205843245029	0.478171972426882	2.09129781263562	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	52.1828027573118	fastVEP
+fastvep	KPGP-00325	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4628506	0.924792578858059	477.246380808996	209.828006740077	0.439663903546824	2.27446463521993	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	56.0336096453176	fastVEP
+fastvep	KPGP-00325	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4628506	0.833907960797717	477.246380808996	228.586964976043	0.478970557280198	2.08781100382961	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	52.1029442719802	fastVEP
+fastvep	KPGP-00139	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4634658	0.809636654959222	424.487285283976	223.417214115034	0.526322511557845	1.89997573358611	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	47.3677488442155	fastVEP
+fastvep	KPGP-00139	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4634658	0.909619221094631	424.487285283976	199.623354246025	0.470269337072086	2.12644100129095	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	52.9730662927914	fastVEP
+fastvep	KPGP-00139	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4634658	0.835400152503162	424.487285283976	215.453163024969	0.507560934082711	1.97020679262333	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	49.2439065917289	fastVEP
+fastvep	KPGP-00255	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4788584	0.815457972544702	241.84887382295	137.150647394941	0.567092354936269	1.76338120465825	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	43.2907645063731	fastVEP
+fastvep	KPGP-00255	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4788584	0.919785473116896	241.84887382295	124.245200093021	0.513730736592045	1.94654500650231	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	48.6269263407954	fastVEP
+fastvep	KPGP-00255	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4788584	0.828047080305994	241.84887382295	134.373940996011	0.555611191699746	1.79981975694327	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	44.4388808300254	fastVEP
+fastvep	LP6005443-DNA_A07	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4835923	0.826488966015381	423.923143696971	219.918732573977	0.518770290897774	1.9276354439446	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	48.1229709102226	fastVEP
+fastvep	LP6005443-DNA_A07	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4835923	0.927794756037265	423.923143696971	190.172649101005	0.448601714552636	2.22914885868691	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	55.1398285447364	fastVEP
+fastvep	LP6005443-DNA_A07	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4835923	0.807667119596404	423.923143696971	223.850505534909	0.528045021516734	1.89377791523844	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	47.1954978483266	fastVEP
+fastvep	LP6005519-DNA_F03	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4827736	0.85273739077696	395.049537615036	205.985823113937	0.521417704618766	1.91784818801108	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	47.8582295381234	fastVEP
+fastvep	LP6005519-DNA_F03	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4827736	0.941921016393606	395.049537615036	181.263323080027	0.458836945296373	2.17942345369351	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	54.1163054703627	fastVEP
+fastvep	LP6005519-DNA_F03	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4827736	0.816998899691284	395.049537615036	218.52579794405	0.553160495423734	1.80779359385376	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	44.6839504576266	fastVEP
+fastvep	KPGP-00326	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4530456	0.832908210564235	458.555654665106	224.420359889977	0.489407027493481	2.04328900858155	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	51.0592972506519	fastVEP
+fastvep	KPGP-00326	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4530456	0.927099832776215	458.555654665106	204.402728812071	0.445753370899658	2.24339301794109	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	55.4246629100342	fastVEP
+fastvep	KPGP-00326	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4530456	0.839409101423786	458.555654665106	225.672488559969	0.492137620077508	2.03195195653303	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	50.7862379922492	fastVEP
+fastvep	KPGP-00320	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4684091	0.826161788914861	229.114027399104	128.306634571054	0.560012130324744	1.78567560566967	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	43.9987869675256	fastVEP
+fastvep	KPGP-00320	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4684091	0.923107599745607	229.114027399104	117.095779313007	0.511080795193011	1.95663779466092	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	48.8919204806989	fastVEP
+fastvep	KPGP-00320	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4684091	0.82960728132737	229.114027399104	126.605994021986	0.552589448403545	1.80966177130063	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	44.7410551596455	fastVEP
+fastvep	hu876E3D	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4644318	0.87125730839275	217.02164654294	122.929415969062	0.566438500155507	1.76541672171907	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	43.3561499844493	fastVEP
+fastvep	hu876E3D	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4644318	0.95946337007931	217.02164654294	113.521286915056	0.523087391158443	1.91172644744002	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	47.6912608841557	fastVEP
+fastvep	hu876E3D	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4644318	0.765015229361986	217.02164654294	136.23800862697	0.627762302964618	1.5929596206677	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	37.2237697035382	fastVEP
+fastvep	SS6004480	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5538843	0.70049629498435	472.132194393896	299.680968025001	0.634739531816335	1.57544937706725	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	36.5260468183665	fastVEP
+fastvep	SS6004480	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5538843	0.888230989757247	472.132194393896	239.28724687011	0.506822558832906	1.97307713039208	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	49.3177441167094	fastVEP
+fastvep	SS6004480	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5538843	0.66666756938227	472.132194393896	322.685530608986	0.683464365363255	1.4631340720573	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	31.6535634636745	fastVEP
+fastvep	hu57D7DD	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	3375074	0.897778241306709	88.0014894050546	61.5281695328886	0.69917191116716	1.43026340736523	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	30.082808883284	fastVEP
+fastvep	hu57D7DD	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	3375074	0.971287444364183	88.0014894050546	60.1439106970793	0.683441963354142	1.4631820309837	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	31.6558036645858	fastVEP
+fastvep	hu57D7DD	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	3375074	0.838158511487452	88.0014894050546	64.3285368909128	0.730993728922251	1.36800079184586	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	26.9006271077749	fastVEP
+fastvep	KPGP-00347	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5019022	0.815079113022418	461.398215450929	229.745046810014	0.49793223969339	2.00830538833108	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	50.206776030661	fastVEP
+fastvep	KPGP-00347	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5019022	0.924069470107921	461.398215450929	202.975668821018	0.439914291004893	2.27317007073288	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	56.0085708995107	fastVEP
+fastvep	KPGP-00347	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5019022	0.815186305220419	461.398215450929	234.383922416018	0.507986191899231	1.96855744495978	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	49.2013808100769	fastVEP
+fastvep	huC8266A	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4833985	0.800445181356583	299.315972034005	205.795392911998	0.687552326437888	1.45443475579649	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	31.2447673562112	fastVEP
+fastvep	huC8266A	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4833985	0.887814711878502	299.315972034005	202.579059120035	0.676806712797205	1.47752671640483	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	32.3193287202795	fastVEP
+fastvep	huC8266A	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4833985	0.763866458005145	299.315972034005	228.209859914961	0.762437962679235	1.31158212070916	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	23.7562037320765	fastVEP
+fastvep	LP6005442-DNA_G04	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4787146	0.855286636338227	239.159113836009	125.164480202016	0.523352333074128	1.91075865493153	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	47.6647666925872	fastVEP
+fastvep	LP6005442-DNA_G04	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4787146	0.944030535103797	239.159113836009	115.058848116081	0.481097484727163	2.07858081105353	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	51.8902515272837	fastVEP
+fastvep	LP6005442-DNA_G04	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4787146	0.81771393644564	239.159113836009	133.67084143695	0.558920123481505	1.78916442258514	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	44.1079876518495	fastVEP
+fastvep	KPGP-00321	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5050770	0.813025934659468	524.994923264021	269.865675205016	0.514034828236424	1.94539347349449	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	48.5965171763576	fastVEP
+fastvep	KPGP-00321	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5050770	0.922771379413436	524.994923264021	220.187389648054	0.419408607380611	2.3843096741515	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	58.0591392619389	fastVEP
+fastvep	KPGP-00321	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5050770	0.814151109632789	524.994923264021	264.369279458071	0.503565401765074	1.98583936961286	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	49.6434598234926	fastVEP
+fastvep	LP6005442-DNA_B03	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4754466	0.860080395989791	234.134648237959	122.312809648924	0.522403713288145	1.914228353596	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	47.7596286711855	fastVEP
+fastvep	LP6005442-DNA_B03	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4754466	0.947099842548038	234.134648237959	114.910980729968	0.490790156838214	2.0375306759252	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	50.9209843161786	fastVEP
+fastvep	LP6005442-DNA_B03	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4754466	0.822157525156348	234.134648237959	131.14137383597	0.560110922594788	1.78536064850756	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	43.9889077405212	fastVEP
+fastvep	huF85C76	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	3137841	0.922379750917908	89.9223319770535	48.410022231983	0.538353723348015	1.85751478373924	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	46.1646276651985	fastVEP
+fastvep	huF85C76	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	3137841	0.981365531268155	89.9223319770535	51.6501221830258	0.574385928917034	1.74098972425288	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	42.5614071082966	fastVEP
+fastvep	huF85C76	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	3137841	0.855037587946617	89.9223319770535	54.8600654029287	0.610082770283671	1.63912185150718	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	38.9917229716329	fastVEP
+fastvep	KPGP-00134	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4599548	0.817182688385902	391.072492061998	209.370221829973	0.535374453789967	1.86785154375765	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	46.4625546210033	fastVEP
+fastvep	KPGP-00134	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4599548	0.91648070636506	391.072492061998	188.409020720981	0.481775181188433	2.07565694341751	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	51.8224818811567	fastVEP
+fastvep	KPGP-00134	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4599548	0.844146424822613	391.072492061998	203.023160650977	0.519144569797027	1.92624570914991	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	48.0855430202973	fastVEP
+fastvep	LP6005443-DNA_D04	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4676153	0.833618361075867	418.952523450018	212.229874142096	0.506572612081225	1.97405066154594	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	49.3427387918775	fastVEP
+fastvep	LP6005443-DNA_D04	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4676153	0.930625024459208	418.952523450018	182.333811626071	0.435213541917773	2.29772262047153	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	56.4786458082227	fastVEP
+fastvep	LP6005443-DNA_D04	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4676153	0.829960225852319	418.952523450018	207.20452863106	0.494577588230664	2.02192744636382	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	50.5422411769336	fastVEP
+fastvep	hu6664F3	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4989374	0.785743061153564	378.669809356099	255.288580880966	0.674171995161341	1.48330100801752	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	32.5828004838659	fastVEP
+fastvep	hu6664F3	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4989374	0.871610346307974	378.669809356099	221.861968421028	0.585898223041041	1.70678107677065	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	41.4101776958959	fastVEP
+fastvep	hu6664F3	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4989374	0.750816835939739	378.669809356099	249.558003340964	0.659038553311973	1.51736191300879	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	34.0961446688027	fastVEP
+fastvep	LP6005443-DNA_D06	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4748089	0.828386536141172	405.545797494007	206.639275658992	0.509533761503337	1.96257848949907	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	49.0466238496663	fastVEP
+fastvep	LP6005443-DNA_D06	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4748089	0.927992082709486	405.545797494007	187.812011193018	0.463109252650544	2.15931768643497	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	53.6890747349456	fastVEP
+fastvep	LP6005443-DNA_D06	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4748089	0.819054992440116	405.545797494007	217.025416088058	0.535144039043493	1.86865577683979	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	46.4855960956507	fastVEP
+fastvep	KPGP-00086	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4789204	0.812161686994331	433.55431885994	225.473457489046	0.520058151149188	1.92286189109866	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	47.9941848850812	fastVEP
+fastvep	KPGP-00086	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4789204	0.917671496140068	433.55431885994	199.091472756001	0.459207679627146	2.1776639293401	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	54.0792320372854	fastVEP
+fastvep	KPGP-00086	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4789204	0.825559946913934	433.55431885994	222.808065321064	0.513910381303436	1.94586456390254	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	48.6089618696564	fastVEP
+fastvep	KPGP-00343	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5052647	0.805709363824546	536.095596634084	263.635977233062	0.491770458269606	2.03346903658813	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	50.8229541730394	fastVEP
+fastvep	KPGP-00343	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5052647	0.916731566642198	536.095596634084	235.717402738053	0.439692853696286	2.27431488047505	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	56.0307146303714	fastVEP
+fastvep	KPGP-00343	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5052647	0.812358749780066	536.095596634084	275.102774320985	0.513159921566672	1.94871025185874	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	48.6840078433328	fastVEP
+fastvep	KPGP-00362	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5049460	0.811871170382576	428.90550967399	227.8866416089	0.53132132012507	1.88210026987926	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	46.867867987493	fastVEP
+fastvep	KPGP-00362	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5049460	0.922618656252352	428.90550967399	193.809096065932	0.45186898208243	2.21303085551816	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	54.813101791757	fastVEP
+fastvep	KPGP-00362	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5049460	0.816314417779327	428.90550967399	230.013420071919	0.536279937850999	1.86469776215616	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	46.3720062149001	fastVEP
+fastvep	KPGP-00338	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5084881	0.80418302807873	454.408892305917	240.547653162968	0.529363877415116	1.8890597614688	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	47.0636122584884	fastVEP
+fastvep	KPGP-00338	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5084881	0.916871997594437	454.408892305917	209.819733622018	0.461742138357547	2.16571093891729	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	53.8257861642453	fastVEP
+fastvep	KPGP-00338	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5084881	0.80886593019581	454.408892305917	249.228084622999	0.548466565780173	1.82326519498511	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	45.1533434219827	fastVEP
+fastvep	hu1D5A29	pgp	GRCh37	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	3641537	0.880677582020998	197.488564523985	111.623490461032	0.565214956775259	1.76923838977181	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	PGP	43.4785043224741	fastVEP
+fastvep	hu1D5A29	pgp	GRCh37	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	3641537	0.959355623737999	197.488564523985	104.481109612039	0.529048909053923	1.89018440995987	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	PGP	47.0951090946077	fastVEP
+fastvep	hu1D5A29	pgp	GRCh37	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	3641537	0.817044011910355	197.488564523985	118.019084095955	0.597599584464151	1.67336127065194	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	PGP	40.2400415535849	fastVEP
+fastvep	LP6005442-DNA_B04	sgdp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4823693	0.848142906275337	396.585159414099	202.216344696004	0.509893877508557	1.96119240514556	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	SGDP	49.0106122491443	fastVEP
+fastvep	LP6005442-DNA_B04	sgdp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4823693	0.940855688784506	396.585159414099	182.78886512795	0.460906972409144	2.16963521895327	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	SGDP	53.9093027590856	fastVEP
+fastvep	LP6005442-DNA_B04	sgdp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4823693	0.815355993841233	396.585159414099	213.845967122936	0.539218278966526	1.85453653744197	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	SGDP	46.0781721033474	fastVEP
+fastvep	KPGP-00128	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	4598973	0.819759759407155	397.330338965985	212.322532254038	0.534372816348703	1.87135267626984	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	46.5627183651297	fastVEP
+fastvep	KPGP-00128	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	4598973	0.918309370374647	397.330338965985	195.611654393957	0.492314920886782	2.03122017549001	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	50.7685079113218	fastVEP
+fastvep	KPGP-00128	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	4598973	0.844058010342744	397.330338965985	207.540372955031	0.522337089825899	1.91447251110066	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	47.7662910174101	fastVEP
+fastvep	KPGP-00351	kpgp	GRCh38	gnomad_af_0.1	locally_built_fastvep_from_bundled_blueprint	5003856	0.8119224454101	503.809610004071	262.424382145051	0.520880064480966	1.91982774575267	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 10%	KPGP	47.9119935519034	fastVEP
+fastvep	KPGP-00351	kpgp	GRCh38	gnomad_af_0.01	locally_built_fastvep_from_bundled_blueprint	5003856	0.919259666944852	503.809610004071	219.329960759962	0.435342947821479	2.2970396213012	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	gnomAD
+AF ≥ 1%	KPGP	56.4657052178521	fastVEP
+fastvep	KPGP-00351	kpgp	GRCh38	cohort_3_genomes	locally_built_fastvep_from_cohort_blueprint	5003856	0.815656165964808	503.809610004071	264.974657075014	0.525942045990097	1.90135017275046	True	fastvep_complete_record_and_header_v3	strict_complete_record_and_header_validated	Three-genome
+cohort	KPGP	47.4057954009903	fastVEP

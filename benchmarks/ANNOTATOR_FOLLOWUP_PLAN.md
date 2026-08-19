@@ -28,6 +28,11 @@ The direct baseline is run once inside the sample task and is shared by all
 three cached comparisons. Small-input adapter gates and cache construction are
 untimed setup, not duplicate publication observations.
 
+A separate three-run fastVEP timing control at one configured thread setting is
+used only to quantify engineering timing variability; it is not added to the
+52-sample inferential dataset. Any pooled confidence interval across KPGP,
+SGDP, and PGP is bootstrapped within cohort strata.
+
 ## Exact fastVEP peer campaign
 
 The fastVEP campaign mirrors the VEP external-WGS campaign without subsampling:
@@ -40,6 +45,16 @@ The fastVEP campaign mirrors the VEP external-WGS campaign without subsampling:
 - the same CPU, memory, local-storage, timing, and cgroup measurements within
   the campaign; and
 - exact direct-versus-cached annotation comparison for every condition.
+
+Every timed cell uses `--statistics light`. Semantic comparison runs afterward
+and is excluded from timing. For fastVEP it compares complete INFO and FORMAT
+values plus relevant INFO/FORMAT/FILTER/contig headers, canonicalizing INFO tag
+order, CSQ entry order, and complete-record order only among records sharing an
+identical `CHROM:POS`. No VEP-specific `HGNC_ID` exception is allowed.
+Indexed BCFs are traversed in a common contig-name order so differences in
+valid header contig numbering cannot be misclassified as record differences.
+Each condition has its own Slurm job step so its cgroup memory peak is
+condition-specific.
 
 This is 52 tasks and 208 unique executions, with no technical repeats. Cache
 membership comes from the exact frozen VEP blueprints, including the two
@@ -54,6 +69,13 @@ prepares either `--tool vep` or `--tool fastvep`, and both use
 `run_external_task.py` and `slurm_external_multi.sh`. The tool-specific cache
 bundle is created with `prepare_external_fastvep.py`. This makes sample lists,
 condition ordering, validation, and result columns identical by construction.
+Locally re-annotated caches retain their source blueprint alias/DOI as source
+provenance but are labelled
+`locally_built_fastvep_from_bundled_blueprint` or
+`locally_built_fastvep_from_cohort_blueprint`; they are never described as
+downloadable FastVEP caches. Reuse preserves the original build duration and
+freezes binary, reference, transcript-cache, supplementary database, bcftools,
+and VCFcache identities.
 
 Preparation and submission therefore follow this contract (paths are deployment
 specific):

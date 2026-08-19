@@ -101,6 +101,31 @@ bootstrap_median_interval <- function(values, seed, replicates = 10000) {
   as.numeric(stats::quantile(estimates, c(0.025, 0.975), names = FALSE))
 }
 
+stratified_bootstrap_median_interval <- function(
+  values, strata, seed, replicates = 10000
+) {
+  if (length(values) != length(strata) || length(values) < 1) {
+    stop("values and strata must have the same non-zero length")
+  }
+  keep <- !(is.na(values) | is.na(strata))
+  values <- values[keep]
+  strata <- as.character(strata[keep])
+  groups <- split(values, strata)
+  set.seed(seed)
+  estimates <- replicate(
+    replicates,
+    median(
+      unlist(
+        lapply(groups, function(group) {
+          sample(group, length(group), replace = TRUE)
+        }),
+        use.names = FALSE
+      )
+    )
+  )
+  as.numeric(stats::quantile(estimates, c(0.025, 0.975), names = FALSE))
+}
+
 format_duration <- function(seconds) {
   ifelse(
     seconds < 60,

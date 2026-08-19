@@ -1,0 +1,84 @@
+{
+  "created_at": "2026-08-07T05:32:57.360112+00:00",
+  "created_on_host": "ghga-laptop",
+  "fastvep": {
+    "campaign_commit": "2cd2ab56d8eeff789e031fd1320c066baedf34ed",
+    "campaign_id": "external-fastvep-2cd2ab56d8ee-light-strict-v2",
+    "comparison_commits": [
+      "2cd2ab56d8eeff789e031fd1320c066baedf34ed",
+      "6bd1f4e52c1eb7fa1afdd55097d136d641b81c60",
+      "b27527a6004fc7062d2c60e32ed3243b1e04d8b8"
+    ],
+    "completed_tasks": 52,
+    "expected_tasks": 52,
+    "phase": "measured",
+    "semantic_comparators": [
+      "fastvep_complete_record_and_header_v2",
+      "fastvep_complete_record_and_header_v3"
+    ],
+    "statistics_mode": "light"
+  },
+  "files": {
+    "annotator_external_wgs_metrics.tsv": {
+      "bytes": 79236,
+      "sha256": "14def04be4929b1d31f95ac5e042a25fd834e9d08663769c86e6cffcc8c6f242"
+    },
+    "fastvep_external_wgs_metrics.tsv": {
+      "bytes": 61197,
+      "sha256": "1140d8f175bc290c603c583ef2fba1f660d084510f5abf58c0d1d1afd1be8033"
+    },
+    "vep_external_wgs_full_statistics_metrics.tsv": {
+      "bytes": 47003,
+      "sha256": "bc963099d2b07681f055080d1f04d489fd86664fd4be74d275331b5cd9a9c36d"
+    },
+    "vep_light_calibration_metrics.tsv": {
+      "bytes": 6287,
+      "sha256": "8d6a00276db3770a4ddd89a49c81b9dea666594281cb88cdb0e3b2b4eb1f3844"
+    },
+    "vep_statistics_calibration.tsv": {
+      "bytes": 5209,
+      "sha256": "02fa98beb93da0504bd21fd08459714e8fe866865acb76b8c04325a5ffe39da5"
+    }
+  },
+  "notes": [
+    "The standalone fastVEP dataset is final: all 52 genomes and 156 cached outputs passed strict complete-record and relevant-header comparison.",
+    "The paired annotator view retains the measured VEP --statistics full values and accompanies them with a completed six-genome --statistics light sensitivity calibration.",
+    "The same genomes, variants, cache blueprints, and three cache strategies are paired across annotators.",
+    "The VEP calibration is paired within sample and strategy; it is not used to rescale the 52 original VEP observations.",
+    "No technical replicate is included; genomes are the inferential units."
+  ],
+  "row_counts": {
+    "annotator_external_wgs_metrics.tsv": 312,
+    "fastvep_external_wgs_metrics.tsv": 156,
+    "vep_external_wgs_full_statistics_metrics.tsv": 156,
+    "vep_light_calibration_metrics.tsv": 18,
+    "vep_statistics_calibration.tsv": 18
+  },
+  "sample_counts": {
+    "fastvep": 52,
+    "vep": 52,
+    "vep_light_calibration": 6
+  },
+  "status": "ANNOTATOR_COMPARISON_FINAL",
+  "vep": {
+    "campaign_id": "external-wgs-6c422804f208-hg19",
+    "completed_tasks": 52,
+    "source_snapshot": "benchmarks/figures/source_data/final/2026-08-06T095303Z/SNAPSHOT.json",
+    "source_snapshot_status": "FINAL",
+    "statistics_mode": "full"
+  },
+  "vep_light_calibration": {
+    "campaign_commit": "bbef41d7db8e73c1634d682fe88a979fe5350ab9",
+    "campaign_id": "external-vep-light-calibration-bbef41d7db8e",
+    "comparison_commits": [
+      "bbef41d7db8e73c1634d682fe88a979fe5350ab9"
+    ],
+    "completed_tasks": 6,
+    "expected_tasks": 6,
+    "phase": "measured",
+    "semantic_comparators": [
+      "vep_semantic_with_documented_exceptions_v1"
+    ],
+    "statistics_mode": "light"
+  }
+}

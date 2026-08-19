@@ -1,0 +1,12 @@
+{
+  "assay": "panel",
+  "cohort": "kpgp",
+  "command": "bcftools view --regions-file BED --output-type z",
+  "created_at": "2026-08-18T19:01:17.106826+00:00",
+  "interval_bed": "/results/campaigns/external-assay-v3-independent-af001-warm/regions/acmg_sf_v3.3.ensembl115.mane_select_cds_pad20.bed",
+  "interval_bed_sha256": "11f6395868425252215de90d0ca485e97b3cb2c462d2ec468be009370b571450",
+  "output_records": 257,
+  "sample": "KPGP-00325",
+  "source_vcf": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00325.GRCh38.small_variants.vcf.gz",
+  "source_vcf_sha256": "239f86ae4d3260eb84429ed2256ca7bf2a3871bed977354979b1452bac760c8c"
+}

@@ -12,6 +12,7 @@ from benchmarks.prepare_controlled_runtime import (
     PIPELINES,
     _placeholder_cache,
     annotation_yaml,
+    ensure_runtime_database_layout,
 )
 from benchmarks.run_controlled_cohort import prepare
 
@@ -58,6 +59,23 @@ def test_placeholder_cache_has_a_valid_database_layout(tmp_path):
     assert (cache / "vcfcache_annotated.bcf").is_symlink()
 
 
+def test_controlled_nested_caches_get_database_level_layout(tmp_path):
+    bundled_root = tmp_path / "bundled"
+    bundled = bundled_root / "cache/everything"
+    bundled.mkdir(parents=True)
+    (bundled_root / "workflow").mkdir()
+    (bundled_root / "workflow/init.yaml").write_text("genome_build: GRCh38\n")
+    controlled = tmp_path / "controlled"
+
+    assert ensure_runtime_database_layout(controlled, bundled) is True
+    assert ensure_runtime_database_layout(controlled, bundled) is False
+    assert (controlled / "caches/blueprint").is_dir()
+    assert (controlled / "caches/cache").is_dir()
+    assert (controlled / "caches/workflow/init.yaml").read_text() == (
+        "genome_build: GRCh38\n"
+    )
+
+
 def _controlled_root(root: Path) -> Path:
     controlled = root / "controlled"
     input_vcf = root / "HG02374.vcf.gz"
@@ -88,7 +106,7 @@ def _controlled_root(root: Path) -> Path:
     return controlled
 
 
-def test_prepare_freezes_four_baselines_and_twenty_cached_tasks(
+def test_prepare_defaults_to_four_baselines_and_eight_cached_tasks(
     tmp_path, monkeypatch, capsys
 ):
     controlled = _controlled_root(tmp_path)
@@ -107,6 +125,7 @@ def test_prepare_freezes_four_baselines_and_twenty_cached_tasks(
             "controlled_root": controlled,
             "controller_results": controller,
             "worker_results": Path("/results"),
+            "hit_rates": (50, 90),
         },
     )()
     prepare(args)
@@ -117,14 +136,17 @@ def test_prepare_freezes_four_baselines_and_twenty_cached_tasks(
     with (root / "manifests/cached.tsv").open(newline="") as handle:
         cached = list(csv.DictReader(handle, delimiter="\t"))
     assert len(baselines) == len(PIPELINES) == 4
-    assert len(cached) == len(PIPELINES) * len(HIT_RATES) == 20
+    assert len(cached) == len(PIPELINES) * 2 == 8
     assert (root / "logs").is_dir()
     assert {float(row["target_hit_rate"]) for row in cached} == {
-        value / 100 for value in HIT_RATES
+        0.5,
+        0.9,
     }
     assert all(row["baseline_result"].startswith("/results/") for row in cached)
     campaign = json.loads((root / "campaign.json").read_text())
-    assert campaign["phases"] == {"baseline": 4, "cached": 20}
+    assert campaign["phases"] == {"baseline": 4, "cached": 8}
+    assert campaign["hit_rates"] == [50, 90]
+    assert campaign["statistics_mode"] == "light"
 
 
 def test_controlled_model_uses_prespecified_unit_slope_and_robust_overhead():

@@ -1,0 +1,7 @@
+{
+  "annotation_recipe": "/mnt/data/vcfcache_benchmarks/fastvep_pilot/core_scaling_kpgp00319/cache/hit-090/annotation.yaml",
+  "input": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+  "purpose": "controlled approximately 90 percent hit cache",
+  "selection_rule": "POS%100<90",
+  "source_direct_output": "/mnt/data/vcfcache_benchmarks/fastvep_pilot/core_scaling_kpgp00319/runs/cores-32/repeat-1/direct/output.bcf"
+}

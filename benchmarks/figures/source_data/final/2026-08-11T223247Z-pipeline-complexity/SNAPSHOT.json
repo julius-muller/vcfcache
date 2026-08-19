@@ -1,0 +1,37 @@
+{
+  "campaign_commit": "4f854e51a64e79eac2c1fa865b048c1367d95749",
+  "campaign_id": "wgs-pipeline-spectrum-4f854e5-kpgp00319",
+  "created_at": "2026-08-11T22:33:36.543436+00:00",
+  "files": {
+    "annotator_external_wgs_metrics.tsv": "1306484e2f6497b75cf1ca6c45fc90b45204f7db861beeedf3c5f57ee47a8c9c",
+    "wgs_pipeline_campaign.json": "dc1a86baa69b25e3d2e9e7aeed6c9379ccd19094a71e45ada94af6b2b48da009",
+    "wgs_pipeline_spectrum.tsv": "91ea08f3b6795e22f32bdc0b14f030a2ee8f72ce27a079e42679eb5e9ef751a8"
+  },
+  "input_sha256": "d6475ce97e229330544087887c53897864a777e23fbdd9c20332b4b8fe56ad16",
+  "provenance": {
+    "annotator_external_wgs_metrics.tsv": "/home/j380r/projects/vcfcache/benchmarks/figures/source_data/final/2026-08-09T223718Z-light-matched-final/annotator_external_wgs_metrics.tsv",
+    "wgs_pipeline_campaign.json": "/tmp/tmp.HB1YOBnbBd/campaign/campaign.json",
+    "wgs_pipeline_spectrum.tsv": "/tmp/tmp.HB1YOBnbBd/campaign/publication/wgs_pipeline_spectrum.tsv"
+  },
+  "sample": "KPGP-00319",
+  "statistics_mode": "light",
+  "status": "PIPELINE_COMPLEXITY_WGS_FINAL",
+  "wgs_spectrum_design": {
+    "delay_us_per_transcript_consequence": [
+      500,
+      1000,
+      2000,
+      4000,
+      7000,
+      10000
+    ],
+    "prior_observed_hit_rate": 0.8023469328603546,
+    "samples": 1,
+    "source_alias": "cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e",
+    "source_doi": "10.5281/zenodo.18189447",
+    "technical_repeats": 0,
+    "timed_cells": 12,
+    "validated_cached_outputs": 6,
+    "virtual_pipeline_loads": 6
+  }
+}

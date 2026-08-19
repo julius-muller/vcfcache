@@ -1,0 +1,27 @@
+claim_id	short_claim	value	unit	scope	evidence_file	status
+C01	External WGS evaluation genomes	52	genomes	20 KPGP, 20 SGDP, 12 PGP	benchmarks/figures/source_data/final/2026-08-09T223718Z-light-matched-final/SNAPSHOT.json	frozen
+C02	VEP median speedup, AF at least 10 percent	4.75	fold	52 independent WGS	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/FIGURE_INDEX.md	frozen
+C03	VEP median speedup, AF at least 1 percent	9.21	fold	52 independent WGS	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/FIGURE_INDEX.md	frozen
+C04	VEP median speedup, three-genome cohort cache	4.59	fold	52 independent WGS	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/FIGURE_INDEX.md	frozen
+C05	fastVEP median speedup, AF at least 10 percent	1.84	fold	52 independent WGS	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/FIGURE_INDEX.md	frozen
+C06	fastVEP median speedup, AF at least 1 percent	2.05	fold	52 independent WGS	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/FIGURE_INDEX.md	frozen
+C07	fastVEP median speedup, three-genome cohort cache	1.81	fold	52 independent WGS	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/FIGURE_INDEX.md	frozen
+C08	Validated cached outputs in paired annotator campaign	312	outputs	156 VEP and 156 fastVEP	benchmarks/figures/source_data/final/2026-08-09T223718Z-light-matched-final/SNAPSHOT.json	frozen
+C09	Pipeline experiment AF at least 10 percent hit rate	80.23	percent	KPGP-00319, GRCh38	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/source/dual_cache_pipeline_spectrum.tsv	frozen
+C10	Pipeline experiment AF at least 1 percent hit rate	90.26	percent	KPGP-00319, GRCh38	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/source/dual_cache_pipeline_spectrum.tsv	frozen
+C11	Pipeline speedup range, AF at least 10 percent	4.62-5.07	fold	six controlled VEP loads	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/FIGURE_INDEX.md	frozen
+C12	Pipeline speedup range, AF at least 1 percent	8.39-10.10	fold	six controlled VEP loads	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/FIGURE_INDEX.md	frozen
+C13	Longest direct pipeline runtime	22.71	hours	10 ms controlled load	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/source/dual_cache_pipeline_spectrum.tsv	frozen
+C14	Longest cached runtime, AF at least 10 percent	4.52	hours	10 ms controlled load	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/source/dual_cache_pipeline_spectrum.tsv	frozen
+C15	Longest cached runtime, AF at least 1 percent	2.25	hours	10 ms controlled load	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/source/dual_cache_pipeline_spectrum.tsv	frozen
+C16	Maximum runtime-model residual	0.56	percentage points	all 12 complexity measurements	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/FIGURE_INDEX.md	frozen
+C17	Pipeline-complexity cached outputs validated	12	outputs	two caches by six loads	benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/FIGURE_INDEX.md	frozen
+C18	Dense fastVEP speedup at 10 and 32 CPUs	3.07-3.37	fold	held-out KPGP-00319 at controlled 90 percent hits	benchmarks/fastvep_pilot/source_data/heavy_core_scaling_kpgp00319.tsv	frozen
+C19	Dense fastVEP direct runtime change from 10 to 32 CPUs	2.1	percent	held-out KPGP-00319 under process-wide CPU affinity	benchmarks/fastvep_pilot/source_data/heavy_core_scaling_kpgp00319.tsv	frozen
+C20	Core fastVEP speedup at 1, 10 and 32 CPUs	1.51-2.57	fold	held-out KPGP-00319 at controlled 90 percent hits	benchmarks/fastvep_pilot/source_data/core_scaling_kpgp00319.tsv	frozen
+C21	Dense fastVEP runtime penalty over core at 10 CPUs	52.2	percent	held-out KPGP-00319 under process-wide CPU affinity	drafts/gigascience_technical_note/figures/source_data/fastvep_cpu_complexity.tsv	frozen
+C22	Dense fastVEP time returned at 10 CPUs	7.9	minutes	held-out KPGP-00319 at controlled 90 percent hits	benchmarks/fastvep_pilot/source_data/heavy_core_scaling_kpgp00319.tsv	frozen
+C23	Matched assay observations	72	paired rows	12 independent genomes by two tools by three assays	benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv	frozen
+C24	VEP speedup across Panel, WES and WGS	0.71/2.29/9.50	fold	median across 12 matched genomes per assay	benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv	frozen
+C25	fastVEP speedup across Panel, WES and WGS	0.31/0.54/2.02	fold	median across 12 matched genomes per assay	benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv	frozen
+C26	Matched assay cached outputs validated	72	outputs	all annotator-specific semantic comparisons passed	benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv	frozen

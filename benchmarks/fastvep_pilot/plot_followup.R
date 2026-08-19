@@ -56,19 +56,48 @@ save_formats <- function(plot, directory, stem, width, height) {
 method_values <- c("Direct fastVEP" = "#546E7A", "VCFcache (90% hits)" = "#00897B")
 
 scaling <- read.delim(scaling_path, stringsAsFactors = FALSE, check.names = FALSE)
+if (!("configured_thread_limit" %in% names(scaling))) {
+  scaling$configured_thread_limit <- scaling$cores
+}
+if (!("speedup_vs_direct_same_threads" %in% names(scaling))) {
+  scaling$speedup_vs_direct_same_threads <- scaling$speedup_vs_direct_same_cores
+}
 scaling$method <- ifelse(
   scaling$mode == "direct", "Direct fastVEP", "VCFcache (90% hits)"
 )
 scaling$method <- factor(scaling$method, levels = names(method_values))
 scaling$minutes <- scaling$wall_seconds / 60
-scaling$core_label <- factor(scaling$cores, levels = sort(unique(scaling$cores)))
+scaling$core_label <- factor(
+  scaling$configured_thread_limit,
+  levels = sort(unique(scaling$configured_thread_limit))
+)
+
+runtime_mean <- aggregate(minutes ~ core_label + method, scaling, mean)
+runtime_min <- aggregate(minutes ~ core_label + method, scaling, min)
+runtime_max <- aggregate(minutes ~ core_label + method, scaling, max)
+names(runtime_min)[3] <- "ymin"
+names(runtime_max)[3] <- "ymax"
+runtime_summary <- merge(merge(runtime_mean, runtime_min), runtime_max)
 
 cache_rows <- subset(scaling, mode == "cached")
+benefit_mean <- aggregate(
+  speedup_vs_direct_same_threads ~ core_label, cache_rows, mean
+)
+benefit_min <- aggregate(
+  speedup_vs_direct_same_threads ~ core_label, cache_rows, min
+)
+benefit_max <- aggregate(
+  speedup_vs_direct_same_threads ~ core_label, cache_rows, max
+)
+names(benefit_min)[2] <- "ymin"
+names(benefit_max)[2] <- "ymax"
+benefit_summary <- merge(merge(benefit_mean, benefit_min), benefit_max)
 
 scaling_runtime <- ggplot(
-  scaling,
+  runtime_summary,
   aes(core_label, minutes, colour = method, group = method)
 ) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), width = 0.10, linewidth = 0.5) +
   geom_line(linewidth = 1.05) +
   geom_point(size = 3.4) +
   geom_text(
@@ -83,33 +112,34 @@ scaling_runtime <- ggplot(
     expand = expansion(mult = c(0, 0.02))
   ) +
   labs(
-    x = "CPU threads available to fastVEP and bcftools",
+    x = "Configured thread limit (enforced CPU affinity)",
     y = "End-to-end wall time (minutes)",
     title = "A  Both workflows benefit from more cores"
   ) +
   theme_vcfcache()
 
 scaling_benefit <- ggplot(
-  cache_rows,
-  aes(core_label, speedup_vs_direct_same_cores)
+  benefit_summary,
+  aes(core_label, speedup_vs_direct_same_threads)
 ) +
   geom_hline(yintercept = 1, colour = "#90A4AE", linewidth = 0.5) +
   geom_col(width = 0.62, fill = "#00897B", colour = "#263238", linewidth = 0.35) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), width = 0.14, linewidth = 0.55) +
   geom_text(
-    aes(label = sprintf("%.2fx", speedup_vs_direct_same_cores)),
+    aes(label = sprintf("%.2fx", speedup_vs_direct_same_threads)),
     vjust = -0.55,
     size = 4,
     fontface = "bold"
   ) +
   scale_y_continuous(
-    limits = c(0, max(cache_rows$speedup_vs_direct_same_cores) * 1.18),
+    limits = c(0, max(cache_rows$speedup_vs_direct_same_threads) * 1.18),
     expand = expansion(mult = c(0, 0.02))
   ) +
   labs(
-    x = "CPU threads available to fastVEP and bcftools",
+    x = "Configured thread limit (enforced CPU affinity)",
     y = "Speedup over direct fastVEP",
     title = "B  VCFcache benefit at 90% hits",
-    subtitle = "Direct and cached cells use the same core limit"
+    subtitle = "Direct and cached cells use the same process-wide CPU affinity"
   ) +
   theme_vcfcache() +
   theme(legend.position = "none")
@@ -118,7 +148,7 @@ scaling_combined <- scaling_runtime + scaling_benefit +
   plot_layout(widths = c(1.18, 0.82)) +
   plot_annotation(
     title = "VCFcache remains faster as fastVEP receives more cores",
-    subtitle = "One 4.33M-variant WGS per cell; 90% cache hits; complete output equality",
+    subtitle = "One 4.33M-variant WGS per cell; 90% cache hits; taskset-enforced affinity; range shown for repeated control",
     theme = theme(plot.title = element_text(face = "bold", size = 15))
   )
 

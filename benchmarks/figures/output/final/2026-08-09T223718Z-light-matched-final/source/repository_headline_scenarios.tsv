@@ -1,0 +1,25 @@
+tool	overhead_fraction	scenario	hit_rate	relative_runtime	speedup	tool_display	speedup_label	remaining_label
+vep	0.0338122244999158	Distant WGS
+50% hits	0.5	0.533812224499916	1.87331790862755	Slower pipeline
+(VEP-like overhead)	1.9×	53% time left
+fastvep	0.378175576854876	Distant WGS
+50% hits	0.5	0.878175576854876	1.13872444913742	Very fast pipeline
+(fastVEP-like overhead)	1.1×	88% time left
+vep	0.0338122244999158	Related WGS
+80% hits	0.8	0.233812224499916	4.27693634128339	Slower pipeline
+(VEP-like overhead)	4.3×	23% time left
+fastvep	0.378175576854876	Related WGS
+80% hits	0.8	0.578175576854876	1.7295784187906	Very fast pipeline
+(fastVEP-like overhead)	1.7×	58% time left
+vep	0.0338122244999158	WES
+90% hits	0.9	0.133812224499916	7.47315877706397	Slower pipeline
+(VEP-like overhead)	7.5×	13% time left
+fastvep	0.378175576854876	WES
+90% hits	0.9	0.478175576854876	2.09128204869296	Very fast pipeline
+(fastVEP-like overhead)	2.1×	48% time left
+vep	0.0338122244999158	Very high reuse
+95% hits	0.95	0.0838122244999158	11.931433701548	Slower pipeline
+(VEP-like overhead)	11.9×	8% time left
+fastvep	0.378175576854876	Very high reuse
+95% hits	0.95	0.428175576854876	2.33549051850507	Very fast pipeline
+(fastVEP-like overhead)	2.3×	43% time left

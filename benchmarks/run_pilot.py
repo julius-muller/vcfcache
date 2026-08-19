@@ -43,6 +43,7 @@ DEFAULT_CACHE_PROVENANCE_EXPECTED = {
 VCFCACHE_CMD = REPO_ROOT / ".venv/bin/vcfcache"
 TIME_CMD = Path("/usr/bin/time")
 MODES = ("uncached", "cached")
+PUBLICATION_STATISTICS_MODE = "light"
 KNOWN_VEP_IGNORED_CSQ_FIELDS = ("HGNC_ID",)
 KNOWN_VEP_UNORDERED_CSQ_FIELDS = ("DOMAINS",)
 KNOWN_VEP_ISSUE_URL = "https://github.com/Ensembl/ensembl-vep/issues/1959"
@@ -333,7 +334,7 @@ def annotation_command(config: PilotConfig, mode: str, run_dir: Path) -> list[st
         "--stats-dir",
         str(run_dir / "stats"),
         "--statistics",
-        "full",
+        PUBLICATION_STATISTICS_MODE,
         "-y",
         str(config.params_file),
         "--force",
@@ -500,6 +501,7 @@ def run_one(config: PilotConfig, mode: str) -> dict[str, object]:
         "variant_counts": variant_counts,
         "cache_hit_rate": hit_rate,
         "command": command,
+        "statistics_mode": PUBLICATION_STATISTICS_MODE,
         "cgroup_v2": {"before": cgroup_before, "after": cgroup_after},
     }
     if os.environ.get("VCFCACHE_REQUIRE_CGROUP_METRICS") == "1" and not cgroup_after:
@@ -748,6 +750,7 @@ def semantic_compare(
             f"uncached={uncached.returncode} {uncached_stderr}"
         )
     return {
+        "comparator": "vep_semantic_with_documented_exceptions_v1",
         "semantic_pass": (
             key_mismatches == 0
             and annotation_mismatches == 0
@@ -771,6 +774,204 @@ def semantic_compare(
         "csq_headers_equal": cached_header == uncached_header,
         "cached_semantic_sha256": cached_digest.hexdigest(),
         "uncached_semantic_sha256": uncached_digest.hexdigest(),
+        "examples": examples,
+    }
+
+
+def _strict_relevant_header(path: Path) -> tuple[str, ...]:
+    """Return semantic header definitions in an order-independent form."""
+    header = run_checked(["bcftools", "view", "--header-only", path]).stdout
+    prefixes = ("##contig=<", "##FILTER=<", "##INFO=<", "##FORMAT=<")
+    definitions = sorted(
+        line for line in header.splitlines() if line.startswith(prefixes)
+    )
+    columns = [line for line in header.splitlines() if line.startswith("#CHROM\t")]
+    if len(columns) != 1:
+        raise RuntimeError(f"Expected one #CHROM header in {path}")
+    return (*definitions, columns[0])
+
+
+def _canonical_strict_info(value: str) -> str:
+    """Canonicalize INFO tag order and CSQ entry order, but no values."""
+    if value in {"", "."}:
+        return value
+    fields: list[tuple[str, str]] = []
+    for item in value.split(";"):
+        key, separator, content = item.partition("=")
+        if key == "CSQ" and separator:
+            content = ",".join(sorted(content.split(",")))
+        fields.append((key, item if not separator else f"{key}={content}"))
+    return ";".join(item for _key, item in sorted(fields))
+
+
+def _full_record_process(path: Path) -> subprocess.Popen[str]:
+    contigs = sorted(
+        line.split("\t", maxsplit=1)[0]
+        for line in run_checked(["bcftools", "index", "--stats", path])
+        .stdout.strip()
+        .splitlines()
+        if line
+    )
+    command = ["bcftools", "view"]
+    if contigs:
+        # Both BCFs can be validly indexed while assigning different numeric
+        # header IDs to contigs. Traverse their indexes by the same contig-name
+        # order so header layout cannot masquerade as a record difference.
+        command.extend(["--regions", ",".join(contigs)])
+    command.extend(["--no-header", str(path)])
+    return subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+
+def _strict_locus_groups(
+    stream: Iterable[str],
+) -> Iterable[tuple[tuple[str, str], list[str]]]:
+    """Yield complete canonical records grouped by their coordinate."""
+    locus: tuple[str, str] | None = None
+    records: list[str] = []
+    for record_number, line in enumerate(stream, start=1):
+        fields = line.rstrip("\n").split("\t")
+        if len(fields) < 8:
+            raise RuntimeError(f"Malformed VCF record {record_number}")
+        next_locus = (fields[0], fields[1])
+        if locus is not None and next_locus != locus:
+            yield locus, records
+            records = []
+        locus = next_locus
+        fields[7] = _canonical_strict_info(fields[7])
+        records.append("\t".join(fields) + "\n")
+    if locus is not None:
+        yield locus, records
+
+
+def strict_semantic_compare(
+    cached_bcf: Path, uncached_bcf: Path, *, mismatch_limit: int = 20
+) -> dict[str, object]:
+    """Compare complete fastVEP records without VEP-specific exceptions."""
+    cached_header = _strict_relevant_header(cached_bcf)
+    uncached_header = _strict_relevant_header(uncached_bcf)
+    cached = _full_record_process(cached_bcf)
+    uncached = _full_record_process(uncached_bcf)
+    assert cached.stdout is not None
+    assert uncached.stdout is not None
+    sentinel = object()
+    records = 0
+    mismatches = 0
+    locus_mismatches = 0
+    record_order_only_loci = 0
+    examples: list[dict[str, object]] = []
+    cached_digest = hashlib.sha256()
+    uncached_digest = hashlib.sha256()
+    cached_groups = _strict_locus_groups(cached.stdout)
+    uncached_groups = _strict_locus_groups(uncached.stdout)
+    for group_number, pair in enumerate(
+        zip_longest(cached_groups, uncached_groups, fillvalue=sentinel), start=1
+    ):
+        cached_group, uncached_group = pair
+        if cached_group is sentinel or uncached_group is sentinel:
+            mismatches += 1
+            locus_mismatches += 1
+            if len(examples) < mismatch_limit:
+                examples.append({"group": group_number, "kind": "locus_count_mismatch"})
+            continue
+        assert isinstance(cached_group, tuple)
+        assert isinstance(uncached_group, tuple)
+        cached_locus, cached_records = cached_group
+        uncached_locus, uncached_records = uncached_group
+        records += max(len(cached_records), len(uncached_records))
+        if cached_locus != uncached_locus:
+            locus_mismatches += 1
+            if len(examples) < mismatch_limit:
+                examples.append(
+                    {
+                        "group": group_number,
+                        "kind": "locus",
+                        "cached": cached_locus,
+                        "uncached": uncached_locus,
+                    }
+                )
+        if cached_records != uncached_records and sorted(cached_records) == sorted(
+            uncached_records
+        ):
+            record_order_only_loci += 1
+        cached_records.sort()
+        uncached_records.sort()
+        for occurrence, record_pair in enumerate(
+            zip_longest(cached_records, uncached_records, fillvalue=sentinel), start=1
+        ):
+            cached_record, uncached_record = record_pair
+            if cached_record is not sentinel:
+                assert isinstance(cached_record, str)
+                cached_digest.update(cached_record.encode())
+            if uncached_record is not sentinel:
+                assert isinstance(uncached_record, str)
+                uncached_digest.update(uncached_record.encode())
+            if cached_record != uncached_record:
+                mismatches += 1
+                if len(examples) < mismatch_limit:
+                    examples.append(
+                        {
+                            "group": group_number,
+                            "locus": cached_locus,
+                            "occurrence": occurrence,
+                            "kind": "complete_record",
+                            "cached": (
+                                cached_record[:1000]
+                                if isinstance(cached_record, str)
+                                else None
+                            ),
+                            "uncached": (
+                                uncached_record[:1000]
+                                if isinstance(uncached_record, str)
+                                else None
+                            ),
+                        }
+                    )
+    cached_stderr = cached.communicate()[1]
+    uncached_stderr = uncached.communicate()[1]
+    if cached.returncode or uncached.returncode:
+        raise RuntimeError(
+            "bcftools view failed: "
+            f"cached={cached.returncode} {cached_stderr}; "
+            f"uncached={uncached.returncode} {uncached_stderr}"
+        )
+    cached_sha256 = cached_digest.hexdigest()
+    uncached_sha256 = uncached_digest.hexdigest()
+    headers_equal = cached_header == uncached_header
+    return {
+        "comparator": "fastvep_complete_record_and_header_v3",
+        "semantic_pass": (
+            mismatches == 0
+            and locus_mismatches == 0
+            and headers_equal
+            and cached_sha256 == uncached_sha256
+        ),
+        "records_compared": records,
+        "record_mismatches": mismatches,
+        "locus_mismatches": locus_mismatches,
+        "record_order_only_loci": record_order_only_loci,
+        "raw_annotation_mismatches": mismatches,
+        "ignored_annotation_mismatches": 0,
+        "relevant_headers_equal": headers_equal,
+        "cached_header_sha256": hashlib.sha256(
+            "\n".join(cached_header).encode()
+        ).hexdigest(),
+        "uncached_header_sha256": hashlib.sha256(
+            "\n".join(uncached_header).encode()
+        ).hexdigest(),
+        "cached_semantic_sha256": cached_sha256,
+        "uncached_semantic_sha256": uncached_sha256,
+        "canonicalization": [
+            "INFO tag order",
+            "CSQ entry order",
+            "complete-record order within identical CHROM/POS loci",
+            "indexed contig traversal order by contig name",
+        ],
+        "ignored_fields": [],
         "examples": examples,
     }
 
