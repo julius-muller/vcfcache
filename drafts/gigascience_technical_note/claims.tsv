@@ -25,3 +25,37 @@ C23	Matched assay observations	72	paired rows	12 independent genomes by two tool
 C24	VEP speedup across Panel, WES and WGS	0.71/2.29/9.50	fold	median across 12 matched genomes per assay	benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv	frozen
 C25	fastVEP speedup across Panel, WES and WGS	0.31/0.54/2.02	fold	median across 12 matched genomes per assay	benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv	frozen
 C26	Matched assay cached outputs validated	72	outputs	all annotator-specific semantic comparisons passed	benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv	frozen
+C27	Annotator start-up cost, VEP and fastVEP	29.6/9.0	seconds	median Panel direct runtime, 12 matched genomes	drafts/gigascience_technical_note/figures/source_data/breakeven_assay_annotator.tsv	frozen
+C28	VCFcache cost model, fastVEP	21.7 + 27.5	seconds + us per variant	fitted across Panel, WES and WGS; residuals <= 2.6 s	drafts/gigascience_technical_note/figures/source_data/breakeven_assay_annotator.tsv	frozen
+C29	Break-even hit rate, VEP across Panel, WES and WGS	never/32.4/2.8	percent	median across 12 matched genomes per assay	drafts/gigascience_technical_note/figures/source_data/breakeven_assay_annotator.tsv	frozen
+C30	Break-even hit rate, fastVEP across Panel, WES and WGS	never/250.7/43.9	percent	median across 12 matched genomes per assay	drafts/gigascience_technical_note/figures/source_data/breakeven_assay_annotator.tsv	frozen
+C31	Break-even outcomes recovered under leave-one-out	6	of 6 cells	refitting VCFcache cost without the held-out cell	drafts/gigascience_technical_note/figures/source_data/breakeven_assay_annotator.tsv	frozen
+C32	Extra per-variant work for fastVEP WES to break even	2.7	fold	holding VCFcache cost and hit rate fixed	drafts/gigascience_technical_note/figures/source_data/breakeven_assay_annotator.tsv	frozen
+C33	fastVEP end-to-end speedup at engineered 100 percent hits	2.84	fold	HG02079, 4,329,621 variants, core recipe	benchmarks/fastvep_pilot/source_data/summary.tsv	frozen
+C34	VCFcache cost at 100 percent hits	136.9	seconds	HG02079, 4,329,621 variants, core recipe	benchmarks/fastvep_pilot/source_data/summary.tsv	frozen
+C35	VCFcache stage cost at 100 percent hits	24.5/20.1/21.6	seconds	cache lookup, miss selection, final output	benchmarks/fastvep_pilot/source_data/stage_timings.tsv	frozen
+C36	Cohort cache build cost, KPGP, SGDP and PGP	13374/14229/6666	seconds	three-genome cohort caches	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_break_even.tsv	frozen
+C37	Cohort cache break-even	2	samples	all three provider cohorts	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_break_even.tsv	frozen
+C38	Public AF at least 1 percent hit rate by cohort	91.95/93.04/92.66	percent	KPGP, SGDP and PGP medians	drafts/gigascience_technical_note/figures/source_data/external_wgs_metrics.tsv	frozen
+C39	Cohort cache hit rate range by cohort	77.45-82.88	percent	KPGP, SGDP and PGP medians	drafts/gigascience_technical_note/figures/source_data/external_wgs_metrics.tsv	frozen
+C40	Bundled GRCh38 cache size, AF at least 1 and 10 percent	3.8/1.7	gigabytes	on-disk extracted cache directories	benchmarks/STORAGE_LAYOUT.md	frozen
+C41	Peak resident memory, direct versus cached	4.32/4.19	gibibytes	core fastVEP recipe, one CPU	drafts/gigascience_technical_note/figures/source_data/fastvep_cpu_complexity.tsv	frozen
+C42	Bundled GRCh38 cache archive size, AF at least 1 and 10 percent	4.03/1.74	gigabytes	distributed tar.gz archives	benchmarks/STORAGE_LAYOUT.md	frozen
+C43	Bundled GRCh38 cache allele counts, AF at least 1 and 10 percent	18869857/8074875	alleles	bcftools index -n on the cache BCF	benchmarks/STORAGE_LAYOUT.md	frozen
+C44	Cohort cache build cost in direct genome equivalents	1.4	fold	build wall over median direct VEP WGS runtime	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_economics.tsv	frozen
+C45	Cohort cache effective speedup at ten genomes	2.92	fold	KPGP three-genome cohort cache	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_economics.tsv	frozen
+C46	Instrumented cache build peak resident memory	2.17	gibibytes	133,968-allele blueprint, core fastVEP recipe	benchmarks/figures/source_data/cache_build_economics.tsv	frozen
+C47	Instrumented cache build transient disk over final cache size	1.05	fold	sampled throughout the build	benchmarks/figures/source_data/cache_build_economics.tsv	frozen
+C48	Cache build throughput, fastVEP core recipe	5812	alleles per second	one exclusive eight-CPU node	benchmarks/figures/source_data/cache_build_economics.tsv	frozen
+C49	Bundled executable example runtime and peak memory	1.2/42.6	seconds and megabytes	vcfcache demo, full four-command workflow	vcfcache/demo.py	frozen
+C51	Per-database increment, allele-level versus gene-level	5.13/0.59	seconds	median over the four-database ladder, same exome	benchmarks/figures/source_data/richness_ladder_v2.tsv	frozen
+C50	Enriched fastVEP WES median speedup	1.10	fold	12 independent GRCh38 genomes, ClinVar + REVEL + gnomAD exomes	benchmarks/figures/source_data/enriched_wes_campaign_local.tsv	frozen
+C52	Enriched fastVEP WES genomes faster than direct	10	of 12 genomes	node-local supplementary databases	benchmarks/figures/source_data/enriched_wes_campaign_local.tsv	frozen
+C53	Enriched versus core fastVEP WES median speedup	0.54/1.10	fold	same 12 genomes, core and enriched recipes	benchmarks/figures/source_data/enriched_wes_campaign_local.tsv	frozen
+C54	Enriched fastVEP WES median direct runtime	71.0	seconds	12 independent GRCh38 genomes	benchmarks/figures/source_data/enriched_wes_campaign_local.tsv	frozen
+C55	Enriched fastVEP WES median wall time returned	6.3	seconds	measured against 3.7 seconds predicted	benchmarks/figures/source_data/enriched_wes_campaign_local.tsv	frozen
+C56	Enriched fastVEP per-variant cost and fixed start-up	53.6/61.7	microseconds and seconds	solved from miss-count decomposition on one exome	benchmarks/figures/source_data/enriched_wes_campaign_local.tsv	frozen
+C57	Enriched fastVEP start-up share of direct runtime	94	percent	one exome, 74,215 records	benchmarks/figures/source_data/enriched_wes_campaign_local.tsv	frozen
+C58	Enriched fastVEP WES speedup, shared versus node-local databases	1.01/1.10	fold	same 12 genomes and recipe	benchmarks/figures/source_data/enriched_wes_campaign_v2.tsv	frozen
+C59	Enriched fastVEP cached output agreement	12	of 12 genomes	sorted CHROM/POS/REF/ALT/CSQ digest equality	benchmarks/figures/source_data/enriched_wes_md5_local.tsv	frozen
+C60	Per-database increment, allele-level versus gene-level	5-14/0.6	seconds	single-exome ladder, 75,051 records	benchmarks/figures/source_data/richness_ladder_v2.tsv	frozen

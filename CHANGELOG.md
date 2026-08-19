@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.5.4 (2026-08-20)
+
+### Added
+- Break-even analysis (`benchmarks/analyze_breakeven.py`) separating annotator
+  start-up from per-variant work, with leave-one-out validation across the
+  matched assay campaign.
+- Annotation-richness analysis (`benchmarks/analyze_richness_ladder.py`) locating
+  the recipe cost at which caching begins to return time.
+- Benchmark deposit builder (`scripts/prepare_benchmark_deposit.py`) producing a
+  checksummed archive for Zenodo.
+- Frozen source tables for the cache-build economics, annotation-richness ladder
+  and enriched fastVEP exome campaign.
+- `.zenodo.json` recording the correct GPL-3.0-only licence and software
+  metadata for archived releases.
+
+### Changed
+- `CITATION.cff` now cites the Zenodo concept DOI (10.5281/zenodo.17943997)
+  rather than a single version DOI.
+- Package code is unchanged from 0.5.3; this release exists to archive the
+  benchmark analysis code and source tables supporting the manuscript.
+
 ## 0.5.3 (2026-01-09)
 
 ### Added

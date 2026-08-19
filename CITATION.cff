@@ -6,8 +6,12 @@ type: software
 authors:
   - family-names: Müller
     given-names: Julius
+    affiliation: German Cancer Research Center (DKFZ)
+    email: julius.mueller@dkfz-heidelberg.de
 
 repository-code: https://github.com/julius-muller/vcfcache
 license: GPL-3.0-only
 
-doi: 10.5281/zenodo.18155082
+# Concept DOI: always resolves to the most recent archived release. Cite this
+# rather than a version DOI so the reference does not go stale.
+doi: 10.5281/zenodo.17943997

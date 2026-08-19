@@ -4,7 +4,19 @@ The datasets supporting the benchmark results will be available from
 [FINAL BENCHMARK ARCHIVE DOI TO COMPLETE]. The deposit will include frozen
 source tables, cohort-selection and QC manifests, commands, semantic-comparison
 summaries, figure-rendering code, R session records, and a compact test input
-with expected cached and direct outputs. Raw public human genomic inputs will
+with expected cached and direct outputs.
+
+A self-contained executable example is distributed with the software itself and
+requires no download, no reference data and no external annotation tool. The
+command `vcfcache demo` runs the complete workflow — blueprint creation,
+blueprint extension, cache construction and cached annotation — against bundled
+test data using a self-describing annotation recipe, then asserts that the
+cached and directly annotated outputs are identical. It completes in
+approximately one second and its peak resident memory is 42.6 MB, so editors,
+reviewers and users can verify the central correctness claim on any machine
+that satisfies the stated requirements. This example is the recommended entry
+point for reproducing the workflow; the archived benchmark deposit reproduces
+the measurements. Raw public human genomic inputs will
 be referenced through their provider accessions and terms rather than
 redistributed when redistribution is not appropriate.
 

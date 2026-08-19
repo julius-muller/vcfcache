@@ -17,6 +17,10 @@ were reduced to 19.7–21.7% of direct runtime at 80.23% cache hits and
 9.9–11.9% at 90.26% hits.
 
 **Conclusions:** Annotation caching provides substantial savings across fast
-and slow pipelines. Relative acceleration is governed mainly by cache hit rate
-and fixed lookup overhead, whereas absolute time saved increases with
-annotation cost.
+and slow pipelines. Because reuse returns an annotator's per-variant work but
+never its start-up cost, whether caching helps is set by how much per-variant
+work the recipe performs relative to the caching layer's own cost, not by assay
+label; this rule predicted all six matched assay-by-annotator conditions, and
+enriching a fast annotator's recipe moved its exome result from 0.54-fold to
+1.10-fold as predicted. Relative acceleration is then governed by cache hit
+rate, whereas absolute time saved increases with annotation cost.

@@ -1,0 +1,26 @@
+{
+  "title": "vcfcache: cache-based VCF annotation accelerator",
+  "description": "VCFcache accelerates variant annotation by caching the output of a fixed annotation recipe and submitting only cache misses to the original annotator.",
+  "upload_type": "software",
+  "license": "GPL-3.0-only",
+  "creators": [
+    {
+      "name": "Müller, Julius",
+      "affiliation": "German Cancer Research Center (DKFZ)"
+    }
+  ],
+  "keywords": [
+    "variant annotation",
+    "VCF",
+    "caching",
+    "VEP",
+    "reproducible bioinformatics"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/julius-muller/vcfcache",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

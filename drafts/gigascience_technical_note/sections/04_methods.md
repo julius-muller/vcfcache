@@ -68,9 +68,10 @@ VEP 115.2 ran offline with its assembly-matched Ensembl cache, --everything,
 BCF with eight bcftools threads. fastVEP 0.3.0 used frozen release-mode
 binaries, assembly-matched reference FASTA and transcript caches. Exact
 binary, reference and recipe fingerprints are retained in the campaign
-manifests. The manuscript archive will identify VCFcache [FINAL RELEASE],
-commit [FINAL BENCHMARK COMMIT], its container digest and all external asset
-checksums.
+manifests. VCFcache is archived at https://doi.org/10.5281/zenodo.17943997; the release
+used for these benchmarks is VCFcache [RELEASE TAG AND COMMIT TO COMPLETE],
+whose container digest and external asset checksums accompany the archived
+deposit.
 
 ## Benchmark execution
 
@@ -96,6 +97,62 @@ input processing, cache lookup, annotation, output assembly, compression,
 and indexing. Cache construction and semantic comparison were excluded.
 Resource records and logs were archived atomically per task, and failed
 attempts were retained rather than silently replaced.
+
+## Cache economics
+
+Cache sizes, build durations and amortization were recorded from the campaign
+artefacts rather than estimated. The bundled GRCh38 caches contained 18,869,857
+alleles at AF ≥1% and 8,074,875 at AF ≥10%, occupying 3.7 GB and 1.7 GB when
+extracted and 4.03 GB and 1.74 GB as distributed archives; the GRCh37
+equivalents were 2.1 GB and 926 MB. The blueprints from which they derive are
+100 MB and 45 MB. Each three-genome cohort cache held 7.7 million alleles in
+1.4–1.9 GB, built from a 66 MB blueprint.
+
+Cohort cache construction took 13,374, 14,229 and 6,666 seconds for KPGP, SGDP
+and PGP, against median per-sample savings of 7,503, 7,333 and 3,381 seconds.
+Break-even sample counts and the full amortization curve were computed as
+$T_{\mathrm{effective}}$ above and are reported for cohort sizes from 1 to
+10,000. Build throughput was approximately 570 alleles per second under VEP
+`--everything` with eight forks, which projects to roughly nine hours for an
+18.9-million-allele blueprint under the same recipe.
+
+Construction resources were measured directly on an instrumented build of a
+single-chromosome blueprint (chromosome 22 of the GRCh38 AF ≥10% blueprint,
+133,968 alleles) using the core fastVEP recipe on one exclusive eight-CPU node.
+The build took 23.1 seconds at 5,812 alleles per second, peaked at 2.17 GiB
+resident memory, and produced a 17.3 MiB cache. Transient disk use, sampled
+throughout the build, peaked at 18.1 MiB, or 1.05 times the final cache size:
+construction is effectively streaming and needs no large scratch allocation.
+Peak resident memory during sample annotation was likewise not increased by
+caching — 4.32 GiB direct against 4.19 GiB cached for the core fastVEP recipe
+and 5.86 against 5.53 GiB for the dense recipe. Both build and annotation memory
+are therefore bounded by the configured annotator rather than by VCFcache, whose
+own orchestration peaked at 42.6 MB in the bundled end-to-end example.
+
+## Enriched fastVEP recipe experiment
+
+To test whether supplementary annotation moves a fast annotator across the
+break-even boundary, the fastVEP recipe was extended with three real
+allele-level databases built with `fastvep sa-build`: ClinVar (GRCh38 allele
+VCF), REVEL v1.3, and gnomAD v4.1 exome sites, the last as 24 per-chromosome
+indexes totalling 1.1 GB. A cache was built from the bundled GRCh38 AF ≥1%
+blueprint restricted to the Twist capture intervals, giving 270,118 alleles;
+restricting to capture does not change the hit rate for exome inputs because
+variants outside capture cannot occur in them. The same twelve GRCh38 genomes
+used in the matched assay extension were then annotated directly and through the
+cache, each preceded by an untimed warm-up, with one timed observation per
+condition.
+
+Cost decomposition used the miss count reported by the workflow: for one exome,
+annotating 5,638 misses took 62.0 seconds against 65.7 seconds for all 74,215
+records, which solves to 53.6 µs per variant and 61.7 seconds of fixed
+start-up. Because supplementary databases are read at every invocation, the
+experiment was repeated with them staged on node-local rather than shared
+storage; the median changed from 1.01- to 1.10-fold, indicating that start-up
+cost is a property of the recipe rather than of the filesystem. Agreement was
+checked outside the timed sections by comparing sorted CHROM, POS, REF, ALT and
+CSQ digests, which matched for all twelve genomes. This is a weaker gate than
+the campaign comparator and is reported as such.
 
 ## Correctness comparison
 
@@ -143,7 +200,30 @@ $T_{\mathrm{cached}} \approx T_{\mathrm{overhead}} +
 (1-f)T_{\mathrm{direct}}$. For the controlled complexity
 experiment, fixed overhead was estimated from the measured zero-delay
 configuration, and predicted relative runtime was compared with each delayed
-measurement. Cache-build amortization was calculated as
+measurement.
+
+Because that form absorbs the annotator's own start-up cost into
+$T_{\mathrm{overhead}}$, which is acceptable at whole-genome scale but not at
+panel or exome scale, the matched assay data were additionally analysed with the
+start-up cost separated. The annotator start-up $s_{\mathrm{ann}}$ was
+estimated as the median direct Panel runtime, whose 255 median variants make
+per-variant work negligible; per-variant cost $t_{\mathrm{ann}}$ was obtained
+from the remaining direct runtime; and the VCFcache cost was the residual
+$C_{\mathrm{VCFcache}} = T_{\mathrm{cached}} - s_{\mathrm{ann}} -
+(1-f) N t_{\mathrm{ann}}$. $C_{\mathrm{VCFcache}}(N)$ was fitted per annotator
+by ordinary least squares. Predictions were checked by leave-one-out: for each
+of the six assay-by-annotator cells the cost model was refitted on the other
+five and used to predict the held-out cell.
+
+This decomposition assumes a cache miss costs the average per-variant time of
+the input. Misses are in fact enriched for rare and coding alleles, which are
+more expensive for a transcript-heavy annotator, so the residual absorbs that
+difference and overstates $C_{\mathrm{VCFcache}}$ where the enrichment is
+strongest. The effect is visible for VEP at exome scale, where the fitted and
+measured costs differ by about 55 seconds, and is negligible for fastVEP, whose
+cost is dominated by payload handling rather than transcript evaluation and
+whose fit residuals do not exceed 2.6 seconds. Fitted and measured values are
+reported separately throughout. Cache-build amortization was calculated as
 $T_{\mathrm{effective}} \approx T_{\mathrm{cached}} +
 T_{\mathrm{build}}/S$, where $S$ is the number of cache uses. Modelled values
 are labelled separately from direct measurements.
