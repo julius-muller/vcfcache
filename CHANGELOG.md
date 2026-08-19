@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.5.5 (2026-08-20)
+
+### Fixed
+- Docker test stage now copies the benchmark modules, tracked manifests, config,
+  shell drivers and frozen source tables that the test suite imports, so the
+  container suite runs instead of failing collection on twelve files.
+- Optional `hail` dependency raised to `>=0.2.127`, carrying the fix for the
+  OIDC email-claim verification advisory.
+
+### Changed
+- CI now runs on pushes to `main` and on pull requests, not only on `v*` tags,
+  so breakage surfaces when it is introduced rather than at release time.
+  Container image publication remains gated on tags.
+
 ## 0.5.4 (2026-08-20)
 
 ### Added
