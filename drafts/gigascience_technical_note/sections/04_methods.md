@@ -69,9 +69,9 @@ BCF with eight bcftools threads. fastVEP 0.3.0 used frozen release-mode
 binaries, assembly-matched reference FASTA and transcript caches. Exact
 binary, reference and recipe fingerprints are retained in the campaign
 manifests. VCFcache is archived at https://doi.org/10.5281/zenodo.17943997; the release
-used for these benchmarks is VCFcache [RELEASE TAG AND COMMIT TO COMPLETE],
-whose container digest and external asset checksums accompany the archived
-deposit.
+used for these benchmarks is VCFcache v0.5.5 (commit 3ce9c6204d26,
+https://doi.org/10.5281/zenodo.22019326), whose container digest and external
+asset checksums accompany the archived deposit.
 
 ## Benchmark execution
 

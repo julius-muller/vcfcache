@@ -1,7 +1,7 @@
 # Data availability
 
-The datasets supporting the benchmark results will be available from
-[FINAL BENCHMARK ARCHIVE DOI TO COMPLETE]. The deposit will include frozen
+The datasets supporting the benchmark results are available from
+https://doi.org/10.5281/zenodo.22018995. The deposit will include frozen
 source tables, cohort-selection and QC manifests, commands, semantic-comparison
 summaries, figure-rendering code, R session records, and a compact test input
 with expected cached and direct outputs.

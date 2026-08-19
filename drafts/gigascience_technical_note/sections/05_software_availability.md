@@ -2,9 +2,9 @@
 
 - **Project name:** VCFcache
 - **Project home page:** https://github.com/julius-muller/vcfcache
-- **Archived version:** https://doi.org/10.5281/zenodo.17943997 (concept DOI,
-  resolving to the most recent archived release; the release used here is
-  identified by version and commit in Methods)
+- **Archived version:** v0.5.5, https://doi.org/10.5281/zenodo.22019326
+  (concept DOI https://doi.org/10.5281/zenodo.17943997 resolves to the most
+  recent release)
 - **Operating systems:** Linux; container images are provided for portable
   execution
 - **Programming language:** Python 3.11 or later
