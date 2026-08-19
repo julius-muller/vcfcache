@@ -27,8 +27,33 @@ ENV PATH="/opt/venv/bin:${PATH}"
 ########## Test stage (optional, dev deps only in this stage) ##########
 FROM base AS test
 COPY tests ./tests
+# Part of the suite exercises the benchmark drivers, so the modules they import
+# must be present. Only the Python sources are copied; benchmarks/figures holds
+# tens of megabytes of frozen result tables that the tests never read.
+COPY benchmarks/*.py ./benchmarks/
+COPY benchmarks/fastvep_pilot/*.py ./benchmarks/fastvep_pilot/
+# Several tests assert that tracked manifests stay in step with the runner
+# allow-lists, so those small tables are needed too.
+COPY benchmarks/manifests ./benchmarks/manifests
+COPY benchmarks/config ./benchmarks/config
+COPY benchmarks/*.sh ./benchmarks/
+# Frozen source tables only (1 MB). benchmarks/figures/output holds ~78 MB of
+# rendered figures that no test reads.
+COPY benchmarks/figures/source_data ./benchmarks/figures/source_data
+# One provenance test shells out to git; it is needed for tests, not at runtime.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git && \
+    rm -rf /var/lib/apt/lists/*
 RUN --mount=type=cache,target=/root/.cache/pip \
     /opt/venv/bin/pip install ".[dev]"
+# The benchmark runners record the commit they ran from, so the tests covering
+# that provenance need /app to be a git work tree. The real history is
+# deliberately not copied into the image, so a stub repository stands in; the
+# tests assert the recording behaviour, not the commit value.
+RUN git init -q /app && \
+    git -C /app config user.email ci@example.invalid && \
+    git -C /app config user.name CI && \
+    git -C /app commit -q --allow-empty -m "container test stub"
 CMD ["/opt/venv/bin/python", "-m", "pytest", "tests", "-q"]
 
 ########## Final minimal image ##########

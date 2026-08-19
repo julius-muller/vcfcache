@@ -50,7 +50,7 @@ dev = [
     "twine>=4.0.0", # twine upload dist/*
 ]
 gnomad = [
-   "hail>=0.2.0" # for pulling from gnomAD via scripts/export_gnomad_hail.py - HUGE number of deps, increases docker by 1GB!
+   "hail>=0.2.127" # for pulling from gnomAD via scripts/export_gnomad_hail.py; >=0.2.127 fixes GHSA OIDC email-claim verification - HUGE number of deps, increases docker by 1GB!
 ]
 
 [project.scripts]
