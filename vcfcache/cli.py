@@ -166,7 +166,7 @@ def _print_annotation_command(
             raise FileNotFoundError(
                 f"Could not find annotation.yaml in {path_hint}. "
                 f"Please provide path to a specific cache directory. Error: {e}"
-            )
+            ) from e
 
     anno_text = params_file.read_text()
     anno = yaml.safe_load(anno_text) or {}
@@ -876,7 +876,7 @@ def main() -> None:
     )
 
     # demo command
-    demo_parser = subparsers.add_parser(
+    subparsers.add_parser(
         "demo",
         help="Run comprehensive smoke test of all vcfcache commands",
         parents=[parent_parser],
@@ -1064,9 +1064,6 @@ def main() -> None:
                 return True
 
             # Handle source: local directory or Zenodo DOI
-            skip_annotation = (
-                False  # Initialize - may be set to True for existing caches
-            )
 
             if args.doi:
                 zenodo_env = "sandbox" if args.debug else "production"
@@ -2108,10 +2105,10 @@ def main() -> None:
 
     except ZenodoError as e:
         logger.error(str(e))
-        raise SystemExit(2)
+        raise SystemExit(2) from e
     except KeyboardInterrupt:
         logger.error("Interrupted.")
-        raise SystemExit(130)
+        raise SystemExit(130) from None
     except Exception as e:
         # Keep traceback for unexpected failures (useful for bug reports).
         logger.error(f"Error during execution: {e}")

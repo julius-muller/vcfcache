@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 def extract_section(changelog: str, version: str) -> str:
+    """Return the changelog body for one version heading."""
     header_re = re.compile(r"^##\s+(.+?)\s*$", re.M)
     headers = list(header_re.finditer(changelog))
 
@@ -28,6 +29,7 @@ def extract_section(changelog: str, version: str) -> str:
 
 
 def main() -> None:
+    """Print the changelog section for the requested version."""
     parser = argparse.ArgumentParser(
         description="Extract a version section from CHANGELOG.md for GitHub Release notes."
     )

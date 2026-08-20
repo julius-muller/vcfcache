@@ -254,8 +254,6 @@ def compare_runs(dir1: Path, dir2: Path) -> None:
     # Fill threads/timestamps from snapshots/completion flag
     params1 = _load_params_snapshot(dir1)
     params2 = _load_params_snapshot(dir2)
-    anno_text1 = _load_annotation_snapshot(dir1)
-    anno_text2 = _load_annotation_snapshot(dir2)
     extra_keys1 = _extra_param_keys(params1)
     extra_keys2 = _extra_param_keys(params2)
     extra_key_union = sorted(set(extra_keys1) | set(extra_keys2))

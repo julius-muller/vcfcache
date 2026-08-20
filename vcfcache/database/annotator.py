@@ -17,9 +17,12 @@ from datetime import datetime
 from logging import Logger
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import pysam
+
+if TYPE_CHECKING:  # pandas is imported lazily, only where it is used
+    import pandas as pd
 import yaml
 
 from vcfcache.database.base import VCFDatabase
@@ -397,7 +400,6 @@ class VCFAnnotator(VCFDatabase):
         self.output_vcf: Optional[Path]
         if self.output_to_stdout:
             self.output_vcf = None
-            output_name = "stdout"
         else:
             output_path = Path(output_file).expanduser()
             if output_path.exists() and output_path.is_dir():
@@ -424,7 +426,6 @@ class VCFAnnotator(VCFDatabase):
                     )
             output_path.parent.mkdir(parents=True, exist_ok=True)
             self.output_vcf = output_path
-            output_name = output_path.name
 
         if self.no_stats and stats_dir:
             raise ValueError("--no-stats cannot be used together with --stats-dir.")
@@ -533,8 +534,38 @@ class VCFAnnotator(VCFDatabase):
 
         raise RuntimeError(
             "No contigs in common between cache and input. "
+            f"{self._chr_prefix_hint(input_set, cache_set)}"
             "Check that both use the same reference genome and contig naming."
         )
+
+    @staticmethod
+    def _chr_prefix_hint(input_set: set[str], cache_set: set[str]) -> str:
+        """Describe a 'chr' prefix mismatch when one fully explains zero overlap.
+
+        A sample called against Ensembl names ('1') and a cache built on UCSC
+        names ('chr1') share no contigs at all, which is indistinguishable from a
+        genuine reference mismatch by contig comparison alone. The two cases are
+        told apart by asking whether adding or removing the prefix turns no
+        matches into every input contig being present in the cache; a partial
+        improvement is not reported, because that indicates a real difference
+        rather than a naming convention.
+        """
+        if not input_set or not cache_set:
+            return ""
+        candidates = (
+            ("adding", {f"chr{c}" for c in input_set}),
+            ("removing", {c[3:] if c.startswith("chr") else c for c in input_set}),
+        )
+        for action, renamed in candidates:
+            if renamed != input_set and renamed <= cache_set:
+                return (
+                    f"Every input contig is present in the cache after {action} the "
+                    "'chr' prefix, so the two use different contig naming conventions "
+                    "for the same assembly rather than different assemblies. Rename "
+                    "the input contigs to match the cache, for example with "
+                    "'bcftools annotate --rename-chrs', and rerun. "
+                )
+        return ""
 
     def _validate_inputs(self) -> None:
         """Validate input files, directories, and YAML parameters."""
@@ -1068,8 +1099,8 @@ class VCFAnnotator(VCFDatabase):
 
         def _md5(lines):
             h = hashlib.md5()
-            for l in lines:
-                h.update((l + "\n").encode())
+            for line in lines:
+                h.update((line + "\n").encode())
             return h.hexdigest()
 
         top_md5 = _md5(top_lines)

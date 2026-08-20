@@ -12,6 +12,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CacheName:
+    """The parsed components of a blueprint or cache alias."""
+
     genome: str
     source: str
     release: str

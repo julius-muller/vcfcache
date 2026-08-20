@@ -70,12 +70,17 @@ class DatabaseInitializer(VCFDatabase):
         self.config_yaml = self.workflow_dir / "init.yaml"
         if params_file:
             shutil.copyfile(Path(params_file).expanduser().resolve(), self.config_yaml)
-            params_path = Path(params_file) if isinstance(params_file, str) else params_file
+            params_path = (
+                Path(params_file) if isinstance(params_file, str) else params_file
+            )
         else:
             # Create minimal params file with all required fields and defaults
             import yaml
+
             minimal_params = {
-                "annotation_tool_cmd": str(bcftools_path),  # Use bcftools as default annotation tool
+                "annotation_tool_cmd": str(
+                    bcftools_path
+                ),  # Use bcftools as default annotation tool
                 "bcftools_cmd": str(bcftools_path),
                 "temp_dir": "/tmp",
                 "threads": 1,  # Default to 1 thread
@@ -120,7 +125,6 @@ class DatabaseInitializer(VCFDatabase):
 
     def _log_contigs(self) -> None:
         """Log a preview of contigs present in the input BCF/VCF (top 30)."""
-
         try:
             result = subprocess.run(
                 [str(self.bcftools_path), "index", "-s", str(self.input_file)],
@@ -257,7 +261,9 @@ class DatabaseInitializer(VCFDatabase):
             # Log contig preview
             self._log_contigs()
             # Pass normalize flag via nextflow_args
-            nextflow_args = ["--normalize"] if getattr(self, "normalize", False) else None
+            nextflow_args = (
+                ["--normalize"] if getattr(self, "normalize", False) else None
+            )
             self.nx_workflow.run(
                 db_mode="blueprint-init",
                 trace=True,
@@ -291,10 +297,11 @@ class DatabaseInitializer(VCFDatabase):
 
             # Write completion flag
             from vcfcache.utils.completion import write_completion_flag
+
             write_completion_flag(
                 output_dir=self.cached_output.root_dir,
                 command="blueprint-init",
-                mode="blueprint-init"
+                mode="blueprint-init",
             )
 
             if not self.debug:

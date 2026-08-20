@@ -14,7 +14,8 @@ import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-MAXCHAR_CACHENAME = 50 # maximum amount of characters allowed for a cachename, to keep organization somewhat tidy
+MAXCHAR_CACHENAME = 50  # maximum amount of characters allowed for a cachename, to keep organization somewhat tidy
+
 
 class BaseOutput(ABC):
     """Partially abstract base for output structures.
@@ -121,7 +122,7 @@ class CacheOutput(BaseOutput):
             "blueprint": self.cache_root_dir / "blueprint",
             "cache": self.cache_root_dir / "cache",
             "workflow": self.workflow_dir,
-            "workflow_src": self.workflow_src_dir
+            "workflow_src": self.workflow_src_dir,
         }
 
     def create_structure(self) -> None:
@@ -136,7 +137,9 @@ class CacheOutput(BaseOutput):
         required_paths = self.required_paths()
 
         # Skip it in validation since it's excluded from create_structure
-        paths_to_check = {k: v for k, v in required_paths.items() if k != "workflow_src"}
+        paths_to_check = {
+            k: v for k, v in required_paths.items() if k != "workflow_src"
+        }
 
         # for path in self.workflow_src_dir.rglob("*"):  # Recursively find all files and dirs
         #     if not path.name.endswith(".config"):  # Exclude .config files

@@ -805,9 +805,6 @@ class WorkflowManager(WorkflowBase):
             BcftoolsCommand(norm_cmd, self.logger, work_task).run()
             input_bcf = normalized_input  # Use normalized input for annotation
 
-        # Use a unique placeholder for stdin when piping
-        STDIN_PLACEHOLDER = "__VCFCACHE_STDIN__"
-
         anno_cmd = self._substitute_variables(
             self.nfa_config_content["annotation_cmd"],
             extra_vars={
@@ -863,7 +860,7 @@ class WorkflowManager(WorkflowBase):
         extra_vars: Optional[Dict[str, str]] = None,
         skip_vars: Optional[list] = None,
     ) -> str:
-        """Replace variables in command strings.
+        r"""Replace variables in command strings.
 
         Order of substitution:
         1. Environment variables (${VCFCACHE_ROOT})

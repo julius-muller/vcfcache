@@ -24,10 +24,10 @@ Or from Python:
 """
 
 import hashlib
-import sys
-import subprocess
-import tempfile
 import shutil
+import subprocess
+import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -38,9 +38,9 @@ _QUIET_MODE = False
 def print_section(title):
     """Print a section header."""
     if not _QUIET_MODE:
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"  {title}")
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
 
 def print_step(step_num, description):
@@ -66,10 +66,11 @@ def format_duration(seconds):
 def collect_detailed_timings(cache_dir, cached_stats_dir, uncached_stats_dir):
     """Collect detailed timing information from workflow log files."""
     import re
+
     detailed_timings = {}
 
     # Pattern to match timing log lines
-    timing_pattern = re.compile(r'Command completed in ([\d.]+)s: (.+)')
+    timing_pattern = re.compile(r"Command completed in ([\d.]+)s: (.+)")
 
     # Collect from cache operations
     for subdir in ["blueprint", "cache/demo_cache"]:
@@ -129,7 +130,7 @@ def show_step_timing(log_file, shown_lines=None):
     if not log_file.exists():
         return shown_lines
 
-    timing_pattern = re.compile(r'Command completed in ([\d.]+)s: (.+)')
+    timing_pattern = re.compile(r"Command completed in ([\d.]+)s: (.+)")
     operations = []
 
     with log_file.open() as f:
@@ -165,12 +166,7 @@ def run_command(cmd, description, cwd=None):
     start_time = time.time()
 
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=cwd
-        )
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
 
         duration = time.time() - start_time
 
@@ -188,10 +184,10 @@ def run_command(cmd, description, cwd=None):
 
             # Show abbreviated output
             if result.stdout:
-                lines = result.stdout.strip().split('\n')
+                lines = result.stdout.strip().split("\n")
                 if len(lines) > 10:
-                    print(f"\n[Output truncated, showing last 10 lines]")
-                    print('\n'.join(lines[-10:]))
+                    print("\n[Output truncated, showing last 10 lines]")
+                    print("\n".join(lines[-10:]))
                 else:
                     print(f"\n{result.stdout}")
 
@@ -210,6 +206,7 @@ def run_command(cmd, description, cwd=None):
 def get_demo_data_dir():
     """Get the demo_data directory path."""
     import vcfcache
+
     package_dir = Path(vcfcache.__file__).parent
     return package_dir / "demo_data"
 
@@ -249,7 +246,7 @@ def run_smoke_test(keep_files=False, quiet=False):
         "demo_sample.vcf.gz",
         "demo_sample.vcf.gz.csi",
         "demo_params.yaml",
-        "demo_annotation.yaml"
+        "demo_annotation.yaml",
     ]
 
     missing_files = [f for f in required_files if not (demo_data / f).exists()]
@@ -259,14 +256,14 @@ def run_smoke_test(keep_files=False, quiet=False):
 
     if not quiet:
         print(f"✓ Demo data directory: {demo_data}")
-        print(f"✓ All required files present\n")
+        print("✓ All required files present\n")
 
     # Create temporary directory
     temp_dir = Path(tempfile.mkdtemp(prefix="vcfcache_demo_"))
     print(f"Working directory: {temp_dir}")
 
     if keep_files:
-        print(f"Note: Files will be kept for inspection")
+        print("Note: Files will be kept for inspection")
 
     # Track timing for each step
     timings = {}
@@ -291,17 +288,21 @@ def run_smoke_test(keep_files=False, quiet=False):
         print_step(1, "blueprint-init - Create initial cache from variants")
 
         cmd = [
-            sys.executable, "-m", "vcfcache.cli",
+            sys.executable,
+            "-m",
+            "vcfcache.cli",
             "blueprint-init",
-            "--vcf", str(bp_init_file),
-            "--output", str(cache_dir),
+            "--vcf",
+            str(bp_init_file),
+            "--output",
+            str(cache_dir),
             "--force",
             # Note: Multiallelic splitting is now always performed
             # Params file is auto-generated internally
         ]
 
         success, duration = run_command(cmd, "Blueprint initialization")
-        timings['blueprint-init'] = duration
+        timings["blueprint-init"] = duration
         if not success:
             return 1
 
@@ -317,8 +318,8 @@ def run_smoke_test(keep_files=False, quiet=False):
         stats_cmd = ["bcftools", "stats", str(blueprint_bcf)]
         result = subprocess.run(stats_cmd, capture_output=True, text=True)
         if result.returncode == 0:
-            for line in result.stdout.split('\n'):
-                if line.startswith('SN') and 'number of records' in line:
+            for line in result.stdout.split("\n"):
+                if line.startswith("SN") and "number of records" in line:
                     print(f"  {line.split(':')[1].strip()}")
                     break
 
@@ -334,24 +335,28 @@ def run_smoke_test(keep_files=False, quiet=False):
         print_step(2, "blueprint-extend - Add more variants to cache")
 
         cmd = [
-            sys.executable, "-m", "vcfcache.cli",
+            sys.executable,
+            "-m",
+            "vcfcache.cli",
             "blueprint-extend",
-            "--db", str(cache_dir),
-            "-i", str(bp_extend_file)
+            "--db",
+            str(cache_dir),
+            "-i",
+            str(bp_extend_file),
         ]
 
         success, duration = run_command(cmd, "Blueprint extension")
-        timings['blueprint-extend'] = duration
+        timings["blueprint-extend"] = duration
         if not success:
             return 1
 
-        print(f"\n✓ Blueprint extended with additional variants")
+        print("\n✓ Blueprint extended with additional variants")
 
         # Show updated stats
         result = subprocess.run(stats_cmd, capture_output=True, text=True)
         if result.returncode == 0:
-            for line in result.stdout.split('\n'):
-                if line.startswith('SN') and 'number of records' in line:
+            for line in result.stdout.split("\n"):
+                if line.startswith("SN") and "number of records" in line:
                     print(f"  {line.split(':')[1].strip()}")
                     break
 
@@ -366,17 +371,23 @@ def run_smoke_test(keep_files=False, quiet=False):
         print_step(3, "cache-build - Annotate the blueprint")
 
         cmd = [
-            sys.executable, "-m", "vcfcache.cli",
+            sys.executable,
+            "-m",
+            "vcfcache.cli",
             "cache-build",
-            "--name", "demo_cache",
-            "--db", str(cache_dir),
-            "-a", str(annotation_file),
-            "-y", str(params_file),
-            "--force"
+            "--name",
+            "demo_cache",
+            "--db",
+            str(cache_dir),
+            "-a",
+            str(annotation_file),
+            "-y",
+            str(params_file),
+            "--force",
         ]
 
         success, duration = run_command(cmd, "Cache build")
-        timings['cache-build'] = duration
+        timings["cache-build"] = duration
         if not success:
             return 1
 
@@ -392,9 +403,9 @@ def run_smoke_test(keep_files=False, quiet=False):
         header_cmd = ["bcftools", "view", "-h", str(cache_bcf)]
         result = subprocess.run(header_cmd, capture_output=True, text=True)
         if result.returncode == 0 and "##INFO=<ID=CSQ," in result.stdout:
-            print(f"✓ Annotation tag CSQ present in cache")
+            print("✓ Annotation tag CSQ present in cache")
         else:
-            print(f"⚠ Warning: CSQ not found in cache header")
+            print("⚠ Warning: CSQ not found in cache header")
 
         # Show detailed timing for this step
         cache_log = cache_dir / "cache" / "demo_cache" / "workflow.log"
@@ -410,18 +421,25 @@ def run_smoke_test(keep_files=False, quiet=False):
         output_bcf = temp_dir / "demo_sample_vc.bcf"
         stats_out_dir = stats_dir / f"{output_bcf.name}_vcstats"
         cmd = [
-            sys.executable, "-m", "vcfcache.cli",
+            sys.executable,
+            "-m",
+            "vcfcache.cli",
             "annotate",
-            "-a", str(cache_dir / "cache" / "demo_cache"),
-            "--vcf", str(sample_file),
-            "--output", str(output_bcf),
-            "--stats-dir", str(stats_dir),
-            "-y", str(params_file),
-            "--force"
+            "-a",
+            str(cache_dir / "cache" / "demo_cache"),
+            "--vcf",
+            str(sample_file),
+            "--output",
+            str(output_bcf),
+            "--stats-dir",
+            str(stats_dir),
+            "-y",
+            str(params_file),
+            "--force",
         ]
 
         success, duration = run_command(cmd, "Sample annotation")
-        timings['annotate (cached)'] = duration
+        timings["annotate (cached)"] = duration
         if not success:
             return 1
 
@@ -436,8 +454,8 @@ def run_smoke_test(keep_files=False, quiet=False):
         stats_cmd = ["bcftools", "stats", str(output_bcf)]
         result = subprocess.run(stats_cmd, capture_output=True, text=True)
         if result.returncode == 0:
-            for line in result.stdout.split('\n'):
-                if line.startswith('SN') and 'number of records' in line:
+            for line in result.stdout.split("\n"):
+                if line.startswith("SN") and "number of records" in line:
                     print(f"  {line.split(':')[1].strip()}")
                     break
 
@@ -445,7 +463,7 @@ def run_smoke_test(keep_files=False, quiet=False):
         header_cmd = ["bcftools", "view", "-h", str(output_bcf)]
         result = subprocess.run(header_cmd, capture_output=True, text=True)
         if result.returncode == 0 and "##INFO=<ID=CSQ," in result.stdout:
-            print(f"✓ Annotation tag CSQ present in output")
+            print("✓ Annotation tag CSQ present in output")
 
         # Show detailed timing for this step
         output_log = stats_out_dir / "workflow.log"
@@ -462,19 +480,28 @@ def run_smoke_test(keep_files=False, quiet=False):
         output_bcf_uncached = temp_dir / "demo_sample_uncached_vc.bcf"
         stats_out_uncached = stats_dir / f"{output_bcf_uncached.name}_vcstats"
         cmd_uncached = [
-            sys.executable, "-m", "vcfcache.cli",
+            sys.executable,
+            "-m",
+            "vcfcache.cli",
             "annotate",
-            "-a", str(cache_dir / "cache" / "demo_cache"),
-            "--vcf", str(sample_file),
-            "--output", str(output_bcf_uncached),
-            "--stats-dir", str(stats_dir),
-            "-y", str(params_file),
+            "-a",
+            str(cache_dir / "cache" / "demo_cache"),
+            "--vcf",
+            str(sample_file),
+            "--output",
+            str(output_bcf_uncached),
+            "--stats-dir",
+            str(stats_dir),
+            "-y",
+            str(params_file),
             "--uncached",  # Force full annotation without cache
-            "--force"
+            "--force",
         ]
 
-        success, duration = run_command(cmd_uncached, "Uncached annotation (for validation)")
-        timings['annotate (uncached)'] = duration
+        success, duration = run_command(
+            cmd_uncached, "Uncached annotation (for validation)"
+        )
+        timings["annotate (uncached)"] = duration
         if not success:
             print("✗ ERROR: Uncached annotation failed")
             print("This is a critical issue - uncached mode must work for validation.")
@@ -519,10 +546,16 @@ def run_smoke_test(keep_files=False, quiet=False):
             print("\n✓ SUCCESS: Cached and uncached outputs are identical!")
         else:
             print("\n⚠ WARNING: Cached and uncached outputs differ (MD5 mismatch)")
-            print("This may indicate a problem with the caching logic, OR it may be due to")
-            print("non-deterministic behavior in the annotation tool itself (e.g., VEP ≥113).")
+            print(
+                "This may indicate a problem with the caching logic, OR it may be due to"
+            )
+            print(
+                "non-deterministic behavior in the annotation tool itself (e.g., VEP ≥113)."
+            )
             print("See: https://github.com/Ensembl/ensembl-vep/issues/1959")
-            print("\nRecommendation: Verify annotations semantically (same variants have same CSQ tags)")
+            print(
+                "\nRecommendation: Verify annotations semantically (same variants have same CSQ tags)"
+            )
             print("rather than relying solely on MD5 checksums for validation.")
             # Don't fail the test - this is a known issue with some annotation tools
             print("\n✓ Demo completed (with MD5 warning)")
@@ -567,7 +600,9 @@ def run_smoke_test(keep_files=False, quiet=False):
                 print(f"\n  {step_name}:")
                 for cmd, duration in operations:
                     pct = (duration / step_total * 100) if step_total > 0 else 0
-                    print(f"    {cmd:30s}: {format_duration(duration):>10s}  ({pct:5.1f}%)")
+                    print(
+                        f"    {cmd:30s}: {format_duration(duration):>10s}  ({pct:5.1f}%)"
+                    )
                 print(f"    {'Subtotal':30s}: {format_duration(step_total):>10s}")
             print("─" * 60 + "\n")
 
@@ -575,7 +610,7 @@ def run_smoke_test(keep_files=False, quiet=False):
         if keep_files:
             print(f"Working files kept at: {temp_dir}")
         else:
-            print(f"Cleaning up temporary files...")
+            print("Cleaning up temporary files...")
 
         return 0
 
@@ -585,6 +620,7 @@ def run_smoke_test(keep_files=False, quiet=False):
     except Exception as e:
         print(f"\n\n✗ Demo failed with error: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
     finally:
@@ -592,6 +628,6 @@ def run_smoke_test(keep_files=False, quiet=False):
         if not keep_files and temp_dir.exists():
             try:
                 shutil.rmtree(temp_dir)
-                print(f"✓ Cleaned up temporary directory")
+                print("✓ Cleaned up temporary directory")
             except Exception as e:
                 print(f"⚠ Warning: Could not clean up {temp_dir}: {e}")

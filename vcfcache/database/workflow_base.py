@@ -6,11 +6,11 @@
 This module defines the interface that all workflow backends must implement.
 """
 
+import subprocess
 from abc import ABC, abstractmethod
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional, Union
-import subprocess
 
 
 class WorkflowBase(ABC):

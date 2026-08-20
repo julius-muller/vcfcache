@@ -927,3 +927,19 @@ def test_vcf_annotator_init_minimal(monkeypatch, tmp_path):
 
     assert annotator.output_dir.exists()
     assert annotator.annotation_name == "anno1"
+
+
+def test_chr_prefix_hint_detects_naming_mismatch():
+    hint = VCFAnnotator._chr_prefix_hint({"1", "2", "X"}, {"chr1", "chr2", "chrX", "chrY"})
+    assert "adding" in hint and "rename-chrs" in hint
+
+    hint = VCFAnnotator._chr_prefix_hint({"chr1", "chr2"}, {"1", "2", "3"})
+    assert "removing" in hint
+
+
+def test_chr_prefix_hint_silent_when_prefix_does_not_explain_mismatch():
+    # A genuinely different assembly must not be reported as a naming issue.
+    assert VCFAnnotator._chr_prefix_hint({"scaffold_1"}, {"chr1", "chr2"}) == ""
+    # Nor must a prefix change that fixes only some of the contigs.
+    assert VCFAnnotator._chr_prefix_hint({"1", "2", "99"}, {"chr1", "chr2"}) == ""
+    assert VCFAnnotator._chr_prefix_hint(set(), {"chr1"}) == ""

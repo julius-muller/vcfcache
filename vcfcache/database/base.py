@@ -1,19 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (c) 2024-2026 Julius Müller
 
-import importlib.resources
 import json
-import os
-import re
 import shutil
 import subprocess
-import tempfile
 from logging import Logger
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import pysam
-import yaml
 
 from vcfcache.database.outputs import CacheOutput
 from vcfcache.database.workflow_base import WorkflowBase
@@ -303,15 +298,9 @@ class VCFDatabase:
                 try:
                     chr_to_use = variant.chrom
 
-                    # If direct access fails, try mapped version
+                    # If direct access fails, try with/without the 'chr' prefix
                     if chr_to_use not in ref_fasta_file.references:
                         if (
-                            chr_to_use in chrom_map
-                            and chrom_map[chr_to_use] in ref_fasta_file.references
-                        ):
-                            chr_to_use = chrom_map[chr_to_use]
-                        # Try with/without 'chr' prefix
-                        elif (
                             chr_to_use.startswith("chr")
                             and chr_to_use[3:] in ref_fasta_file.references
                         ):

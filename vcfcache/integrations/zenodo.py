@@ -12,14 +12,16 @@ from typing import Optional
 import requests
 
 DEFAULT_HTTP_TIMEOUT = (10, 30)  # (connect, read) seconds
-DEFAULT_ZENODO_HARD_TIMEOUT_S = 60  # wall-clock seconds (best-effort; prevents DNS stalls)
+DEFAULT_ZENODO_HARD_TIMEOUT_S = (
+    60  # wall-clock seconds (best-effort; prevents DNS stalls)
+)
 
 ZENODO_API = "https://zenodo.org/api"
 ZENODO_SANDBOX_API = "https://sandbox.zenodo.org/api"
 
 
 class ZenodoError(RuntimeError):
-    pass
+    """Raised when a Zenodo request fails or returns something unusable."""
 
 
 def _format_bytes(num: int) -> str:
@@ -32,6 +34,7 @@ def _format_bytes(num: int) -> str:
 
 def _progress_enabled() -> bool:
     import sys
+
     return sys.stderr.isatty() or os.environ.get("VCFCACHE_UPLOAD_PROGRESS") == "1"
 
 
@@ -41,10 +44,10 @@ def _zenodo_hard_timeout_seconds() -> int:
         return DEFAULT_ZENODO_HARD_TIMEOUT_S
     try:
         seconds = int(raw)
-    except ValueError:
+    except ValueError as e:
         raise ZenodoError(
             f"Invalid VCFCACHE_ZENODO_HARD_TIMEOUT={raw!r}; must be an integer seconds value."
-        )
+        ) from e
     return max(0, seconds)
 
 
@@ -99,7 +102,6 @@ def download_doi(doi: str, dest: Path, sandbox: bool = False) -> Path:
     Note: For simplicity we pick the first attached file. Records intended for
     vcfcache caches should contain a single tarball.
     """
-
     rec_id = doi.split(".")[-1] if "zenodo" in doi else doi
     url = f"{_api_base(sandbox)}/records/{rec_id}"
     resp = requests.get(url, timeout=30)
@@ -119,6 +121,7 @@ def download_doi(doi: str, dest: Path, sandbox: bool = False) -> Path:
         if show_progress:
             import sys
             import time
+
             last = 0.0
         with open(dest, "wb") as f:
             for chunk in r.iter_content(chunk_size=1 << 20):
@@ -132,17 +135,21 @@ def download_doi(doi: str, dest: Path, sandbox: bool = False) -> Path:
                             if total_len:
                                 msg = f"\rDownloading {dest.name}: {pct:5.1f}% ({_format_bytes(total)}/{_format_bytes(total_len)})"
                             else:
-                                msg = f"\rDownloading {dest.name}: {_format_bytes(total)}"
+                                msg = (
+                                    f"\rDownloading {dest.name}: {_format_bytes(total)}"
+                                )
                             sys.stderr.write(msg)
                             sys.stderr.flush()
                             last = now
         if show_progress:
             import sys
+
             sys.stderr.write("\n")
     return dest
 
 
 def create_deposit(token: str, sandbox: bool = False) -> dict:
+    """Create an empty deposition and return its Zenodo record."""
     url = f"{_api_base(sandbox)}/deposit/depositions"
     resp = requests.post(url, params={"access_token": token}, json={}, timeout=30)
     resp.raise_for_status()
@@ -152,6 +159,7 @@ def create_deposit(token: str, sandbox: bool = False) -> dict:
 def upload_file(
     deposition: dict, path: Path, token: str, sandbox: bool = False
 ) -> dict:
+    """Upload one file into a deposition, retrying on transient failures."""
     bucket = deposition["links"]["bucket"]
     filename = path.name
     file_size = path.stat().st_size
@@ -177,7 +185,9 @@ def upload_file(
                             self.sent += len(chunk)
                             now = time.time()
                             if now - self.last >= 0.5 or self.sent == file_size:
-                                pct = (self.sent / file_size * 100) if file_size else 0.0
+                                pct = (
+                                    (self.sent / file_size * 100) if file_size else 0.0
+                                )
                                 sys.stderr.write(
                                     f"\rUploading {filename}: {pct:5.1f}% ({_format_bytes(self.sent)}/{_format_bytes(file_size)})"
                                 )
@@ -200,12 +210,14 @@ def upload_file(
             resp.raise_for_status()
             if _progress_enabled():
                 import sys
+
                 sys.stderr.write("\n")
             return resp.json()
         except requests.exceptions.RequestException as exc:
             last_err = exc
             if attempt < 2:
                 import time
+
                 time.sleep(2 + attempt)
                 continue
             raise
@@ -215,6 +227,7 @@ def upload_file(
 
 
 def publish_deposit(deposition: dict, token: str, sandbox: bool = False) -> dict:
+    """Publish a deposition, which mints its DOI and makes it immutable."""
     url = deposition["links"]["publish"]
     resp = requests.post(url, params={"access_token": token}, timeout=30)
     resp.raise_for_status()
@@ -239,6 +252,7 @@ def search_zenodo_records(
     Returns:
         List of record dictionaries with blueprints
     """
+
     def _search(query: str) -> list[dict]:
         search_url = f"{_api_base(sandbox)}/records/"
         resp = None
@@ -264,6 +278,7 @@ def search_zenodo_records(
                 last_err = e
                 if attempt < 2:
                     import time
+
                     time.sleep(1 + attempt)
         if resp is None:
             raise ZenodoError(f"Failed to search Zenodo after retries: {last_err}")
@@ -293,7 +308,9 @@ def search_zenodo_records(
                 {
                     "title": metadata.get("title", "Unknown"),
                     "doi": hit.get("doi", "Unknown"),
-                    "created": metadata.get("publication_date", hit.get("created", "Unknown")),
+                    "created": metadata.get(
+                        "publication_date", hit.get("created", "Unknown")
+                    ),
                     "description": metadata.get("description", ""),
                     "keywords": metadata.get("keywords", []),
                     "size_mb": size_mb,
@@ -306,7 +323,6 @@ def search_zenodo_records(
         keywords_raw = record.get("keywords") or []
         keywords = [k.lower() for k in keywords_raw if isinstance(k, str)]
         title = str(record.get("title", "")).lower()
-        desc = str(record.get("description", "")).lower()
 
         has_bp_kw = any(k.startswith("bp-") or k == "blueprint" for k in keywords)
         has_cache_kw = any(k.startswith("cache-") or k == "cache" for k in keywords)
@@ -366,7 +382,9 @@ def resolve_zenodo_alias(
     """
     # If the user passed a DOI or record id directly, just use it.
     if alias_or_doi.startswith("10.") or "zenodo." in alias_or_doi:
-        rec_id = alias_or_doi.split(".")[-1] if "zenodo" in alias_or_doi else alias_or_doi
+        rec_id = (
+            alias_or_doi.split(".")[-1] if "zenodo" in alias_or_doi else alias_or_doi
+        )
         return alias_or_doi, f"zenodo-{rec_id}"
 
     alias = alias_or_doi
@@ -406,7 +424,9 @@ def resolve_zenodo_alias(
             )
         doi = hits[0].get("doi")
         if not doi:
-            raise ZenodoError(f"Resolved record for '{alias}' has no DOI (not published?).")
+            raise ZenodoError(
+                f"Resolved record for '{alias}' has no DOI (not published?)."
+            )
         return doi, alias
     except requests.exceptions.RequestException as e:
         raise ZenodoError(f"Failed to resolve alias on Zenodo: {e}") from e

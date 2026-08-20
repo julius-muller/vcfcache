@@ -7,19 +7,19 @@ This module provides functions for validating VCF/BCF files, checking dependenci
 computing MD5 checksums, and other validation-related tasks.
 """
 
-import pysam
 import logging
 import os
-import subprocess
-import sys
-import shutil
 import re
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Dict, Optional, Tuple
-import yaml
+
+import pysam
 
 # Minimum required bcftools version
 MIN_BCFTOOLS_VERSION = "1.20"
+
 
 def check_duplicate_md5(db_info: dict, new_md5: str) -> bool:
     """Check if a file with the same MD5 was already added."""
@@ -37,11 +37,16 @@ def get_bcf_stats(bcf_path: Path, bcftools_path: Path = None) -> Dict[str, str]:
         bcftools_path: Path to the bcftools binary (required)
     """
     if bcftools_path is None:
-        raise ValueError("bcftools_path must be provided. A specific bcftools path is required.")
+        raise ValueError(
+            "bcftools_path must be provided. A specific bcftools path is required."
+        )
 
     try:
         result = subprocess.run(
-            [str(bcftools_path), "stats", bcf_path], capture_output=True, text=True, check=True
+            [str(bcftools_path), "stats", bcf_path],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         stats = {}
         for line in result.stdout.splitlines():
@@ -70,7 +75,9 @@ def validate_bcf_header(
         tuple: (is_valid, error_message)
     """
     if bcftools_path is None:
-        raise ValueError("bcftools_path must be provided. A specific bcftools path is required.")
+        raise ValueError(
+            "bcftools_path must be provided. A specific bcftools path is required."
+        )
 
     try:
         header = subprocess.run(
@@ -131,7 +138,7 @@ def parse_bcftools_version(version_string: str) -> tuple[int, int, int]:
         (1, 22, 0)
     """
     # Extract version numbers from string like "1.20" or "1.22+htslib-1.22"
-    match = re.match(r'(\d+)\.(\d+)(?:\.(\d+))?', version_string)
+    match = re.match(r"(\d+)\.(\d+)(?:\.(\d+))?", version_string)
     if not match:
         raise ValueError(f"Could not parse bcftools version: {version_string}")
 
@@ -216,13 +223,13 @@ def check_bcftools_version(bcftools_path: str) -> str:
             capture_output=True,
             text=True,
             check=True,
-            timeout=5
+            timeout=5,
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Failed to get bcftools version: {e}")
-    except subprocess.TimeoutExpired:
-        raise RuntimeError("bcftools version check timed out")
+        raise RuntimeError(f"Failed to get bcftools version: {e}") from e
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError("bcftools version check timed out") from e
 
 
 def check_bcftools_installed(min_version: str = MIN_BCFTOOLS_VERSION) -> str:
@@ -302,8 +309,7 @@ def check_bcftools_installed(min_version: str = MIN_BCFTOOLS_VERSION) -> str:
     except Exception as e:
         error_msg = f"Error checking bcftools installation: {e}"
         logger.error(error_msg)
-        raise RuntimeError(error_msg)
-
+        raise RuntimeError(error_msg) from e
 
 
 def compute_md5(file_path: Path) -> str:

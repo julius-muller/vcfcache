@@ -29,7 +29,11 @@ def get_git_commit_hash() -> Optional[str]:
             timeout=2,
         )
         return result.stdout.strip()
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ):
         return None
 
 
@@ -51,6 +55,7 @@ def write_completion_flag(
     if version is None:
         try:
             from vcfcache import __version__
+
             version = __version__
         except ImportError:
             version = "unknown"

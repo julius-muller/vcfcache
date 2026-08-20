@@ -15,6 +15,7 @@ import os
 import sys
 import urllib.request
 from pathlib import Path
+
 import hail as hl
 
 
@@ -38,7 +39,7 @@ def download_gcs_connector() -> str:
     # Download from Maven Central
     url = "https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.30/gcs-connector-hadoop3-2.2.30-shaded.jar"
 
-    print(f"Downloading GCS connector v2.2.30 (~35MB)...")
+    print("Downloading GCS connector v2.2.30 (~35MB)...")
     print(f"URL: {url}")
 
     try:
@@ -129,10 +130,10 @@ def export_gnomad_bcf(
     # Choose bucket based on use_public_bucket flag
     if use_public_bucket:
         bucket = "gcp-public-data--gnomad"
-        print(f"Using public gnomAD bucket")
+        print("Using public gnomAD bucket")
     else:
         bucket = "gnomad-public-requester-pays"
-        print(f"Using requester-pays bucket")
+        print("Using requester-pays bucket")
         if not gcs_project:
             print("WARNING: No GCS project provided for requester-pays bucket")
 
@@ -203,8 +204,8 @@ def export_gnomad_bcf(
     print(f"✓ Index file created: {vcf_path}.tbi")
 
     # Convert to BCF if bcftools is available
-    import subprocess
     import shutil
+    import subprocess
 
     if shutil.which("bcftools"):
         bcf_path = output_path
@@ -227,6 +228,7 @@ def export_gnomad_bcf(
 
 
 def main():
+    """Export gnomAD variants from a Hail table to BCF."""
     parser = argparse.ArgumentParser(
         description="Export gnomAD variants from Hail table to BCF format",
         formatter_class=argparse.RawDescriptionHelpFormatter,

@@ -25,7 +25,6 @@ def tar_cache(cache_dir: Path, tar_path: Path, compression: str = "gz") -> Path:
     Returns:
         Path to the created tarball.
     """
-
     cache_dir = cache_dir.expanduser().resolve()
     tar_path = tar_path.expanduser().resolve()
     mode = f"w:{compression}" if compression else "w"
@@ -60,7 +59,6 @@ def tar_cache_subset(
     Returns:
         Path to the created tarball.
     """
-
     cache_dir = cache_dir.expanduser().resolve()
     tar_path = tar_path.expanduser().resolve()
     mode = f"w:{compression}" if compression else "w"
@@ -106,7 +104,6 @@ def extract_cache(tar_path: Path, dest_dir: Path) -> Path:
     Returns:
         Path to the extracted cache root (dest_dir/<cache_name>).
     """
-
     tar_path = tar_path.expanduser().resolve()
     dest_dir = dest_dir.expanduser().resolve()
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -122,7 +119,6 @@ def extract_cache(tar_path: Path, dest_dir: Path) -> Path:
 
 def file_md5(path: Path, chunk: int = 1 << 20) -> str:
     """Compute md5 hash of a file (Zenodo supplies md5)."""
-
     h = hashlib.md5()
     with open(path, "rb") as f:
         for block in iter(lambda: f.read(chunk), b""):
@@ -132,7 +128,6 @@ def file_md5(path: Path, chunk: int = 1 << 20) -> str:
 
 def dir_md5(paths: Iterable[Path]) -> str:
     """Compute md5 over multiple files deterministically (path + data)."""
-
     h = hashlib.md5()
     for p in sorted(paths, key=lambda p: str(p)):
         h.update(str(p).encode())

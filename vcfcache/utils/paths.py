@@ -8,7 +8,6 @@ regardless of how the package is installed.
 """
 
 import os
-from importlib import resources
 from pathlib import Path
 
 
@@ -20,7 +19,7 @@ def get_project_root():
 
     here = Path(__file__).resolve()
     dev_root = here.parent.parent.parent  # repo root in editable/dev installs
-    pkg_root = here.parent.parent         # installed package root (site-packages/vcfcache)
+    pkg_root = here.parent.parent  # installed package root (site-packages/vcfcache)
 
     # Prefer repo root if we see pyproject.toml (editable/development)
     if (dev_root / "pyproject.toml").exists():

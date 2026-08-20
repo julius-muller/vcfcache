@@ -14,6 +14,31 @@ permissions:
   packages: write  # For pushing to GHCR
 
 jobs:
+  lint:
+    name: ruff and black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install lint tools
+        run: uv venv .venv && uv pip install --python .venv/bin/python -e ".[dev]"
+
+      - name: ruff
+        run: .venv/bin/ruff check vcfcache benchmarks scripts
+
+      - name: black
+        run: .venv/bin/black --check vcfcache
+
   pytest:
     name: pytest (host)
     runs-on: ubuntu-latest

@@ -64,9 +64,12 @@ class DatabaseUpdater(VCFDatabase):
             else:
                 # Auto-generate minimal params file with all required fields
                 import yaml
+
                 self.params_file = self.workflow_dir / "extend.yaml"
                 minimal_params = {
-                    "annotation_tool_cmd": str(bcftools_path),  # Use bcftools as default
+                    "annotation_tool_cmd": str(
+                        bcftools_path
+                    ),  # Use bcftools as default
                     "bcftools_cmd": str(bcftools_path),
                     "temp_dir": "/tmp",
                     "threads": 1,  # Default to 1 thread
@@ -77,6 +80,7 @@ class DatabaseUpdater(VCFDatabase):
 
         # Initialize workflow backend (pure Python)
         from vcfcache.database.base import create_workflow
+
         self.nx_workflow = create_workflow(
             input_file=self.input_file,
             output_dir=self.blueprint_dir,
@@ -172,12 +176,16 @@ class DatabaseUpdater(VCFDatabase):
 
         try:
             # Get statistics before merge
-            pre_stats = get_bcf_stats(self.blueprint_bcf, bcftools_path=self.bcftools_path)
+            pre_stats = get_bcf_stats(
+                self.blueprint_bcf, bcftools_path=self.bcftools_path
+            )
 
             # Run the workflow in database mode
             start_time = datetime.now()
             # Pass normalize flag via nextflow_args
-            nextflow_args = ["--normalize"] if getattr(self, "normalize", False) else None
+            nextflow_args = (
+                ["--normalize"] if getattr(self, "normalize", False) else None
+            )
             self.nx_workflow.run(
                 db_mode="blueprint-extend",
                 trace=True,
@@ -189,7 +197,9 @@ class DatabaseUpdater(VCFDatabase):
             duration = datetime.now() - start_time
 
             # Get statistics after merge
-            post_stats = get_bcf_stats(self.blueprint_bcf, bcftools_path=self.bcftools_path)
+            post_stats = get_bcf_stats(
+                self.blueprint_bcf, bcftools_path=self.bcftools_path
+            )
 
             # Calculate differences
             diff_stats = {}
@@ -230,10 +240,11 @@ class DatabaseUpdater(VCFDatabase):
 
             # Write completion flag
             from vcfcache.utils.completion import write_completion_flag
+
             write_completion_flag(
                 output_dir=self.cached_output.root_dir,
                 command="blueprint-extend",
-                mode="blueprint-extend"
+                mode="blueprint-extend",
             )
 
             if not self.debug:

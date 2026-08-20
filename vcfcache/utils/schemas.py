@@ -74,7 +74,9 @@ class ParamsYAMLSchema:
     }
 
     @classmethod
-    def validate(cls, data: Dict[str, Any], file_path: Optional[Path] = None) -> tuple[bool, Optional[str]]:
+    def validate(
+        cls, data: Dict[str, Any], file_path: Optional[Path] = None
+    ) -> tuple[bool, Optional[str]]:
         """Validate a dictionary against the params.yaml schema.
 
         Args:
@@ -85,7 +87,10 @@ class ParamsYAMLSchema:
             (is_valid, error_message): Tuple of validation result and error message if invalid
         """
         if not isinstance(data, dict):
-            return False, f"params.yaml must contain a dictionary, got {type(data).__name__}"
+            return (
+                False,
+                f"params.yaml must contain a dictionary, got {type(data).__name__}",
+            )
 
         # Check for forbidden fields FIRST (indicates annotation.yaml was provided instead)
         # This provides a clearer error message than "missing required fields"
@@ -103,8 +108,18 @@ class ParamsYAMLSchema:
         if missing:
             file_hint = f" in {file_path}" if file_path else ""
             # If missing fields AND has annotation.yaml-like structure, give helpful hint
-            has_anno_markers = bool({'annotation_cmd', 'must_contain_info_tag', 'required_tool_version'}.intersection(data.keys()))
-            hint = " (This looks like an annotation.yaml file - use -a, not -y)" if has_anno_markers else ""
+            has_anno_markers = bool(
+                {
+                    "annotation_cmd",
+                    "must_contain_info_tag",
+                    "required_tool_version",
+                }.intersection(data.keys())
+            )
+            hint = (
+                " (This looks like an annotation.yaml file - use -a, not -y)"
+                if has_anno_markers
+                else ""
+            )
             return False, (
                 f"Invalid params.yaml{file_hint}: Missing required fields: {sorted(missing)}. "
                 f"Required fields are: {sorted(cls.REQUIRED_FIELDS)}{hint}"
@@ -129,7 +144,10 @@ class ParamsYAMLSchema:
                         f"got {type(data[field_name]).__name__}"
                     )
                 if field_name == "genome_build" and not data[field_name].strip():
-                    return False, "Invalid params.yaml: Field 'genome_build' must be a non-empty string"
+                    return (
+                        False,
+                        "Invalid params.yaml: Field 'genome_build' must be a non-empty string",
+                    )
 
         # Validate optional_checks if present
         if "optional_checks" in data and not isinstance(data["optional_checks"], dict):
@@ -169,7 +187,7 @@ vep_cache_dir: "/opt/vep/cache"
 
 
 class AnnotationYAMLSchema:
-    """Schema definition for annotation.yaml configuration files.
+    r"""Schema definition for annotation.yaml configuration files.
 
     annotation.yaml files define the annotation workflow - the shell commands
     to execute for annotating variants. These files are stored with the cache
@@ -227,7 +245,9 @@ class AnnotationYAMLSchema:
     }
 
     @classmethod
-    def validate(cls, data: Dict[str, Any], file_path: Optional[Path] = None) -> tuple[bool, Optional[str]]:
+    def validate(
+        cls, data: Dict[str, Any], file_path: Optional[Path] = None
+    ) -> tuple[bool, Optional[str]]:
         """Validate a dictionary against the annotation.yaml schema.
 
         Args:
@@ -238,7 +258,10 @@ class AnnotationYAMLSchema:
             (is_valid, error_message): Tuple of validation result and error message if invalid
         """
         if not isinstance(data, dict):
-            return False, f"annotation.yaml must contain a dictionary, got {type(data).__name__}"
+            return (
+                False,
+                f"annotation.yaml must contain a dictionary, got {type(data).__name__}",
+            )
 
         # Check for forbidden fields (indicates params.yaml was provided instead)
         forbidden_found = cls.FORBIDDEN_FIELDS.intersection(data.keys())
@@ -266,7 +289,10 @@ class AnnotationYAMLSchema:
                     f"got {type(data[field_name]).__name__}"
                 )
             if field_name == "genome_build" and not data[field_name].strip():
-                return False, "Invalid annotation.yaml: Field 'genome_build' must be a non-empty string"
+                return (
+                    False,
+                    "Invalid annotation.yaml: Field 'genome_build' must be a non-empty string",
+                )
 
         # Validate optional_checks if present
         if "optional_checks" in data and not isinstance(data["optional_checks"], dict):
@@ -310,7 +336,9 @@ optional_checks: {{}}
 """
 
 
-def validate_params_yaml(file_path: Path) -> tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
+def validate_params_yaml(
+    file_path: Path,
+) -> tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
     """Load and validate a params.yaml file.
 
     Args:
@@ -331,7 +359,9 @@ def validate_params_yaml(file_path: Path) -> tuple[bool, Optional[str], Optional
     return is_valid, error, data
 
 
-def validate_annotation_yaml(file_path: Path) -> tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
+def validate_annotation_yaml(
+    file_path: Path,
+) -> tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
     """Load and validate an annotation.yaml file.
 
     Args:
