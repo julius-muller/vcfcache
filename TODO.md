@@ -105,3 +105,27 @@ Assess the actual annotation workload and information added per variant for **VE
 ## Completion criterion
 
 We can explain whether an observed runtime difference comes from the annotator, assembly, input cohort, transcript universe, supplementary lookups or output volume. Only then should the manuscript compare VEP and fastVEP across assemblies or claim that one assembly/configuration is faster.
+
+---
+
+## Resolution (2026-08-21)
+
+This document's completion criterion — being able to say whether a runtime
+difference comes from the annotator, the assembly, the cohort, the transcript
+universe, supplementary lookups or output volume — is being addressed by the
+configuration matrix in `benchmarks/ANNOTATION_LEVELS.md`.
+
+The specific finding that closes the "nominal command complexity" concern: VEP's
+offline cache 115 already ships ClinVar 202502, gnomAD exomes v4.1 and gnomAD
+genomes v4.1, so `--everything` is already a clinical-grade configuration. The
+imbalance was therefore not that VEP was over-configured but that fastVEP and
+SnpEff were run at their documented minimums with zero supplementary databases.
+Bringing those two to ClinVar plus gnomAD allele frequencies puts all three at a
+level a practitioner would recognise, without re-running VEP.
+
+The cross-assembly caution in this document still stands and is now handled by
+requiring PGP (GRCh37) in every comparison rather than treating it as optional,
+so no claim rests on GRCh38 cohorts alone.
+
+Runs are archived per `benchmarks/BENCHMARK_ARCHIVE.md`; superseded
+configurations are kept rather than discarded.
