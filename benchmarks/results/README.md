@@ -91,7 +91,11 @@ was flawed and the numbers do not estimate what they appear to.
 | 2026-08-21 | `snpeff-core-grch38-wgs-serial` | **SnpEff core WGS, 12 genomes, serial**; median 8.17x, median hit rate 92.58% | primary |
 | 2026-08-22 | SnpEff clinical gates | GRCh38 and GRCh37 both passed: cached output identical to direct on ANN + CLNSIG + AF | primary |
 | 2026-08-22 | SnpEff core GRCh37 gate | Passed; the newly installed GRCh37.75 database validated against VCFcache | primary |
-| 2026-08-22 | fastVEP clinical annotations | ClinVar and gnomAD `.osa2` built for GRCh38 (GRCh37 in progress) | primary |
+| 2026-08-22 | fastVEP clinical annotations | ClinVar and gnomAD `.osa2` built for **both** assemblies | primary |
+| 2026-08-22 | fastVEP clinical gates | GRCh38 and GRCh37 both passed on CSQ + FV_CLINVAR + FV_GNOMAD | primary |
+| 2026-08-22 | `fastvep_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 625 MB, built in 6:05 | primary |
+| 2026-08-22 | `fastvep_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.9 GB, built in 28:49 | primary |
+| 2026-08-22 | `snpeff_core_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 682 MB, built in 3:01:38 | primary |
 
 ### Measured constants worth keeping in one place
 
@@ -104,3 +108,7 @@ was flawed and the numbers do not estimate what they appear to.
 | SnpEff clinical per-variant cost, GRCh38 | ~2.37 ms | two-point fit, start-up separated |
 | SnpEff clinical start-up | ~215 s | three JVM loads plus database reads |
 | fastVEP cache overhead | 21.7 s + 27.5 us per variant | `benchmarks/analyze_breakeven.py` |
+| SnpEff core cache build, GRCh37, 18.67 M alleles | 3:01:38 | `raw/snpeff/results/build_time_snpeff_core_grch37_af001.txt` |
+| fastVEP clinical cache build, GRCh37 | 6:05 | `raw/richness/results/build_time_fastvep_clinical_grch37_af001.txt` |
+| fastVEP clinical cache build, GRCh38 | 28:49 | `raw/richness/results/build_time_fastvep_clinical_grch38_af001.txt` |
+| Annotations per record, chr22, GRCh37 / GRCh38 | fastVEP 3.19 / 12.14; SnpEff 4.27 / 12.29 | `bcftools query` over the built caches |

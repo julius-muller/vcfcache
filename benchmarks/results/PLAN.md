@@ -58,12 +58,16 @@ Immutable per recipe, so each level needs its own genome-wide build over the
 
 | cache | assembly | estimate | state |
 |---|---|---|---|
-| SnpEff core | GRCh38 | 2:55:28 measured | done |
-| SnpEff core | GRCh37 | ~3 h | building (job 1000) |
-| SnpEff clinical | GRCh38 | ~12.4 h | building (job 995) |
-| SnpEff clinical | GRCh37 | ~8-10 h | building (job 999) |
-| fastVEP clinical | GRCh38 | ~2 h | annotations built; cache outstanding |
-| fastVEP clinical | GRCh37 | ~2 h | annotations building (job 997) |
+| SnpEff core | GRCh38 | 2:55:28 | **done** |
+| SnpEff core | GRCh37 | 3:01:38 | **done** |
+| SnpEff clinical | GRCh38 | ~12.4 h est. | building (job 995) |
+| SnpEff clinical | GRCh37 | ~8-10 h est. | building (job 999) |
+| fastVEP clinical | GRCh38 | 28:49 | **done** |
+| fastVEP clinical | GRCh37 | 6:05 | **done** |
+
+The two fastVEP estimates were ~2 h; both were wrong by more than an order of
+magnitude, in the direction of fastVEP being far cheaper than scaling from
+SnpEff suggested. Estimates in this table are labelled as such.
 
 The partition's `MaxTime` was raised from 12 h to 24 h so the clinical builds fit
 serially. That matters: a split build would still produce a valid cache, but it
@@ -72,13 +76,48 @@ annotation is run.
 
 ## Outstanding
 
-1. Finish the five caches above.
+1. Finish the two SnpEff clinical caches (995, 999); the other three are built.
 2. Campaigns: 12 GRCh38 genomes and 12 PGP GRCh37 genomes, Panel/WES/WGS,
    direct and cached, at both levels.
 3. Fold SnpEff and the clinical level into the manuscript; register the new
    claims in `claims.tsv`.
 4. Reconcile the cohort-confounding wording in `sections/03_findings.md` with the
    requirement that PGP appears in every arm.
+
+## Assembly is a cost axis for one annotator and not the other
+
+Measured on the built caches, chr22, annotations per record:
+
+| | GRCh37 | GRCh38 | ratio | build time ratio |
+|---|---|---|---|---|
+| fastVEP | 3.19 | 12.14 | 3.8x | 4.7x (6:05 -> 28:49) |
+| SnpEff | 4.27 | 12.29 | 2.9x | 0.97x (3:01:38 -> 2:55:28) |
+
+Both annotators agree the assemblies differ: `GRCh37.75` is Ensembl release 75
+and carries a far smaller transcript set than `GRCh38.115`, so every variant has
+roughly a third of the consequences to compute. fastVEP's runtime tracks that
+almost exactly. **SnpEff's does not move at all** -- it took marginally longer on
+the assembly with a third of the work.
+
+So SnpEff's per-variant cost is dominated by fixed per-record overhead rather
+than per-transcript work, while fastVEP's is dominated by the annotation itself.
+
+Two consequences for how the results are read:
+
+- **Hit rates stay comparable across assemblies.** Cache membership is
+  annotator-independent, so the 91.95 / 93.04 / 92.66% across KPGP / SGDP / PGP
+  remains a fair comparison and still defends the ~92% figure.
+- **Speedups are not comparable across assemblies for fastVEP.** A lower fastVEP
+  speedup on the GRCh37 PGP genomes would mean "less per-variant work to return",
+  not a cohort effect. Presenting them side by side without that caveat invites
+  exactly the wrong reading. For SnpEff the assembly is close to a null variable
+  and PGP can be read as a straight replicate.
+
+This strengthens the break-even argument rather than complicating it: caching
+returns per-variant work regardless of whether that work is real computation or
+fixed overhead, and here are two tools at the same nominal annotation level that
+differ in which one it is. That is a less contrived demonstration than the
+`SyntheticDelay.pm` sweep, because nothing was arranged to produce it.
 
 ## Open questions
 
