@@ -1,0 +1,34 @@
+{
+  "assembly": "GRCh38",
+  "campaign_id": "wgs-pipeline-spectrum-4f854e5-kpgp00319",
+  "cohort": "KPGP",
+  "commit": "4f854e51a64e79eac2c1fa865b048c1367d95749",
+  "created_at": "2026-08-10T07:40:56.449866+00:00",
+  "delays_us": [
+    500,
+    1000,
+    2000,
+    4000,
+    7000,
+    10000
+  ],
+  "input_records": 4795706,
+  "input_sha256": "d6475ce97e229330544087887c53897864a777e23fbdd9c20332b4b8fe56ad16",
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+  "prior_observed_hit_rate": 0.8023469328603546,
+  "ready_sha256": "476a7ad44372bce945de2d6b06d4b4edf04788bd33ac095ace0d3016d3a5b38c",
+  "sample": "KPGP-00319",
+  "source_alias": "cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e",
+  "source_doi": "10.5281/zenodo.18189447",
+  "source_files": {
+    "SyntheticDelay.pm": "0255ffa8ec5089c0124e9344c1a8db7fdd8e78752014c94ef8202c129ea0ad6a",
+    "run_pilot.py": "dbf6717e59795b6d62ab5edbbfe504d8e4dbd4e8e765253d6f95cd8cda326a78",
+    "run_wgs_pipeline_spectrum.py": "1b9ea2f9e8cd217f86c62bada2e4c3c051f1263913da29967398c7a9548bb06f",
+    "run_wgs_pipeline_spectrum_task.py": "785bd929fbe60b1a515e3ded0234772168fc68a04f9b841c180fd00e7bdf3a75",
+    "slurm_wgs_pipeline_spectrum.sh": "2dcb9f9b9c7d123efd606bc670252fb3b5e42e2d5a44e1677785f5405ddf48ad"
+  },
+  "spectrum_root": "/mnt/data/vcfcache_benchmarks/wgs_pipeline_spectrum",
+  "statistics_mode": "light",
+  "task_count": 6,
+  "technical_repeats": 0
+}

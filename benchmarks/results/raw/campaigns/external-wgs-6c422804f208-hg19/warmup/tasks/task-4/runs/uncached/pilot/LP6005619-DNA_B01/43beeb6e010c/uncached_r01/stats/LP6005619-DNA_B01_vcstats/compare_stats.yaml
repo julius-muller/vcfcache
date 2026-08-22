@@ -1,0 +1,25 @@
+command: annotate
+mode: uncached
+run_timestamp: '2026-08-04T14:27:19'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-4/runs/uncached/pilot/LP6005619-DNA_B01/43beeb6e010c/uncached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005619-DNA_B01.GRCh38.small_variants.vcf.gz
+input_name: LP6005619-DNA_B01.GRCh38.small_variants.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+variant_counts:
+  total_output: 4998072
+  annotated_output: 4998072
+  tool_annotated: 4998072
+  input_variants: 4998072
+  dropped_variants: 0
+  missing_variants: null
+  missing_annotated: null
+variant_md5:
+  top10: c577b11fb7b2be2f5bcf3c5638dcd9a2
+  bottom10: c577b11fb7b2be2f5bcf3c5638dcd9a2
+  all: null

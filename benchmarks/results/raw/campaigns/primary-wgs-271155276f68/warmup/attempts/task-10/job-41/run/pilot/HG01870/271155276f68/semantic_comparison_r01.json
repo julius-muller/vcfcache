@@ -1,0 +1,73 @@
+{
+  "annotation_mismatches": 5,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "4121dfffac9a5fbd17f200a59a829c07fae4d03362fc84877c3c09a80b5369b0",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "cached": "C|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1327431900|988|1||SNV|EntrezGene|HGNC:56158|||||2||||||||||||||chr9:g.68322619T>C|||||||||||||||||0.0006065|0.0003478|0|0.0001899|0|0.0008628|0.0009387|0|0.0007462|0.001217|0.001241|0.001241|gnomADg_SAS|||||||||,C|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.209T>C||209|||||rs1327431900||1||SNV|EntrezGene|HGNC:",
+      "group": 2385519,
+      "key": [
+        "chr9",
+        "68322619",
+        "T",
+        "C"
+      ],
+      "kind": "CSQ",
+      "uncached": "C|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1327431900|988|1||SNV|EntrezGene||||||2||||||||||||||chr9:g.68322619T>C|||||||||||||||||0.0006065|0.0003478|0|0.0001899|0|0.0008628|0.0009387|0|0.0007462|0.001217|0.001241|0.001241|gnomADg_SAS|||||||||,C|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.209T>C||209|||||rs1327431900||1||SNV|EntrezGene||||||5|||||||||"
+    },
+    {
+      "cached": "G|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1409662939|986|1||SNV|EntrezGene|HGNC:56158|||||2||||||||||||||chr9:g.68322621C>G|||||||||||||||||0.0002918|0.0001789|0|0.0001483|0|0.0003715|0.0004456|0|0.000303|0.00108|0.00103|0.00108|gnomADg_REMAINING|||||||||,G|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.211C>G||211|||||rs1409662939||1||SNV|EntrezGene|HGN",
+      "group": 2385520,
+      "key": [
+        "chr9",
+        "68322621",
+        "C",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1409662939|986|1||SNV|EntrezGene||||||2||||||||||||||chr9:g.68322621C>G|||||||||||||||||0.0002918|0.0001789|0|0.0001483|0|0.0003715|0.0004456|0|0.000303|0.00108|0.00103|0.00108|gnomADg_REMAINING|||||||||,G|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.211C>G||211|||||rs1409662939||1||SNV|EntrezGene||||||5|||||||"
+    },
+    {
+      "cached": "G|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1348515368|842|1||SNV|EntrezGene|HGNC:56158|||||2||||||||||||||chr9:g.68322765A>G|||||||||||||||||0.002698|0.002079|0|0.00309|0.009231|0.005249|0.001126|0|0.002465|0|0.004132|0.009231|gnomADg_ASJ|||||||||,G|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.355A>G||355|||||rs1348515368||1||SNV|EntrezGene|HGNC:56158||",
+      "group": 2385521,
+      "key": [
+        "chr9",
+        "68322765",
+        "A",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1348515368|842|1||SNV|EntrezGene||||||2||||||||||||||chr9:g.68322765A>G|||||||||||||||||0.002698|0.002079|0|0.00309|0.009231|0.005249|0.001126|0|0.002465|0|0.004132|0.009231|gnomADg_ASJ|||||||||,G|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.355A>G||355|||||rs1348515368||1||SNV|EntrezGene||||||5||||||||||||||ch"
+    },
+    {
+      "cached": "G|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1390941636|822|1||SNV|EntrezGene|HGNC:56158|||||2||||||||||||||chr9:g.68322785T>G|||||||||||||||||0.001539|0.001211|0|0.003655|0.001976|0.001404|0.001196|0|0.001501|0|0|0.003655|gnomADg_AMR|||||||||,G|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.375T>G||375|||||rs1390941636||1||SNV|EntrezGene|HGNC:56158|||||5||",
+      "group": 2385522,
+      "key": [
+        "chr9",
+        "68322785",
+        "T",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs1390941636|822|1||SNV|EntrezGene||||||2||||||||||||||chr9:g.68322785T>G|||||||||||||||||0.001539|0.001211|0|0.003655|0.001976|0.001404|0.001196|0|0.001501|0|0|0.003655|gnomADg_AMR|||||||||,G|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.375T>G||375|||||rs1390941636||1||SNV|EntrezGene||||||5||||||||||||||chr9:g.6"
+    },
+    {
+      "cached": "A|intron_variant&non_coding_transcript_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||1/3|ENST00000414223.4:n.220-30C>A|||||||rs781917434||1||SNV|EntrezGene|HGNC:56158|||||2||||||||||||||chr9:g.68325004C>A|||||||0|||||0|||||0.003582|0.0001653|0|0.004726|0|0.05936|0.007117|0|0.0003722|0.004739|0.002732|0.05936|gnomADg_EAS|||||||||,A|intron_variant&non_coding_transcript_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA||2/5|ENST00000429953.",
+      "group": 2385525,
+      "key": [
+        "chr9",
+        "68325004",
+        "C",
+        "A"
+      ],
+      "kind": "CSQ",
+      "uncached": "A|intron_variant&non_coding_transcript_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||1/3|ENST00000414223.4:n.220-30C>A|||||||rs781917434||1||SNV|EntrezGene||||||2||||||||||||||chr9:g.68325004C>A|||||||0|||||0|||||0.003582|0.0001653|0|0.004726|0|0.05936|0.007117|0|0.0003722|0.004739|0.002732|0.05936|gnomADg_EAS|||||||||,A|intron_variant&non_coding_transcript_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA||2/5|ENST00000429953.6:n.1336-3"
+    }
+  ],
+  "key_mismatches": 0,
+  "record_order_only_loci": 1779,
+  "records_compared": 4284975,
+  "semantic_pass": false,
+  "uncached_semantic_sha256": "d6ed64972dd7123dd211cbe8f833786e30deef31edf2bee8f27d200579c89a2e"
+}

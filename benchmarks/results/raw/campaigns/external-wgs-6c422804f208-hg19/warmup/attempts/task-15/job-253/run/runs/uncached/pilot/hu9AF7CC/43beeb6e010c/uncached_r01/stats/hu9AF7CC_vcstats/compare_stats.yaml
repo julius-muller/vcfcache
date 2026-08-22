@@ -1,0 +1,25 @@
+command: annotate
+mode: uncached
+run_timestamp: '2026-08-04T21:40:33'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-15/runs/uncached/pilot/hu9AF7CC/43beeb6e010c/uncached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh37/pgp/hu9AF7CC.GRCh37.small_variants.vcf.gz
+input_name: hu9AF7CC.GRCh37.small_variants.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 3a5e301164cd46890193659b267a24e2
+genome_build_params: GRCh37
+genome_build_annotation: GRCh37
+vcfcache_version: 0.5.3
+threads: 8
+variant_counts:
+  total_output: 4860872
+  annotated_output: 4860872
+  tool_annotated: 4860872
+  input_variants: 4860872
+  dropped_variants: 0
+  missing_variants: null
+  missing_annotated: null
+variant_md5:
+  top10: 8d0a5bfd95e6fa0416d27fafd59bafe1
+  bottom10: 8d0a5bfd95e6fa0416d27fafd59bafe1
+  all: null

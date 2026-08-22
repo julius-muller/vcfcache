@@ -1,0 +1,25 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-07-31T22:33:11'
+output_file: /mnt/data/tmp/vcfcache_runs/primary-wgs-9f02f75fdc54/warmup/task-11/pilot/HG01980/9f02f75fdc54/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/samples/GRCh38/1000g/AMR/HG01980.GRCh38.small_variants.vcf.gz
+input_name: HG01980.GRCh38.small_variants.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_data/caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+variant_counts:
+  total_output: 4303065
+  annotated_output: 4303065
+  tool_annotated: 113750
+  input_variants: null
+  dropped_variants: 0
+  missing_variants: 113750
+  missing_annotated: 113750
+variant_md5:
+  top10: c0b04bff319684e787a3adc29c8adba7
+  bottom10: c0b04bff319684e787a3adc29c8adba7
+  all: null

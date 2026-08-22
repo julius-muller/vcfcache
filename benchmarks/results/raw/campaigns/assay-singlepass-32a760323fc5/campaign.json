@@ -1,0 +1,38 @@
+{
+  "assays": [
+    "wes_twist_core",
+    "panel_acmg_sf_v3.3"
+  ],
+  "campaign_id": "assay-singlepass-32a760323fc5",
+  "commit": "32a760323fc5",
+  "created_at": "2026-08-03T09:07:10.722884+00:00",
+  "design": "single_pass_matched_assays",
+  "excluded_from_selection": {
+    "HG02888": "primary WGS cgroup-OOM exclusion; preserve matched comparisons"
+  },
+  "samples_per_assay": 20,
+  "selected_samples": [
+    "HG01465",
+    "HG01678",
+    "HG01980",
+    "HG02028",
+    "HG02277",
+    "HG02291",
+    "HG02374",
+    "HG03388",
+    "HG03702",
+    "HG03714",
+    "HG04038",
+    "NA12282",
+    "NA18595",
+    "NA18868",
+    "NA19086",
+    "NA19375",
+    "NA19701",
+    "NA20589",
+    "NA20761",
+    "NA21144"
+  ],
+  "selection_per_superpopulation": 4,
+  "tasks": 40
+}

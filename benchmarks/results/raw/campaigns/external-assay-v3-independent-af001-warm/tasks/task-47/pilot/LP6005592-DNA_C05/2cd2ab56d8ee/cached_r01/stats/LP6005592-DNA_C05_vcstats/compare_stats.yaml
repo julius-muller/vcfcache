@@ -1,0 +1,26 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-18T21:37:33'
+output_file: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-47/pilot/LP6005592-DNA_C05/2cd2ab56d8ee/cached_r01/output.bcf
+input_file: /results/campaigns/external-assay-v3-independent-af001-warm/inputs/wes/LP6005592-DNA_C05.GRCh38.wes.vcf.gz
+input_name: LP6005592-DNA_C05.GRCh38.wes.vcf.gz
+cache_name: cache-fastvep-0.3.0-publication
+cache_path: /mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication
+annotation_yaml_md5: 5d0bf02e82cfd8dbec6e3d2fd3c08a52
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: light
+variant_counts:
+  total_output: 108539
+  annotated_output: 108539
+  tool_annotated: 31351
+  input_variants: 108539
+  dropped_variants: 0
+  missing_variants: 31351
+  missing_annotated: 31351
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null

@@ -1,0 +1,16 @@
+{
+  "run_id": "snpeff-core-grch38-wgs-serial",
+  "tool": "SnpEff 5.4c",
+  "database": "GRCh38.115 (stock, snpeff-public.s3.amazonaws.com)",
+  "assembly": "GRCh38",
+  "level": "core",
+  "invocation": "serial (documented single-process form)",
+  "assays": ["wgs"],
+  "genomes": 12,
+  "cohorts": ["kpgp", "sgdp"],
+  "cache": "gnomAD AF>=1%, 18869857 alleles",
+  "slurm_job": 974,
+  "status": "primary",
+  "heap": "8g",
+  "note": "Back-filled: job 974 predates the archive helpers and wrote to snpeff/results/wgs. Timings are as recorded by the job. Concordance was verified separately after the fact: the campaign's order-sensitive digest failed on every sample because same-position records are reordered, and the external-sort fallback exceeded the wall clock. A block-local sort digest on LP6005442-DNA_B04's retained BCF pair gave 6c30559a6696f8778505250bbaf6cfbf for both arms, confirming identical annotation content."
+}

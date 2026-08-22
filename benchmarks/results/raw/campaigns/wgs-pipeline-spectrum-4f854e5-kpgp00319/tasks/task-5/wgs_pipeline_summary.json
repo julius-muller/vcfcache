@@ -1,0 +1,30 @@
+{
+  "assembly": "GRCh38",
+  "cache_hit_rate": 0.8023469328603546,
+  "cached_wall_seconds": 16259.389493432944,
+  "cohort": "KPGP",
+  "delay_us": 10000,
+  "first_mode": "uncached",
+  "input_records": 4795706,
+  "pipeline": "everything_delay_10000us",
+  "relative_runtime": 0.19891465303237266,
+  "sample": "KPGP-00319",
+  "second_mode": "cached",
+  "semantic_comparator": "vep_semantic_with_documented_exceptions_v1",
+  "semantic_pass": true,
+  "speedup": 5.027281724877521,
+  "statistics_mode": "light",
+  "task": {
+    "cache_dir": "/mnt/data/vcfcache_benchmarks/wgs_pipeline_spectrum/cache/everything_delay_10000us",
+    "delay_us": "10000",
+    "first_mode": "uncached",
+    "input_sha256": "d6475ce97e229330544087887c53897864a777e23fbdd9c20332b4b8fe56ad16",
+    "input_vcf": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+    "params_file": "/mnt/data/vcfcache_benchmarks/wgs_pipeline_spectrum/cache/everything_delay_10000us/params.snapshot.yaml",
+    "pipeline": "everything_delay_10000us",
+    "second_mode": "cached",
+    "task_id": "5"
+  },
+  "time_saved_seconds": 65481.14216456807,
+  "uncached_wall_seconds": 81740.53165800101
+}

@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/results/deployment/vcfcache-fastvep-804963323e11/.venv/bin/vcfcache",
+    "annotate",
+    "-a",
+    "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/cohort-pgp/cache/cache-fastvep-0.3.0-publication",
+    "-i",
+    "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh37/pgp/hu6ABACE.GRCh37.small_variants.vcf.gz",
+    "-o",
+    "/mnt/data/tmp/vcfcache_external_runs/external-fastvep-804963323e11-light-strict/measured/task-0/runs/cohort_3_genomes/pilot/hu6ABACE/804963323e11/cached_r01/output.bcf",
+    "--stats-dir",
+    "/mnt/data/tmp/vcfcache_external_runs/external-fastvep-804963323e11-light-strict/measured/task-0/runs/cohort_3_genomes/pilot/hu6ABACE/804963323e11/cached_r01/stats",
+    "--statistics",
+    "light",
+    "-y",
+    "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh37.yaml",
+    "--force"
+  ],
+  "commit": "804963323e11",
+  "mode": "cached",
+  "started_at": "2026-08-06T15:19:22.659774+00:00"
+}

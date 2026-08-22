@@ -1,0 +1,30 @@
+{
+  "cache_hit_rate": 0.9782435525860631,
+  "cached_cgroup_memory_peak_bytes": 5268262912,
+  "cached_max_rss_kib": 710952,
+  "cached_user_seconds": 2932.82,
+  "cached_wall_seconds": 586.4171100099993,
+  "commit": "271155276f68",
+  "fraction_wall_time_saved": 0.9296065465937848,
+  "input_records": 4353606,
+  "replicate": 1,
+  "sample": "HG01612",
+  "semantic_comparison": {
+    "annotation_mismatches": 0,
+    "annotation_order_only": 0,
+    "cached_semantic_sha256": "07ce6467069b6cf52219f1fcd70fdeb501bb81b0db700b54607e28ff7b5faa4c",
+    "csq_headers_equal": true,
+    "examples": [],
+    "key_mismatches": 0,
+    "record_order_only_loci": 897,
+    "records_compared": 4353606,
+    "semantic_pass": true,
+    "uncached_semantic_sha256": "07ce6467069b6cf52219f1fcd70fdeb501bb81b0db700b54607e28ff7b5faa4c"
+  },
+  "speedup": 14.205866477801017,
+  "uncached_cgroup_memory_peak_bytes": 30038749184,
+  "uncached_max_rss_kib": 6155952,
+  "uncached_user_seconds": 56472.83,
+  "uncached_wall_seconds": 8330.5631651,
+  "wall_seconds_saved": 7744.146055090001
+}

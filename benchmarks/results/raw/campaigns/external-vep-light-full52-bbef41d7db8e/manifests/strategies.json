@@ -1,0 +1,164 @@
+{
+  "bundled_strategies_by_assembly": {
+    "GRCh37": [
+      {
+        "alias": "cache-gnomad-v4.1-GRCh37-joint-af01-vep115.2-e",
+        "annotation_yaml_sha256": "fa5cae5faef3874f92a57954926117ce40f09563fcffdd66f59c3ea2bb5735a7",
+        "assembly": "GRCh37",
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af010/cache/vep115.2_everything",
+        "doi": "10.5281/zenodo.18189051",
+        "kind": "bundled_zenodo",
+        "name": "gnomad_af_0.1",
+        "provenance_expected": {
+          "alias": "cache-gnomad-v4.1-GRCh37-joint-af01-vep115.2-e",
+          "archive_md5": "96bb1edd0e067d9c933256bd112e4589",
+          "archive_md5_verified": true,
+          "doi": "10.5281/zenodo.18189051",
+          "source": "zenodo_production"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af010/zenodo_provenance.json"
+      },
+      {
+        "alias": "cache-gnomad-v4.1-GRCh37-joint-af001-vep115.2-e",
+        "annotation_yaml_sha256": "fa5cae5faef3874f92a57954926117ce40f09563fcffdd66f59c3ea2bb5735a7",
+        "assembly": "GRCh37",
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af001/cache/vep115.2_everything",
+        "doi": "10.5281/zenodo.18189348",
+        "kind": "bundled_zenodo",
+        "name": "gnomad_af_0.01",
+        "provenance_expected": {
+          "alias": "cache-gnomad-v4.1-GRCh37-joint-af001-vep115.2-e",
+          "archive_md5": "f7d246a7adf44b778d6dc1383153eff2",
+          "archive_md5_verified": true,
+          "doi": "10.5281/zenodo.18189348",
+          "source": "zenodo_production"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af001/zenodo_provenance.json"
+      }
+    ],
+    "GRCh38": [
+      {
+        "alias": "cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e",
+        "annotation_yaml_sha256": "cda583eab6436aea3b18ec6ac7768a9062a9d115aa4bedc38f5f3e7dda385973",
+        "assembly": "GRCh38",
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af010/cache/vep115.2_everything",
+        "doi": "10.5281/zenodo.18189447",
+        "kind": "bundled_zenodo",
+        "name": "gnomad_af_0.1",
+        "provenance_expected": {
+          "alias": "cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e",
+          "archive_md5": "088cf426461a51b77bdfcd5dcd2233f4",
+          "archive_md5_verified": true,
+          "doi": "10.5281/zenodo.18189447",
+          "source": "zenodo_production"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af010/zenodo_provenance.json"
+      },
+      {
+        "alias": "cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+        "annotation_yaml_sha256": "cda583eab6436aea3b18ec6ac7768a9062a9d115aa4bedc38f5f3e7dda385973",
+        "assembly": "GRCh38",
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything",
+        "doi": "10.5281/zenodo.18190046",
+        "kind": "bundled_zenodo",
+        "name": "gnomad_af_0.01",
+        "provenance_expected": {
+          "alias": "cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+          "archive_md5": "3ac438461eac0cf42c75717156d7b2d4",
+          "archive_md5_verified": true,
+          "doi": "10.5281/zenodo.18190046",
+          "source": "zenodo_production"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/zenodo_provenance.json"
+      }
+    ]
+  },
+  "cohort_assemblies": {
+    "kpgp": "GRCh38",
+    "pgp": "GRCh37",
+    "sgdp": "GRCh38"
+  },
+  "cohort_strategies": {
+    "kpgp": {
+      "annotation_yaml_sha256": "cda583eab6436aea3b18ec6ac7768a9062a9d115aa4bedc38f5f3e7dda385973",
+      "assembly": "GRCh38",
+      "build_wall_seconds": 13373.921280987095,
+      "cache_dir": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/kpgp/cohort3_database/cache/vep115.2_everything",
+      "kind": "custom_cohort",
+      "name": "cohort_3_genomes",
+      "provenance_expected": {
+        "assembly": "GRCh38",
+        "cohort": "kpgp",
+        "complete": true,
+        "kind": "custom_cohort_three_disjoint_genomes"
+      },
+      "provenance_path": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/kpgp/cohort3_cache_provenance.json",
+      "training_samples": [
+        "KPGP-00006",
+        "KPGP-00145",
+        "KPGP-00331"
+      ]
+    },
+    "pgp": {
+      "annotation_yaml_sha256": "fa5cae5faef3874f92a57954926117ce40f09563fcffdd66f59c3ea2bb5735a7",
+      "assembly": "GRCh37",
+      "build_wall_seconds": 6666.096884398721,
+      "cache_dir": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/pgp/cohort3_database/cache/vep115.2_everything",
+      "kind": "custom_cohort",
+      "name": "cohort_3_genomes",
+      "provenance_expected": {
+        "assembly": "GRCh37",
+        "cohort": "pgp",
+        "complete": true,
+        "kind": "custom_cohort_three_disjoint_genomes"
+      },
+      "provenance_path": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/pgp/cohort3_cache_provenance.json",
+      "training_samples": [
+        "hu24385B",
+        "hu832966",
+        "huCF305F"
+      ]
+    },
+    "sgdp": {
+      "annotation_yaml_sha256": "cda583eab6436aea3b18ec6ac7768a9062a9d115aa4bedc38f5f3e7dda385973",
+      "assembly": "GRCh38",
+      "build_wall_seconds": 14229.116775874048,
+      "cache_dir": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/cache/vep115.2_everything",
+      "kind": "custom_cohort",
+      "name": "cohort_3_genomes",
+      "provenance_expected": {
+        "assembly": "GRCh38",
+        "cohort": "sgdp",
+        "complete": true,
+        "kind": "custom_cohort_three_disjoint_genomes"
+      },
+      "provenance_path": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_cache_provenance.json",
+      "training_samples": [
+        "LP6005443-DNA_G03",
+        "LP6005619-DNA_C01",
+        "LP6005677-DNA_C03"
+      ]
+    }
+  },
+  "commit": "bbef41d7db8e73c1634d682fe88a979fe5350ab9",
+  "created_at": "2026-08-07T06:13:41.995827+00:00",
+  "runtime_params_by_assembly": {
+    "GRCh37": {
+      "controller_path": "/mnt/data/slurm-results/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/runtime_params_GRCh37.yaml",
+      "path": "/results/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/runtime_params_GRCh37.yaml",
+      "sha256": "aacbe3028d4b1a5d14a416202b75fb64c74d0a0b57b7208652cf352c5201c70e",
+      "source": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af010/cache/vep115.2_everything/params.snapshot.yaml",
+      "source_sha256": "ec1757c68479e4e91a246e64d19ca9e1268c70faec08d765512441439ee9c4ee",
+      "vep_buffer": 100000
+    },
+    "GRCh38": {
+      "controller_path": "/mnt/data/slurm-results/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/runtime_params_GRCh38.yaml",
+      "path": "/results/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/runtime_params_GRCh38.yaml",
+      "sha256": "323a7d4a5411c64717bcfa6f7fbb18558ca489e10c649067fd68e1ab4e2e344f",
+      "source": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af010/cache/vep115.2_everything/params.snapshot.yaml",
+      "source_sha256": "02a14bb11b80074a549b5611c19a27d1a90e15dc77e5b90441b2ff03c9a40f8a",
+      "vep_buffer": 100000
+    }
+  },
+  "tool": "vep"
+}

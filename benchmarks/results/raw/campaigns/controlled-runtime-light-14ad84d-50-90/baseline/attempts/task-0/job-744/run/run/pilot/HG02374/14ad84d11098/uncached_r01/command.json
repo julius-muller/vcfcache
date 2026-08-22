@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/mnt/data/vcfcache/.venv/bin/vcfcache",
+    "annotate",
+    "-a",
+    "/mnt/data/vcfcache_benchmarks/controlled_runtime/caches/vanilla/hit-050",
+    "-i",
+    "/mnt/data/vcfcache_benchmarks/samples/GRCh38/wes_twist_core/HG02374.GRCh38.wes_twist_core.vcf.gz",
+    "-o",
+    "/mnt/data/tmp/vcfcache_controlled_runs/controlled-runtime-light-14ad84d-50-90/baseline/task-0/run/pilot/HG02374/14ad84d11098/uncached_r01/output.bcf",
+    "--stats-dir",
+    "/mnt/data/tmp/vcfcache_controlled_runs/controlled-runtime-light-14ad84d-50-90/baseline/task-0/run/pilot/HG02374/14ad84d11098/uncached_r01/stats",
+    "--statistics",
+    "light",
+    "-y",
+    "/mnt/data/vcfcache_benchmarks/controlled_runtime/caches/vanilla/hit-050/params.snapshot.yaml",
+    "--force",
+    "--uncached"
+  ],
+  "commit": "14ad84d11098",
+  "mode": "uncached",
+  "started_at": "2026-08-10T07:16:51.792332+00:00"
+}

@@ -1,0 +1,26 @@
+command: annotate
+mode: uncached
+run_timestamp: '2026-08-10T09:24:10'
+output_file: /mnt/data/tmp/vcfcache_controlled_runs/controlled-runtime-light-cc100c0-50-90/baseline/task-0/run/pilot/HG02374/cc100c0331ae/uncached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/samples/GRCh38/wes_twist_core/HG02374.GRCh38.wes_twist_core.vcf.gz
+input_name: HG02374.GRCh38.wes_twist_core.vcf.gz
+cache_name: hit-050
+cache_path: /mnt/data/vcfcache_benchmarks/controlled_runtime/caches/vanilla/hit-050
+annotation_yaml_md5: 5d3b627d4348a5966449216cd347b9ab
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: light
+variant_counts:
+  total_output: 76468
+  annotated_output: 76468
+  tool_annotated: 76468
+  input_variants: 76468
+  dropped_variants: 0
+  missing_variants: null
+  missing_annotated: null
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null

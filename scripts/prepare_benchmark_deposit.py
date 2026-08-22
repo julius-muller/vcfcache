@@ -31,7 +31,7 @@ CONTENTS = [
     ("analysis code", "benchmarks/analyze_assay_benchmark.py"),
     ("analysis code", "benchmarks/analyze_external_benchmark.py"),
     ("materials and methods", "benchmarks/MATERIALS_AND_METHODS.md"),
-    ("storage layout", "benchmarks/STORAGE_LAYOUT.md"),
+    ("storage layout", "benchmarks/docs/STORAGE_LAYOUT.md"),
     ("source provenance", "benchmarks/SOURCE_PROVENANCE.md"),
     ("runnable example data", "vcfcache/demo_data"),
 ]

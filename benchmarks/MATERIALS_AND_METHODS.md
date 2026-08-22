@@ -11,7 +11,7 @@ run archive; pilot values must not be substituted for full-cohort values.
 > estimate the public-cache hit-rate distribution of independent WGS samples.
 > The superseded measured Slurm array was cancelled before execution because it
 > referenced a locally built cache. A replacement must use the bundled-Zenodo
-> provenance gate described in `CACHE_STRATEGY_COMPARISON.md`.
+> provenance gate described in `docs/CACHE_STRATEGY_COMPARISON.md`.
 
 > **Timing protocol amendment, 2026-08-06:** Timed publication cells use
 > lightweight streaming statistics. The completed VEP external-WGS measurements

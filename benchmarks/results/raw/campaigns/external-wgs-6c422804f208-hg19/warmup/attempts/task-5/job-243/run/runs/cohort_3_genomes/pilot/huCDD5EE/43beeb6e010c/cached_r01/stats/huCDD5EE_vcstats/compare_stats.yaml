@@ -1,0 +1,25 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-04T12:48:14'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-5/runs/cohort_3_genomes/pilot/huCDD5EE/43beeb6e010c/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh37/pgp/huCDD5EE.GRCh37.small_variants.vcf.gz
+input_name: huCDD5EE.GRCh37.small_variants.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/pgp/cohort3_database/cache/vep115.2_everything
+annotation_yaml_md5: 3a5e301164cd46890193659b267a24e2
+genome_build_params: GRCh37
+genome_build_annotation: GRCh37
+vcfcache_version: 0.5.3
+threads: 8
+variant_counts:
+  total_output: 4824306
+  annotated_output: 4824306
+  tool_annotated: 1098232
+  input_variants: null
+  dropped_variants: 0
+  missing_variants: 1098232
+  missing_annotated: 1098232
+variant_md5:
+  top10: 3354d43d70768adb171d6c3a43218d8a
+  bottom10: 3354d43d70768adb171d6c3a43218d8a
+  all: null

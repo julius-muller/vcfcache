@@ -1,0 +1,25 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-04T18:37:47'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-8/runs/cohort_3_genomes/pilot/KPGP-00231/43beeb6e010c/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00231.GRCh38.small_variants.vcf.gz
+input_name: KPGP-00231.GRCh38.small_variants.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/kpgp/cohort3_database/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+variant_counts:
+  total_output: 4697636
+  annotated_output: 4697636
+  tool_annotated: 775171
+  input_variants: null
+  dropped_variants: 0
+  missing_variants: 775171
+  missing_annotated: 775171
+variant_md5:
+  top10: 0e25dd33c66bf3538a2241d6388914c1
+  bottom10: 0e25dd33c66bf3538a2241d6388914c1
+  all: null

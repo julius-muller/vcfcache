@@ -1,0 +1,26 @@
+command: annotate
+mode: uncached
+run_timestamp: '2026-08-18T21:10:10'
+output_file: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-8/pilot/KPGP-00231/2cd2ab56d8ee/uncached_r01/output.bcf
+input_file: /results/campaigns/external-assay-v3-independent-af001-warm/inputs/panel/KPGP-00231.GRCh38.panel.vcf.gz
+input_name: KPGP-00231.GRCh38.panel.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: light
+variant_counts:
+  total_output: 224
+  annotated_output: 224
+  tool_annotated: 224
+  input_variants: 224
+  dropped_variants: 0
+  missing_variants: null
+  missing_annotated: null
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null

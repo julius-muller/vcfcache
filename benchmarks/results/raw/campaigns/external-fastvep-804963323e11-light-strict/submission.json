@@ -1,0 +1,38 @@
+{
+  "campaign_id": "external-fastvep-804963323e11-light-strict",
+  "commit": "804963323e11f657c20a87f554136f08d20fd25e",
+  "concurrency": 6,
+  "hostname": "sl-w2",
+  "submissions": {
+    "measured": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=external-fastvep-measured",
+        "--array=1-51%6",
+        "--chdir=/results/deployment/vcfcache-fastvep-804963323e11",
+        "--output=/results/campaigns/external-fastvep-804963323e11-light-strict/logs/measured-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=external-fastvep-804963323e11-light-strict,VCFCACHE_PHASE=measured,VCFCACHE_TASK_MANIFEST=/results/campaigns/external-fastvep-804963323e11-light-strict/manifests/measured.tsv,VCFCACHE_STRATEGIES=/results/campaigns/external-fastvep-804963323e11-light-strict/manifests/strategies.json,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/results/deployment/vcfcache-fastvep-804963323e11",
+        "--dependency=afterok:519",
+        "/results/deployment/vcfcache-fastvep-804963323e11/benchmarks/slurm_external_multi.sh"
+      ],
+      "dependency": "519",
+      "job_id": "520"
+    },
+    "smoke": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=external-fastvep-smoke",
+        "--array=0-0",
+        "--chdir=/results/deployment/vcfcache-fastvep-804963323e11",
+        "--output=/results/campaigns/external-fastvep-804963323e11-light-strict/logs/measured-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=external-fastvep-804963323e11-light-strict,VCFCACHE_PHASE=measured,VCFCACHE_TASK_MANIFEST=/results/campaigns/external-fastvep-804963323e11-light-strict/manifests/measured.tsv,VCFCACHE_STRATEGIES=/results/campaigns/external-fastvep-804963323e11-light-strict/manifests/strategies.json,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/results/deployment/vcfcache-fastvep-804963323e11",
+        "/results/deployment/vcfcache-fastvep-804963323e11/benchmarks/slurm_external_multi.sh"
+      ],
+      "dependency": null,
+      "job_id": "519"
+    }
+  },
+  "submitted_at": "2026-08-06T15:13:10.745771+00:00"
+}

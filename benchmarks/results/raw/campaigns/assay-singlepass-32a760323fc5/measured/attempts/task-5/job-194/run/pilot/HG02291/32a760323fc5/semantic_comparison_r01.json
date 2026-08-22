@@ -1,0 +1,81 @@
+{
+  "annotation_mismatches": 4,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "0008a79b4ba3da7bec3afcc63faa9edcc5da6b6fec422f67f33263e29b14a524",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "group": 34030,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr9",
+        "68303626",
+        "C",
+        "G"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "cached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.456G>A|ENSP00000370467.6:p.Pro152%3D|496|456|152|P|ccG/ccA|rs2379206&COSV66904854||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||SFLD:SFLDG01135&SFLD:SFLDS00003&PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&AFDB-ENSP_mappings:A",
+      "group": 71877,
+      "key": [
+        "chrX",
+        "7077274",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.456G>A|ENSP00000370467.6:p.Pro152%3D|496|456|152|P|ccG/ccA|rs2379206&COSV66904854||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&SFLD:SFLDG01135&SFLD:SFLDS00003&AFDB-ENSP_mappings:A"
+    },
+    {
+      "cached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.354G>A|ENSP00000370467.6:p.Ala118%3D|394|354|118|A|gcG/gcA|rs2379207&COSV66903790||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||SFLD:SFLDG01135&SFLD:SFLDS00003&PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&AFDB-ENSP_mappings:A",
+      "group": 71878,
+      "key": [
+        "chrX",
+        "7077376",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.354G>A|ENSP00000370467.6:p.Ala118%3D|394|354|118|A|gcG/gcA|rs2379207&COSV66903790||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&SFLD:SFLDG01135&SFLD:SFLDS00003&AFDB-ENSP_mappings:A"
+    },
+    {
+      "cached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.333G>A|ENSP00000370467.6:p.Leu111%3D|373|333|111|L|ctG/ctA|rs1803675&COSV66903801||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||SFLD:SFLDG01135&SFLD:SFLDS00003&PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&AFDB-ENSP_mappings:A",
+      "group": 71879,
+      "key": [
+        "chrX",
+        "7077397",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.333G>A|ENSP00000370467.6:p.Leu111%3D|373|333|111|L|ctG/ctA|rs1803675&COSV66903801||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&SFLD:SFLDG01135&SFLD:SFLDS00003&AFDB-ENSP_mappings:A"
+    },
+    {
+      "cached": "A|missense_variant|MODERATE|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|2/4||ENST00000381077.10:c.263C>T|ENSP00000370467.6:p.Thr88Met|303|263|88|T/M|aCg/aTg|rs1131197&COSV66904569||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||deleterious(0.01)|possibly_damaging(0.878)|SFLD:SFLDG01135&SFLD:SFLDS00003&PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Gene3D:1.10.150.240&Pfam:PF13419&NCBIFAM:TIGR",
+      "group": 71881,
+      "key": [
+        "chrX",
+        "7105637",
+        "G",
+        "A"
+      ],
+      "kind": "CSQ",
+      "uncached": "A|missense_variant|MODERATE|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|2/4||ENST00000381077.10:c.263C>T|ENSP00000370467.6:p.Thr88Met|303|263|88|T/M|aCg/aTg|rs1131197&COSV66904569||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||deleterious(0.01)|possibly_damaging(0.878)|PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Gene3D:1.10.150.240&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHE"
+    }
+  ],
+  "ignored_annotation_mismatches": 1,
+  "ignored_csq_fields": [
+    "HGNC_ID"
+  ],
+  "ignored_difference_reference": "https://github.com/Ensembl/ensembl-vep/issues/1959",
+  "key_mismatches": 0,
+  "raw_annotation_mismatches": 5,
+  "record_order_only_loci": 10,
+  "records_compared": 73266,
+  "semantic_pass": false,
+  "uncached_semantic_sha256": "7808e23f9446b2a0eef15f891ef762b3b381eecd6a5f41c4ad33e8f2c1ee3a88"
+}

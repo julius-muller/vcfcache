@@ -38,10 +38,10 @@ C36	Cohort cache build cost, KPGP, SGDP and PGP	13374/14229/6666	seconds	three-g
 C37	Cohort cache break-even	2	samples	all three provider cohorts	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_break_even.tsv	frozen
 C38	Public AF at least 1 percent hit rate by cohort	91.95/93.04/92.66	percent	KPGP, SGDP and PGP medians	drafts/gigascience_technical_note/figures/source_data/external_wgs_metrics.tsv	frozen
 C39	Cohort cache hit rate range by cohort	77.45-82.88	percent	KPGP, SGDP and PGP medians	drafts/gigascience_technical_note/figures/source_data/external_wgs_metrics.tsv	frozen
-C40	Bundled GRCh38 cache size, AF at least 1 and 10 percent	3.8/1.7	gigabytes	on-disk extracted cache directories	benchmarks/STORAGE_LAYOUT.md	frozen
+C40	Bundled GRCh38 cache size, AF at least 1 and 10 percent	3.8/1.7	gigabytes	on-disk extracted cache directories	benchmarks/docs/STORAGE_LAYOUT.md	frozen
 C41	Peak resident memory, direct versus cached	4.32/4.19	gibibytes	core fastVEP recipe, one CPU	drafts/gigascience_technical_note/figures/source_data/fastvep_cpu_complexity.tsv	frozen
-C42	Bundled GRCh38 cache archive size, AF at least 1 and 10 percent	4.03/1.74	gigabytes	distributed tar.gz archives	benchmarks/STORAGE_LAYOUT.md	frozen
-C43	Bundled GRCh38 cache allele counts, AF at least 1 and 10 percent	18869857/8074875	alleles	bcftools index -n on the cache BCF	benchmarks/STORAGE_LAYOUT.md	frozen
+C42	Bundled GRCh38 cache archive size, AF at least 1 and 10 percent	4.03/1.74	gigabytes	distributed tar.gz archives	benchmarks/docs/STORAGE_LAYOUT.md	frozen
+C43	Bundled GRCh38 cache allele counts, AF at least 1 and 10 percent	18869857/8074875	alleles	bcftools index -n on the cache BCF	benchmarks/docs/STORAGE_LAYOUT.md	frozen
 C44	Cohort cache build cost in direct genome equivalents	1.4	fold	build wall over median direct VEP WGS runtime	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_economics.tsv	frozen
 C45	Cohort cache effective speedup at ten genomes	2.92	fold	KPGP three-genome cohort cache	benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_economics.tsv	frozen
 C46	Instrumented cache build peak resident memory	2.17	gibibytes	133,968-allele blueprint, core fastVEP recipe	benchmarks/figures/source_data/cache_build_economics.tsv	frozen

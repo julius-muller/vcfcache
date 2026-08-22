@@ -1,0 +1,57 @@
+{
+  "calibration_per_cohort": 2,
+  "campaign_id": "external-vep-light-calibration-bbef41d7db8e",
+  "cohort_assemblies": {
+    "kpgp": "GRCh38",
+    "pgp": "GRCh37",
+    "sgdp": "GRCh38"
+  },
+  "commit": "bbef41d7db8e73c1634d682fe88a979fe5350ab9",
+  "commit_short": "bbef41d7db8e",
+  "conditions": [
+    "uncached",
+    "gnomad_af_0.1",
+    "gnomad_af_0.01",
+    "cohort_3_genomes"
+  ],
+  "created_at": "2026-08-06T15:12:37.543679+00:00",
+  "evaluation_counts": {
+    "kpgp": 2,
+    "pgp": 2,
+    "sgdp": 2
+  },
+  "phases": {
+    "measured": {
+      "manifest": "/results/campaigns/external-vep-light-calibration-bbef41d7db8e/manifests/measured.tsv",
+      "manifest_sha256": "4c0125221079d2c223eec2c96d266e53f62771a1e58e1a15fabc22f4ff5d89b7",
+      "replicates": 1,
+      "samples": 6,
+      "tasks": 6
+    }
+  },
+  "qc": "/mnt/data/vcfcache_benchmarks/external_wgs/qc/external_wgs_qc.tsv",
+  "qc_sha256": "bf8d65f9ad5104f63dba0ad1d4dfd4d0301e08935c44891d7600fcda0ef343fd",
+  "runtime_params_by_assembly": {
+    "GRCh37": {
+      "controller_path": "/results/campaigns/external-vep-light-calibration-bbef41d7db8e/manifests/runtime_params_GRCh37.yaml",
+      "path": "/results/campaigns/external-vep-light-calibration-bbef41d7db8e/manifests/runtime_params_GRCh37.yaml",
+      "sha256": "aacbe3028d4b1a5d14a416202b75fb64c74d0a0b57b7208652cf352c5201c70e",
+      "source": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af010/cache/vep115.2_everything/params.snapshot.yaml",
+      "source_sha256": "ec1757c68479e4e91a246e64d19ca9e1268c70faec08d765512441439ee9c4ee",
+      "vep_buffer": 100000
+    },
+    "GRCh38": {
+      "controller_path": "/results/campaigns/external-vep-light-calibration-bbef41d7db8e/manifests/runtime_params_GRCh38.yaml",
+      "path": "/results/campaigns/external-vep-light-calibration-bbef41d7db8e/manifests/runtime_params_GRCh38.yaml",
+      "sha256": "323a7d4a5411c64717bcfa6f7fbb18558ca489e10c649067fd68e1ab4e2e344f",
+      "source": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af010/cache/vep115.2_everything/params.snapshot.yaml",
+      "source_sha256": "02a14bb11b80074a549b5611c19a27d1a90e15dc77e5b90441b2ff03c9a40f8a",
+      "vep_buffer": 100000
+    }
+  },
+  "seed": "vcfcache-paper-external-wgs-v1",
+  "statistics_mode": "light",
+  "strategies": "/results/campaigns/external-vep-light-calibration-bbef41d7db8e/manifests/strategies.json",
+  "strategies_sha256": "8f69d1465c9a4102257186a82c0a93328950ac2301fce6cc81b5339e87c0f91a",
+  "tool": "vep"
+}

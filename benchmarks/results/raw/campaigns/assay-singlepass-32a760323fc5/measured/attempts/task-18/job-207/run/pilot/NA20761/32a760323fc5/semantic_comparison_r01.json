@@ -1,0 +1,45 @@
+{
+  "annotation_mismatches": 1,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "344ad75e1f67e85c897042fe8ade318f4ceca037806f44f2f16eeee519e63ae4",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "group": 34924,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr9",
+        "68303626",
+        "C",
+        "G"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "cached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.456G>A|ENSP00000370467.6:p.Pro152%3D|496|456|152|P|ccG/ccA|rs2379206&COSV66904854||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||SFLD:SFLDG01135&SFLD:SFLDS00003&PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&AFDB-ENSP_mappings:A",
+      "group": 74351,
+      "key": [
+        "chrX",
+        "7077274",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.456G>A|ENSP00000370467.6:p.Pro152%3D|496|456|152|P|ccG/ccA|rs2379206&COSV66904854||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&SFLD:SFLDG01135&SFLD:SFLDS00003&AFDB-ENSP_mappings:A"
+    }
+  ],
+  "ignored_annotation_mismatches": 1,
+  "ignored_csq_fields": [
+    "HGNC_ID"
+  ],
+  "ignored_difference_reference": "https://github.com/Ensembl/ensembl-vep/issues/1959",
+  "key_mismatches": 0,
+  "raw_annotation_mismatches": 2,
+  "record_order_only_loci": 10,
+  "records_compared": 75900,
+  "semantic_pass": false,
+  "uncached_semantic_sha256": "59722dce96c4892717331e7fb883197db001b7f1e0172167b7ecf6e303983e85"
+}

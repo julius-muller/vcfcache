@@ -1,0 +1,36 @@
+{
+  "cache_hit_rate": 0.97165043528349,
+  "cached_cgroup_memory_peak_bytes": 9735454720,
+  "cached_max_rss_kib": 734784,
+  "cached_user_seconds": 3483.62,
+  "cached_wall_seconds": 694.0236629350111,
+  "commit": "32a760323fc5",
+  "fraction_wall_time_saved": 0.9188365466387889,
+  "input_records": 4475589,
+  "replicate": 1,
+  "sample": "HG01303",
+  "semantic_comparison": {
+    "annotation_mismatches": 0,
+    "annotation_order_only": 0,
+    "cached_semantic_sha256": "06c31f30a82b5a09dc1c200e59b79e74639a5e37c420c57a729a9b6c6b16c36e",
+    "csq_headers_equal": true,
+    "examples": [],
+    "ignored_annotation_mismatches": 0,
+    "ignored_csq_fields": [
+      "HGNC_ID"
+    ],
+    "ignored_difference_reference": null,
+    "key_mismatches": 0,
+    "raw_annotation_mismatches": 0,
+    "record_order_only_loci": 1218,
+    "records_compared": 4475589,
+    "semantic_pass": true,
+    "uncached_semantic_sha256": "06c31f30a82b5a09dc1c200e59b79e74639a5e37c420c57a729a9b6c6b16c36e"
+  },
+  "speedup": 12.320816310631628,
+  "uncached_cgroup_memory_peak_bytes": 31441338368,
+  "uncached_max_rss_kib": 6547104,
+  "uncached_user_seconds": 57697.16,
+  "uncached_wall_seconds": 8550.938066253992,
+  "wall_seconds_saved": 7856.9144033189805
+}

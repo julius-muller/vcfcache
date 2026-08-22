@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/mnt/data/vcfcache/.venv/bin/vcfcache",
+    "annotate",
+    "-a",
+    "/mnt/data/vcfcache_benchmarks/wgs_pipeline_spectrum/cache/everything_delay_04000us",
+    "-i",
+    "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+    "-o",
+    "/mnt/data/tmp/vcfcache_wgs_pipeline_runs/wgs-pipeline-spectrum-4f854e5-kpgp00319/task-3/run/pilot/KPGP-00319/4f854e51a64e/uncached_r01/output.bcf",
+    "--stats-dir",
+    "/mnt/data/tmp/vcfcache_wgs_pipeline_runs/wgs-pipeline-spectrum-4f854e5-kpgp00319/task-3/run/pilot/KPGP-00319/4f854e51a64e/uncached_r01/stats",
+    "--statistics",
+    "light",
+    "-y",
+    "/mnt/data/vcfcache_benchmarks/wgs_pipeline_spectrum/cache/everything_delay_04000us/params.snapshot.yaml",
+    "--force",
+    "--uncached"
+  ],
+  "commit": "4f854e51a64e",
+  "mode": "uncached",
+  "started_at": "2026-08-10T07:41:39.992866+00:00"
+}

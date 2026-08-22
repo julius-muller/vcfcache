@@ -1,0 +1,23 @@
+{
+  "campaign_id": "external-vep-light-full52-bbef41d7db8e",
+  "commit": "bbef41d7db8e73c1634d682fe88a979fe5350ab9",
+  "concurrency": 6,
+  "hostname": "sl-w1",
+  "submissions": {
+    "measured": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=external-vep-measured",
+        "--array=0-51%6",
+        "--chdir=/results/deployment/vcfcache-publication-bbef41d7db8e",
+        "--output=/results/campaigns/external-vep-light-full52-bbef41d7db8e/logs/measured-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=external-vep-light-full52-bbef41d7db8e,VCFCACHE_PHASE=measured,VCFCACHE_TASK_MANIFEST=/results/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/measured.tsv,VCFCACHE_STRATEGIES=/results/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/strategies.json,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/results/deployment/vcfcache-publication-bbef41d7db8e",
+        "/results/deployment/vcfcache-publication-bbef41d7db8e/benchmarks/slurm_external_multi.sh"
+      ],
+      "dependency": null,
+      "job_id": "690"
+    }
+  },
+  "submitted_at": "2026-08-07T06:14:58.707714+00:00"
+}

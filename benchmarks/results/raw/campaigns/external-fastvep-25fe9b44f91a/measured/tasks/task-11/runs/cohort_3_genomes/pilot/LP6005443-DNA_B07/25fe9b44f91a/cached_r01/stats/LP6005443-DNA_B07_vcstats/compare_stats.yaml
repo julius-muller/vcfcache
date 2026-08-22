@@ -1,0 +1,26 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-06T14:24:18'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-fastvep-25fe9b44f91a/measured/task-11/runs/cohort_3_genomes/pilot/LP6005443-DNA_B07/25fe9b44f91a/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005443-DNA_B07.GRCh38.small_variants.vcf.gz
+input_name: LP6005443-DNA_B07.GRCh38.small_variants.vcf.gz
+cache_name: cache-fastvep-0.3.0-publication
+cache_path: /mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-sgdp/cache/cache-fastvep-0.3.0-publication
+annotation_yaml_md5: 5d0bf02e82cfd8dbec6e3d2fd3c08a52
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: full
+variant_counts:
+  total_output: 4690406
+  annotated_output: 4690406
+  tool_annotated: 854326
+  input_variants: 4690406
+  dropped_variants: 0
+  missing_variants: 854326
+  missing_annotated: 854326
+variant_md5:
+  top10: 96eef7bc5a08b6166ad8be2e2f802389
+  bottom10: 96eef7bc5a08b6166ad8be2e2f802389
+  all: null

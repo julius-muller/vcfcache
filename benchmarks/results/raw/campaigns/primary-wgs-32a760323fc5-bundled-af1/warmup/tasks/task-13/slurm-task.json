@@ -1,0 +1,22 @@
+{
+  "campaign_id": "primary-wgs-32a760323fc5-bundled-af1",
+  "phase": "warmup",
+  "measured": false,
+  "task_id": 13,
+  "sample": "HG02050",
+  "population": "KHV",
+  "superpopulation": "EAS",
+  "sex": "male",
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/samples/GRCh38/1000g/EAS/HG02050.GRCh38.small_variants.vcf.gz",
+  "input_records": 4307180,
+  "input_sha256": "9728eea264779fba258ba4539f0bdc6ed19f90f074d8dea0593d4d0aa5a2b165",
+  "replicate": 1,
+  "first_mode": "cached",
+  "second_mode": "uncached",
+  "randomization_key": "1901a65d57b74538eb823a3394078423703dff05a921edf81e82e5c93b4be62d",
+  "slurm_job_id": "96",
+  "slurm_array_job_id": "81",
+  "slurm_node": "sl-w5",
+  "allocated_cpus": "8",
+  "requested_memory_per_node": "30000"
+}

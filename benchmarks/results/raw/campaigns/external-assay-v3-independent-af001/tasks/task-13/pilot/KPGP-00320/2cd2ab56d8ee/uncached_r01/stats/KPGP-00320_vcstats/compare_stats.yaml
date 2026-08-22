@@ -1,0 +1,26 @@
+command: annotate
+mode: uncached
+run_timestamp: '2026-08-18T20:52:21'
+output_file: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001/task-13/pilot/KPGP-00320/2cd2ab56d8ee/uncached_r01/output.bcf
+input_file: /results/campaigns/external-assay-v3-independent-af001/inputs/panel/KPGP-00320.GRCh38.panel.vcf.gz
+input_name: KPGP-00320.GRCh38.panel.vcf.gz
+cache_name: cache-fastvep-0.3.0-publication
+cache_path: /mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication
+annotation_yaml_md5: 5d0bf02e82cfd8dbec6e3d2fd3c08a52
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: light
+variant_counts:
+  total_output: 267
+  annotated_output: 267
+  tool_annotated: 267
+  input_variants: 267
+  dropped_variants: 0
+  missing_variants: null
+  missing_annotated: null
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null

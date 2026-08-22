@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/results/deployment/vcfcache-fastvep-b27527a6004f/benchmarks/recover_external_attempts.py", line 183, in <module>
+    main()
+  File "/results/deployment/vcfcache-fastvep-b27527a6004f/benchmarks/recover_external_attempts.py", line 179, in main
+    print(json.dumps(recover(parser().parse_args()), indent=2, sort_keys=True))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/results/deployment/vcfcache-fastvep-b27527a6004f/benchmarks/recover_external_attempts.py", line 150, in recover
+    promote_attempt(
+  File "/results/deployment/vcfcache-fastvep-b27527a6004f/benchmarks/recover_external_attempts.py", line 94, in promote_attempt
+    shutil.copytree(attempt_run, partial, copy_function=os.link)
+  File "/home/appuser/.local/share/uv/python/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/shutil.py", line 600, in copytree
+    return _copytree(entries=entries, src=src, dst=dst, symlinks=symlinks,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/uv/python/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/shutil.py", line 498, in _copytree
+    os.makedirs(dst, exist_ok=dirs_exist_ok)
+  File "<frozen os>", line 225, in makedirs
+FileExistsError: [Errno 17] File exists: '/results/campaigns/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/tasks/task-1.partial-recovery-539'

@@ -1,0 +1,658 @@
+{
+  "bundled_strategies_by_assembly": {
+    "GRCh37": [
+      {
+        "alias": "",
+        "annotation_yaml_sha256": "e35bba4d4e499e330e1477c82829ea0ee2bfb1e861c3cb2b1c954ad556ea5ca5",
+        "assembly": "GRCh37",
+        "build_wall_seconds": 230.45584179996513,
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.1/cache/cache-fastvep-0.3.0-publication",
+        "controller_cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.1/cache/cache-fastvep-0.3.0-publication",
+        "controller_provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.1/fastvep_cache_provenance.json",
+        "doi": "",
+        "kind": "locally_built_fastvep_from_bundled_blueprint",
+        "name": "gnomad_af_0.1",
+        "provenance_expected": {
+          "assembly": "GRCh37",
+          "complete": true,
+          "kind": "fastvep_reannotation_of_frozen_blueprint",
+          "strategy": "gnomad_af_0.1",
+          "tool": "fastvep"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.1/fastvep_cache_provenance.json",
+        "source_alias": "cache-gnomad-v4.1-GRCh37-joint-af01-vep115.2-e",
+        "source_blueprint_sha256": "c3ce9ae265c067260327ed9cd2086f1d87092b586fca4ed3305e309e6c9517ab",
+        "source_cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af010/cache/vep115.2_everything",
+        "source_doi": "10.5281/zenodo.18189051",
+        "source_strategy_kind": "bundled_zenodo"
+      },
+      {
+        "alias": "",
+        "annotation_yaml_sha256": "e35bba4d4e499e330e1477c82829ea0ee2bfb1e861c3cb2b1c954ad556ea5ca5",
+        "assembly": "GRCh37",
+        "build_wall_seconds": 534.0323552010232,
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication",
+        "controller_cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication",
+        "controller_provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.01/fastvep_cache_provenance.json",
+        "doi": "",
+        "kind": "locally_built_fastvep_from_bundled_blueprint",
+        "name": "gnomad_af_0.01",
+        "provenance_expected": {
+          "assembly": "GRCh37",
+          "complete": true,
+          "kind": "fastvep_reannotation_of_frozen_blueprint",
+          "strategy": "gnomad_af_0.01",
+          "tool": "fastvep"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.01/fastvep_cache_provenance.json",
+        "source_alias": "cache-gnomad-v4.1-GRCh37-joint-af001-vep115.2-e",
+        "source_blueprint_sha256": "4c1077616937c0a3a4bafaebb40c5786df62977c99094b4172e0aee96c01c9c9",
+        "source_cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af001/cache/vep115.2_everything",
+        "source_doi": "10.5281/zenodo.18189348",
+        "source_strategy_kind": "bundled_zenodo"
+      }
+    ],
+    "GRCh38": [
+      {
+        "alias": "",
+        "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+        "assembly": "GRCh38",
+        "build_wall_seconds": 622.2568500639754,
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.1/cache/cache-fastvep-0.3.0-publication",
+        "controller_cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.1/cache/cache-fastvep-0.3.0-publication",
+        "controller_provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.1/fastvep_cache_provenance.json",
+        "doi": "",
+        "kind": "locally_built_fastvep_from_bundled_blueprint",
+        "name": "gnomad_af_0.1",
+        "provenance_expected": {
+          "assembly": "GRCh38",
+          "complete": true,
+          "kind": "fastvep_reannotation_of_frozen_blueprint",
+          "strategy": "gnomad_af_0.1",
+          "tool": "fastvep"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.1/fastvep_cache_provenance.json",
+        "source_alias": "cache-gnomad-v4.1-GRCh38-joint-af01-vep115.2-e",
+        "source_blueprint_sha256": "be08909a3093692d9e97c5e9558a7c26e301e902fb9f51815216c65006818587",
+        "source_cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af010/cache/vep115.2_everything",
+        "source_doi": "10.5281/zenodo.18189447",
+        "source_strategy_kind": "bundled_zenodo"
+      },
+      {
+        "alias": "",
+        "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+        "assembly": "GRCh38",
+        "build_wall_seconds": 1464.329503535002,
+        "cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication",
+        "controller_cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication",
+        "controller_provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.01/fastvep_cache_provenance.json",
+        "doi": "",
+        "kind": "locally_built_fastvep_from_bundled_blueprint",
+        "name": "gnomad_af_0.01",
+        "provenance_expected": {
+          "assembly": "GRCh38",
+          "complete": true,
+          "kind": "fastvep_reannotation_of_frozen_blueprint",
+          "strategy": "gnomad_af_0.01",
+          "tool": "fastvep"
+        },
+        "provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.01/fastvep_cache_provenance.json",
+        "source_alias": "cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+        "source_blueprint_sha256": "2828116ca9a996fbd5259ea7cb477ec4499a2c01c77c6662d2c345610695057b",
+        "source_cache_dir": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything",
+        "source_doi": "10.5281/zenodo.18190046",
+        "source_strategy_kind": "bundled_zenodo"
+      }
+    ]
+  },
+  "cache_builds": {
+    "bundled-GRCh37-gnomad_af_0.01": {
+      "annotation_yaml_sha256": "e35bba4d4e499e330e1477c82829ea0ee2bfb1e861c3cb2b1c954ad556ea5ca5",
+      "assembly": "GRCh37",
+      "cache_sha256": "e07f2620befc4ffc36eeeb65df6ba8984187c6fc730f95f18df793ee09231788",
+      "complete": true,
+      "completed_at": "2026-08-06T09:38:47.044893+00:00",
+      "kind": "fastvep_reannotation_of_frozen_blueprint",
+      "last_verified_at": "2026-08-06T15:11:01.866705+00:00",
+      "params_yaml_sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211",
+      "reused": true,
+      "source_blueprint": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af001/blueprint/vcfcache.bcf",
+      "source_blueprint_sha256": "4c1077616937c0a3a4bafaebb40c5786df62977c99094b4172e0aee96c01c9c9",
+      "started_at": "2026-08-06T09:29:53.013991+00:00",
+      "strategy": "gnomad_af_0.01",
+      "tool": "fastvep",
+      "toolchain": {
+        "assets": {
+          "fasta": {
+            "bytes": 3153507220,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa",
+            "sha256": "3a3872e7bdd1532fdbfbc3afd70c04ff8a12a109319ae050c91d962f32e16a4f"
+          },
+          "fasta.fai": {
+            "bytes": 2743,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.fai",
+            "sha256": "04cb9e93515ab0bd77ddcc1a6e931d6ade9c7b2b39823289ab9a5629e18935d8"
+          },
+          "transcript_cache": {
+            "bytes": 109468540,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.fastvep.cache",
+            "sha256": "dea47e9186f223247331eaa21d75a55a8ba7ddf5466d6fc4da2205304d4b2489"
+          }
+        },
+        "bcftools": {
+          "bytes": 9647808,
+          "path": "/usr/local/bin/bcftools",
+          "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+          "version": "bcftools 1.21"
+        },
+        "fastvep": {
+          "bytes": 6206000,
+          "git_commit": null,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+          "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+          "version": "fastvep 0.3.0"
+        },
+        "params": {
+          "bytes": 507,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh37.yaml",
+          "sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211"
+        },
+        "vcfcache": {
+          "bytes": 314,
+          "git_commit": "43beeb6e010cab1d46c5834ea124d602ef172584",
+          "path": "/mnt/data/vcfcache/.venv/bin/vcfcache",
+          "sha256": "bfc8ff09da770ef91704924dbd876033e475a81d129a3db1fc71556d0ae2c467",
+          "version": "0.5.3"
+        }
+      },
+      "wall_seconds": 534.0323552010232
+    },
+    "bundled-GRCh37-gnomad_af_0.1": {
+      "annotation_yaml_sha256": "e35bba4d4e499e330e1477c82829ea0ee2bfb1e861c3cb2b1c954ad556ea5ca5",
+      "assembly": "GRCh37",
+      "cache_sha256": "fdec46e65d2a02532172e7ec9474a27e95467eb0d8598a4e84d5336fe496c5c7",
+      "complete": true,
+      "completed_at": "2026-08-06T09:29:53.010737+00:00",
+      "kind": "fastvep_reannotation_of_frozen_blueprint",
+      "last_verified_at": "2026-08-06T15:10:56.044111+00:00",
+      "params_yaml_sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211",
+      "reused": true,
+      "source_blueprint": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af010/blueprint/vcfcache.bcf",
+      "source_blueprint_sha256": "c3ce9ae265c067260327ed9cd2086f1d87092b586fca4ed3305e309e6c9517ab",
+      "started_at": "2026-08-06T09:26:02.554907+00:00",
+      "strategy": "gnomad_af_0.1",
+      "tool": "fastvep",
+      "toolchain": {
+        "assets": {
+          "fasta": {
+            "bytes": 3153507220,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa",
+            "sha256": "3a3872e7bdd1532fdbfbc3afd70c04ff8a12a109319ae050c91d962f32e16a4f"
+          },
+          "fasta.fai": {
+            "bytes": 2743,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.fai",
+            "sha256": "04cb9e93515ab0bd77ddcc1a6e931d6ade9c7b2b39823289ab9a5629e18935d8"
+          },
+          "transcript_cache": {
+            "bytes": 109468540,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.fastvep.cache",
+            "sha256": "dea47e9186f223247331eaa21d75a55a8ba7ddf5466d6fc4da2205304d4b2489"
+          }
+        },
+        "bcftools": {
+          "bytes": 9647808,
+          "path": "/usr/local/bin/bcftools",
+          "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+          "version": "bcftools 1.21"
+        },
+        "fastvep": {
+          "bytes": 6206000,
+          "git_commit": null,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+          "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+          "version": "fastvep 0.3.0"
+        },
+        "params": {
+          "bytes": 507,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh37.yaml",
+          "sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211"
+        },
+        "vcfcache": {
+          "bytes": 314,
+          "git_commit": "43beeb6e010cab1d46c5834ea124d602ef172584",
+          "path": "/mnt/data/vcfcache/.venv/bin/vcfcache",
+          "sha256": "bfc8ff09da770ef91704924dbd876033e475a81d129a3db1fc71556d0ae2c467",
+          "version": "0.5.3"
+        }
+      },
+      "wall_seconds": 230.45584179996513
+    },
+    "bundled-GRCh38-gnomad_af_0.01": {
+      "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+      "assembly": "GRCh38",
+      "cache_sha256": "a8bfeef48661381bdd43b8d5358d335475732e1026773e461fcae9dea77675fe",
+      "complete": true,
+      "completed_at": "2026-08-06T10:13:33.640154+00:00",
+      "kind": "fastvep_reannotation_of_frozen_blueprint",
+      "last_verified_at": "2026-08-06T15:11:40.746185+00:00",
+      "params_yaml_sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f",
+      "reused": true,
+      "source_blueprint": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/blueprint/vcfcache.bcf",
+      "source_blueprint_sha256": "2828116ca9a996fbd5259ea7cb477ec4499a2c01c77c6662d2c345610695057b",
+      "started_at": "2026-08-06T09:49:09.310670+00:00",
+      "strategy": "gnomad_af_0.01",
+      "tool": "fastvep",
+      "toolchain": {
+        "assets": {
+          "fasta": {
+            "bytes": 3346495805,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa",
+            "sha256": "3de3ef4d804e8df197ca66683056d30995756fe60c351449a1629b31d67bb436"
+          },
+          "fasta.fai": {
+            "bytes": 26844,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa.fai",
+            "sha256": "f3434563a0fd92a4a65cfeabaf78291e05c2ac6eaccb5e1ade45ea5131dc80de"
+          },
+          "transcript_cache": {
+            "bytes": 216406410,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache",
+            "sha256": "819bf9a22dc2ca327d2568b2f9fd273b2c9ab5e2a6ec005bb2668a6d4b88d6d5"
+          }
+        },
+        "bcftools": {
+          "bytes": 9647808,
+          "path": "/usr/local/bin/bcftools",
+          "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+          "version": "bcftools 1.21"
+        },
+        "fastvep": {
+          "bytes": 6206000,
+          "git_commit": null,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+          "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+          "version": "fastvep 0.3.0"
+        },
+        "params": {
+          "bytes": 496,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh38.yaml",
+          "sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f"
+        },
+        "vcfcache": {
+          "bytes": 314,
+          "git_commit": "43beeb6e010cab1d46c5834ea124d602ef172584",
+          "path": "/mnt/data/vcfcache/.venv/bin/vcfcache",
+          "sha256": "bfc8ff09da770ef91704924dbd876033e475a81d129a3db1fc71556d0ae2c467",
+          "version": "0.5.3"
+        }
+      },
+      "wall_seconds": 1464.329503535002
+    },
+    "bundled-GRCh38-gnomad_af_0.1": {
+      "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+      "assembly": "GRCh38",
+      "cache_sha256": "32e83a88907a99435907f1fbff5c7947ccd4e3255994b7ce12303533a915ee71",
+      "complete": true,
+      "completed_at": "2026-08-06T09:49:09.306069+00:00",
+      "kind": "fastvep_reannotation_of_frozen_blueprint",
+      "last_verified_at": "2026-08-06T15:11:25.467315+00:00",
+      "params_yaml_sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f",
+      "reused": true,
+      "source_blueprint": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af010/blueprint/vcfcache.bcf",
+      "source_blueprint_sha256": "be08909a3093692d9e97c5e9558a7c26e301e902fb9f51815216c65006818587",
+      "started_at": "2026-08-06T09:38:47.049242+00:00",
+      "strategy": "gnomad_af_0.1",
+      "tool": "fastvep",
+      "toolchain": {
+        "assets": {
+          "fasta": {
+            "bytes": 3346495805,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa",
+            "sha256": "3de3ef4d804e8df197ca66683056d30995756fe60c351449a1629b31d67bb436"
+          },
+          "fasta.fai": {
+            "bytes": 26844,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa.fai",
+            "sha256": "f3434563a0fd92a4a65cfeabaf78291e05c2ac6eaccb5e1ade45ea5131dc80de"
+          },
+          "transcript_cache": {
+            "bytes": 216406410,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache",
+            "sha256": "819bf9a22dc2ca327d2568b2f9fd273b2c9ab5e2a6ec005bb2668a6d4b88d6d5"
+          }
+        },
+        "bcftools": {
+          "bytes": 9647808,
+          "path": "/usr/local/bin/bcftools",
+          "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+          "version": "bcftools 1.21"
+        },
+        "fastvep": {
+          "bytes": 6206000,
+          "git_commit": null,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+          "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+          "version": "fastvep 0.3.0"
+        },
+        "params": {
+          "bytes": 496,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh38.yaml",
+          "sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f"
+        },
+        "vcfcache": {
+          "bytes": 314,
+          "git_commit": "43beeb6e010cab1d46c5834ea124d602ef172584",
+          "path": "/mnt/data/vcfcache/.venv/bin/vcfcache",
+          "sha256": "bfc8ff09da770ef91704924dbd876033e475a81d129a3db1fc71556d0ae2c467",
+          "version": "0.5.3"
+        }
+      },
+      "wall_seconds": 622.2568500639754
+    },
+    "cohort-kpgp": {
+      "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+      "assembly": "GRCh38",
+      "cache_sha256": "e43fe48ac21811381cc57f7b1638d121d6f5af5b5580ff056e646ebc5982872e",
+      "complete": true,
+      "completed_at": "2026-08-06T10:23:28.894929+00:00",
+      "kind": "fastvep_reannotation_of_frozen_blueprint",
+      "last_verified_at": "2026-08-06T15:12:01.889135+00:00",
+      "params_yaml_sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f",
+      "reused": true,
+      "source_blueprint": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/kpgp/cohort3_database/blueprint/vcfcache.bcf",
+      "source_blueprint_sha256": "d7f9adfa57c2f38a5405150c301ce69448eb67a79521ca14cfa762d1a238c79a",
+      "started_at": "2026-08-06T10:13:33.645332+00:00",
+      "strategy": "cohort_3_genomes",
+      "tool": "fastvep",
+      "toolchain": {
+        "assets": {
+          "fasta": {
+            "bytes": 3346495805,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa",
+            "sha256": "3de3ef4d804e8df197ca66683056d30995756fe60c351449a1629b31d67bb436"
+          },
+          "fasta.fai": {
+            "bytes": 26844,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa.fai",
+            "sha256": "f3434563a0fd92a4a65cfeabaf78291e05c2ac6eaccb5e1ade45ea5131dc80de"
+          },
+          "transcript_cache": {
+            "bytes": 216406410,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache",
+            "sha256": "819bf9a22dc2ca327d2568b2f9fd273b2c9ab5e2a6ec005bb2668a6d4b88d6d5"
+          }
+        },
+        "bcftools": {
+          "bytes": 9647808,
+          "path": "/usr/local/bin/bcftools",
+          "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+          "version": "bcftools 1.21"
+        },
+        "fastvep": {
+          "bytes": 6206000,
+          "git_commit": null,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+          "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+          "version": "fastvep 0.3.0"
+        },
+        "params": {
+          "bytes": 496,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh38.yaml",
+          "sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f"
+        },
+        "vcfcache": {
+          "bytes": 314,
+          "git_commit": "43beeb6e010cab1d46c5834ea124d602ef172584",
+          "path": "/mnt/data/vcfcache/.venv/bin/vcfcache",
+          "sha256": "bfc8ff09da770ef91704924dbd876033e475a81d129a3db1fc71556d0ae2c467",
+          "version": "0.5.3"
+        }
+      },
+      "wall_seconds": 595.2496121380245
+    },
+    "cohort-pgp": {
+      "annotation_yaml_sha256": "e35bba4d4e499e330e1477c82829ea0ee2bfb1e861c3cb2b1c954ad556ea5ca5",
+      "assembly": "GRCh37",
+      "cache_sha256": "2d552cc288f4310dca0291026593026d3419584a6b9d7c41bc565f8fc4d6e732",
+      "complete": true,
+      "completed_at": "2026-08-06T10:26:51.256841+00:00",
+      "kind": "fastvep_reannotation_of_frozen_blueprint",
+      "last_verified_at": "2026-08-06T15:12:16.508461+00:00",
+      "params_yaml_sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211",
+      "reused": true,
+      "source_blueprint": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/pgp/cohort3_database/blueprint/vcfcache.bcf",
+      "source_blueprint_sha256": "d8cf4eb619231a200a0d53098a7d28f2e54a7b7ddb5d35315e615b498152afee",
+      "started_at": "2026-08-06T10:23:28.896113+00:00",
+      "strategy": "cohort_3_genomes",
+      "tool": "fastvep",
+      "toolchain": {
+        "assets": {
+          "fasta": {
+            "bytes": 3153507220,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa",
+            "sha256": "3a3872e7bdd1532fdbfbc3afd70c04ff8a12a109319ae050c91d962f32e16a4f"
+          },
+          "fasta.fai": {
+            "bytes": 2743,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.fai",
+            "sha256": "04cb9e93515ab0bd77ddcc1a6e931d6ade9c7b2b39823289ab9a5629e18935d8"
+          },
+          "transcript_cache": {
+            "bytes": 109468540,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh37/Homo_sapiens.GRCh37.fastvep.cache",
+            "sha256": "dea47e9186f223247331eaa21d75a55a8ba7ddf5466d6fc4da2205304d4b2489"
+          }
+        },
+        "bcftools": {
+          "bytes": 9647808,
+          "path": "/usr/local/bin/bcftools",
+          "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+          "version": "bcftools 1.21"
+        },
+        "fastvep": {
+          "bytes": 6206000,
+          "git_commit": null,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+          "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+          "version": "fastvep 0.3.0"
+        },
+        "params": {
+          "bytes": 507,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh37.yaml",
+          "sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211"
+        },
+        "vcfcache": {
+          "bytes": 314,
+          "git_commit": "43beeb6e010cab1d46c5834ea124d602ef172584",
+          "path": "/mnt/data/vcfcache/.venv/bin/vcfcache",
+          "sha256": "bfc8ff09da770ef91704924dbd876033e475a81d129a3db1fc71556d0ae2c467",
+          "version": "0.5.3"
+        }
+      },
+      "wall_seconds": 202.36075771198375
+    },
+    "cohort-sgdp": {
+      "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+      "assembly": "GRCh38",
+      "cache_sha256": "e96d48ed11095d1b270d4b215aa8c603c9f8c94ae6f0ff038f50f7c487b0b147",
+      "complete": true,
+      "completed_at": "2026-08-06T10:37:20.403931+00:00",
+      "kind": "fastvep_reannotation_of_frozen_blueprint",
+      "last_verified_at": "2026-08-06T15:12:35.912754+00:00",
+      "params_yaml_sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f",
+      "reused": true,
+      "source_blueprint": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/blueprint/vcfcache.bcf",
+      "source_blueprint_sha256": "add3d2ce9526ee0d1cd122db84144a5ec44dd2ed4e994dda017f8f0db0906fe1",
+      "started_at": "2026-08-06T10:26:51.260668+00:00",
+      "strategy": "cohort_3_genomes",
+      "tool": "fastvep",
+      "toolchain": {
+        "assets": {
+          "fasta": {
+            "bytes": 3346495805,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa",
+            "sha256": "3de3ef4d804e8df197ca66683056d30995756fe60c351449a1629b31d67bb436"
+          },
+          "fasta.fai": {
+            "bytes": 26844,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa.fai",
+            "sha256": "f3434563a0fd92a4a65cfeabaf78291e05c2ac6eaccb5e1ade45ea5131dc80de"
+          },
+          "transcript_cache": {
+            "bytes": 216406410,
+            "path": "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache",
+            "sha256": "819bf9a22dc2ca327d2568b2f9fd273b2c9ab5e2a6ec005bb2668a6d4b88d6d5"
+          }
+        },
+        "bcftools": {
+          "bytes": 9647808,
+          "path": "/usr/local/bin/bcftools",
+          "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+          "version": "bcftools 1.21"
+        },
+        "fastvep": {
+          "bytes": 6206000,
+          "git_commit": null,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+          "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+          "version": "fastvep 0.3.0"
+        },
+        "params": {
+          "bytes": 496,
+          "path": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh38.yaml",
+          "sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f"
+        },
+        "vcfcache": {
+          "bytes": 314,
+          "git_commit": "43beeb6e010cab1d46c5834ea124d602ef172584",
+          "path": "/mnt/data/vcfcache/.venv/bin/vcfcache",
+          "sha256": "bfc8ff09da770ef91704924dbd876033e475a81d129a3db1fc71556d0ae2c467",
+          "version": "0.5.3"
+        }
+      },
+      "wall_seconds": 629.1432802130003
+    }
+  },
+  "cohort_assemblies": {
+    "kpgp": "GRCh38",
+    "pgp": "GRCh37",
+    "sgdp": "GRCh38"
+  },
+  "cohort_strategies": {
+    "kpgp": {
+      "alias": "",
+      "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+      "assembly": "GRCh38",
+      "build_wall_seconds": 595.2496121380245,
+      "cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-kpgp/cache/cache-fastvep-0.3.0-publication",
+      "controller_cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-kpgp/cache/cache-fastvep-0.3.0-publication",
+      "controller_provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-kpgp/fastvep_cache_provenance.json",
+      "doi": "",
+      "kind": "locally_built_fastvep_from_cohort_blueprint",
+      "name": "cohort_3_genomes",
+      "provenance_expected": {
+        "assembly": "GRCh38",
+        "complete": true,
+        "kind": "fastvep_reannotation_of_frozen_blueprint",
+        "strategy": "cohort_3_genomes",
+        "tool": "fastvep"
+      },
+      "provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-kpgp/fastvep_cache_provenance.json",
+      "source_alias": "",
+      "source_blueprint_sha256": "d7f9adfa57c2f38a5405150c301ce69448eb67a79521ca14cfa762d1a238c79a",
+      "source_cache_dir": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/kpgp/cohort3_database/cache/vep115.2_everything",
+      "source_doi": "",
+      "source_strategy_kind": "custom_cohort",
+      "training_samples": [
+        "KPGP-00006",
+        "KPGP-00145",
+        "KPGP-00331"
+      ]
+    },
+    "pgp": {
+      "alias": "",
+      "annotation_yaml_sha256": "e35bba4d4e499e330e1477c82829ea0ee2bfb1e861c3cb2b1c954ad556ea5ca5",
+      "assembly": "GRCh37",
+      "build_wall_seconds": 202.36075771198375,
+      "cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/cohort-pgp/cache/cache-fastvep-0.3.0-publication",
+      "controller_cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/cohort-pgp/cache/cache-fastvep-0.3.0-publication",
+      "controller_provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/cohort-pgp/fastvep_cache_provenance.json",
+      "doi": "",
+      "kind": "locally_built_fastvep_from_cohort_blueprint",
+      "name": "cohort_3_genomes",
+      "provenance_expected": {
+        "assembly": "GRCh37",
+        "complete": true,
+        "kind": "fastvep_reannotation_of_frozen_blueprint",
+        "strategy": "cohort_3_genomes",
+        "tool": "fastvep"
+      },
+      "provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/cohort-pgp/fastvep_cache_provenance.json",
+      "source_alias": "",
+      "source_blueprint_sha256": "d8cf4eb619231a200a0d53098a7d28f2e54a7b7ddb5d35315e615b498152afee",
+      "source_cache_dir": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/pgp/cohort3_database/cache/vep115.2_everything",
+      "source_doi": "",
+      "source_strategy_kind": "custom_cohort",
+      "training_samples": [
+        "hu24385B",
+        "hu832966",
+        "huCF305F"
+      ]
+    },
+    "sgdp": {
+      "alias": "",
+      "annotation_yaml_sha256": "b83db99a4ac7677ea8f86e4ecf2ac077b23f8a5196d5d6721186705b9bc1a252",
+      "assembly": "GRCh38",
+      "build_wall_seconds": 629.1432802130003,
+      "cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-sgdp/cache/cache-fastvep-0.3.0-publication",
+      "controller_cache_dir": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-sgdp/cache/cache-fastvep-0.3.0-publication",
+      "controller_provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-sgdp/fastvep_cache_provenance.json",
+      "doi": "",
+      "kind": "locally_built_fastvep_from_cohort_blueprint",
+      "name": "cohort_3_genomes",
+      "provenance_expected": {
+        "assembly": "GRCh38",
+        "complete": true,
+        "kind": "fastvep_reannotation_of_frozen_blueprint",
+        "strategy": "cohort_3_genomes",
+        "tool": "fastvep"
+      },
+      "provenance_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/cohort-sgdp/fastvep_cache_provenance.json",
+      "source_alias": "",
+      "source_blueprint_sha256": "add3d2ce9526ee0d1cd122db84144a5ec44dd2ed4e994dda017f8f0db0906fe1",
+      "source_cache_dir": "/mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/cache/vep115.2_everything",
+      "source_doi": "",
+      "source_strategy_kind": "custom_cohort",
+      "training_samples": [
+        "LP6005443-DNA_G03",
+        "LP6005619-DNA_C01",
+        "LP6005677-DNA_C03"
+      ]
+    }
+  },
+  "commit": "804963323e11f657c20a87f554136f08d20fd25e",
+  "created_at": "2026-08-06T15:12:35.914875+00:00",
+  "membership_identical_to_vep": true,
+  "runtime_params_by_assembly": {
+    "GRCh37": {
+      "controller_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh37.yaml",
+      "path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh37.yaml",
+      "sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211",
+      "source": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh37.yaml",
+      "source_sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211"
+    },
+    "GRCh38": {
+      "controller_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh38.yaml",
+      "path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh38.yaml",
+      "sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f",
+      "source": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh38.yaml",
+      "source_sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f"
+    }
+  },
+  "source_manifest": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/fastvep_strategies.json",
+  "source_manifest_sha256": "eaa42994bb6243c627f602b1b1eefedee29a6d9b3b0ec6fbcac69531c6f2ac0b",
+  "source_vep_strategies": "/results/campaigns/external-wgs-6c422804f208-hg19/manifests/strategies.json",
+  "source_vep_strategies_sha256": "03adaff0b9c426726cec4c4884f85b1172148e6ecdb07ca61eac958877615704",
+  "tool": "fastvep"
+}

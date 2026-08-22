@@ -1,0 +1,23 @@
+{
+  "bundled_cache_unchanged": true,
+  "bundled_params_sha256": "02a14bb11b80074a549b5611c19a27d1a90e15dc77e5b90441b2ff03c9a40f8a",
+  "campaign_id": "primary-wgs-32a760323fc5-bundled-af1",
+  "external_gate_dependency": "afterok:187",
+  "external_gate_job_id": "108",
+  "measured_replicates": 3,
+  "measured_task_count": 150,
+  "reason": "all successful uncached warmups reached the 30000 MiB Slurm cgroup ceiling and task 20 was OOM-killed",
+  "recorded_at": "2026-08-03T08:12:44.632657+00:00",
+  "recovery_script": "manifests/slurm_pair-lowmem-ae8b88e.sh",
+  "recovery_script_sha256": "0a592b79bb8c77dd6b92c7a81d63fae9400ecf1493b573377b39823a77c7661a",
+  "replacement_measured_job_id": "187",
+  "runtime_params": "manifests/runtime_params_GRCh38_buffer100000.yaml",
+  "runtime_params_sha256": "323a7d4a5411c64717bcfa6f7fbb18558ca489e10c649067fd68e1ab4e2e344f",
+  "sample_count": 50,
+  "superseded_measured_job_id": "82",
+  "superseded_measured_tasks_started": 0,
+  "vep_buffer_after": 100000,
+  "vep_buffer_before": 500000,
+  "vep_forks": 8,
+  "warmup_repair_job_id": "186"
+}

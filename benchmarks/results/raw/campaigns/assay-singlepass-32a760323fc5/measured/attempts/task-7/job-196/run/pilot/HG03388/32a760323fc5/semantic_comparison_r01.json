@@ -1,0 +1,31 @@
+{
+  "annotation_mismatches": 1,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "d35d51c87ab33376e7e3dd578e8acda827f55a8a6be1b490a4431604248d8499",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "cached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.456G>A|ENSP00000370467.6:p.Pro152%3D|496|456|152|P|ccG/ccA|rs2379206&COSV66904854||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||SFLD:SFLDG01135&SFLD:SFLDS00003&PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&AFDB-ENSP_mappings:A",
+      "group": 93624,
+      "key": [
+        "chrX",
+        "7077274",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|synonymous_variant|LOW|PUDP|ENSG00000130021|Transcript|ENST00000381077|protein_coding|3/4||ENST00000381077.10:c.456G>A|ENSP00000370467.6:p.Pro152%3D|496|456|152|P|ccG/ccA|rs2379206&COSV66904854||-1||SNV|HGNC|HGNC:16818|YES|MANE_Select|NM_012080.5||1|P1|CCDS48075.1|ENSP00000370467|Q08623.186||UPI000013CD53|Q08623-1||||PDB-ENSP_mappings:3l5k.A&Superfamily:SSF56784&CDD:cd07529&Pfam:PF13419&NCBIFAM:TIGR01509&Gene3D:3.40.50.1000&PANTHER:PTHR18901&SFLD:SFLDG01135&SFLD:SFLDS00003&AFDB-ENSP_mappings:A"
+    }
+  ],
+  "ignored_annotation_mismatches": 0,
+  "ignored_csq_fields": [
+    "HGNC_ID"
+  ],
+  "ignored_difference_reference": null,
+  "key_mismatches": 0,
+  "raw_annotation_mismatches": 1,
+  "record_order_only_loci": 57,
+  "records_compared": 95429,
+  "semantic_pass": false,
+  "uncached_semantic_sha256": "00db95ffc8352449224db45b8765c6ba836fb46f8ba3773629b4891db23123d7"
+}

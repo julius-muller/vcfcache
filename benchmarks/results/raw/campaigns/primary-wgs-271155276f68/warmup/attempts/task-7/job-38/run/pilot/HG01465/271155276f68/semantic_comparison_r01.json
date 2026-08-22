@@ -1,0 +1,49 @@
+{
+  "annotation_mismatches": 3,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "9962e58d9633edb51faea54d9e099595c9debe52356d96859fd52942d9de3f87",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "cached": "T|downstream_gene_variant|MODIFIER|FOXD4L3|ENSG00000187559|Transcript|ENST00000342833|protein_coding||||||||||rs879970563|560|1||SNV|HGNC|HGNC:18523|YES|MANE_Select|NM_199135.4|||P1|CCDS43833.1|ENSP00000341961|Q6VB84.149||UPI0000367635||||||||chr9:g.68305644C>T|||||||||||||||||0.003729|0.00147|0.001099|0.0023|0|0|0.0002824|0|0.006594|0.002852|0.00334|0.006594|gnomADg_NFE|||||||||,T|upstream_gene_variant|MODIFIER||ENSG00000225337|Transcript|ENST00000419576|lncRNA||||||||||rs879970563|1749|1||SNV|",
+      "group": 2434922,
+      "key": [
+        "chr9",
+        "68305644",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|downstream_gene_variant|MODIFIER|FOXD4L3|ENSG00000187559|Transcript|ENST00000342833|protein_coding||||||||||rs879970563|560|1||SNV|HGNC|HGNC:18523|YES|MANE_Select|NM_199135.4|||P1|CCDS43833.1|ENSP00000341961|Q6VB84.149||UPI0000367635||||||||chr9:g.68305644C>T|||||||||||||||||0.003729|0.00147|0.001099|0.0023|0|0|0.0002824|0|0.006594|0.002852|0.00334|0.006594|gnomADg_NFE|||||||||,T|upstream_gene_variant|MODIFIER||ENSG00000225337|Transcript|ENST00000419576|lncRNA||||||||||rs879970563|1749|1||SNV|"
+    },
+    {
+      "cached": "G|intron_variant&non_coding_transcript_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000603200|lncRNA||2/6|ENST00000603200.5:n.725+2341C>G|||||||rs574172678||1||SNV|EntrezGene|HGNC:56158|YES||||5||||||||||||||chr9:g.68314183C>G|0.0046|0|0.0144|0|0.0119|0.001|||||||||||0.005224|0.00089|0|0.0068|0.01558|0|0.01856|0.003401|0.005549|0.00947|0.001242|0.01856|gnomADg_FIN|||||||||",
+      "group": 2434928,
+      "key": [
+        "chr9",
+        "68314183",
+        "C",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|intron_variant&non_coding_transcript_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000603200|lncRNA||2/6|ENST00000603200.5:n.725+2341C>G|||||||rs574172678||1||SNV|EntrezGene||YES||||5||||||||||||||chr9:g.68314183C>G|0.0046|0|0.0144|0|0.0119|0.001|||||||||||0.005224|0.00089|0|0.0068|0.01558|0|0.01856|0.003401|0.005549|0.00947|0.001242|0.01856|gnomADg_FIN|||||||||"
+    },
+    {
+      "cached": "A|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs868952838|739|1||SNV|EntrezGene|HGNC:56158|||||2||||||||||||||chr9:g.68322868G>A|||||||||||||||||0.007025|0.003651|0|0.006101|0.01637|0.001686|0.00429|0|0.009513|0.00655|0.001011|0.01637|gnomADg_ASJ|||||||||,A|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.458G>A||458|||||rs868952838||1||SNV|EntrezGene|HGNC:56158",
+      "group": 2434932,
+      "key": [
+        "chr9",
+        "68322868",
+        "G",
+        "A"
+      ],
+      "kind": "CSQ",
+      "uncached": "A|upstream_gene_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000414223|lncRNA||||||||||rs868952838|739|1||SNV|EntrezGene||||||2||||||||||||||chr9:g.68322868G>A|||||||||||||||||0.007025|0.003651|0|0.006101|0.01637|0.001686|0.00429|0|0.009513|0.00655|0.001011|0.01637|gnomADg_ASJ|||||||||,A|non_coding_transcript_exon_variant|MODIFIER|LINC03025|ENSG00000234394|Transcript|ENST00000429953|lncRNA|1/6||ENST00000429953.6:n.458G>A||458|||||rs868952838||1||SNV|EntrezGene||||||5||||||||||||||"
+    }
+  ],
+  "key_mismatches": 0,
+  "record_order_only_loci": 1044,
+  "records_compared": 4354696,
+  "semantic_pass": false,
+  "uncached_semantic_sha256": "869bfa52401e568989e9564b5b6a1e42f1cfae30e106f45c96d8f6c4001ea9c5"
+}

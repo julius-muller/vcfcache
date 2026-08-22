@@ -1,0 +1,65 @@
+{
+  "cache_hit_rate": 0.9515093765302206,
+  "cached_cgroup_memory_peak_bytes": 2225020928,
+  "cached_max_rss_kib": 646976,
+  "cached_user_seconds": 321.67,
+  "cached_wall_seconds": 110.74355901498348,
+  "commit": "32a760323fc5",
+  "fraction_wall_time_saved": 0.5652925973343825,
+  "input_records": 75561,
+  "replicate": 1,
+  "sample": "NA19086",
+  "semantic_comparison": {
+    "annotation_mismatches": 0,
+    "annotation_order_only": 0,
+    "cached_semantic_sha256": "28a67aa23837805e461ea64ffa27b2e684f288198867a0fe35a7838bd575aee8",
+    "csq_headers_equal": true,
+    "examples": [
+      {
+        "group": 19755,
+        "ignored_fields": [
+          "HGNC_ID"
+        ],
+        "key": [
+          "chr4",
+          "144116993",
+          "T",
+          "C"
+        ],
+        "kind": "CSQ_ignored_known_vep_issue",
+        "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+      },
+      {
+        "group": 19756,
+        "ignored_fields": [
+          "HGNC_ID"
+        ],
+        "key": [
+          "chr4",
+          "144118592",
+          "T",
+          "C"
+        ],
+        "kind": "CSQ_ignored_known_vep_issue",
+        "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+      }
+    ],
+    "ignored_annotation_mismatches": 2,
+    "ignored_csq_fields": [
+      "HGNC_ID"
+    ],
+    "ignored_difference_reference": "https://github.com/Ensembl/ensembl-vep/issues/1959",
+    "key_mismatches": 0,
+    "raw_annotation_mismatches": 2,
+    "record_order_only_loci": 8,
+    "records_compared": 75561,
+    "semantic_pass": true,
+    "uncached_semantic_sha256": "28a67aa23837805e461ea64ffa27b2e684f288198867a0fe35a7838bd575aee8"
+  },
+  "speedup": 2.3003979087266955,
+  "uncached_cgroup_memory_peak_bytes": 3889242112,
+  "uncached_max_rss_kib": 642860,
+  "uncached_user_seconds": 1646.57,
+  "uncached_wall_seconds": 254.75425156301935,
+  "wall_seconds_saved": 144.01069254803588
+}

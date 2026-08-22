@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/results/deployment/vcfcache-fastvep-b27527a6004f/benchmarks/run_external_task.py", line 369, in <module>
+    main()
+  File "/results/deployment/vcfcache-fastvep-b27527a6004f/benchmarks/run_external_task.py", line 363, in main
+    finalize(args)
+  File "/results/deployment/vcfcache-fastvep-b27527a6004f/benchmarks/run_external_task.py", line 317, in finalize
+    raise FileNotFoundError(
+FileNotFoundError: Condition gnomad_af_0.1 is incomplete: /results/campaigns/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/attempts/task-1/job-524/run/runs/gnomad_af_0.1/pilot/hu365511/b27527a6004f/cached_r01/metrics.json

@@ -1,0 +1,14 @@
+{
+  "campaign_id": "primary-wgs-32a760323fc5-bundled-af1",
+  "failed_slurm_job_id": "103",
+  "failed_task": 20,
+  "measured_dependency_after": "afterok:135",
+  "measured_dependency_before": "afterok:81",
+  "measured_job_id": "82",
+  "original_warmup_job_id": "81",
+  "reason": "warmup task 20 hit Ensembl VEP fork IPC failure and hung until the original job time limit",
+  "recorded_at": "2026-08-03T00:47:48.425701+00:00",
+  "repair_dependency": "afterany:81",
+  "repair_job_id": "135",
+  "repair_scope": "all 50 warmup tasks; archived successes exit without rerunning, so only missing tasks execute"
+}

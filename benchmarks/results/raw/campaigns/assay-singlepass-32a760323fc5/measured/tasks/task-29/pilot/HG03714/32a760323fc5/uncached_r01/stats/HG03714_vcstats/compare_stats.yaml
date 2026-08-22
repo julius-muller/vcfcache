@@ -1,0 +1,25 @@
+command: annotate
+mode: uncached
+run_timestamp: '2026-08-03T12:00:18'
+output_file: /mnt/data/tmp/vcfcache_runs/assay-singlepass-32a760323fc5/measured/task-29/pilot/HG03714/32a760323fc5/uncached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/samples/GRCh38/panel_acmg_sf_v3.3/HG03714.GRCh38.panel_acmg_sf_v3.3.vcf.gz
+input_name: HG03714.GRCh38.panel_acmg_sf_v3.3.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+variant_counts:
+  total_output: 242
+  annotated_output: 242
+  tool_annotated: 242
+  input_variants: 242
+  dropped_variants: 0
+  missing_variants: null
+  missing_annotated: null
+variant_md5:
+  top10: 86fcfd191100eb2b90763159362b02fe
+  bottom10: 86fcfd191100eb2b90763159362b02fe
+  all: null

@@ -16,28 +16,53 @@ plotting backends.
 
 ## Documents
 
+**Start here for results.** [results/](results/) is the benchmark record: what
+was measured, whether it is usable, and the untouched tool output it came from.
+It holds no code — a [history log](results/README.md),
+[guidelines](results/GUIDELINES.md), the current [plan](results/PLAN.md), and
+`results/raw/`.
+
+Still current, alongside this file:
+
 - [MATERIALS_AND_METHODS.md](MATERIALS_AND_METHODS.md): publication-ready
   methods draft, with explicit placeholders for the final full-cohort run.
 - [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md): source releases, citations,
   checksum chain, data-use notes, and submission-time provenance gate.
-- [manifests/](manifests/): tracked machine-readable source, sample-selection,
-  interval, and bundled-Zenodo-cache snapshots for peer review and deposition.
-- [PLAN.md](PLAN.md): implementation phases and publication figure specification.
-- [DATA_SETUP.md](DATA_SETUP.md): exact public-data layout, transformations, and QC.
-- [INFRASTRUCTURE.md](INFRASTRUCTURE.md): measured VM capacity and scaling decision.
-- [STORAGE_LAYOUT.md](STORAGE_LAYOUT.md): live dev/prod storage topology, data
-  ownership, cache locations, result paths, and remaining filesystem capacity.
-- [PILOT_RESULTS.md](PILOT_RESULTS.md): frozen paired-pilot results and scale-up gate.
-- [ASSAY_DATA_RESULTS.md](ASSAY_DATA_RESULTS.md): completed HPRC/WES/panel counts,
-  checksums, storage, and QC gate.
-- [CACHE_STRATEGY_COMPARISON.md](CACHE_STRATEGY_COMPARISON.md): emergency
-  validity assessment, runtime model, replacement assay/cache matrix, and the
-  quarantined exploratory strategy comparison.
 - [EXTERNAL_COHORT_SIMILARITY.md](EXTERNAL_COHORT_SIMILARITY.md): exact
   allele-level Jaccard and directional sharing checks for representative
   external WGS pairs.
+- [manifests/](manifests/): tracked machine-readable source, sample-selection,
+  interval, and bundled-Zenodo-cache snapshots for peer review and deposition.
 - [figures/](figures/): provenance-tracked source snapshots and the canonical
   R/ggplot2 plotting workflow.
+
+[docs/](docs/) keeps the earlier design and results documents. They record how
+the benchmarks got to their present shape and several are still cited for frozen
+claims, but where they disagree with `results/`, `results/` is current. Note in
+particular that the GIAB cohort described in `docs/DATA_SETUP.md` was **dropped**
+and supports no claim, and that `docs/PLAN.md` and
+`docs/ANNOTATOR_FOLLOWUP_PLAN.md` are superseded by
+[results/PLAN.md](results/PLAN.md).
+
+## Where things live
+
+The scripts here accumulated one campaign at a time and are deliberately left
+where they are, since the figure pipeline, tests and frozen claims reference
+them by path. They follow a naming convention:
+
+| prefix | role |
+|---|---|
+| `prepare_*.py` | build cohorts, regions and node-local tool installs |
+| `run_*.py` | execute a campaign, one task per sample/condition |
+| `analyze_*.py` | fit models and derive tables from campaign output |
+| `slurm_*.sh`, `stage_*.sh` | submission and staging wrappers |
+| `collect_*.py`, `validate_*.py`, `recover_*.py` | assemble, check and repair campaign output |
+
+Subdirectories: `config/` and `manifests/` (inputs and frozen snapshots),
+`vep_plugins/` (the `SyntheticDelay.pm` cost sweep), `figures/` (R plotting and
+source snapshots), `fastvep_pilot/` (a separate non-publication diagnostic),
+`external_assay_v3/` (the Panel/WES extension), `docs/` (earlier design
+documents) and `results/` (the benchmark record).
 
 ## Prepare the public VCF cohort
 
@@ -52,6 +77,12 @@ The default cohort contains 50 unrelated 1000 Genomes samples (10 from each
 superpopulation, sex-balanced) and the seven GIAB v4.2.1 GRCh38 benchmark
 genomes. Final inputs are sorted, BGZF-compressed, tabix-indexed, single-sample
 VCFs covering autosomes 1–22.
+
+The script still prepares both, but **neither cohort supports a manuscript
+claim**. GIAB was dropped early, and the 1000 Genomes campaigns were superseded
+by the held-out KPGP, SGDP and PGP genomes, which share no samples with the
+gnomAD blueprint the caches are built over. See
+[results/README.md](results/README.md).
 
 All stages are resumable. Successfully verified downloads and completed
 chromosome/sample outputs are skipped on subsequent invocations.
@@ -74,7 +105,7 @@ and adds three assay/robustness cohorts:
 The word "independent" is intentionally not used here. The HPRC selection also
 uses 1000 Genomes identities, while the WES and panel inputs are interval
 subsets of the primary 1000 Genomes genomes. See the emergency validity
-assessment in `CACHE_STRATEGY_COMPARISON.md` before interpreting bundled-cache
+assessment in `docs/CACHE_STRATEGY_COMPARISON.md` before interpreting bundled-cache
 hit rates.
 
 The matched WES and panel cohorts use chromosomes 1–22 and X. The official

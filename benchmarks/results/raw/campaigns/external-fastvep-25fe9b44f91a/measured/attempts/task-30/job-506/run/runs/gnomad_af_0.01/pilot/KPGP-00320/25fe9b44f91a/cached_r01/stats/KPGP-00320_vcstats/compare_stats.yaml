@@ -1,0 +1,26 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-06T16:53:15'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-fastvep-25fe9b44f91a/measured/task-30/runs/gnomad_af_0.01/pilot/KPGP-00320/25fe9b44f91a/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00320.GRCh38.small_variants.vcf.gz
+input_name: KPGP-00320.GRCh38.small_variants.vcf.gz
+cache_name: cache-fastvep-0.3.0-publication
+cache_path: /mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh38/bundled-GRCh38-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication
+annotation_yaml_md5: 5d0bf02e82cfd8dbec6e3d2fd3c08a52
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: full
+variant_counts:
+  total_output: 4684091
+  annotated_output: 4684091
+  tool_annotated: 360171
+  input_variants: 4684091
+  dropped_variants: 0
+  missing_variants: 360171
+  missing_annotated: 360171
+variant_md5:
+  top10: 13ddf2cab22105b06420e5cb9e7bf8f2
+  bottom10: 13ddf2cab22105b06420e5cb9e7bf8f2
+  all: null

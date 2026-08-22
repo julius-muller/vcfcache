@@ -1,0 +1,109 @@
+{
+  "campaign_id": "external-wgs-6c422804f208-hg19",
+  "cohort_assemblies": {
+    "kpgp": "GRCh38",
+    "pgp": "GRCh37",
+    "sgdp": "GRCh38"
+  },
+  "commit": "e21fe1a13ed85f9e0d11b424b3fa2afa1aeaaa63",
+  "commit_short": "e21fe1a13ed8",
+  "conditions": [
+    "uncached",
+    "gnomad_af_0.1",
+    "gnomad_af_0.01",
+    "cohort_3_genomes"
+  ],
+  "created_at": "2026-08-04T09:21:45.521862+00:00",
+  "evaluation_counts": {
+    "kpgp": 20,
+    "pgp": 12,
+    "sgdp": 20
+  },
+  "input_repair": {
+    "applied_at": "2026-08-05T17:24:09.527985+00:00",
+    "applied_with_commit": "961bececc852de3ebb6ae809b1a37d840eccc431",
+    "cache_rebuild_rationale": "The affected training input has the identical unique variant-key digest before and after repair; cache membership is unchanged.",
+    "cache_rebuild_required": false,
+    "method": "streaming first-record filter by CHROM/POS/REF/ALT",
+    "phase_task_ids": {
+      "measured": [
+        3,
+        4,
+        5,
+        15,
+        16,
+        17,
+        45,
+        46,
+        47,
+        51,
+        52,
+        53,
+        105,
+        106,
+        107,
+        126,
+        127,
+        128
+      ],
+      "smoke": [],
+      "warmup": [
+        1,
+        5,
+        15,
+        17,
+        35,
+        42
+      ]
+    },
+    "report": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/external_wgs_duplicate_repair.json",
+    "report_sha256": "f1345b243e66caf33d092d9de4e480f4718b86d07128284981c971fe432e5a7e"
+  },
+  "phases": {
+    "measured": {
+      "manifest": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/measured.tsv",
+      "manifest_sha256": "bb799acf4091f755dcf705729fd3896e9c0412498db7f2a09af4dee328473d3f",
+      "replicates": 3,
+      "samples": 52,
+      "tasks": 156
+    },
+    "smoke": {
+      "manifest": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/smoke.tsv",
+      "manifest_sha256": "15f2e8da065eb5ce87cadf392f7d04e46a9e092002d831f48f2301d167506d1a",
+      "replicates": 1,
+      "samples": 1,
+      "tasks": 1
+    },
+    "warmup": {
+      "manifest": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/warmup.tsv",
+      "manifest_sha256": "608e818321860791d41c41d63fed48dc413b0e87cae9815b5bad0a4a023788cd",
+      "replicates": 1,
+      "samples": 52,
+      "tasks": 52
+    }
+  },
+  "qc": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/external_wgs_qc.tsv",
+  "qc_sha256": "bf8d65f9ad5104f63dba0ad1d4dfd4d0301e08935c44891d7600fcda0ef343fd",
+  "qc_source": "/mnt/data/vcfcache_benchmarks/external_wgs/qc/external_wgs_qc.tsv",
+  "runtime_params_by_assembly": {
+    "GRCh37": {
+      "controller_path": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/runtime_params_GRCh37.yaml",
+      "path": "/results/campaigns/external-wgs-6c422804f208-hg19/manifests/runtime_params_GRCh37.yaml",
+      "sha256": "aacbe3028d4b1a5d14a416202b75fb64c74d0a0b57b7208652cf352c5201c70e",
+      "source": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh37_joint_af010/cache/vep115.2_everything/params.snapshot.yaml",
+      "source_sha256": "ec1757c68479e4e91a246e64d19ca9e1268c70faec08d765512441439ee9c4ee",
+      "vep_buffer": 100000
+    },
+    "GRCh38": {
+      "controller_path": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/runtime_params_GRCh38.yaml",
+      "path": "/results/campaigns/external-wgs-6c422804f208-hg19/manifests/runtime_params_GRCh38.yaml",
+      "sha256": "323a7d4a5411c64717bcfa6f7fbb18558ca489e10c649067fd68e1ab4e2e344f",
+      "source": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af010/cache/vep115.2_everything/params.snapshot.yaml",
+      "source_sha256": "02a14bb11b80074a549b5611c19a27d1a90e15dc77e5b90441b2ff03c9a40f8a",
+      "vep_buffer": 100000
+    }
+  },
+  "seed": "vcfcache-paper-external-wgs-v1",
+  "strategies": "/mnt/data/slurm-results/campaigns/external-wgs-6c422804f208-hg19/manifests/strategies.json",
+  "strategies_sha256": "03adaff0b9c426726cec4c4884f85b1172148e6ecdb07ca61eac958877615704"
+}

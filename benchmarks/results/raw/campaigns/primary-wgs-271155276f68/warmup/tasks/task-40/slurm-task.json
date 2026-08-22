@@ -1,0 +1,22 @@
+{
+  "campaign_id": "primary-wgs-271155276f68",
+  "phase": "warmup",
+  "measured": false,
+  "task_id": 40,
+  "sample": "NA19351",
+  "population": "LWK",
+  "superpopulation": "AFR",
+  "sex": "female",
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/samples/GRCh38/1000g/AFR/NA19351.GRCh38.small_variants.vcf.gz",
+  "input_records": 5271284,
+  "input_sha256": "1dfaae335e6a20b0c12245558ae8afdcd682acbd49aa01053234637d213ebbd7",
+  "replicate": 1,
+  "first_mode": "cached",
+  "second_mode": "uncached",
+  "randomization_key": "3a3ba49d8b43f3a6505cf82b14e5f178c60bad18edcc0f5e724cbe30dbf1ee46",
+  "slurm_job_id": "71",
+  "slurm_array_job_id": "29",
+  "slurm_node": "sl-w1",
+  "allocated_cpus": "8",
+  "requested_memory_per_node": "30000"
+}

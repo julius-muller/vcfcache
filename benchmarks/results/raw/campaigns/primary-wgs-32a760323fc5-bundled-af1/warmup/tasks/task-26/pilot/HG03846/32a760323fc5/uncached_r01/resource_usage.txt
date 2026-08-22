@@ -1,0 +1,23 @@
+	Command being timed: "/mnt/data/vcfcache/.venv/bin/vcfcache annotate -a /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything -i /mnt/data/vcfcache_benchmarks/samples/GRCh38/1000g/SAS/HG03846.GRCh38.small_variants.vcf.gz -o /mnt/data/tmp/vcfcache_runs/primary-wgs-32a760323fc5-bundled-af1/warmup/task-26/pilot/HG03846/32a760323fc5/uncached_r01/output.bcf --stats-dir /mnt/data/tmp/vcfcache_runs/primary-wgs-32a760323fc5-bundled-af1/warmup/task-26/pilot/HG03846/32a760323fc5/uncached_r01/stats -y /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/params.snapshot.yaml --force --uncached"
+	User time (seconds): 38399.21
+	System time (seconds): 1401.60
+	Percent of CPU this job got: 723%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:31:38
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5945128
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 205
+	Minor (reclaiming a frame) page faults: 431643701
+	Voluntary context switches: 2148677
+	Involuntary context switches: 2993380
+	Swaps: 0
+	File system inputs: 45868912
+	File system outputs: 2182536
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

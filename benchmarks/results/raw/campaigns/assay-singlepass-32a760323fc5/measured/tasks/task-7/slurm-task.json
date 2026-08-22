@@ -1,0 +1,22 @@
+{
+  "campaign_id": "assay-singlepass-32a760323fc5",
+  "phase": "measured",
+  "measured": true,
+  "task_id": 7,
+  "sample": "HG03388",
+  "population": "MSL",
+  "superpopulation": "AFR",
+  "sex": "male",
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/samples/GRCh38/wes_twist_core/HG03388.GRCh38.wes_twist_core.vcf.gz",
+  "input_records": 95429,
+  "input_sha256": "5a341f45116f7c7ba63337c63ce28251d866d9aca064e3ca833c1e568ec47f4a",
+  "replicate": 1,
+  "first_mode": "uncached",
+  "second_mode": "cached",
+  "randomization_key": "77308c5f617dc90dbadf4388ea4cc2ea16f42c4de2960e35752c4b4eba0cb2f3",
+  "slurm_job_id": "234",
+  "slurm_array_job_id": "229",
+  "slurm_node": "sl-w4",
+  "allocated_cpus": "8",
+  "requested_memory_per_node": "30000"
+}

@@ -1,0 +1,13 @@
+{
+  "tool": "SnpEff 5.4c",
+  "database": "GRCh38.115 (stock, snpeff-public S3)",
+  "assembly": "GRCh38",
+  "level": "core",
+  "invocation": "split (one process per contig, 3 workers x 8g)",
+  "assays": ["panel", "wes"],
+  "genomes": 12,
+  "cache": "gnomAD AF>=1% GRCh38, 18869857 alleles",
+  "slurm_job": 945,
+  "status": "superseded",
+  "note": "Correct measurements, but the split invocation gives the direct arm a parallel speedup the smaller cached arm cannot use. Superseded as primary by the serial run; retained as the optimised-invocation bound."
+}

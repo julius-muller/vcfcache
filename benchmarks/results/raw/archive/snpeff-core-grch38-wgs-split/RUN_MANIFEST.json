@@ -1,0 +1,13 @@
+{
+  "tool": "SnpEff 5.4c",
+  "database": "GRCh38.115 (stock)",
+  "assembly": "GRCh38",
+  "level": "core",
+  "invocation": "split (one process per contig, 3 workers x 8g)",
+  "assays": ["wgs"],
+  "genomes": 3,
+  "cache": "gnomAD AF>=1% GRCh38, 18869857 alleles",
+  "slurm_job": 966,
+  "status": "superseded",
+  "note": "Reconstructed from job logs after the TSVs were deleted during a restart. Direct arm parallelised across contigs; the serial run is the primary comparison. This is the optimised-invocation lower bound for SnpEff WGS."
+}

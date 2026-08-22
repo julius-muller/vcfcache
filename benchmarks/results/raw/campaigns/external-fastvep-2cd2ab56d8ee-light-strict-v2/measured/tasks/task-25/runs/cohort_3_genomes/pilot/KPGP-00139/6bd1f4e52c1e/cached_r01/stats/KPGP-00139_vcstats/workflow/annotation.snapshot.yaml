@@ -1,0 +1,16 @@
+genome_build: "GRCh38"
+annotation_cmd: |
+  ${params.bcftools_cmd} view \${INPUT_BCF} -Ov | \
+  env RAYON_NUM_THREADS=${params.rayon_threads} ${params.annotation_tool_cmd} annotate \
+    --input - \
+    --output - \
+    --output-format vcf \
+    --transcript-cache ${params.transcript_cache} \
+    --fasta ${params.fasta} \
+    --hgvs --no-progress \
+    2> \${AUXILIARY_DIR}/fastvep_stderr.txt | \
+  ${params.bcftools_cmd} view -Ob -o \${OUTPUT_BCF} -W --threads ${params.threads}
+
+must_contain_info_tag: CSQ
+required_tool_version: "0.3.0"
+optional_checks: {}

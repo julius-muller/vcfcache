@@ -1,0 +1,31 @@
+{
+  "baseline": {
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--job-name=controlled-baseline",
+      "--array=0-3%4",
+      "--chdir=/mnt/data/vcfcache",
+      "--output=/results/campaigns/controlled-runtime-light-cc100c0-50-90/logs/baseline-%A_%a.out",
+      "--export=ALL,VCFCACHE_CAMPAIGN_ID=controlled-runtime-light-cc100c0-50-90,VCFCACHE_PHASE=baseline,VCFCACHE_TASK_MANIFEST=/results/campaigns/controlled-runtime-light-cc100c0-50-90/manifests/baseline.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+      "/mnt/data/vcfcache/benchmarks/slurm_controlled_runtime.sh"
+    ],
+    "job_id": "747"
+  },
+  "cached": {
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--job-name=controlled-cached",
+      "--array=0-7%6",
+      "--chdir=/mnt/data/vcfcache",
+      "--output=/results/campaigns/controlled-runtime-light-cc100c0-50-90/logs/cached-%A_%a.out",
+      "--export=ALL,VCFCACHE_CAMPAIGN_ID=controlled-runtime-light-cc100c0-50-90,VCFCACHE_PHASE=cached,VCFCACHE_TASK_MANIFEST=/results/campaigns/controlled-runtime-light-cc100c0-50-90/manifests/cached.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+      "--dependency=afterok:747",
+      "/mnt/data/vcfcache/benchmarks/slurm_controlled_runtime.sh"
+    ],
+    "dependency": "747",
+    "job_id": "748"
+  },
+  "submitted_at": "2026-08-10T07:21:45.043864+00:00"
+}

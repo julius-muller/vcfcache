@@ -1,0 +1,191 @@
+{
+  "campaign_id": "external-wgs-6c422804f208-hg19",
+  "commit": "6c422804f2082dc02188c2c680fc4d44e2e62aca",
+  "concurrency": 6,
+  "deferred_staging": true,
+  "repair_submission": {
+    "commit": "961bececc852de3ebb6ae809b1a37d840eccc431",
+    "controlled_handoff": {
+      "controller_stopped": true,
+      "previous_controller_pid": 181446,
+      "status": "not_gating_figures"
+    },
+    "measured": {
+      "job_id": "300",
+      "reason": "technical replicates removed; recovered warmup is the single publication run per genome",
+      "status": "cancelled_before_start"
+    },
+    "pgp_rerun": {
+      "job_id": "298",
+      "priority": 10,
+      "task_ids": [
+        1,
+        5,
+        15,
+        17,
+        35,
+        42
+      ]
+    },
+    "previous_repair_submission": {
+      "commit": "961bececc852de3ebb6ae809b1a37d840eccc431",
+      "measured": {
+        "dependency": "afterok:294:295",
+        "job_id": "296",
+        "tasks": 156
+      },
+      "pgp_rerun": {
+        "dependency": "afterany:110",
+        "job_id": "295",
+        "task_ids": [
+          1,
+          5,
+          15,
+          17,
+          35,
+          42
+        ]
+      },
+      "recovery": {
+        "dependency": "afterany:110",
+        "job_id": "294",
+        "task_ids": [
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          14,
+          16,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          32,
+          34,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          43,
+          44,
+          45,
+          46,
+          47,
+          49,
+          50,
+          51
+        ]
+      },
+      "smoke_recovery_job": "293 (obsolete incomplete smoke attempt; warmup evidence supersedes it)",
+      "submitted_at": "2026-08-05T17:29:40.285837+00:00",
+      "supersedes_measured_job": "111",
+      "warmup_gate_job": "110"
+    },
+    "publication_dataset": {
+      "completion_barrier_job": "303",
+      "decision_at": "2026-08-05T17:45:59.658441+00:00",
+      "phase": "warmup",
+      "samples": 52,
+      "technical_replicates": 1
+    },
+    "recovery_now": {
+      "job_id": "297",
+      "task_ids": [
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        14,
+        16,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        32,
+        34,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        43,
+        44,
+        46
+      ]
+    },
+    "recovery_tail": {
+      "dependency": "afterany:110",
+      "job_id": "299",
+      "task_ids": [
+        45,
+        47,
+        49,
+        50,
+        51
+      ]
+    },
+    "submitted_at": "2026-08-05T17:34:12.208890+00:00",
+    "supersedes": {
+      "first_replacement_jobs": [
+        "294",
+        "295",
+        "296"
+      ],
+      "measured_job": "111",
+      "reason": "start safe recovery work immediately on the free sixth worker"
+    },
+    "warmup_gate_job": "110"
+  },
+  "submissions": {
+    "gate": {
+      "dependency": "82",
+      "job_id": "108"
+    },
+    "measured": {
+      "dependency": "110",
+      "job_id": "111"
+    },
+    "smoke": {
+      "dependency": "108",
+      "job_id": "109"
+    },
+    "warmup": {
+      "dependency": "109",
+      "job_id": "110"
+    }
+  },
+  "submitted_at": "2026-08-02T12:09:11.293341+00:00"
+}

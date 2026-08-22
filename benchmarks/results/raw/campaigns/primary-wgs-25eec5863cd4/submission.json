@@ -1,0 +1,49 @@
+{
+  "campaign_id": "primary-wgs-25eec5863cd4",
+  "commit": "25eec5863cd4528f59e3bcf4b13a59a4c060bb78",
+  "concurrency": 6,
+  "hostname": "sl-head",
+  "submissions": {
+    "measured": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=vcfcache-measured",
+        "--array=0-149%6",
+        "--output=/results/campaigns/primary-wgs-25eec5863cd4/logs/measured-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=primary-wgs-25eec5863cd4,VCFCACHE_PHASE=measured,VCFCACHE_TASK_MANIFEST=/results/campaigns/primary-wgs-25eec5863cd4/manifests/measured.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+        "--dependency=afterok:6",
+        "/mnt/data/vcfcache/benchmarks/slurm_pair.sh"
+      ],
+      "dependency": "6",
+      "job_id": "7"
+    },
+    "smoke": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=vcfcache-smoke",
+        "--array=0-0%1",
+        "--output=/results/campaigns/primary-wgs-25eec5863cd4/logs/smoke-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=primary-wgs-25eec5863cd4,VCFCACHE_PHASE=smoke,VCFCACHE_TASK_MANIFEST=/results/campaigns/primary-wgs-25eec5863cd4/manifests/smoke.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+        "/mnt/data/vcfcache/benchmarks/slurm_pair.sh"
+      ],
+      "job_id": "5"
+    },
+    "warmup": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=vcfcache-warmup",
+        "--array=0-49%6",
+        "--output=/results/campaigns/primary-wgs-25eec5863cd4/logs/warmup-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=primary-wgs-25eec5863cd4,VCFCACHE_PHASE=warmup,VCFCACHE_TASK_MANIFEST=/results/campaigns/primary-wgs-25eec5863cd4/manifests/warmup.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+        "--dependency=afterok:5",
+        "/mnt/data/vcfcache/benchmarks/slurm_pair.sh"
+      ],
+      "dependency": "5",
+      "job_id": "6"
+    }
+  },
+  "submitted_at": "2026-07-31T14:56:30.793837+00:00"
+}

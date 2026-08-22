@@ -1,0 +1,14 @@
+{
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--job-name=wgs-pipeline-spectrum",
+    "--array=0-5%6",
+    "--chdir=/mnt/data/vcfcache",
+    "--output=/results/campaigns/wgs-pipeline-spectrum-4f854e5-kpgp00319/logs/task-%A_%a.out",
+    "--export=ALL,VCFCACHE_CAMPAIGN_ID=wgs-pipeline-spectrum-4f854e5-kpgp00319,VCFCACHE_TASK_MANIFEST=/results/campaigns/wgs-pipeline-spectrum-4f854e5-kpgp00319/manifests/tasks.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+    "/mnt/data/vcfcache/benchmarks/slurm_wgs_pipeline_spectrum.sh"
+  ],
+  "job_id": "752",
+  "submitted_at": "2026-08-10T07:40:56.545234+00:00"
+}

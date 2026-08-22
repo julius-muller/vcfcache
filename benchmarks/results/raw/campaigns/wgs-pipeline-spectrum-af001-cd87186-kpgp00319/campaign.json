@@ -1,0 +1,77 @@
+{
+  "assembly": "GRCh38",
+  "baseline_campaign": {
+    "campaign_id": "wgs-pipeline-spectrum-4f854e5-kpgp00319",
+    "commit": "4f854e51a64e79eac2c1fa865b048c1367d95749",
+    "root": "/mnt/data/slurm-results/campaigns/wgs-pipeline-spectrum-4f854e5-kpgp00319"
+  },
+  "campaign_id": "wgs-pipeline-spectrum-af001-cd87186-kpgp00319",
+  "cohort": "KPGP",
+  "commit": "cd871861c3b18b25315df560fcaf374b2decb527",
+  "created_at": "2026-08-11T23:02:53.342017+00:00",
+  "delays_us": [
+    500,
+    1000,
+    2000,
+    4000,
+    7000,
+    10000
+  ],
+  "input_records": 4795706,
+  "input_sha256": "d6475ce97e229330544087887c53897864a777e23fbdd9c20332b4b8fe56ad16",
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+  "new_timed_cells": 6,
+  "prior_observed_hit_rate": 0.9025939037964379,
+  "reused_direct_cells": 6,
+  "sample": "KPGP-00319",
+  "semantic_design": {
+    "kind": "composed_reference_plus_cross_delay_fingerprint",
+    "new_outputs_require_identical_canonical_fingerprints": true,
+    "plugin_emits_annotations": false,
+    "source_cache_direct_comparison": true
+  },
+  "source_alias": "cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+  "source_doi": "10.5281/zenodo.18190046",
+  "source_files": {
+    "READY.json": "120228d08a740fd4a87d567774cc1868ecc9f90b4b56dd904e511f1e6b9952c3",
+    "SyntheticDelay.pm": "0255ffa8ec5089c0124e9344c1a8db7fdd8e78752014c94ef8202c129ea0ad6a",
+    "run_pilot.py": "dbf6717e59795b6d62ab5edbbfe504d8e4dbd4e8e765253d6f95cd8cda326a78",
+    "run_wgs_pipeline_spectrum_cached.py": "a0a9f649d2191b40004b939f75d747c118b69a1e7ec56d0c46aec1835c4c910b",
+    "run_wgs_pipeline_spectrum_task.py": "c9dd1405720cfb6fc21c4929b0c3557c11b93ae31d63e6ef7d5c663182588aef",
+    "slurm_wgs_pipeline_spectrum_cached.sh": "0ce7e2a3655d481aa4abb628b80935e5d900af85dc07140ac7f240ad664263dc"
+  },
+  "source_semantic_reference": {
+    "campaign_id": "external-vep-light-full52-bbef41d7db8e",
+    "row": {
+      "assembly": "GRCh38",
+      "bundled_alias": "cache-gnomad-v4.1-GRCh38-joint-af001-vep115.2-e",
+      "cache_hit_rate": 0.9025939037964379,
+      "cached_wall_seconds": 1318.861596748,
+      "cohort": "kpgp",
+      "ignored_annotation_mismatches": 427,
+      "input_records": 4795706,
+      "phase": "measured",
+      "raw_annotation_mismatches": 427,
+      "relative_runtime": 0.13054474268233737,
+      "replicate": 1,
+      "sample": "KPGP-00319",
+      "semantic_comparator": "vep_semantic_with_documented_exceptions_v1",
+      "semantic_pass": true,
+      "source_blueprint_alias": "",
+      "source_blueprint_doi": "",
+      "source_strategy_kind": "",
+      "speedup": 7.6602089019652215,
+      "statistics_mode": "light",
+      "strategy": "gnomad_af_0.01",
+      "strategy_kind": "bundled_zenodo",
+      "tool": "vep",
+      "uncached_wall_seconds": 10102.755343869096,
+      "zenodo_doi": "10.5281/zenodo.18190046"
+    },
+    "summary_sha256": "17039dd354e15f0f73894d58f20f218a0134ccec1d00206fa8bd829cde9714f7",
+    "task_path": "/mnt/data/slurm-results/campaigns/external-vep-light-full52-bbef41d7db8e/measured/tasks/task-19"
+  },
+  "statistics_mode": "light",
+  "task_count": 6,
+  "technical_repeats": 0
+}

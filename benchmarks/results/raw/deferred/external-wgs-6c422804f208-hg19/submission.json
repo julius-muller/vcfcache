@@ -1,0 +1,25 @@
+{
+  "campaign_id": "external-wgs-6c422804f208-hg19",
+  "commit": "6c422804f2082dc02188c2c680fc4d44e2e62aca",
+  "concurrency": 6,
+  "deferred_staging": true,
+  "submissions": {
+    "gate": {
+      "dependency": "82",
+      "job_id": "108"
+    },
+    "measured": {
+      "dependency": "110",
+      "job_id": "111"
+    },
+    "smoke": {
+      "dependency": "108",
+      "job_id": "109"
+    },
+    "warmup": {
+      "dependency": "109",
+      "job_id": "110"
+    }
+  },
+  "submitted_at": "2026-08-02T12:09:11.293341+00:00"
+}

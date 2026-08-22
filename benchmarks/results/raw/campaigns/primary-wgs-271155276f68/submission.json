@@ -1,0 +1,52 @@
+{
+  "campaign_id": "primary-wgs-271155276f68",
+  "commit": "271155276f683d624f49005444681441e51e5638",
+  "concurrency": 6,
+  "hostname": "sl-head",
+  "submissions": {
+    "measured": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=vcfcache-measured",
+        "--array=0-149%6",
+        "--chdir=/mnt/data/vcfcache",
+        "--output=/results/campaigns/primary-wgs-271155276f68/logs/measured-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=primary-wgs-271155276f68,VCFCACHE_PHASE=measured,VCFCACHE_TASK_MANIFEST=/results/campaigns/primary-wgs-271155276f68/manifests/measured.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+        "--dependency=afterok:29",
+        "/mnt/data/vcfcache/benchmarks/slurm_pair.sh"
+      ],
+      "dependency": "29",
+      "job_id": "30"
+    },
+    "smoke": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=vcfcache-smoke",
+        "--array=0-0%1",
+        "--chdir=/mnt/data/vcfcache",
+        "--output=/results/campaigns/primary-wgs-271155276f68/logs/smoke-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=primary-wgs-271155276f68,VCFCACHE_PHASE=smoke,VCFCACHE_TASK_MANIFEST=/results/campaigns/primary-wgs-271155276f68/manifests/smoke.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+        "/mnt/data/vcfcache/benchmarks/slurm_pair.sh"
+      ],
+      "job_id": "28"
+    },
+    "warmup": {
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=vcfcache-warmup",
+        "--array=0-49%6",
+        "--chdir=/mnt/data/vcfcache",
+        "--output=/results/campaigns/primary-wgs-271155276f68/logs/warmup-%A_%a.out",
+        "--export=ALL,VCFCACHE_CAMPAIGN_ID=primary-wgs-271155276f68,VCFCACHE_PHASE=warmup,VCFCACHE_TASK_MANIFEST=/results/campaigns/primary-wgs-271155276f68/manifests/warmup.tsv,VCFCACHE_RESULTS_ROOT=/results,VCFCACHE_REPO_ROOT=/mnt/data/vcfcache",
+        "--dependency=afterok:28",
+        "/mnt/data/vcfcache/benchmarks/slurm_pair.sh"
+      ],
+      "dependency": "28",
+      "job_id": "29"
+    }
+  },
+  "submitted_at": "2026-07-31T20:47:31.704567+00:00"
+}

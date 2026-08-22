@@ -1,0 +1,26 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-06T19:03:14'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/task-5/runs/gnomad_af_0.01/pilot/huCDD5EE/2cd2ab56d8ee/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh37/pgp_deduplicated/huCDD5EE.GRCh37.small_variants.vcf.gz
+input_name: huCDD5EE.GRCh37.small_variants.vcf.gz
+cache_name: cache-fastvep-0.3.0-publication
+cache_path: /mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication
+annotation_yaml_md5: fa045511e9c274b41f586f82d6265fb2
+genome_build_params: GRCh37
+genome_build_annotation: GRCh37
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: light
+variant_counts:
+  total_output: 4815438
+  annotated_output: 4815438
+  tool_annotated: 506263
+  input_variants: 4815438
+  dropped_variants: 0
+  missing_variants: 506263
+  missing_annotated: 506263
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null

@@ -1,0 +1,31 @@
+{
+  "campaign_id": "controlled-runtime-light-14ad84d-50-90",
+  "commit": "14ad84d1109840b956fb009dde7053a70b38bd1b",
+  "controlled_root": "/mnt/data/vcfcache_benchmarks/controlled_runtime",
+  "created_at": "2026-08-10T07:16:53.068638+00:00",
+  "hit_rates": [
+    50,
+    90
+  ],
+  "input_sha256": "9c4679c5b3cf4c9784a593736bf5d4e5b6f818486dfd7438644ff90d0899d2e4",
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/samples/GRCh38/wes_twist_core/HG02374.GRCh38.wes_twist_core.vcf.gz",
+  "phases": {
+    "baseline": 4,
+    "cached": 8
+  },
+  "pipelines": {
+    "delay_20ms": 20000,
+    "delay_5ms": 5000,
+    "everything": null,
+    "vanilla": null
+  },
+  "ready_sha256": "9d86afef6384f3d3fba2eb4afd9b2d21910997fa0ce41d7b0d076a4114348b67",
+  "source_files": {
+    "SyntheticDelay.pm": "0255ffa8ec5089c0124e9344c1a8db7fdd8e78752014c94ef8202c129ea0ad6a",
+    "run_controlled_cohort.py": "b54b924cf5512423d2c5e230e440603386979ede17ac7613ca7a94a52b3465f4",
+    "run_controlled_task.py": "b8ac032434dcd9f411f3e1655152a28b1599d37b63029d5298a6592e50b2a36e",
+    "run_pilot.py": "dbf6717e59795b6d62ab5edbbfe504d8e4dbd4e8e765253d6f95cd8cda326a78",
+    "slurm_controlled_runtime.sh": "141b4f50058ca169f571d0282d20d29f9bfa0d846058c37a27bed87cec633e40"
+  },
+  "statistics_mode": "light"
+}

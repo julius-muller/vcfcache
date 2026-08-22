@@ -1,0 +1,14 @@
+
+-------------------- EXCEPTION --------------------
+MSG: 
+ERROR: Forked process(es) died: read-through of cross-process communication detected
+
+STACK Bio::EnsEMBL::VEP::Runner::_forked_buffer_to_output /opt/vep/src/ensembl-vep/modules/Bio/EnsEMBL/VEP/Runner.pm:562
+STACK Bio::EnsEMBL::VEP::Runner::next_output_line /opt/vep/src/ensembl-vep/modules/Bio/EnsEMBL/VEP/Runner.pm:367
+STACK Bio::EnsEMBL::VEP::Runner::run /opt/vep/src/ensembl-vep/modules/Bio/EnsEMBL/VEP/Runner.pm:208
+STACK toplevel /opt/vep/src/ensembl-vep/vep:46
+Date (localtime)    = Sun Aug  2 14:02:22 2026
+Ensembl API version = 115
+---------------------------------------------------
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process

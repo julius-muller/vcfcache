@@ -1,0 +1,55 @@
+{
+  "assembly": "GRCh38",
+  "baseline_campaign_id": "wgs-pipeline-spectrum-4f854e5-kpgp00319",
+  "baseline_reused": true,
+  "baseline_summary_sha256": "d7b5c0e221b7ddfe3c9c4f717ff152edd8af265b348c74c1210ef26bca9c2a13",
+  "cache_hit_rate": 0.9025939037964379,
+  "cached_wall_seconds": 2222.9031638629967,
+  "cohort": "KPGP",
+  "delay_us": 1000,
+  "input_records": 4795706,
+  "pipeline": "everything_delay_01000us",
+  "relative_runtime": 0.11225795793453032,
+  "sample": "KPGP-00319",
+  "semantic_fingerprint": {
+    "algorithm": "vep_semantic_fingerprint_v1",
+    "csq_header_sha256": "b82530d299da66ad53542a572de9bebf08602370be8b9aeb803caef53745b532",
+    "ignored_csq_fields": [
+      "HGNC_ID"
+    ],
+    "records": 4795706,
+    "semantic_sha256": "b631c5ffad92be63b402288295184803e7c98fe2b54c691088c81cf92ef243cd",
+    "unordered_csq_fields": [
+      "DOMAINS"
+    ]
+  },
+  "semantic_validation": "pending_composed_validation",
+  "source_semantic_campaign_id": "external-vep-light-full52-bbef41d7db8e",
+  "source_semantic_comparator": "vep_semantic_with_documented_exceptions_v1",
+  "source_semantic_pass": true,
+  "speedup": 8.908054434619304,
+  "statistics_mode": "light",
+  "task": {
+    "assembly": "GRCh38",
+    "baseline_campaign_id": "wgs-pipeline-spectrum-4f854e5-kpgp00319",
+    "baseline_summary_sha256": "d7b5c0e221b7ddfe3c9c4f717ff152edd8af265b348c74c1210ef26bca9c2a13",
+    "baseline_uncached_wall_seconds": "19801.742386579048",
+    "cache_dir": "/mnt/data/vcfcache_benchmarks/wgs_pipeline_spectrum_af001/cache/everything_delay_01000us",
+    "cohort": "KPGP",
+    "delay_us": "1000",
+    "expected_hit_rate": "0.9025939037964379",
+    "input_records": "4795706",
+    "input_sha256": "d6475ce97e229330544087887c53897864a777e23fbdd9c20332b4b8fe56ad16",
+    "input_vcf": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+    "params_file": "/mnt/data/vcfcache_benchmarks/wgs_pipeline_spectrum_af001/cache/everything_delay_01000us/params.snapshot.yaml",
+    "pipeline": "everything_delay_01000us",
+    "sample": "KPGP-00319",
+    "source_semantic_campaign_id": "external-vep-light-full52-bbef41d7db8e",
+    "source_semantic_comparator": "vep_semantic_with_documented_exceptions_v1",
+    "source_semantic_pass": "True",
+    "source_semantic_task": "/mnt/data/slurm-results/campaigns/external-vep-light-full52-bbef41d7db8e/measured/tasks/task-19",
+    "task_id": "1"
+  },
+  "time_saved_seconds": 17578.83922271605,
+  "uncached_wall_seconds": 19801.742386579048
+}

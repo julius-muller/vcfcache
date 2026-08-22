@@ -1,0 +1,253 @@
+{
+  "cached_header_sha256": "a22b0559e947ec105fe2d39f932a377ed5bb687277e3a319054b4a25f469e803",
+  "cached_semantic_sha256": "44dd684f794310010d8c85a1ba47420ca52727b2dc2f707fc8d707de2f2fccfa",
+  "canonicalization": [
+    "INFO tag order",
+    "CSQ entry order",
+    "complete-record order within identical CHROM/POS loci"
+  ],
+  "comparator": "fastvep_complete_record_and_header_v2",
+  "examples": [
+    {
+      "cached": [
+        "chr1",
+        "10177"
+      ],
+      "group": 1,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "61372"
+      ]
+    },
+    {
+      "cached": "chr1\t10177\t.\tA\tAC\t129.22\tPASS\tAB=0.293103;ABP=24.5753;AC=2;ADP=55;AF=0.5;AN=4;AO=17;CIGAR=1M1I2M;CSQ=C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||-|A/AC|1832|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||-|A/AC|1694|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||-|A/AC|1696|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;DP=58;DPB=75;DPRA=0;EPP=18.4661;EPPR=11.3621;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=5;MQM=16.9412;MQMR=17.8462;NC=0;NS=1;NUMALT=1;ODDS=29.7543;PAIRED=0.941176;PAIREDR=0.769231;PAO=5.5;PQA=130;PQR=130;PRO=5.5;QA=263;QR=797;RO=26;RPP=9.26925;RPPR=8.35546;RUN=1;SAF=15;SAP=24.5973;SAR=2;SF=0,1;SRF=19;SRP=15.0369;SRR=7",
+      "group": 1,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10177"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t61372\t.\tCA\tC\t364.58\tPASS\tAB=0.375;ABP=7.35324;AC=2;ADP=44;AF=0.5;AN=4;AO=12;CIGAR=1M1D1M;CSQ=-|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||A|CA/C||1|||||||||||||||||||||||||||;DP=32;DPB=28.6667;DPRA=0;EPP=9.52472;EPPR=6.91895;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=1;MQM=32;MQMR=34.2;NC=0;NS=1;NUMALT=1;ODDS=83.9467;PAIRED=1;PAIREDR=1;PAO=1;PQA=37;PQR=37;PRO=1;QA=494;QR=794;RO=20;RPP=9.52472;RPPR=9.95901;RUN=1;SAF=10;SAP=14.5915;SAR=2;SF=0,1;SRF=13;SRP=6.91895;SRR=7;TYPE=del;WT=0\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10230"
+      ],
+      "group": 2,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "61846"
+      ]
+    },
+    {
+      "cached": "chr1\t10230\t.\tAC\tA\t.\tPASS\tAC=1;ADP=135;AN=2;CSQ=-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||C|AC/A|1779|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||C|AC/A|1641|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||C|AC/A|1643|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;HET=1;HOM=0;NC=0;SF=1;WT=0\tGT\t0/1\n",
+      "group": 2,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10230"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t61846\t.\tC\tCTTT\t1.79\t.\tAB=0.227273;ABP=17.2236;AC=1;AF=0.5;AN=2;AO=5;CIGAR=1M3I13M;CSQ=TTT|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||-|C/CTTT||1|||||||||||||||||||||||||||;DP=22;DPB=23.0714;DPRA=0;EPP=3.44459;EPPR=3.63072;GTI=0;LEN=3;MEANALT=3;MQM=15;MQMR=40.7143;NS=1;NUMALT=1;ODDS=0.674946;PAIRED=1;PAIREDR=1;PAO=0.5;PQA=21;PQR=21;PRO=0.5;QA=67;QR=541;RO=14;RPP=3.44459;RPPR=3.0103;RUN=1;SAF=3;SAP=3.44459;SAR=2;SF=0;SRF=9;SRP=5.49198;SRR=5;TYPE=ins\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10254"
+      ],
+      "group": 3,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "62082"
+      ]
+    },
+    {
+      "cached": "chr1\t10254\t.\tT\tC\t187.61\t.\tAB=0.213483;ABP=66.471;AC=1;AF=0.5;AN=2;AO=19;CIGAR=1X;CSQ=C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1756|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1618|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1620|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;DP=89;DPB=89;DPRA=0;EPP=3.12459;EPPR=5.63551;GTI=0;LEN=1;MEANALT=3;MQM=18.1579;MQMR=20.5522;NS=1;NUMALT=1;ODDS=43.1996;PAIRED=0.684211;PAIREDR=0.686567;PAO=0;PQA=0;PQR=0;PRO=0;QA=424;QR=1837;RO=67;RPP=3.12459;RPPR=4.59839;RUN=1;SAF=15;SAP=16.8392;SAR=4;SF=0;SRF=40;SRP=8.4876;SRR=27;TYPE=snp\tGT\t0/1\n",
+      "group": 3,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10254"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t62082\t.\tG\tT\t214.38\tPASS\tAB=0.219512;ABP=31.0276;AC=2;ADP=44;AF=0.5;AN=4;AO=9;CIGAR=1X;CSQ=T|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||G|G/T||1|||||||||||||||||||||||||||;DP=41;DPB=41;DPRA=0;EPP=3.25157;EPPR=3.28173;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=1;MQM=26;MQMR=24.8438;NC=0;NS=1;NUMALT=1;ODDS=49.3622;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=368;QR=1263;RO=32;RPP=14.8328;RPPR=3.0103;RUN=1;SAF=5;SAP=3.25157;SAR=4;SF=0,1;SRF=13;SRP=5.45321;SRR=19;TYPE=snp;WT=0\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10327"
+      ],
+      "group": 4,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "63571"
+      ]
+    },
+    {
+      "cached": "chr1\t10327\t.\tT\tC\t538.48\tPASS\tAB=0.287879;ABP=54.5992;AC=2;ADP=91;AF=0.5;AN=4;AO=38;CIGAR=1X;CSQ=C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1683|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1545|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1547|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;DP=132;DPB=132;DPRA=0;EPP=11.239;EPPR=4.94315;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=3;MQM=24.4211;MQMR=19.3077;NC=0;NS=1;NUMALT=1;ODDS=123.989;PAIRED=0.789474;PAIREDR=0.78022;PAO=0;PQA=0;PQR=0;PRO=0;QA=815;QR=2295;RO=91;RPP=5.06748;RPPR=8.37933;RUN=1;SAF=9;SAP=25.8679;SAR=29;SF=0,1;SRF=28;SRP=32.2417;SRR=63;TYPE=snp;WT=0",
+      "group": 4,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10327"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t63571\t.\tG\tC\t.\tPASS\tAC=1;ADP=26;AN=2;CSQ=C|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||G|G/C||1|||||||||||||||||||||||||||;HET=1;HOM=0;NC=0;SF=1;WT=0\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10329"
+      ],
+      "group": 5,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "63827"
+      ]
+    },
+    {
+      "cached": "chr1\t10329\t.\tAC\tA\t.\tPASS\tAC=1;ADP=116;AN=2;CSQ=-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||C|AC/A|1680|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||C|AC/A|1542|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||C|AC/A|1544|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;HET=1;HOM=0;NC=0;SF=1;WT=0\tGT\t0/1\n",
+      "group": 5,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10329"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t63827\t.\tC\tA\t0.01\t.\tAB=0.2;ABP=10.8276;AC=1;AF=0.5;AN=2;AO=2;CIGAR=1X;CSQ=A|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||C|C/A||1|||||||||||||||||||||||||||;DP=10;DPB=10;DPRA=0;EPP=7.35324;EPPR=12.7819;GTI=0;LEN=1;MEANALT=1;MQM=40;MQMR=33.5;NS=1;NUMALT=1;ODDS=6.69646;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=33;QR=260;RO=8;RPP=7.35324;RPPR=20.3821;RUN=1;SAF=0;SAP=7.35324;SAR=2;SF=0;SRF=1;SRP=12.7819;SRR=7;TYPE=snp\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10352"
+      ],
+      "group": 6,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "64767"
+      ]
+    },
+    {
+      "cached": "chr1\t10352\t.\tT\tTA\t344.49\tPASS\tAB=0.262295;ABP=62.886;AC=2;ADP=143;AF=0.5;AN=4;AO=32;CIGAR=1M1I2M;CSQ=A|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||-|T/TA|1657|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,A|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||-|T/TA|1519|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,A|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||-|T/TA|1521|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;DP=122;DPB=152.667;DPRA=0;EPP=30.1537;EPPR=3.05288;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=12;MQM=20.75;MQMR=18.1569;NC=0;NS=1;NUMALT=1;ODDS=79.3226;PAIRED=0.90625;PAIREDR=0.882353;PAO=8.5;PQA=151.5;PQR=151.5;PRO=8.5;QA=540;QR=1538;RO=51;RPP=7.35324;RPPR=10.206;RUN=1;SAF=6;SAP=30.1537;SAR=26;SF=0,1;SRF=11;SRP=38.81",
+      "group": 6,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10352"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t64767\t.\tC\tT\t.\tPASS\tAC=1;ADP=24;AN=2;CSQ=T|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||C|C/T||1|||||||||||||||||||||||||||;HET=1;HOM=0;NC=0;SF=1;WT=0\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10583"
+      ],
+      "group": 7,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "65588"
+      ]
+    },
+    {
+      "cached": "chr1\t10583\t.\tG\tA\t636.15\tPASS\tAB=0.4;ABP=8.22183;AC=2;ADP=44;AF=0.5;AN=4;AO=24;CIGAR=1X;CSQ=A|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||G|G/A|1427|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,A|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||G|G/A|1289|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,A|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||G|G/A|1291|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;DP=60;DPB=60;DPRA=0;EPP=4.45795;EPPR=6.8707;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=1;MQM=35.2917;MQMR=33.5833;NC=0;NS=1;NUMALT=1;ODDS=146.48;PAIRED=0.666667;PAIREDR=0.861111;PAO=0;PQA=0;PQR=0;PRO=0;QA=826;QR=1275;RO=36;RPP=32.3252;RPPR=18.4519;RUN=1;SAF=7;SAP=12.0581;SAR=17;SF=0,1;SRF=14;SRP=6.8707;SRR=22;TYPE=snp;WT=0\tGT\t0/1\n",
+      "group": 7,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10583"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t65588\t.\tG\tA\t.\tPASS\tAC=1;ADP=16;AN=2;CSQ=A|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||G|G/A||1|||||||||||||||||||||||||||;HET=1;HOM=0;NC=0;SF=1;WT=0\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10611"
+      ],
+      "group": 8,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "66397"
+      ]
+    },
+    {
+      "cached": "chr1\t10611\t.\tC\tG\t92.35\tPASS\tAB=0.2;ABP=30.3709;AC=2;ADP=27;AF=0.5;AN=4;AO=7;CIGAR=1X;CSQ=G|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||C|C/G|1399|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,G|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||C|C/G|1261|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,G|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||C|C/G|1263|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;DP=35;DPB=35;DPRA=0;EPP=5.80219;EPPR=10.7656;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=1;MQM=22.8571;MQMR=32.9286;NC=0;NS=1;NUMALT=1;ODDS=21.2634;PAIRED=0.714286;PAIREDR=0.857143;PAO=0;PQA=0;PQR=0;PRO=0;QA=239;QR=987;RO=28;RPP=18.2106;RPPR=40.5458;RUN=1;SAF=5;SAP=5.80219;SAR=2;SF=0,1;SRF=6;SRP=22.8638;SRR=22;TYPE=snp;WT=0\tGT\t0/1\n",
+      "group": 8,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10611"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t66397\t.\tC\tT\t165.65\tPASS\tAB=0.428571;ABP=3.63072;AC=2;ADP=25;AF=0.5;AN=4;AO=6;CIGAR=1X;CSQ=T|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||C|C/T||1|||||||||||||||||||||||||||;DP=14;DPB=14;DPRA=0;EPP=3.0103;EPPR=4.09604;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=1;MQM=52.5;MQMR=55;NC=0;NS=1;NUMALT=1;ODDS=38.1426;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=237;QR=296;RO=8;RPP=4.45795;RPPR=7.35324;RUN=1;SAF=1;SAP=8.80089;SAR=5;SF=0,1;SRF=3;SRP=4.09604;SRR=5;TYPE=snp;WT=0\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10616"
+      ],
+      "group": 9,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "66627"
+      ]
+    },
+    {
+      "cached": "chr1\t10616\t.\tCCGCCGTTGCAAAGGCGCGCCG\tC\t.\tPASS\tAC=1;ADP=26;AN=2;CSQ=-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||CGCCGTTGCAAAGGCGCGCCG|CCGCCGTTGCAAAGGCGCGCCG/C|1373|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||CGCCGTTGCAAAGGCGCGCCG|CCGCCGTTGCAAAGGCGCGCCG/C|1235|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,-|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||CGCCGTTGCAAAGGCGCGCCG|CCGCCGTTGCAAAGGCGCGCCG/C|1237|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;HET=1;HOM=0;NC=0;SF=1;WT=0\tGT\t0/1\n",
+      "group": 9,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10616"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t66627\t.\tTAAAC\tT\t102.33\tPASS\tAB=0.4;ABP=3.87889;AC=2;ADP=15;AF=0.5;AN=4;AO=4;CIGAR=1M4D1M;CSQ=-|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||AAAC|TAAAC/T||1|||||||||||||||||||||||||||;DP=10;DPB=7.83333;DPRA=0;EPP=5.18177;EPPR=3.0103;GTI=0;HET=1;HOM=0;LEN=4;MEANALT=1;MQM=40;MQMR=36.6667;NC=0;NS=1;NUMALT=1;ODDS=23.5617;PAIRED=1;PAIREDR=1;PAO=1;PQA=21.5;PQR=21.5;PRO=1;QA=168;QR=237;RO=6;RPP=5.18177;RPPR=4.45795;RUN=1;SAF=0;SAP=11.6962;SAR=4;SF=0,1;SRF=1;SRP=8.80089;SRR=5;TYPE=del;WT=0\tGT\t0/1\n"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10623"
+      ],
+      "group": 10,
+      "kind": "locus",
+      "uncached": [
+        "chr10",
+        "66695"
+      ]
+    },
+    {
+      "cached": "chr1\t10623\t.\tT\tC\t92.38\tPASS\tAB=0.6;ABP=3.87889;AC=2;ADP=9;AF=0.5;AN=4;AO=6;CIGAR=1X;CSQ=C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000450305|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1387|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000515242|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1249|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||,C|upstream_gene_variant|MODIFIER|DDX11L1|ENSG00000223972|Transcript|ENST00000518655|transcribed_unprocessed_pseudogene|||||||||||T|T/C|1251|1||||||||||||Homo_sapiens.GRCh37.87.gff3|||||||||||||||;DP=10;DPB=10;DPRA=0;EPP=8.80089;EPPR=3.0103;GTI=0;HET=1;HOM=0;LEN=1;MEANALT=1;MQM=17.6667;MQMR=30;NC=0;NS=1;NUMALT=1;ODDS=15.6401;PAIRED=0.833333;PAIREDR=0.5;PAO=0;PQA=0;PQR=0;PRO=0;QA=156;QR=127;RO=4;RPP=4.45795;RPPR=11.6962;RUN=1;SAF=3;SAP=3.0103;SAR=3;SF=0,1;SRF=2;SRP=3.0103;SRR=2;TYPE=snp;WT=0\tGT\t0/1\n",
+      "group": 10,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "10623"
+      ],
+      "occurrence": 1,
+      "uncached": "chr10\t66695\t.\tT\tA\t.\tPASS\tAC=1;ADP=22;AN=2;CSQ=A|intergenic_variant|MODIFIER||-|Transcript|-|-|||||||||||T|T/A||1|||||||||||||||||||||||||||;HET=1;HOM=0;NC=0;SF=1;WT=0\tGT\t0/1\n"
+    }
+  ],
+  "ignored_annotation_mismatches": 0,
+  "ignored_fields": [],
+  "locus_mismatches": 4932564,
+  "raw_annotation_mismatches": 5037792,
+  "record_mismatches": 5037792,
+  "record_order_only_loci": 0,
+  "records_compared": 5037792,
+  "relevant_headers_equal": true,
+  "semantic_pass": false,
+  "uncached_header_sha256": "a22b0559e947ec105fe2d39f932a377ed5bb687277e3a319054b4a25f469e803",
+  "uncached_semantic_sha256": "7272deecf01db86260d561b2f053e34f7db8537acdc63979dfb08f306cc20a7d"
+}

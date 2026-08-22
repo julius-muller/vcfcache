@@ -1,0 +1,82 @@
+{
+  "cache_hit_rate": 0.9587859424920128,
+  "cached_cgroup_memory_peak_bytes": 2051608576,
+  "cached_max_rss_kib": 636864,
+  "cached_user_seconds": 479.0,
+  "cached_wall_seconds": 180.99589230696438,
+  "commit": "bfb38ad2dde8",
+  "fraction_wall_time_saved": 0.5708314478921688,
+  "input_records": 78250,
+  "replicate": 1,
+  "sample": "HG03702",
+  "semantic_comparison": {
+    "annotation_mismatches": 0,
+    "annotation_order_only": 4,
+    "cached_semantic_sha256": "7395c9bfe9b940b5e50bbb3b21b07c544770b8a2b4975b26fe92a6a4b6bfbf4a",
+    "csq_headers_equal": true,
+    "examples": [
+      {
+        "group": 36096,
+        "ignored_fields": [
+          "HGNC_ID"
+        ],
+        "key": [
+          "chr9",
+          "68303202",
+          "C",
+          "T"
+        ],
+        "kind": "CSQ_ignored_known_vep_issue",
+        "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+      },
+      {
+        "group": 36097,
+        "ignored_fields": [
+          "HGNC_ID"
+        ],
+        "key": [
+          "chr9",
+          "68303626",
+          "C",
+          "G"
+        ],
+        "kind": "CSQ_ignored_known_vep_issue",
+        "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+      },
+      {
+        "group": 36098,
+        "ignored_fields": [
+          "HGNC_ID"
+        ],
+        "key": [
+          "chr9",
+          "68303731",
+          "C",
+          "A"
+        ],
+        "kind": "CSQ_ignored_known_vep_issue",
+        "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+      }
+    ],
+    "ignored_annotation_mismatches": 3,
+    "ignored_csq_fields": [
+      "HGNC_ID"
+    ],
+    "ignored_difference_reference": "https://github.com/Ensembl/ensembl-vep/issues/1959",
+    "key_mismatches": 0,
+    "raw_annotation_mismatches": 3,
+    "record_order_only_loci": 16,
+    "records_compared": 78250,
+    "semantic_pass": true,
+    "uncached_semantic_sha256": "7395c9bfe9b940b5e50bbb3b21b07c544770b8a2b4975b26fe92a6a4b6bfbf4a",
+    "unordered_csq_fields": [
+      "DOMAINS"
+    ]
+  },
+  "speedup": 2.330086850699032,
+  "uncached_cgroup_memory_peak_bytes": 4104986624,
+  "uncached_max_rss_kib": 647500,
+  "uncached_user_seconds": 2692.54,
+  "uncached_wall_seconds": 421.7361486949958,
+  "wall_seconds_saved": 240.7402563880314
+}

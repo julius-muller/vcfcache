@@ -1,0 +1,205 @@
+{
+  "annotation_mismatches": 0,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "5dc656b738743d789e4d2fc1ad107f572179c171ccfef7c4b8c87b12155d2cff",
+  "comparator": "vep_semantic_with_documented_exceptions_v1",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "group": 3970594,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64521787",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970597,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64522652",
+        "G",
+        "T"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970598,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64523061",
+        "T",
+        "A"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970601,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64524550",
+        "G",
+        "A"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970605,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64526337",
+        "G",
+        "C"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970606,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64526874",
+        "GAATAT",
+        "G"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970609,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64527741",
+        "CA",
+        "C"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970611,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64528865",
+        "G",
+        "A"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970612,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64528932",
+        "G",
+        "C"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970614,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64530767",
+        "A",
+        "G"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970615,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64531356",
+        "G",
+        "T"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970625,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64532966",
+        "T",
+        "C"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    },
+    {
+      "group": 3970630,
+      "ignored_fields": [
+        "HGNC_ID"
+      ],
+      "key": [
+        "chr7",
+        "64535480",
+        "T",
+        "C"
+      ],
+      "kind": "CSQ_ignored_known_vep_issue",
+      "reference": "https://github.com/Ensembl/ensembl-vep/issues/1959"
+    }
+  ],
+  "ignored_annotation_mismatches": 13,
+  "ignored_csq_fields": [
+    "HGNC_ID"
+  ],
+  "ignored_difference_reference": "https://github.com/Ensembl/ensembl-vep/issues/1959",
+  "key_mismatches": 0,
+  "raw_annotation_mismatches": 13,
+  "record_order_only_loci": 20318,
+  "records_compared": 4644318,
+  "semantic_pass": true,
+  "uncached_semantic_sha256": "5dc656b738743d789e4d2fc1ad107f572179c171ccfef7c4b8c87b12155d2cff",
+  "unordered_csq_fields": [
+    "DOMAINS"
+  ]
+}

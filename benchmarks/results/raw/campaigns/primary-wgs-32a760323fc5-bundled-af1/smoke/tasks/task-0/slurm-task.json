@@ -1,0 +1,22 @@
+{
+  "campaign_id": "primary-wgs-32a760323fc5-bundled-af1",
+  "phase": "smoke",
+  "measured": false,
+  "task_id": 0,
+  "sample": "HG02079",
+  "population": "KHV",
+  "superpopulation": "EAS",
+  "sex": "male",
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/samples/GRCh38/1000g/EAS/HG02079.GRCh38.small_variants.vcf.gz",
+  "input_records": 4329621,
+  "input_sha256": "1dd8b3206b4ce9e7c883f04268736cae7ed01586d5adc7675944ffc596fd2d9f",
+  "replicate": 1,
+  "first_mode": "uncached",
+  "second_mode": "cached",
+  "randomization_key": "487b59825d795c038c7342151383fe8306633c2d7049b685c2fffd4af6cbfd79",
+  "slurm_job_id": "80",
+  "slurm_array_job_id": "80",
+  "slurm_node": "sl-w1",
+  "allocated_cpus": "8",
+  "requested_memory_per_node": "30000"
+}

@@ -113,7 +113,7 @@ We can explain whether an observed runtime difference comes from the annotator, 
 This document's completion criterion — being able to say whether a runtime
 difference comes from the annotator, the assembly, the cohort, the transcript
 universe, supplementary lookups or output volume — is being addressed by the
-configuration matrix in `benchmarks/ANNOTATION_LEVELS.md`.
+configuration matrix in `benchmarks/docs/ANNOTATION_LEVELS.md`.
 
 The specific finding that closes the "nominal command complexity" concern: VEP's
 offline cache 115 already ships ClinVar 202502, gnomAD exomes v4.1 and gnomAD
@@ -127,5 +127,5 @@ The cross-assembly caution in this document still stands and is now handled by
 requiring PGP (GRCh37) in every comparison rather than treating it as optional,
 so no claim rests on GRCh38 cohorts alone.
 
-Runs are archived per `benchmarks/BENCHMARK_ARCHIVE.md`; superseded
+Runs are archived per `benchmarks/docs/BENCHMARK_ARCHIVE.md`; superseded
 configurations are kept rather than discarded.

@@ -1,0 +1,25 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-04T21:29:56'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-12/runs/cohort_3_genomes/pilot/LP6005443-DNA_E05/43beeb6e010c/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005443-DNA_E05.GRCh38.small_variants.vcf.gz
+input_name: LP6005443-DNA_E05.GRCh38.small_variants.vcf.gz
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.3
+threads: 8
+variant_counts:
+  total_output: 4835989
+  annotated_output: 4835989
+  tool_annotated: 849240
+  input_variants: null
+  dropped_variants: 0
+  missing_variants: 849240
+  missing_annotated: 849240
+variant_md5:
+  top10: ba42ea23b4f8b99190abaaae98f76d94
+  bottom10: ba42ea23b4f8b99190abaaae98f76d94
+  all: null

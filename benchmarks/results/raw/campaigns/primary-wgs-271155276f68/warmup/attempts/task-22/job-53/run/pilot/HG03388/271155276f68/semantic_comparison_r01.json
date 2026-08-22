@@ -1,0 +1,253 @@
+{
+  "annotation_mismatches": 89,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "6fded20002ff0f6103a62d68f4cdea19de889dc83a24a9c220f8d34533b224af",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "cached": "T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||4/5|ENST00000324022.14:c.259-579G>A|||||||rs113598768||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144115346C>T|0.0064|0.0234|0.0014|0|0|0|0|0|0|0|0|||0||0|0.005703|0.01989|0|0.002031|0|0|0|0|4.412e-05|0.003791|0|0.0234|AFR|||||||||,T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||5/6|ENST00000360771.8:c.",
+      "group": 1509997,
+      "key": [
+        "chr4",
+        "144115346",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||4/5|ENST00000324022.14:c.259-579G>A|||||||rs113598768||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144115346C>T|0.0064|0.0234|0.0014|0|0|0|0|0|0|0|0|||0||0|0.005703|0.01989|0|0.002031|0|0|0|0|4.412e-05|0.003791|0|0.0234|AFR|||||||||,T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||5/6|ENST00000360771.8:c."
+    },
+    {
+      "cached": "G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||1/5|ENST00000324022.14:c.38-5021T>C|||||||rs148678148||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144124802A>G|0.0060|0.0219|0.0014|0|0|0|||||||||||0.004115|0.01478|0|0.0006533|0|0|0|0|1.47e-05|0.0009452|0|0.0219|AFR|||||||||,G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||1/6|ENST00000360771.8:c.38-421",
+      "group": 1510029,
+      "key": [
+        "chr4",
+        "144124802",
+        "A",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||1/5|ENST00000324022.14:c.38-5021T>C|||||||rs148678148||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144124802A>G|0.0060|0.0219|0.0014|0|0|0|||||||||||0.004115|0.01478|0|0.0006533|0|0|0|0|1.47e-05|0.0009452|0|0.0219|AFR|||||||||,G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||1/6|ENST00000360771.8:c.38-421"
+    },
+    {
+      "cached": "G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||1/5|ENST00000324022.14:c.38-5523T>C|||||||rs112590338||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144125304A>G|||||||||||||||||0.008235|0.02991|0|0.00243|0|0|0|0|8.82e-05|0.004306|0|0.02991|gnomADg_AFR|||||||||,G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||1/6|ENST00000360771.8:c.38-4716T>C|||||||rs11",
+      "group": 1510030,
+      "key": [
+        "chr4",
+        "144125304",
+        "A",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||1/5|ENST00000324022.14:c.38-5523T>C|||||||rs112590338||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144125304A>G|||||||||||||||||0.008235|0.02991|0|0.00243|0|0|0|0|8.82e-05|0.004306|0|0.02991|gnomADg_AFR|||||||||,G|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||1/6|ENST00000360771.8:c.38-4716T>C|||||||rs11"
+    },
+    {
+      "cached": "T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||1/5|ENST00000324022.14:c.37+2580G>A|||||||rs554647621||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144138019C>T|0.0006|0.0023|0|0|0|0|6.161e-05|0.002059|0.0001683|0|0|0|0|0|0|0|0.0005915|0.002048|0|0.0002621|0|0|0|0|0|0.0004735|0|0.0023|AFR|||||||||,T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||1/6|ENS",
+      "group": 1510050,
+      "key": [
+        "chr4",
+        "144138019",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000324022|protein_coding||1/5|ENST00000324022.14:c.37+2580G>A|||||||rs554647621||-1||SNV|HGNC|HGNC:4702|||||1||CCDS82959.1|ENSP00000324483|P02724.236||UPI00018995F6|P02724-3|1||||||chr4:g.144138019C>T|0.0006|0.0023|0|0|0|0|6.161e-05|0.002059|0.0001683|0|0|0|0|0|0|0|0.0005915|0.002048|0|0.0002621|0|0|0|0|0|0.0004735|0|0.0023|AFR|||||||||,T|intron_variant|MODIFIER|GYPA|ENSG00000170180|Transcript|ENST00000360771|protein_coding||1/6|ENS"
+    },
+    {
+      "cached": "C|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.864+7020A>C|||||||rs569094979||1||SNV|EntrezGene||||||||||||||||||||chr4:g.144151235A>C|0.0060|0.0219|0.0014|0|0|0|||||||||||0.004257|0.01524|0|0.0007847|0|0|0|0|1.47e-05|0.0009452|0|0.0219|AFR|||||||||,C|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1323+7020A>C|||||||",
+      "group": 1510067,
+      "key": [
+        "chr4",
+        "144151235",
+        "A",
+        "C"
+      ],
+      "kind": "CSQ",
+      "uncached": "C|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.864+7020A>C|||||||rs569094979||1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144151235A>C|0.0060|0.0219|0.0014|0|0|0|||||||||||0.004257|0.01524|0|0.0007847|0|0|0|0|1.47e-05|0.0009452|0|0.0219|AFR|||||||||,C|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1323+7020"
+    },
+    {
+      "cached": "A|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.864+17915G>A|||||||rs567631282||1||SNV|EntrezGene||||||||||||||||||||chr4:g.144162130G>A|0.0006|0.0023|0|0|0|0|||||||||||0.0006061|0.002103|0|0.0002627|0|0|0|0|0|0.0004762|0|0.0023|AFR|||||||||,A|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1323+17915G>A|||||||rs567631",
+      "group": 1510080,
+      "key": [
+        "chr4",
+        "144162130",
+        "G",
+        "A"
+      ],
+      "kind": "CSQ",
+      "uncached": "A|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.864+17915G>A|||||||rs567631282||1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144162130G>A|0.0006|0.0023|0|0|0|0|||||||||||0.0006061|0.002103|0|0.0002627|0|0|0|0|0|0.0004762|0|0.0023|AFR|||||||||,A|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1323+17915G>A|||||"
+    },
+    {
+      "cached": "-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-14646_865-14644del|||||||rs1313632193||1||deletion|EntrezGene||||||||||||||||||||chr4:g.144166915_144166917del|||||||||||||||||0.0006378|0.001056|0|0.003771|0|0|0|0|0.0001283|0|0|0.003771|gnomADg_AMR|||||||||,-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1324-1464",
+      "group": 1510086,
+      "key": [
+        "chr4",
+        "144166914",
+        "TGTG",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-14646_865-14644del|||||||rs1313632193||1||deletion|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144166915_144166917del|||||||||||||||||0.0006378|0.001056|0|0.003771|0|0|0|0|0.0001283|0|0|0.003771|gnomADg_AMR|||||||||,-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n"
+    },
+    {
+      "cached": "-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-14644del|||||||rs2110961105||1||deletion|EntrezGene||||||||||||||||||||chr4:g.144166917del|||||||||||||||||4.528e-05|0|0|0.0005924|0|0|0|0|0|0|0|0.0005924|gnomADg_AMR|||||||||,-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1324-14644del|||||||rs2110961105||1||delet",
+      "group": 1510087,
+      "key": [
+        "chr4",
+        "144166916",
+        "TG",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-14644del|||||||rs2110961105||1||deletion|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144166917del|||||||||||||||||4.528e-05|0|0|0.0005924|0|0|0|0|0|0|0|0.0005924|gnomADg_AMR|||||||||,-|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1324-14644del|||||||rs2110961105"
+    },
+    {
+      "cached": "G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-7371C>G|||||||rs545613164||1||SNV|EntrezGene||||||||||||||||||||chr4:g.144174190C>G|0.0010|0.0038|0|0|0|0|||||||||||0.0009196|0.003129|0|0.0005882|0|0|0|0|0|0.0004735|0|0.0038|AFR|||||||||,G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1324-7371C>G|||||||rs54561316",
+      "group": 1510099,
+      "key": [
+        "chr4",
+        "144174190",
+        "C",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-7371C>G|||||||rs545613164||1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144174190C>G|0.0010|0.0038|0|0|0|0|||||||||||0.0009196|0.003129|0|0.0005882|0|0|0|0|0|0.0004735|0|0.0038|AFR|||||||||,G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1324-7371C>G|||||||"
+    },
+    {
+      "cached": "T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-6073dup|||||||rs201200491||1||insertion|EntrezGene|||||||||||||||||||8|chr4:g.144175488dup|0.0080|0.0287|0.0014|0.001|0|0|||||||||||0.006423|0.02287|0|0.001445|0|0.0001932|0|0.003401|1.472e-05|0.001423|0|0.0287|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST0000064174",
+      "group": 1510100,
+      "key": [
+        "chr4",
+        "144175480",
+        "A",
+        "AT"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-6073dup|||||||rs201200491||1||insertion|EntrezGene|HGNC:42319||||||||||||||||||8|chr4:g.144175488dup|0.0080|0.0287|0.0014|0.001|0|0|||||||||||0.006423|0.02287|0|0.001445|0|0.0001932|0|0.003401|1.472e-05|0.001423|0|0.0287|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST"
+    },
+    {
+      "cached": "T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-5109C>T|||||||rs114106733||1||SNV|EntrezGene||||||||||||||||||||chr4:g.144176452C>T|0.0080|0.0295|0.0014|0|0|0|||||||||||0.005867|0.02092|0|0.001243|0|0|0|0|2.942e-05|0.001418|0|0.0295|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1324-5109C>T|||||||r",
+      "group": 1510102,
+      "key": [
+        "chr4",
+        "144176452",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||7/8|ENST00000641428.1:n.865-5109C>T|||||||rs114106733||1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144176452C>T|0.0080|0.0295|0.0014|0|0|0|||||||||||0.005867|0.02092|0|0.001243|0|0|0|0|2.942e-05|0.001418|0|0.0295|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||11/12|ENST00000641741.2:n.1324-5109C"
+    },
+    {
+      "cached": "T|downstream_gene_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||||||||||rs79262234|2172|1||SNV|EntrezGene||||||||||||||||||||chr4:g.144190539A>T|0.0080|0.0287|0.0029|0|0|0|||||||||||0.007605|0.0271|0|0.001374|0|0|0|0.003401|5.881e-05|0.002838|0|0.0287|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||12/12|ENST00000641741.2:n.1489-2040A>T|||||||rs79262234||1||SNV|EntrezGene||||||||||||||||||",
+      "group": 1510112,
+      "key": [
+        "chr4",
+        "144190539",
+        "A",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|downstream_gene_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641428|lncRNA||||||||||rs79262234|2172|1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144190539A>T|0.0080|0.0287|0.0029|0|0|0|||||||||||0.007605|0.0271|0|0.001374|0|0|0|0.003401|5.881e-05|0.002838|0|0.0287|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||12/12|ENST00000641741.2:n.1489-2040A>T|||||||rs79262234||1||SNV|EntrezGene|HGNC:42"
+    },
+    {
+      "cached": "A|downstream_gene_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||||||||||rs116349262|2767|1||SNV|EntrezGene||||||||||||||||||||chr4:g.144195677T>A|0.0080|0.0287|0.0029|0|0|0|||||||||||0.007605|0.02711|0|0.001373|0|0|0|0.003401|5.881e-05|0.002838|0|0.0287|AFR|||||||||,A|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+2328T>A|||||||rs116349262||1||SNV|EntrezGene|||||||||||||||",
+      "group": 1510116,
+      "key": [
+        "chr4",
+        "144195677",
+        "T",
+        "A"
+      ],
+      "kind": "CSQ",
+      "uncached": "A|downstream_gene_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000641741|lncRNA||||||||||rs116349262|2767|1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144195677T>A|0.0080|0.0287|0.0029|0|0|0|||||||||||0.007605|0.02711|0|0.001373|0|0|0|0.003401|5.881e-05|0.002838|0|0.0287|AFR|||||||||,A|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+2328T>A|||||||rs116349262||1||SNV|EntrezGene|HGNC"
+    },
+    {
+      "cached": "T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+4587C>T|||||||rs79531253||1||SNV|EntrezGene||||||||||||||||||||chr4:g.144197936C>T|0.0080|0.0287|0.0029|0|0|0|||||||||||0.007607|0.02711|0|0.001374|0|0|0|0.003401|5.88e-05|0.002838|0|0.0287|AFR|||||||||",
+      "group": 1510121,
+      "key": [
+        "chr4",
+        "144197936",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+4587C>T|||||||rs79531253||1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144197936C>T|0.0080|0.0287|0.0029|0|0|0|||||||||||0.007607|0.02711|0|0.001374|0|0|0|0.003401|5.88e-05|0.002838|0|0.0287|AFR|||||||||"
+    },
+    {
+      "cached": "G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+10695A>G|||||||rs148604759||1||SNV|EntrezGene||||||||||||||||||||chr4:g.144204044A>G|0.0096|0.034|0.0043|0|0|0|||||||||||0.008752|0.03069|0|0.00242|0|0|0|0.003401|0.000147|0.004257|0|0.034|AFR|||||||||",
+      "group": 1510130,
+      "key": [
+        "chr4",
+        "144204044",
+        "A",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+10695A>G|||||||rs148604759||1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.144204044A>G|0.0096|0.034|0.0043|0|0|0|||||||||||0.008752|0.03069|0|0.00242|0|0|0|0.003401|0.000147|0.004257|0|0.034|AFR|||||||||"
+    },
+    {
+      "cached": "T|downstream_gene_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||||||||||rs574981115|1617|-1||SNV|||||||||||||||||||||chr4:g.144209160C>T|0.0010|0.0038|0|0|0|0|||||||||||0.0009918|0.003393|0|0.0005891|0|0|0|0|0|0.0004735|0|0.0038|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+15811C>T|||||||rs574981115||1||SNV|EntrezGene||||||||||||||||||||chr4:g.144209160C>T|0.001",
+      "group": 1510144,
+      "key": [
+        "chr4",
+        "144209160",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|downstream_gene_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||||||||||rs574981115|1617|-1||SNV|||||||||||||||||||||chr4:g.144209160C>T|0.0010|0.0038|0|0|0|0|||||||||||0.0009918|0.003393|0|0.0005891|0|0|0|0|0|0.0004735|0|0.0038|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+15811C>T|||||||rs574981115||1||SNV|EntrezGene|HGNC:42319|||||||||||||||||||chr4:g.14420916"
+    },
+    {
+      "cached": "G|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||5/5|ENST00000648340.1:n.459-2429A>C|||||||rs145356013||-1||SNV|||||||||||||||||||||chr4:g.144213442T>G|0.0062|0.0227|0.0014|0|0|0|||||||||||0.004834|0.01719|0|0.001177|0|0|0|0|2.94e-05|0.0009452|0|0.0227|AFR|||||||||,G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+20093T>G|||||||rs145356013||1|",
+      "group": 1510154,
+      "key": [
+        "chr4",
+        "144213442",
+        "T",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||5/5|ENST00000648340.1:n.459-2429A>C|||||||rs145356013||-1||SNV|||||||||||||||||||||chr4:g.144213442T>G|0.0062|0.0227|0.0014|0|0|0|||||||||||0.004834|0.01719|0|0.001177|0|0|0|0|2.94e-05|0.0009452|0|0.0227|AFR|||||||||,G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+20093T>G|||||||rs145356013||1|"
+    },
+    {
+      "cached": "G|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||5/5|ENST00000648340.1:n.458+2518T>C|||||||rs543972438||-1||SNV|||||||||||||||||||||chr4:g.144213575A>G|0.0010|0.0038|0|0|0|0|||||||||||0.001004|0.003439|0|0.0005886|0|0|0|0|0|0.000473|0|0.0038|AFR|||||||||,G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+20226A>G|||||||rs543972438||1||SNV|Entrez",
+      "group": 1510155,
+      "key": [
+        "chr4",
+        "144213575",
+        "A",
+        "G"
+      ],
+      "kind": "CSQ",
+      "uncached": "G|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||5/5|ENST00000648340.1:n.458+2518T>C|||||||rs543972438||-1||SNV|||||||||||||||||||||chr4:g.144213575A>G|0.0010|0.0038|0|0|0|0|||||||||||0.001004|0.003439|0|0.0005886|0|0|0|0|0|0.000473|0|0.0038|AFR|||||||||,G|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+20226A>G|||||||rs543972438||1||SNV|Entrez"
+    },
+    {
+      "cached": "T|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||4/5|ENST00000648340.1:n.377-807G>A|||||||rs115777311||-1||SNV|||||||||||||||||||||chr4:g.144216981C>T|0.0084|0.0295|0.0043|0|0|0|||||||||||0.008016|0.02853|0|0.001502|0|0|0|0.003401|5.88e-05|0.003318|0|0.0295|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+23632C>T|||||||rs11577731",
+      "group": 1510164,
+      "key": [
+        "chr4",
+        "144216981",
+        "C",
+        "T"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||4/5|ENST00000648340.1:n.377-807G>A|||||||rs115777311||-1||SNV|||||||||||||||||||||chr4:g.144216981C>T|0.0084|0.0295|0.0043|0|0|0|||||||||||0.008016|0.02853|0|0.001502|0|0|0|0.003401|5.88e-05|0.003318|0|0.0295|AFR|||||||||,T|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+23632C>T|||||||rs11577731"
+    },
+    {
+      "cached": "C|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||4/5|ENST00000648340.1:n.376+2077A>G|||||||rs539552479||-1||SNV|||||||||||||||||||||chr4:g.144218626T>C|0.0010|0.0038|0|0|0|0|||||||||||0.001004|0.003439|0|0.0005885|0|0|0|0|0|0.0004726|0|0.0038|AFR|||||||||,C|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+25277T>C|||||||rs539552479||1||SNV|Entre",
+      "group": 1510169,
+      "key": [
+        "chr4",
+        "144218626",
+        "T",
+        "C"
+      ],
+      "kind": "CSQ",
+      "uncached": "C|intron_variant&non_coding_transcript_variant|MODIFIER||ENSG00000285783|Transcript|ENST00000648340|lncRNA||4/5|ENST00000648340.1:n.376+2077A>G|||||||rs539552479||-1||SNV|||||||||||||||||||||chr4:g.144218626T>C|0.0010|0.0038|0|0|0|0|||||||||||0.001004|0.003439|0|0.0005885|0|0|0|0|0|0.0004726|0|0.0038|AFR|||||||||,C|intron_variant&non_coding_transcript_variant|MODIFIER|GUSBP5|ENSG00000251600|Transcript|ENST00000651102|lncRNA||12/14|ENST00000651102.1:n.1925+25277T>C|||||||rs539552479||1||SNV|Entre"
+    }
+  ],
+  "key_mismatches": 0,
+  "record_order_only_loci": 4440,
+  "records_compared": 5346175,
+  "semantic_pass": false,
+  "uncached_semantic_sha256": "a3dda75dfe5971104641f8624e247658401b967b418ef90d8493d74b3806bb45"
+}

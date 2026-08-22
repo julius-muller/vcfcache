@@ -1,0 +1,26 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-08-06T13:19:51'
+output_file: /mnt/data/tmp/vcfcache_external_runs/external-fastvep-25fe9b44f91a/measured/task-1/runs/cohort_3_genomes/pilot/hu365511/25fe9b44f91a/cached_r01/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh37/pgp_deduplicated/hu365511.GRCh37.small_variants.vcf.gz
+input_name: hu365511.GRCh37.small_variants.vcf.gz
+cache_name: cache-fastvep-0.3.0-publication
+cache_path: /mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/cohort-pgp/cache/cache-fastvep-0.3.0-publication
+annotation_yaml_md5: fa045511e9c274b41f586f82d6265fb2
+genome_build_params: GRCh37
+genome_build_annotation: GRCh37
+vcfcache_version: 0.5.3
+threads: 8
+statistics_level: full
+variant_counts:
+  total_output: 4985467
+  annotated_output: 4985467
+  tool_annotated: 1233621
+  input_variants: 4985467
+  dropped_variants: 0
+  missing_variants: 1233621
+  missing_annotated: 1233621
+variant_md5:
+  top10: e63b17ba1d10512bfee38627b15f1342
+  bottom10: e63b17ba1d10512bfee38627b15f1342
+  all: null

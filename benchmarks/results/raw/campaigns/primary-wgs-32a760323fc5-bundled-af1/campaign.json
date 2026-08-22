@@ -1,0 +1,35 @@
+{
+  "campaign_id": "primary-wgs-32a760323fc5-bundled-af1",
+  "commit": "32a760323fc539ba4cb8abd788c528f1a8e1703d",
+  "commit_short": "32a760323fc5",
+  "controller_results": "/mnt/data/slurm-results",
+  "created_at": "2026-08-02T00:17:11.649926+00:00",
+  "phases": {
+    "measured": {
+      "manifest": "/mnt/data/slurm-results/campaigns/primary-wgs-32a760323fc5-bundled-af1/manifests/measured.tsv",
+      "manifest_sha256": "e84c868b03e37a091fd076a9d92836d819843d413211f53880a4e9436fd61a96",
+      "replicates": 3,
+      "samples": 50,
+      "tasks": 150
+    },
+    "smoke": {
+      "manifest": "/mnt/data/slurm-results/campaigns/primary-wgs-32a760323fc5-bundled-af1/manifests/smoke.tsv",
+      "manifest_sha256": "a112f195fd7ec79af4577f7dd68efeda1bac01006fa5755d141fe3f235084d6a",
+      "replicates": 1,
+      "samples": 1,
+      "tasks": 1
+    },
+    "warmup": {
+      "manifest": "/mnt/data/slurm-results/campaigns/primary-wgs-32a760323fc5-bundled-af1/manifests/warmup.tsv",
+      "manifest_sha256": "e47a33f7641eb9aedb6c5b4d69326503489750d279d9d2e7dfb1cee9f0320012",
+      "replicates": 1,
+      "samples": 50,
+      "tasks": 50
+    }
+  },
+  "qc": "/mnt/data/vcfcache_benchmarks/qc/sample_qc.tsv",
+  "qc_sha256": "60f4081d3a85ceea1d0b15fe02666c3154049b1dd4a7fa1c22924b9bd92b8a67",
+  "seed": "vcfcache-paper-primary-wgs-v1",
+  "tracked_tree_clean": true,
+  "worker_results": "/results"
+}

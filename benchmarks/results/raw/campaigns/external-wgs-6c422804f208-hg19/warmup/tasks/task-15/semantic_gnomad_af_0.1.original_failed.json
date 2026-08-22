@@ -1,0 +1,346 @@
+{
+  "annotation_mismatches": 4810279,
+  "annotation_order_only": 0,
+  "cached_semantic_sha256": "b4e400424cc2b667070054660c91c0bc6e0adf4a0f5035cbed24b8235fdf8d04",
+  "csq_headers_equal": true,
+  "examples": [
+    {
+      "cached": [
+        "chr1",
+        "10177"
+      ],
+      "group": 1,
+      "kind": "locus",
+      "uncached": [
+        "chr9",
+        "10040"
+      ]
+    },
+    {
+      "cached": [
+        "chr1",
+        "10177",
+        "A",
+        "AC",
+        "0.5",
+        "2,0",
+        "4",
+        "0/1"
+      ],
+      "group": 1,
+      "kind": "variant_or_input_info",
+      "uncached": [
+        "chr9",
+        "10040",
+        "C",
+        "CT",
+        "0.5",
+        "1",
+        "2",
+        "0/1"
+      ]
+    },
+    {
+      "cached": "C|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000423562|unprocessed_pseudogene||||||||||rs367896724|4185|-1||insertion|HGNC|38034|||||||||||||||||||chr1:g.10179dup|0.4253|0.4909|0.3602|0.3363|0.4056|0.4949|||||||||||0.002793|0|0|0|0|0|0||0.004587||0|0.4949|SAS|||||||||,C|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000438504|unprocessed_pseudogene||||||||||rs367896724|4185|-1||insertion|HGNC|38034|YES||||||||||||||||||chr1:g.10179dup|0.425",
+      "group": 1,
+      "key": [
+        "chr1",
+        "10177",
+        "A",
+        "AC"
+      ],
+      "kind": "CSQ",
+      "uncached": "T|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000330546|unprocessed_pseudogene||||||||||rs1277050482|4511|-1||insertion|Clone_based_vega_gene||||||||||||||||||||chr9:g.10040_10041insT||||||||||||||||||||||||||||||||||||||,T|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000399972|unprocessed_pseudogene||||||||||rs1277050482|4511|-1||insertion|Clone_based_vega_gene||||||||||||||||||||chr9:g.10040_10041insT|||||||||||||||||||"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10257"
+      ],
+      "group": 2,
+      "kind": "locus",
+      "uncached": [
+        "chr9",
+        "10043"
+      ]
+    },
+    {
+      "cached": [
+        "chr1",
+        "10257",
+        "A",
+        "C",
+        ".",
+        "1",
+        "2",
+        "0/1"
+      ],
+      "group": 2,
+      "kind": "variant_or_input_info",
+      "uncached": [
+        "chr9",
+        "10043",
+        "A",
+        "C",
+        "0.5",
+        "1",
+        "2",
+        "0/1"
+      ]
+    },
+    {
+      "cached": "C|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000423562|unprocessed_pseudogene||||||||||rs111200574|4106|-1||SNV|HGNC|38034|||||||||||||||||||chr1:g.10257A>C|||||||||||||||||0.05131|0.05747|0|0.08824|0.07143|0.04412|0|0|0.04762|0.07143|0|0.08824|gnomADg_AMR|||||||||,C|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000438504|unprocessed_pseudogene||||||||||rs111200574|4106|-1||SNV|HGNC|38034|YES||||||||||||||||||chr1:g.10257A>C|||||||||||||||",
+      "group": 2,
+      "key": [
+        "chr1",
+        "10257",
+        "A",
+        "C"
+      ],
+      "kind": "CSQ",
+      "uncached": "C|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000330546|unprocessed_pseudogene||||||||||rs1302120109|4509|-1||SNV|Clone_based_vega_gene||||||||||||||||||||chr9:g.10043A>C||||||||||||||||||||||||||||||||||||||,C|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000399972|unprocessed_pseudogene||||||||||rs1302120109|4509|-1||SNV|Clone_based_vega_gene||||||||||||||||||||chr9:g.10043A>C||||||||||||||||||||||||||||||||||||||,C|upst"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10329"
+      ],
+      "group": 3,
+      "kind": "locus",
+      "uncached": [
+        "chr9",
+        "10073"
+      ]
+    },
+    {
+      "cached": [
+        "chr1",
+        "10329",
+        "AC",
+        "A",
+        ".",
+        "1",
+        "2",
+        "0/1"
+      ],
+      "group": 3,
+      "kind": "variant_or_input_info",
+      "uncached": [
+        "chr9",
+        "10073",
+        "CCCA",
+        "C",
+        "0.5",
+        "1",
+        "2",
+        "0/1"
+      ]
+    },
+    {
+      "cached": "-|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000423562|unprocessed_pseudogene||||||||||rs150969722|4033|-1||deletion|HGNC|38034|||||||||||||||||||chr1:g.10333del|||||||||||||||||0.08628|0.04386|0|0.1176|0.1429|0.125|0||0.1161|0|0.1|0.1429|gnomADg_ASJ|||||||||,-|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000438504|unprocessed_pseudogene||||||||||rs150969722|4033|-1||deletion|HGNC|38034|YES||||||||||||||||||chr1:g.10333del||||||||||||||||",
+      "group": 3,
+      "key": [
+        "chr1",
+        "10329",
+        "AC",
+        "A"
+      ],
+      "kind": "CSQ",
+      "uncached": "-|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000330546|unprocessed_pseudogene||||||||||rs1282317339|4476|-1||deletion|Clone_based_vega_gene||||||||||||||||||||chr9:g.10074_10076del||||||||||||||||||||||||||||||||||||||,-|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000399972|unprocessed_pseudogene||||||||||rs1282317339|4476|-1||deletion|Clone_based_vega_gene||||||||||||||||||||chr9:g.10074_10076del|||||||||||||||||||||||"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10352"
+      ],
+      "group": 4,
+      "kind": "locus",
+      "uncached": [
+        "chr9",
+        "10095"
+      ]
+    },
+    {
+      "cached": [
+        "chr1",
+        "10352",
+        "T",
+        "TA",
+        ".",
+        "1",
+        "2",
+        "0/1"
+      ],
+      "group": 4,
+      "kind": "variant_or_input_info",
+      "uncached": [
+        "chr9",
+        "10095",
+        "ACCC",
+        "A",
+        "1",
+        "2",
+        "2",
+        "1/1"
+      ]
+    },
+    {
+      "cached": "A|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000423562|unprocessed_pseudogene||||||||||rs555500075|4010|-1||insertion|HGNC|38034|||||||||||||||||||chr1:g.10353dup|0.4375|0.4788|0.4107|0.4306|0.4264|0.4192|||||||||||0.003891|0|0.25|0.02273|0|0|0||0|0|0|0.4788|AFR|||||||||,A|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000438504|unprocessed_pseudogene||||||||||rs555500075|4010|-1||insertion|HGNC|38034|YES||||||||||||||||||chr1:g.10353dup|0.",
+      "group": 4,
+      "key": [
+        "chr1",
+        "10352",
+        "T",
+        "TA"
+      ],
+      "kind": "CSQ",
+      "uncached": "-|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000330546|unprocessed_pseudogene||||||||||rs1482681746|4454|-1||deletion|Clone_based_vega_gene||||||||||||||||||||chr9:g.10096_10098del||||||||||||||||||||||||||||||||||||||,-|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000399972|unprocessed_pseudogene||||||||||rs1482681746|4454|-1||deletion|Clone_based_vega_gene||||||||||||||||||||chr9:g.10096_10098del|||||||||||||||||||||||"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10583"
+      ],
+      "group": 5,
+      "kind": "locus",
+      "uncached": [
+        "chr9",
+        "10157"
+      ]
+    },
+    {
+      "cached": [
+        "chr1",
+        "10583",
+        "G",
+        "A",
+        ".",
+        "1",
+        "2",
+        "0/1"
+      ],
+      "group": 5,
+      "kind": "variant_or_input_info",
+      "uncached": [
+        "chr9",
+        "10157",
+        "T",
+        "C",
+        "0.5",
+        "1",
+        "2",
+        "0/1"
+      ]
+    },
+    {
+      "cached": "A|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000423562|unprocessed_pseudogene||||||||||rs58108140|3780|-1||SNV|HGNC|38034|||||||||||||||||||chr1:g.10583G>A|||||||||||||||||0.007745|0.001614|0.006098|0.02141|0.01052|0.00432|0.01004|0.01786|0.009075|0.01181|0.01938|0.02141|gnomADg_AMR||||25722852&26702340|||||,A|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000438504|unprocessed_pseudogene||||||||||rs58108140|3780|-1||SNV|HGNC|38034|YES|||||",
+      "group": 5,
+      "key": [
+        "chr1",
+        "10583",
+        "G",
+        "A"
+      ],
+      "kind": "CSQ",
+      "uncached": "C|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000330546|unprocessed_pseudogene||||||||||rs1398812656|4395|-1||SNV|Clone_based_vega_gene||||||||||||||||||||chr9:g.10157T>C|||||||||||||||||0|0||0|0|0|0||0||0|0|gnomADg_AFR&gnomADg_AMR&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_NFE&gnomADg_SAS|||||||||,C|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000399972|unprocessed_pseudogene||||||||||rs1398812656|4395|-1||SNV|Clone_bas"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10616"
+      ],
+      "group": 6,
+      "kind": "locus",
+      "uncached": [
+        "chr9",
+        "10166"
+      ]
+    },
+    {
+      "cached": [
+        "chr1",
+        "10616",
+        "CCGCCGTTGCAAAGGCGCGCCG",
+        "C",
+        "0.5",
+        "2",
+        "4",
+        "0/1"
+      ],
+      "group": 6,
+      "kind": "variant_or_input_info",
+      "uncached": [
+        "chr9",
+        "10166",
+        "AC",
+        "A",
+        "0.5",
+        "1",
+        "2",
+        "0/1"
+      ]
+    },
+    {
+      "cached": "-|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000423562|unprocessed_pseudogene||||||||||rs376342519|3726|-1||deletion|HGNC|38034|||||||||||||||||||chr1:g.10622_10642del|0.9930|0.9894|0.9957|0.9911|0.994|0.9969|||||||||||0.01167|0.007377|0.025|0.01385|0.02523|0.002674|0.005333|0|0.01692|0.003106|0.01034|0.9969|SAS|||||||||,-|downstream_gene_variant|MODIFIER|WASH7P|ENSG00000227232|Transcript|ENST00000438504|unprocessed_pseudogene||||||||||rs376342519|3726|-1||deletion|",
+      "group": 6,
+      "key": [
+        "chr1",
+        "10616",
+        "CCGCCGTTGCAAAGGCGCGCCG",
+        "C"
+      ],
+      "kind": "CSQ",
+      "uncached": "-|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000330546|unprocessed_pseudogene||||||||||rs1243226011|4385|-1||deletion|Clone_based_vega_gene||||||||||||||||||||chr9:g.10170del|||||||||||||||||0.008361|0||0|0|0|0||0.01121|0|0|0.01121|gnomADg_NFE|||||||||,-|downstream_gene_variant|MODIFIER|XXyac-YRM2039.2|ENSG00000181404|Transcript|ENST00000399972|unprocessed_pseudogene||||||||||rs1243226011|4385|-1||deletion|Clone_based_vega_gene||||||||||||||||||||chr9:g.101"
+    },
+    {
+      "cached": [
+        "chr1",
+        "10665"
+      ],
+      "group": 7,
+      "kind": "locus",
+      "uncached": [
+        "chr9",
+        "10190"
+      ]
+    },
+    {
+      "cached": [
+        "chr1",
+        "10665",
+        "C",
+        "G",
+        "0.5",
+        "2",
+        "4",
+        "0/1"
+      ],
+      "group": 7,
+      "kind": "variant_or_input_info",
+      "uncached": [
+        "chr9",
+        "10190",
+        "CT",
+        "C",
+        "1",
+        "2",
+        "2",
+        "1/1"
+      ]
+    }
+  ],
+  "ignored_annotation_mismatches": 0,
+  "ignored_csq_fields": [
+    "HGNC_ID"
+  ],
+  "ignored_difference_reference": null,
+  "key_mismatches": 9679391,
+  "raw_annotation_mismatches": 4810279,
+  "record_order_only_loci": 0,
+  "records_compared": 4869291,
+  "semantic_pass": false,
+  "uncached_semantic_sha256": "9280c51c5224021538a384e4da4327fcd2d89b9f92915c76f6de6008edbb41cd",
+  "unordered_csq_fields": [
+    "DOMAINS"
+  ]
+}

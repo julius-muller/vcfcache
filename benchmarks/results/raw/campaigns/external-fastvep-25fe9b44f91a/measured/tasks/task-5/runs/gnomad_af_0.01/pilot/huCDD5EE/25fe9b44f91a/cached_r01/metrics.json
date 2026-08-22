@@ -1,0 +1,106 @@
+{
+  "cache_hit_rate": 0.8948666767176734,
+  "cgroup_v2": {
+    "after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 69326606,
+        "throttled_usec": 0,
+        "usage_usec": 1550190459,
+        "user_usec": 1480863852
+      },
+      "memory_current_bytes": 2372112384,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 3895300096,
+      "path": "/system.slice/sl-w6_slurmstepd.scope/job_481/step_0/user/task_0"
+    },
+    "before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 35670210,
+        "throttled_usec": 0,
+        "usage_usec": 801920089,
+        "user_usec": 766249879
+      },
+      "memory_current_bytes": 1858830336,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 3444768768,
+      "path": "/system.slice/sl-w6_slurmstepd.scope/job_481/step_0/user/task_0"
+    }
+  },
+  "command": [
+    "/results/deployment/vcfcache-fastvep-25fe9b44f91a/.venv/bin/vcfcache",
+    "annotate",
+    "-a",
+    "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/databases/GRCh37/bundled-GRCh37-gnomad_af_0.01/cache/cache-fastvep-0.3.0-publication",
+    "-i",
+    "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh37/pgp_deduplicated/huCDD5EE.GRCh37.small_variants.vcf.gz",
+    "-o",
+    "/mnt/data/tmp/vcfcache_external_runs/external-fastvep-25fe9b44f91a/measured/task-5/runs/gnomad_af_0.01/pilot/huCDD5EE/25fe9b44f91a/cached_r01/output.bcf",
+    "--stats-dir",
+    "/mnt/data/tmp/vcfcache_external_runs/external-fastvep-25fe9b44f91a/measured/task-5/runs/gnomad_af_0.01/pilot/huCDD5EE/25fe9b44f91a/cached_r01/stats",
+    "--statistics",
+    "full",
+    "-y",
+    "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh37.yaml",
+    "--force"
+  ],
+  "commit": "25fe9b44f91a",
+  "completed_at": "2026-08-06T11:15:25.014638+00:00",
+  "cpu_percent": 298,
+  "filesystem_inputs": 0,
+  "filesystem_outputs": 3793392,
+  "input_vcf": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh37/pgp_deduplicated/huCDD5EE.GRCh37.small_variants.vcf.gz",
+  "involuntary_context_switches": 342471,
+  "max_rss_kib": 2992176,
+  "mode": "cached",
+  "output_bcf": "/mnt/data/tmp/vcfcache_external_runs/external-fastvep-25fe9b44f91a/measured/task-5/runs/gnomad_af_0.01/pilot/huCDD5EE/25fe9b44f91a/cached_r01/output.bcf",
+  "output_bytes": 506638582,
+  "output_index_sha256": "7387fdc69ff5c2d4d82c765c2c4a038ccb5e6a22f5057e3f4173d8143a2ed336",
+  "output_records": 4815438,
+  "output_sha256": "0e31c3e4289939b2e54bce2d73c0f943eebf80a2ed3e323a31fee8e14dc8a3cf",
+  "replicate": 1,
+  "sample": "huCDD5EE",
+  "started_at": "2026-08-06T11:11:14.206323+00:00",
+  "stats_dir": "/mnt/data/tmp/vcfcache_external_runs/external-fastvep-25fe9b44f91a/measured/task-5/runs/gnomad_af_0.01/pilot/huCDD5EE/25fe9b44f91a/cached_r01/stats/huCDD5EE_vcstats",
+  "system_seconds": 33.8,
+  "user_seconds": 714.35,
+  "variant_counts": {
+    "annotated_output": 4815438,
+    "dropped_variants": 0,
+    "input_variants": 4815438,
+    "missing_annotated": 506263,
+    "missing_variants": 506263,
+    "tool_annotated": 506263,
+    "total_output": 4815438
+  },
+  "voluntary_context_switches": 1516041,
+  "wall_seconds": 250.70443808898563,
+  "wall_seconds_gnu": 250.7
+}

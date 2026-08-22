@@ -1,0 +1,55 @@
+{
+  "calibration_per_cohort": 0,
+  "campaign_id": "external-fastvep-804963323e11-light-strict",
+  "cohort_assemblies": {
+    "kpgp": "GRCh38",
+    "pgp": "GRCh37",
+    "sgdp": "GRCh38"
+  },
+  "commit": "804963323e11f657c20a87f554136f08d20fd25e",
+  "commit_short": "804963323e11",
+  "conditions": [
+    "uncached",
+    "gnomad_af_0.1",
+    "gnomad_af_0.01",
+    "cohort_3_genomes"
+  ],
+  "created_at": "2026-08-06T15:13:10.365524+00:00",
+  "evaluation_counts": {
+    "kpgp": 20,
+    "pgp": 12,
+    "sgdp": 20
+  },
+  "phases": {
+    "measured": {
+      "manifest": "/results/campaigns/external-fastvep-804963323e11-light-strict/manifests/measured.tsv",
+      "manifest_sha256": "886f0c660e7bf1a31b234487c500b63d391d60431d18230bb7c60a0589944ad6",
+      "replicates": 1,
+      "samples": 52,
+      "tasks": 52
+    }
+  },
+  "qc": "/mnt/data/vcfcache_benchmarks/external_wgs/qc/external_wgs_qc.tsv",
+  "qc_sha256": "bf8d65f9ad5104f63dba0ad1d4dfd4d0301e08935c44891d7600fcda0ef343fd",
+  "runtime_params_by_assembly": {
+    "GRCh37": {
+      "controller_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh37.yaml",
+      "path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh37.yaml",
+      "sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211",
+      "source": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh37.yaml",
+      "source_sha256": "e18f4f193ad3ac95177fd4fcff75b6c0a2557032e7df79ab06c79211f7606211"
+    },
+    "GRCh38": {
+      "controller_path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh38.yaml",
+      "path": "/mnt/data/vcfcache_benchmarks/fastvep_external_caches/config/runtime_params_GRCh38.yaml",
+      "sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f",
+      "source": "/mnt/data/apps/fastvep/0.3.0-publication/config/params_GRCh38.yaml",
+      "source_sha256": "a07e0baaa3ae8e60ff2154483d26f0d7a13a8b1a7a0b91d3fdebdb140f39dc1f"
+    }
+  },
+  "seed": "vcfcache-paper-external-wgs-v1",
+  "statistics_mode": "light",
+  "strategies": "/results/campaigns/external-fastvep-804963323e11-light-strict/manifests/strategies.json",
+  "strategies_sha256": "284b824cd899746a0fdd8f1a97611e405c20f25a007396c23e9eba8f33e36f07",
+  "tool": "fastvep"
+}
