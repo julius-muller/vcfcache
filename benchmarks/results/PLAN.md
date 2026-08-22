@@ -60,8 +60,8 @@ Immutable per recipe, so each level needs its own genome-wide build over the
 |---|---|---|---|
 | SnpEff core | GRCh38 | 2:55:28 | **done** |
 | SnpEff core | GRCh37 | 3:01:38 | **done** |
-| SnpEff clinical | GRCh38 | ~12.4 h est. | building (job 995) |
-| SnpEff clinical | GRCh37 | ~8-10 h est. | building (job 999) |
+| SnpEff clinical | GRCh38 | 13:11:20 | **done** |
+| SnpEff clinical | GRCh37 | 7:20:53 | **done** |
 | fastVEP clinical | GRCh38 | 28:49 | **done** |
 | fastVEP clinical | GRCh37 | 6:05 | **done** |
 
@@ -70,13 +70,14 @@ magnitude, in the direction of fastVEP being far cheaper than scaling from
 SnpEff suggested. Estimates in this table are labelled as such.
 
 The partition's `MaxTime` was raised from 12 h to 24 h so the clinical builds fit
-serially. That matters: a split build would still produce a valid cache, but it
+serially. That was necessary rather than precautionary: the GRCh38 clinical build
+took **13:11:20** and would have been killed at the old limit. That matters: a split build would still produce a valid cache, but it
 would be the one artefact in the matrix not made the way the paper says
 annotation is run.
 
 ## Outstanding
 
-1. Finish the two SnpEff clinical caches (995, 999); the other three are built.
+1. ~~Build the five caches.~~ **All five are built and content-verified.**
 2. Campaigns: 12 GRCh38 genomes and 12 PGP GRCh37 genomes, Panel/WES/WGS,
    direct and cached, at both levels.
 3. Fold SnpEff and the clinical level into the manuscript; register the new

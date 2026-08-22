@@ -96,6 +96,8 @@ was flawed and the numbers do not estimate what they appear to.
 | 2026-08-22 | `fastvep_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 625 MB, built in 6:05 | primary |
 | 2026-08-22 | `fastvep_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.9 GB, built in 28:49 | primary |
 | 2026-08-22 | `snpeff_core_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 682 MB, built in 3:01:38 | primary |
+| 2026-08-22 | `snpeff_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 721 MB, built in 7:20:53 | primary |
+| 2026-08-22 | `snpeff_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.5 GB, built in 13:11:20 | primary |
 
 ### Measured constants worth keeping in one place
 
@@ -112,3 +114,5 @@ was flawed and the numbers do not estimate what they appear to.
 | fastVEP clinical cache build, GRCh37 | 6:05 | `raw/richness/results/build_time_fastvep_clinical_grch37_af001.txt` |
 | fastVEP clinical cache build, GRCh38 | 28:49 | `raw/richness/results/build_time_fastvep_clinical_grch38_af001.txt` |
 | Annotations per record, chr22, GRCh37 / GRCh38 | fastVEP 3.19 / 12.14; SnpEff 4.27 / 12.29 | `bcftools query` over the built caches |
+| SnpEff clinical cache build, GRCh37 / GRCh38 | 7:20:53 / 13:11:20 | `raw/snpeff/results/build_time_snpeff_clinical_*.txt` |
+| Clinical content, chr22 (CLNSIG / gnomAD AF) | SnpEff 3061 / 27581 (GRCh37), 3069 / 28591 (GRCh38); fastVEP 3437 / 28904 (GRCh37) | `bcftools query` over the built caches |
