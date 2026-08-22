@@ -1,0 +1,30 @@
+[2026-08-22T02:20:38.734] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-22T02:20:38.737] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-22T02:20:38+02:00] assembly=GRCh37 genome=GRCh37.75 sample=hu1D5A29.GRCh37.small_variants.vcf.gz
+[2026-08-22T02:20:39+02:00] throughput slice: 262778 blueprint alleles
+snpeff_clinical_run: serial, 262778 records, 8g heap, genome GRCh37.75
+RATE assembly=GRCh37 records=262778 wall=707.711052552 rate=371/s
+  with ANN:    261112
+  with CLNSIG: 3061
+  with gnomAD AF: 27581
+Creating cache structure: /mnt/data/tmp/c1-993/root
+WARNING: No params.yaml provided (-y flag). Auto-generated minimal params.yaml at /mnt/data/tmp/c1-993/root/workflow/init.yaml with genome_build='UNKNOWN'. You MUST update the genome_build field before running cache-build.
+Computing MD5 for /mnt/data/tmp/c1-993/bp22.bcf ...
+Error during execution: Genome build mismatch between params.yaml (GRCh38) and annotation.yaml (GRCh37).
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/.venv/bin/vcfcache", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/mnt/data/vcfcache/vcfcache/cli.py", line 1181, in main
+    annotator = DatabaseAnnotator(
+                ^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/vcfcache/vcfcache/database/annotator.py", line 126, in __init__
+    self.nx_workflow = create_workflow(
+                       ^^^^^^^^^^^^^^^^
+  File "/mnt/data/vcfcache/vcfcache/database/base.py", line 64, in create_workflow
+    return WorkflowManager(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/vcfcache/vcfcache/database/workflow_manager.py", line 254, in __init__
+    raise ValueError(
+ValueError: Genome build mismatch between params.yaml (GRCh38) and annotation.yaml (GRCh37).
+GATE BUILD FAILED

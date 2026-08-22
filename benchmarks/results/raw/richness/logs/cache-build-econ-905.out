@@ -1,0 +1,37 @@
+[2026-08-19T13:25:17.360] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-19T13:25:17.362] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+0.5.3
+[2026-08-19T13:25:18+02:00] subsetting blueprint to chr22
+Warning: cannot determine contig names given the .csi index alone
+blueprint records (chr22): 133968
+[2026-08-19T13:25:18+02:00] blueprint-init
+  File "/mnt/data/vcfcache/vcfcache/database/initializer.py", line 56, in __init__
+    self._setup_cache(force=force)
+  File "/mnt/data/vcfcache/vcfcache/database/initializer.py", line 166, in _setup_cache
+    raise FileExistsError(
+FileExistsError: Output directory with an invalid structure detected: /mnt/data/tmp/econ-905/root
+[2026-08-19T13:25:19+02:00] cache-build (fastVEP core recipe)
+  File "/mnt/data/vcfcache/vcfcache/cli.py", line 1191, in main
+    annotator.annotate()
+  File "/mnt/data/vcfcache/vcfcache/database/annotator.py", line 253, in annotate
+    shutil.copy2(self.info_file, self.info_snapshot_file)
+  File "/home/appuser/.local/share/uv/python/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/shutil.py", line 475, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/home/appuser/.local/share/uv/python/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/shutil.py", line 260, in copyfile
+    with open(src, 'rb') as fsrc:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/mnt/data/tmp/econ-905/root/blueprint/sources.info'
+[2026-08-19T13:25:19+02:00] build resource summary
+	User time (seconds): 0.48
+	System time (seconds): 0.12
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.60
+	Maximum resident set size (kbytes): 42628
+disk high-water bytes: 0
+--- final sizes ---
+1532	/mnt/data/tmp/econ-905/root
+24K	/mnt/data/tmp/econ-905/root
+20K	/mnt/data/tmp/econ-905/root/cache
+16K	/mnt/data/tmp/econ-905/root/cache/econ_chr22
+blueprint_records	build_wall	peak_rss_kib	final_cache_bytes	disk_high_water_bytes
+133968	0:00.60	42628	1532	0
+[2026-08-19T13:25:19+02:00] done

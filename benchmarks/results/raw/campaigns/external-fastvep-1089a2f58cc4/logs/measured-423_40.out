@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/results/deployment/vcfcache-fastvep-1089a2f58cc4/benchmarks/run_external_task.py", line 250, in <module>
+    main()
+  File "/results/deployment/vcfcache-fastvep-1089a2f58cc4/benchmarks/run_external_task.py", line 246, in main
+    execute(args)
+  File "/results/deployment/vcfcache-fastvep-1089a2f58cc4/benchmarks/run_external_task.py", line 219, in execute
+    preflight(config)
+  File "/results/deployment/vcfcache-fastvep-1089a2f58cc4/benchmarks/run_pilot.py", line 230, in preflight
+    raise RuntimeError("VEP 115.2 requirement check did not pass")
+RuntimeError: VEP 115.2 requirement check did not pass
+srun: error: sl-w3: task 0: Exited with exit code 1

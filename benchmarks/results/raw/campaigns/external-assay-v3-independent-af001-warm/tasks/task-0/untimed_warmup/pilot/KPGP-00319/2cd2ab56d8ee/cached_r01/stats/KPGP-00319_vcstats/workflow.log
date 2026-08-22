@@ -1,0 +1,70 @@
+[2026-08-18 21:04:45] DEBUG [vcfcache.logging.py.setup_logging:86] File logging enabled at: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/workflow.log
+[2026-08-18 21:04:45] DEBUG [vcfcache.logging.py.setup_logging:92] Log levels - Console: INFO, File: DEBUG
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.__init__:167] Initializing Pure Python workflow in: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.__init__:209] Loaded parameters from: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/workflow/params.snapshot.yaml
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.__init__:239] Loaded annotation config from: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/annotation.yaml
+[2026-08-18 21:04:45] INFO [vcfcache.workflow_manager.py.__init__:248] Genome build (params.yaml): GRCh38
+[2026-08-18 21:04:45] INFO [vcfcache.workflow_manager.py.__init__:252] Genome build (annotation.yaml): GRCh38
+[2026-08-18 21:04:45] DEBUG [vcfcache.annotator.py._validate_inputs:542] Validating inputs
+[2026-08-18 21:04:45] DEBUG [vcfcache.base.py.ensure_indexed:123] Checking index for: /results/campaigns/external-assay-v3-independent-af001-warm/inputs/untimed_warmup/KPGP-00319.panel.vcf.gz
+[2026-08-18 21:04:45] DEBUG [vcfcache.annotator.py._validate_inputs:554] Input validation successful
+[2026-08-18 21:04:45] INFO [vcfcache.annotator.py.__init__:505] Initializing annotation of KPGP-00319.panel.vcf.gz
+[2026-08-18 21:04:45] DEBUG [vcfcache.annotator.py.__init__:506] Cache file: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-08-18 21:04:45] DEBUG [vcfcache.annotator.py.annotate:824] Starting VCF annotation
+[2026-08-18 21:04:45] DEBUG [vcfcache.base.py.ensure_indexed:123] Checking index for: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-08-18 21:04:45] DEBUG [vcfcache.base.py.ensure_indexed:123] Checking index for: /results/campaigns/external-assay-v3-independent-af001-warm/inputs/untimed_warmup/KPGP-00319.panel.vcf.gz
+[2026-08-18 21:04:45] INFO [vcfcache.annotator.py._log_contig_overlap:521] Contig overlap: cache=24 input=17 overlap=17
+[2026-08-18 21:04:45] INFO [vcfcache.annotator.py._log_contig_overlap:529] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py._create_work_dir:966] Created work directory: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work
+[2026-08-18 21:04:45] INFO [vcfcache.workflow_manager.py.run:302] Running workflow in mode: annotate
+[2026-08-18 21:04:45] INFO [vcfcache.workflow_manager.py._run_annotate:562] Annotating sample using cache (4-step process)
+[2026-08-18 21:04:45] INFO [vcfcache.workflow_manager.py._run_annotate:587] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.run:57] Running command in /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.run:58] Command: bcftools norm -m- /results/campaigns/external-assay-v3-independent-af001-warm/inputs/untimed_warmup/KPGP-00319.panel.vcf.gz -Ob | bcftools view -e 'ALT="*"' -o /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_normalized.bcf -Ob -W --threads 8
+[2026-08-18 21:04:45] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.110s: bcftools norm
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.run:106] STDERR: Lines   total/split/joined/realigned/removed/skipped:	288/0/0/0/0/0
+
+[2026-08-18 21:04:45] INFO [vcfcache.workflow_manager.py._run_annotate:602] Step 1/4: Adding cache annotations
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.run:57] Running command in /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate
+[2026-08-18 21:04:45] DEBUG [vcfcache.workflow_manager.py.run:58] Command: bcftools annotate -a /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_normalized.bcf -c INFO -o /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_isecvst.bcf -Ob -W --threads 8
+[2026-08-18 21:05:15] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 29.744s: bcftools annotate
+[2026-08-18 21:05:15] INFO [vcfcache.workflow_manager.py._run_annotate:611] Step 2/4: Identifying variants missing from cache
+[2026-08-18 21:05:15] DEBUG [vcfcache.workflow_manager.py.run:57] Running command in /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate
+[2026-08-18 21:05:15] DEBUG [vcfcache.workflow_manager.py.run:58] Command: bcftools filter -i 'INFO/CSQ==""' /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_isecvst.bcf -o /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_isecvst_miss.bcf -Ob -W --threads 8
+[2026-08-18 21:05:15] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.065s: bcftools filter
+[2026-08-18 21:05:15] INFO [vcfcache.workflow_manager.py._run_annotate:629] Found 36 variants not in cache
+[2026-08-18 21:05:15] INFO [vcfcache.workflow_manager.py._run_annotate:633] Step 3/4: Annotating 36 missing variants
+[2026-08-18 21:05:15] DEBUG [vcfcache.workflow_manager.py.run:57] Running command in /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate
+[2026-08-18 21:05:15] DEBUG [vcfcache.workflow_manager.py.run:58] Command: bcftools view /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_isecvst_miss.bcf | \
+apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/115/vep.sif vep \
+  --offline \
+  --buffer_size 100000 \
+  --fork 8 \
+  --cache \
+  --dir_cache /mnt/data/apps/ensembl-vep/115/cachedir \
+  --format vcf \
+  --vcf \
+  --force_overwrite \
+  -i stdin \
+  -o stdout \
+  -a GRCh38 \
+  --hgvsg \
+  --everything \
+  --stats_file /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/auxiliary/vep_stats.html \
+  --warning_file /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/auxiliary/vep_warnings.txt \
+  2> /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/auxiliary/vep_stderr.txt | \
+bcftools view -o /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_missing_annotated.bcf -Ob -W --threads 8
+
+[2026-08-18 21:05:28] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 12.765s: bcftools view
+[2026-08-18 21:05:28] INFO [vcfcache.workflow_manager.py._run_annotate:672] Step 4/4: Merging cache and newly annotated variants
+[2026-08-18 21:05:28] DEBUG [vcfcache.workflow_manager.py.run:57] Running command in /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate
+[2026-08-18 21:05:28] DEBUG [vcfcache.workflow_manager.py.run:58] Command: bcftools annotate -a /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_missing_annotated.bcf /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_isecvst.bcf -c INFO -o /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_merged.bcf -Ob -W --threads 8
+[2026-08-18 21:05:28] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.170s: bcftools annotate
+[2026-08-18 21:05:28] DEBUG [vcfcache.workflow_manager.py.run:57] Running command in /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate
+[2026-08-18 21:05:28] DEBUG [vcfcache.workflow_manager.py.run:58] Command: bcftools view -i 'INFO/CSQ!=""' /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work/annotate/KPGP-00319.panel.vcf_merged.bcf -o /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/output.bcf -Ob -W --threads 8
+[2026-08-18 21:05:28] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.095s: bcftools view
+[2026-08-18 21:05:28] INFO [vcfcache.workflow_manager.py._run_annotate:749] Annotation complete: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/output.bcf
+[2026-08-18 21:05:28] DEBUG [vcfcache.workflow_manager.py._write_trace_file:952] Trace file written to: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/vep115.2_everything_trace.txt
+[2026-08-18 21:05:28] INFO [vcfcache.workflow_manager.py.run:340] Workflow completed successfully in 43.1s
+[2026-08-18 21:05:28] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:978] Cleaning up work directory
+[2026-08-18 21:05:28] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:981] Removing work directory: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/untimed_warmup/pilot/KPGP-00319/2cd2ab56d8ee/cached_r01/stats/KPGP-00319_vcstats/work

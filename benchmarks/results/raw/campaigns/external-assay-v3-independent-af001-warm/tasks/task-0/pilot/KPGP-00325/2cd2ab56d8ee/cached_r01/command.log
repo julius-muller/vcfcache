@@ -1,0 +1,25 @@
+[21:05:33] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating KPGP-00325.GRCh38.panel.vcf.gz (cached mode)...
+[21:05:33] Genome build (params.yaml): GRCh38
+[21:05:33] Genome build (annotation.yaml): GRCh38
+[21:05:33] Initializing annotation of KPGP-00325.GRCh38.panel.vcf.gz
+[21:05:33] Contig overlap: cache=24 input=17 overlap=17
+[21:05:33] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[21:05:33] Running workflow in mode: annotate
+[21:05:33] Annotating sample using cache (4-step process)
+[21:05:33] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[21:05:33] Command completed in 0.111s: bcftools norm
+[21:05:33] Step 1/4: Adding cache annotations
+[21:06:03] Command completed in 29.582s: bcftools annotate
+[21:06:03] Step 2/4: Identifying variants missing from cache
+[21:06:03] Command completed in 0.068s: bcftools filter
+[21:06:03] Found 21 variants not in cache
+[21:06:03] Step 3/4: Annotating 21 missing variants
+[21:06:14] Command completed in 10.707s: bcftools view
+[21:06:14] Step 4/4: Merging cache and newly annotated variants
+[21:06:14] Command completed in 0.163s: bcftools annotate
+[21:06:14] Command completed in 0.089s: bcftools view
+[21:06:14] Annotation complete: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/pilot/KPGP-00325/2cd2ab56d8ee/cached_r01/output.bcf
+[21:06:14] Workflow completed successfully in 40.8s
+Annotation completed in 41.0s
+Computing MD5 for /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-0/pilot/KPGP-00325/2cd2ab56d8ee/cached_r01/stats/KPGP-00325_vcstats/workflow/annotation.snapshot.yaml ...

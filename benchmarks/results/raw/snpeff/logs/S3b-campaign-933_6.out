@@ -1,0 +1,24 @@
+[2026-08-20T22:56:41.917] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-20T22:56:41.918] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	247/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-20T22:56:42+02:00] LP6005442-DNA_B04/panel n=247 =====
+Failed to read from standard input: unknown file type
+DIRECT FAILED LP6005442-DNA_B04/panel
+Lines   total/split/joined/realigned/removed/skipped:	82675/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-20T22:57:05+02:00] LP6005442-DNA_B04/wes n=82675 =====
+Failed to read from standard input: unknown file type
+DIRECT FAILED LP6005442-DNA_B04/wes
+Lines   total/split/joined/realigned/removed/skipped:	4823693/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-20T22:57:14+02:00] LP6005442-DNA_B04/wgs n=4823693 =====
+Failed to read from standard input: unknown file type
+xargs: bash: exited with status 255; aborting
+Failed to read from standard input: unknown file type
+xargs: bash: exited with status 255; aborting
+Failed to read from standard input: unknown file type
+xargs: bash: exited with status 255; aborting
+DIRECT FAILED LP6005442-DNA_B04/wgs
+[2026-08-20T22:57:19+02:00] done
+sample	cohort	assay	condition	wall_seconds	input_records	output_records	missing_variants	ann_md5

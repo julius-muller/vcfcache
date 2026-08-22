@@ -1,0 +1,36 @@
+[2026-08-21T15:23:11.952] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-21T15:23:11.955] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-21T15:23:11+02:00] jobs=3 heap=8g threshold=500000
+Lines   total/split/joined/realigned/removed/skipped:	4598973/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T15:23:21+02:00] KPGP-00128/wgs n=4598973 =====
+snpeff_parallel: parallel path (4598973 records, 22 contigs, 3 workers, 8g heap)
+Checking the headers and starting positions of 22 files
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr1.bcf	2.230289 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr2.bcf	1.609456 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr3.bcf	1.536285 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr4.bcf	1.195242 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr5.bcf	0.969990 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr6.bcf	1.246522 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr7.bcf	1.092787 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr8.bcf	1.048721 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr9.bcf	0.913247 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr10.bcf	0.995383 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr11.bcf	0.974563 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr12.bcf	0.935196 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr13.bcf	0.593995 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr14.bcf	0.705305 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr15.bcf	0.659843 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr16.bcf	0.639551 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr17.bcf	0.682341 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr18.bcf	0.524263 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr19.bcf	0.553712 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr20.bcf	0.486848 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr21.bcf	0.338779 seconds
+Concatenating /mnt/data/tmp/s5-966-0/tmp/snpeff_par.IC8KGd/chr22.bcf	0.397791 seconds
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-21T16:00:22+02:00] direct=2202.188436066s
+Annotation completed in 714.4s
+Computing MD5 for /mnt/data/tmp/s5-966-0/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-21T16:12:36+02:00] cached=715.280160447s miss=375693
+[2026-08-21T16:41:50.858] error: *** JOB 967 ON sl-w1 CANCELLED AT 2026-08-21T16:41:50 DUE to SIGNAL Terminated ***

@@ -1,0 +1,18 @@
+[2026-08-20T18:01:50.554] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-20T18:01:50.556] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-20T18:01:50+02:00] reinstalling SnpEff from bioconda
+SnpEff	5.4c	2026-02-23
+  repository: database.repository = https://snpeff-public.s3.amazonaws.com/databases
+  stock GRCh38.115 defined in config: 3
+[2026-08-20T18:01:54+02:00] downloading stock GRCh38.115
+00:00:58 Extracting file 'data/GRCh38.115/cytoBand.txt.gz'
+00:00:58 Unzip: OK
+00:00:58 Deleted local file '/tmp/snpEff_v5_4_GRCh38.115.zip'
+00:00:58 Done
+00:00:58 Logging
+00:00:59 Done.
+775M	/results/snpeff/dist/snpEff/data/GRCh38.115
+RESULT n=2000 rc=0 wall=92.156123065 out=2000
+RESULT n=20000 rc=0 wall=112.189963641 out=20000
+RESULT n=100000 rc=0 wall=182.000964653 out=100000
+[2026-08-20T18:09:20+02:00] done

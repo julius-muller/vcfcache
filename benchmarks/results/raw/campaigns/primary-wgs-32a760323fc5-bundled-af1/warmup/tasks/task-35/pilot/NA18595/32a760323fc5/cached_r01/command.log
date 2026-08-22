@@ -1,0 +1,25 @@
+[22:19:58] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating NA18595.GRCh38.small_variants.vcf.gz (cached mode)...
+[22:19:58] Genome build (params.yaml): GRCh38
+[22:19:58] Genome build (annotation.yaml): GRCh38
+[22:19:58] Initializing annotation of NA18595.GRCh38.small_variants.vcf.gz
+[22:19:58] Contig overlap: cache=24 input=22 overlap=22
+[22:19:58] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[22:19:58] Running workflow in mode: annotate
+[22:19:58] Annotating sample using cache (4-step process)
+[22:19:58] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[22:20:15] Command completed in 17.251s: bcftools norm
+[22:20:15] Step 1/4: Adding cache annotations
+[22:21:32] Command completed in 76.448s: bcftools annotate
+[22:21:32] Step 2/4: Identifying variants missing from cache
+[22:22:06] Command completed in 34.330s: bcftools filter
+[22:22:06] Found 151931 variants not in cache
+[22:22:06] Step 3/4: Annotating 151931 missing variants
+[22:29:22] Command completed in 435.740s: bcftools view
+[22:29:22] Step 4/4: Merging cache and newly annotated variants
+[22:30:00] Command completed in 38.381s: bcftools annotate
+[22:30:46] Command completed in 45.306s: bcftools view
+[22:30:46] Annotation complete: /mnt/data/tmp/vcfcache_runs/primary-wgs-32a760323fc5-bundled-af1/warmup/task-35/pilot/NA18595/32a760323fc5/cached_r01/output.bcf
+[22:30:46] Workflow completed successfully in 647.6s
+Annotation completed in 648.0s
+Computing MD5 for /mnt/data/tmp/vcfcache_runs/primary-wgs-32a760323fc5-bundled-af1/warmup/task-35/pilot/NA18595/32a760323fc5/cached_r01/stats/NA18595_vcstats/workflow/annotation.snapshot.yaml ...

@@ -1,0 +1,19 @@
+[16:54:53] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating KPGP-00326.GRCh38.small_variants.vcf.gz (cached mode)...
+[16:54:53] Genome build (params.yaml): GRCh38
+[16:54:53] Genome build (annotation.yaml): GRCh38
+[16:54:53] Initializing annotation of KPGP-00326.GRCh38.small_variants.vcf.gz
+[16:54:53] Contig overlap: cache=22 input=22 overlap=22
+[16:54:53] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[16:54:53] Running workflow in mode: annotate
+[16:54:53] Annotating sample using cache (4-step process)
+[16:54:53] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[16:55:21] Command completed in 28.128s: bcftools norm
+[16:55:21] Step 1/4: Adding cache annotations
+[16:55:56] Command completed in 34.327s: bcftools annotate
+[16:55:56] Step 2/4: Identifying variants missing from cache
+[16:56:18] Command completed in 22.709s: bcftools filter
+[16:56:19] Found 727550 variants not in cache
+[16:56:19] Step 3/4: Annotating 727550 missing variants
+[16:57:37] Command completed in 78.261s: bcftools view
+[16:57:37] Step 4/4: Merging cache and newly annotated variants

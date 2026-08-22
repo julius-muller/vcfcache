@@ -1,0 +1,44 @@
+[2026-08-21T08:32:17.229] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-21T08:32:17.229] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	247/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T08:32:17+02:00] LP6005442-DNA_B04/panel n=247 =====
+Warning: cannot determine contig names given the .csi index alone
+Annotation completed in 54.8s
+Computing MD5 for /mnt/data/tmp/s3b-945-6/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-21T08:35:16+02:00] LP6005442-DNA_B04/panel direct=62.890057366s cached=55.287278800s miss=6
+Lines   total/split/joined/realigned/removed/skipped:	82675/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T08:35:37+02:00] LP6005442-DNA_B04/wes n=82675 =====
+Warning: cannot determine contig names given the .csi index alone
+Annotation completed in 98.5s
+Computing MD5 for /mnt/data/tmp/s3b-945-6/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-21T08:41:46+02:00] LP6005442-DNA_B04/wes direct=136.014215769s cached=98.682610555s miss=3707
+Lines   total/split/joined/realigned/removed/skipped:	4823693/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T08:41:53+02:00] LP6005442-DNA_B04/wgs n=4823693 =====
+Checking the headers and starting positions of 22 files
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr1.bcf	1.275182 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr2.bcf	1.289869 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr3.bcf	1.236790 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr4.bcf	0.956283 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr5.bcf	0.805558 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr6.bcf	0.943800 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr7.bcf	0.901751 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr8.bcf	0.873079 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr9.bcf	0.743489 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr10.bcf	0.816113 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr11.bcf	0.783135 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr12.bcf	0.751822 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr13.bcf	0.452938 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr14.bcf	0.537755 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr15.bcf	0.541472 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr16.bcf	0.510539 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr17.bcf	0.561164 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr18.bcf	0.413127 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr19.bcf	0.472538 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr20.bcf	0.378598 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr21.bcf	0.283989 seconds
+Concatenating /mnt/data/tmp/s3b-945-6/tmp/snpeff_par.yx4fEx/chr22.bcf	0.318029 seconds
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-21T09:27:41.929] error: *** JOB 952 ON sl-w5 CANCELLED AT 2026-08-21T09:27:41 DUE to SIGNAL Terminated ***

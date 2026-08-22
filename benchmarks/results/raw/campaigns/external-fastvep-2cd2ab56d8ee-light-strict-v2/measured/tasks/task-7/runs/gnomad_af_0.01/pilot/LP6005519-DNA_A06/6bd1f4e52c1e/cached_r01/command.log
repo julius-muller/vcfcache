@@ -1,0 +1,25 @@
+[20:14:57] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating LP6005519-DNA_A06.GRCh38.small_variants.vcf.gz (cached mode)...
+[20:14:57] Genome build (params.yaml): GRCh38
+[20:14:57] Genome build (annotation.yaml): GRCh38
+[20:14:57] Initializing annotation of LP6005519-DNA_A06.GRCh38.small_variants.vcf.gz
+[20:14:58] Contig overlap: cache=24 input=22 overlap=22
+[20:14:58] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[20:14:58] Running workflow in mode: annotate
+[20:14:58] Annotating sample using cache (4-step process)
+[20:14:58] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[20:15:25] Command completed in 27.891s: bcftools norm
+[20:15:26] Step 1/4: Adding cache annotations
+[20:16:15] Command completed in 49.396s: bcftools annotate
+[20:16:15] Step 2/4: Identifying variants missing from cache
+[20:16:40] Command completed in 25.054s: bcftools filter
+[20:16:40] Found 355259 variants not in cache
+[20:16:40] Step 3/4: Annotating 355259 missing variants
+[20:17:17] Command completed in 36.782s: bcftools view
+[20:17:17] Step 4/4: Merging cache and newly annotated variants
+[20:17:42] Command completed in 24.871s: bcftools annotate
+[20:18:10] Command completed in 28.090s: bcftools view
+[20:18:10] Annotation complete: /mnt/data/tmp/vcfcache_external_runs/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/task-7/runs/gnomad_af_0.01/pilot/LP6005519-DNA_A06/6bd1f4e52c1e/cached_r01/output.bcf
+[20:18:10] Workflow completed successfully in 192.6s
+Annotation completed in 192.9s
+Computing MD5 for /mnt/data/tmp/vcfcache_external_runs/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/task-7/runs/gnomad_af_0.01/pilot/LP6005519-DNA_A06/6bd1f4e52c1e/cached_r01/stats/LP6005519-DNA_A06_vcstats/workflow/annotation.snapshot.yaml ...

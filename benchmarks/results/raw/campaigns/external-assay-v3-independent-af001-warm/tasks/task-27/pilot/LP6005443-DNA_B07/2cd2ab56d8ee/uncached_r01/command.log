@@ -1,0 +1,14 @@
+[21:22:50] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating LP6005443-DNA_B07.GRCh38.wes.vcf.gz (uncached mode)...
+[21:22:50] Genome build (params.yaml): GRCh38
+[21:22:50] Genome build (annotation.yaml): GRCh38
+[21:22:50] Initializing annotation of LP6005443-DNA_B07.GRCh38.wes.vcf.gz
+[21:22:50] Running workflow in mode: annotate-nocache
+[21:22:50] Annotating sample directly (no cache)
+[21:22:50] Splitting multiallelic variants and removing spanning deletions
+[21:22:51] Command completed in 1.098s: bcftools norm
+[21:23:14] Command completed in 22.956s: bcftools view
+[21:23:14] Direct annotation complete: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-27/pilot/LP6005443-DNA_B07/2cd2ab56d8ee/uncached_r01/output.bcf
+[21:23:14] Workflow completed successfully in 24.2s
+Annotation completed in 24.2s
+Computing MD5 for /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-27/pilot/LP6005443-DNA_B07/2cd2ab56d8ee/uncached_r01/stats/LP6005443-DNA_B07_vcstats/workflow/annotation.snapshot.yaml ...

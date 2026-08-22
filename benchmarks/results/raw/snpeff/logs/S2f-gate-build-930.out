@@ -1,0 +1,78 @@
+[2026-08-20T18:11:06.096] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-20T18:11:06.097] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-20T18:11:06+02:00] genome=GRCh38.115  775M
+[2026-08-20T18:11:06+02:00] wrapper equality check on chr21+chr22
+Checking the headers and starting positions of 2 files
+Concatenating /mnt/data/tmp/s2f-930/tmp/snpeff_par.OHbXnd/chr21.bcf	1.758931 seconds
+Concatenating /mnt/data/tmp/s2f-930/tmp/snpeff_par.OHbXnd/chr22.bcf	1.607262 seconds
+Warning: cannot determine contig names given the .csi index alone
+  wrapper equality: OK (617379 records)
+[2026-08-20T18:33:54+02:00] integration gate
+Creating cache structure: /mnt/data/tmp/s2f-930/groot
+WARNING: No params.yaml provided (-y flag). Auto-generated minimal params.yaml at /mnt/data/tmp/s2f-930/groot/workflow/init.yaml with genome_build='UNKNOWN'. You MUST update the genome_build field before running cache-build.
+Computing MD5 for /mnt/data/tmp/s2f-930/bp22.bcf ...
+Lines   total/split/joined/realigned/removed/skipped:	74129/0/0/0/0/0
+Annotation completed in 100.7s
+Computing MD5 for /mnt/data/tmp/s2f-930/gst/gin_vcstats/workflow/annotation.snapshot.yaml ...
+Warning: cannot determine contig names given the .csi index alone
+Warning: cannot determine contig names given the .csi index alone
+  direct=74129  cached=74129
+[2026-08-20T18:45:47+02:00] GATE PASSED
+Creating cache structure: /results/snpeff/cache_af001
+WARNING: No params.yaml provided (-y flag). Auto-generated minimal params.yaml at /results/snpeff/cache_af001/workflow/init.yaml with genome_build='UNKNOWN'. You MUST update the genome_build field before running cache-build.
+Computing MD5 for /mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints/gnomad_v4.1_GRCh38_joint_af001/blueprint/vcfcache.bcf ...
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-20T18:46:12+02:00] cache-build over 18869857 alleles
+Command failed with exit code 124
+STDERR: Failed to read from standard input: unknown file type
+Failed to read from standard input: unknown file type
+xargs: bash: exited with status 255; aborting
+xargs: bash: exited with status 255; aborting
+
+Temporary files from failed run exist:
+- /results/snpeff/cache_af001/cache/snpeff_af001/work
+You may want to remove these files manually
+Workflow execution failed: Command '/results/snpeff/dist/snpeff_parallel.sh \
+  /results/snpeff/cache_af001/blueprint/vcfcache.bcf /results/snpeff/cache_af001/cache/snpeff_af001/vcfcache_annotated.bcf /results/snpeff/cache_af001/cache/snpeff_af001/auxiliary \
+  /results/snpeff/dist/jre/bin/java /results/snpeff/dist/snpEff/snpEff.jar /results/snpeff/dist/snpEff/snpEff.config \
+  /results/snpeff/dist/snpEff/data GRCh38.115
+' returned non-zero exit status 124.
+Error during execution: Workflow execution failed: Command '/results/snpeff/dist/snpeff_parallel.sh \
+  /results/snpeff/cache_af001/blueprint/vcfcache.bcf /results/snpeff/cache_af001/cache/snpeff_af001/vcfcache_annotated.bcf /results/snpeff/cache_af001/cache/snpeff_af001/auxiliary \
+  /results/snpeff/dist/jre/bin/java /results/snpeff/dist/snpEff/snpEff.jar /results/snpeff/dist/snpEff/snpEff.config \
+  /results/snpeff/dist/snpEff/data GRCh38.115
+' returned non-zero exit status 124.
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/vcfcache/database/workflow_manager.py", line 315, in run
+    result = self._run_cache_build(db_bcf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/vcfcache/vcfcache/database/workflow_manager.py", line 475, in _run_cache_build
+    result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/vcfcache/vcfcache/database/workflow_manager.py", line 112, in run
+    raise subprocess.CalledProcessError(
+subprocess.CalledProcessError: Command '/results/snpeff/dist/snpeff_parallel.sh \
+  /results/snpeff/cache_af001/blueprint/vcfcache.bcf /results/snpeff/cache_af001/cache/snpeff_af001/vcfcache_annotated.bcf /results/snpeff/cache_af001/cache/snpeff_af001/auxiliary \
+  /results/snpeff/dist/jre/bin/java /results/snpeff/dist/snpEff/snpEff.jar /results/snpeff/dist/snpEff/snpEff.config \
+  /results/snpeff/dist/snpEff/data GRCh38.115
+' returned non-zero exit status 124.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/.venv/bin/vcfcache", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/mnt/data/vcfcache/vcfcache/cli.py", line 1191, in main
+    annotator.annotate()
+  File "/mnt/data/vcfcache/vcfcache/database/annotator.py", line 260, in annotate
+    self.nx_workflow.run(
+  File "/mnt/data/vcfcache/vcfcache/database/workflow_manager.py", line 349, in run
+    raise RuntimeError(f"Workflow execution failed: {e}") from e
+RuntimeError: Workflow execution failed: Command '/results/snpeff/dist/snpeff_parallel.sh \
+  /results/snpeff/cache_af001/blueprint/vcfcache.bcf /results/snpeff/cache_af001/cache/snpeff_af001/vcfcache_annotated.bcf /results/snpeff/cache_af001/cache/snpeff_af001/auxiliary \
+  /results/snpeff/dist/jre/bin/java /results/snpeff/dist/snpEff/snpEff.jar /results/snpeff/dist/snpEff/snpEff.config \
+  /results/snpeff/dist/snpEff/data GRCh38.115
+' returned non-zero exit status 124.
+CACHE BUILD FAILED
+[2026-08-20T19:40:25.030] error: Detected 4 oom_kill events in StepId=930.batch. Some of the step tasks have been OOM Killed.

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/results/deployment/vcfcache-external-recovery-8d38b12/benchmarks/recover_external_attempts.py", line 181, in <module>
+    main()
+  File "/results/deployment/vcfcache-external-recovery-8d38b12/benchmarks/recover_external_attempts.py", line 177, in main
+    print(json.dumps(recover(parser().parse_args()), indent=2, sort_keys=True))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/results/deployment/vcfcache-external-recovery-8d38b12/benchmarks/recover_external_attempts.py", line 140, in recover
+    summary = summarize_completed_runs(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/results/deployment/vcfcache-external-recovery-8d38b12/benchmarks/run_external_task.py", line 126, in summarize_completed_runs
+    raise RuntimeError(f"Semantic comparison failed: {comparison_path}")
+RuntimeError: Semantic comparison failed: /results/campaigns/external-wgs-6c422804f208-hg19/warmup/attempts/task-1/job-239/run/semantic_gnomad_af_0.1.json
+srun: error: sl-w5: task 0: Exited with exit code 1

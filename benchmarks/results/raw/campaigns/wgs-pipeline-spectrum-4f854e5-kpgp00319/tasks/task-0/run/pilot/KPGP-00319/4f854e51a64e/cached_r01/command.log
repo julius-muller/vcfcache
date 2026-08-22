@@ -1,0 +1,25 @@
+[09:41:41] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating KPGP-00319.GRCh38.small_variants.vcf.gz (cached mode)...
+[09:41:41] Genome build (params.yaml): GRCh38
+[09:41:41] Genome build (annotation.yaml): GRCh38
+[09:41:41] Initializing annotation of KPGP-00319.GRCh38.small_variants.vcf.gz
+[09:41:41] Contig overlap: cache=24 input=22 overlap=22
+[09:41:41] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[09:41:41] Running workflow in mode: annotate
+[09:41:41] Annotating sample using cache (4-step process)
+[09:41:41] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[09:42:09] Command completed in 27.295s: bcftools norm
+[09:42:09] Step 1/4: Adding cache annotations
+[09:43:02] Command completed in 53.399s: bcftools annotate
+[09:43:02] Step 2/4: Identifying variants missing from cache
+[09:43:39] Command completed in 36.839s: bcftools filter
+[09:43:39] Found 947886 variants not in cache
+[09:43:39] Step 3/4: Annotating 947886 missing variants
+[10:34:39] Command completed in 3060.351s: bcftools view
+[10:34:39] Step 4/4: Merging cache and newly annotated variants
+[10:35:27] Command completed in 47.492s: bcftools annotate
+[10:36:18] Command completed in 50.808s: bcftools view
+[10:36:18] Annotation complete: /mnt/data/tmp/vcfcache_wgs_pipeline_runs/wgs-pipeline-spectrum-4f854e5-kpgp00319/task-0/run/pilot/KPGP-00319/4f854e51a64e/cached_r01/output.bcf
+[10:36:18] Workflow completed successfully in 3276.7s
+Annotation completed in 3277.1s
+Computing MD5 for /mnt/data/tmp/vcfcache_wgs_pipeline_runs/wgs-pipeline-spectrum-4f854e5-kpgp00319/task-0/run/pilot/KPGP-00319/4f854e51a64e/cached_r01/stats/KPGP-00319_vcstats/workflow/annotation.snapshot.yaml ...

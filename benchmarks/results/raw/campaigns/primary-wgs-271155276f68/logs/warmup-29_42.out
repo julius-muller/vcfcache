@@ -1,0 +1,14 @@
+Pilot preflight OK: NA19701, 5,219,121 records, commit 271155276f68
+Pilot preflight OK: NA19701, 5,219,121 records, commit 271155276f68
+Cached pilot completed in 1161.0s
+Pilot preflight OK: NA19701, 5,219,121 records, commit 271155276f68
+Uncached pilot completed in 9974.6s
+Semantic comparison FAIL: 5,219,121 records
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 737, in <module>
+    main()
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 725, in main
+    compare_outputs(config)
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 632, in compare_outputs
+    raise RuntimeError(
+RuntimeError: Cached and uncached outputs differ; see /mnt/data/tmp/vcfcache_runs/primary-wgs-271155276f68/warmup/task-42/pilot/NA19701/271155276f68/semantic_comparison_r01.json

@@ -1,0 +1,15 @@
+[2026-08-22T10:15:23.651] error: couldn't chdir to `/mnt/data/slurm-results/richness/scripts': No such file or directory: going to /tmp instead
+[2026-08-22T10:15:23.652] error: couldn't chdir to `/mnt/data/slurm-results/richness/scripts': No such file or directory: going to /tmp instead
+[2026-08-22T10:15:23+02:00] assembly=GRCh38 clinvar=201M gnomad=1.9G
+Building clinvar .osa2: /results/clinical_sources/clinvar_GRCh38.vcf.gz -> /results/richness/sa/clinical_GRCh38/clinvar.osa2
+Wrote: /results/richness/sa/clinical_GRCh38/clinvar.osa2 (4,464,779 records)
+[2026-08-22T10:15:59+02:00] clinvar sa done in 36s
+Building gnomad .osa2: /results/clinical_sources/gnomad_exomes_GRCh38.vcf.gz -> /results/richness/sa/clinical_GRCh38/gnomad.osa2
+Wrote: /results/richness/sa/clinical_GRCh38/gnomad.osa2 (183,717,261 records)
+[2026-08-22T10:44:30+02:00] gnomad sa done in 1711s
+total 851880
+drwxr-xr-x+2 appuser appgroup      4096 Aug 22 10:15 .
+drwxr-xr-x+9 appuser appgroup      4096 Aug 22 10:14 ..
+-rw-r--r--+1 appuser appgroup  41018598 Aug 22 10:15 clinvar.osa2
+-rw-r--r--+1 appuser appgroup 831288754 Aug 22 10:44 gnomad.osa2
+[2026-08-22T10:44:30+02:00] done GRCh38

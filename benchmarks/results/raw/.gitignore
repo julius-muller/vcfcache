@@ -1,0 +1,5 @@
+# Global ignore rules for names like `logs/` and `work/` silently dropped 5,645
+# files from the first commit of this archive. Job logs and per-task work
+# directories are primary evidence here -- one superseded run was reconstructed
+# entirely from job logs -- so nothing below this directory is ever ignored.
+!*

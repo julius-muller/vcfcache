@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/results/deployment/vcfcache-fastvep-6bd1f4e52c1e/benchmarks/run_external_task.py", line 14, in <module>
+    from benchmarks.run_pilot import (
+ImportError: cannot import name 'strict_semantic_compare' from 'benchmarks.run_pilot' (/mnt/data/vcfcache/benchmarks/run_pilot.py). Did you mean: 'semantic_compare'?
+Expected four publication conditions, found 0
