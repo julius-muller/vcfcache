@@ -1,0 +1,25 @@
+[21:35:00] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating LP6005592-DNA_C05.GRCh38.panel.vcf.gz (cached mode)...
+[21:35:00] Genome build (params.yaml): GRCh38
+[21:35:00] Genome build (annotation.yaml): GRCh38
+[21:35:00] Initializing annotation of LP6005592-DNA_C05.GRCh38.panel.vcf.gz
+[21:35:00] Contig overlap: cache=24 input=17 overlap=17
+[21:35:00] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[21:35:00] Running workflow in mode: annotate
+[21:35:00] Annotating sample using cache (4-step process)
+[21:35:00] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[21:35:00] Command completed in 0.053s: bcftools norm
+[21:35:00] Step 1/4: Adding cache annotations
+[21:35:26] Command completed in 25.905s: bcftools annotate
+[21:35:26] Step 2/4: Identifying variants missing from cache
+[21:35:26] Command completed in 0.050s: bcftools filter
+[21:35:26] Found 96 variants not in cache
+[21:35:26] Step 3/4: Annotating 96 missing variants
+[21:35:35] Command completed in 8.996s: bcftools view
+[21:35:35] Step 4/4: Merging cache and newly annotated variants
+[21:35:35] Command completed in 0.071s: bcftools annotate
+[21:35:35] Command completed in 0.044s: bcftools view
+[21:35:35] Annotation complete: /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-44/pilot/LP6005592-DNA_C05/2cd2ab56d8ee/cached_r01/output.bcf
+[21:35:35] Workflow completed successfully in 35.2s
+Annotation completed in 35.2s
+Computing MD5 for /mnt/data/tmp/vcfcache_external_assay/external-assay-v3-independent-af001-warm/task-44/pilot/LP6005592-DNA_C05/2cd2ab56d8ee/cached_r01/stats/LP6005592-DNA_C05_vcstats/workflow/annotation.snapshot.yaml ...

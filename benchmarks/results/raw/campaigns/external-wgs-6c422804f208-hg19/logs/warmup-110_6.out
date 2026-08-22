@@ -1,0 +1,22 @@
+Pilot preflight OK: KPGP-00327, 4,562,488 records, commit 43beeb6e010c
+Cached pilot completed in 1010.2s
+Pilot preflight OK: KPGP-00327, 4,562,488 records, commit 43beeb6e010c
+Cached pilot completed in 1786.6s
+Pilot preflight OK: KPGP-00327, 4,562,488 records, commit 43beeb6e010c
+Uncached pilot completed in 9035.3s
+Pilot preflight OK: KPGP-00327, 4,562,488 records, commit 43beeb6e010c
+Cached pilot completed in 1814.4s
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/benchmarks/run_external_task.py", line 202, in <module>
+    main()
+  File "/mnt/data/vcfcache/benchmarks/run_external_task.py", line 198, in main
+    execute(args)
+  File "/mnt/data/vcfcache/benchmarks/run_external_task.py", line 141, in execute
+    comparison = semantic_compare(config.run_dir("cached") / "output.bcf", baseline)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 693, in semantic_compare
+    raise RuntimeError(
+RuntimeError: bcftools query failed: cached=255 Error: no such tag defined in the VCF header: INFO/AN
+; uncached=255 Error: no such tag defined in the VCF header: INFO/AN
+
+srun: error: sl-w2: task 0: Exited with exit code 1

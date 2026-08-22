@@ -1,0 +1,13 @@
+Pilot preflight OK: HG02374, 76,468 records, commit 14ad84d11098
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/benchmarks/run_controlled_task.py", line 124, in <module>
+    main()
+  File "/mnt/data/vcfcache/benchmarks/run_controlled_task.py", line 120, in main
+    execute(args)
+  File "/mnt/data/vcfcache/benchmarks/run_controlled_task.py", line 57, in execute
+    metrics = run_one(config, mode)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 465, in run_one
+    raise RuntimeError(f"{mode} pilot failed; see {log_file}")
+RuntimeError: uncached pilot failed; see /mnt/data/tmp/vcfcache_controlled_runs/controlled-runtime-light-14ad84d-50-90/baseline/task-0/run/pilot/HG02374/14ad84d11098/uncached_r01/command.log
+srun: error: sl-w1: task 0: Exited with exit code 1

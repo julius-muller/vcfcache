@@ -1,0 +1,14 @@
+[23:26:23] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating KPGP-00128.GRCh38.small_variants.vcf.gz (uncached mode)...
+[23:26:23] Genome build (params.yaml): GRCh38
+[23:26:23] Genome build (annotation.yaml): GRCh38
+[23:26:23] Initializing annotation of KPGP-00128.GRCh38.small_variants.vcf.gz
+[23:26:23] Running workflow in mode: annotate-nocache
+[23:26:23] Annotating sample directly (no cache)
+[23:26:23] Splitting multiallelic variants and removing spanning deletions
+[23:26:50] Command completed in 26.236s: bcftools norm
+[23:33:00] Command completed in 370.152s: bcftools view
+[23:33:00] Direct annotation complete: /mnt/data/tmp/vcfcache_external_runs/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/task-50/runs/uncached/pilot/KPGP-00128/6bd1f4e52c1e/uncached_r01/output.bcf
+[23:33:00] Workflow completed successfully in 396.7s
+Annotation completed in 396.7s
+Computing MD5 for /mnt/data/tmp/vcfcache_external_runs/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/task-50/runs/uncached/pilot/KPGP-00128/6bd1f4e52c1e/uncached_r01/stats/KPGP-00128_vcstats/workflow/annotation.snapshot.yaml ...

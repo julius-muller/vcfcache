@@ -1,0 +1,70 @@
+[2026-08-05 12:22:56] DEBUG [vcfcache.logging.py.setup_logging:86] File logging enabled at: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/workflow.log
+[2026-08-05 12:22:56] DEBUG [vcfcache.logging.py.setup_logging:92] Log levels - Console: INFO, File: DEBUG
+[2026-08-05 12:22:56] DEBUG [vcfcache.workflow_manager.py.__init__:169] Initializing Pure Python workflow in: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats
+[2026-08-05 12:22:56] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/workflow/params.snapshot.yaml
+[2026-08-05 12:22:56] DEBUG [vcfcache.workflow_manager.py.__init__:237] Loaded annotation config from: /mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/cache/vep115.2_everything/annotation.yaml
+[2026-08-05 12:22:56] INFO [vcfcache.workflow_manager.py.__init__:246] Genome build (params.yaml): GRCh38
+[2026-08-05 12:22:56] INFO [vcfcache.workflow_manager.py.__init__:250] Genome build (annotation.yaml): GRCh38
+[2026-08-05 12:22:56] DEBUG [vcfcache.annotator.py._validate_inputs:513] Validating inputs
+[2026-08-05 12:22:56] DEBUG [vcfcache.base.py.ensure_indexed:123] Checking index for: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005443-DNA_D06.GRCh38.small_variants.vcf.gz
+[2026-08-05 12:22:56] DEBUG [vcfcache.annotator.py._validate_inputs:525] Input validation successful
+[2026-08-05 12:22:56] INFO [vcfcache.annotator.py.__init__:476] Initializing annotation of LP6005443-DNA_D06.GRCh38.small_variants.vcf.gz
+[2026-08-05 12:22:56] DEBUG [vcfcache.annotator.py.__init__:477] Cache file: /mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-08-05 12:22:56] DEBUG [vcfcache.annotator.py.annotate:783] Starting VCF annotation
+[2026-08-05 12:22:56] DEBUG [vcfcache.base.py.ensure_indexed:123] Checking index for: /mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-08-05 12:22:56] DEBUG [vcfcache.base.py.ensure_indexed:123] Checking index for: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005443-DNA_D06.GRCh38.small_variants.vcf.gz
+[2026-08-05 12:22:56] INFO [vcfcache.annotator.py._log_contig_overlap:492] Contig overlap: cache=22 input=22 overlap=22
+[2026-08-05 12:22:56] INFO [vcfcache.annotator.py._log_contig_overlap:500] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-08-05 12:22:56] DEBUG [vcfcache.workflow_manager.py._create_work_dir:932] Created work directory: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work
+[2026-08-05 12:22:56] INFO [vcfcache.workflow_manager.py.run:300] Running workflow in mode: annotate
+[2026-08-05 12:22:56] INFO [vcfcache.workflow_manager.py._run_annotate:545] Annotating sample using cache (4-step process)
+[2026-08-05 12:22:56] INFO [vcfcache.workflow_manager.py._run_annotate:570] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[2026-08-05 12:22:56] DEBUG [vcfcache.workflow_manager.py.run:59] Running command in /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate
+[2026-08-05 12:22:56] DEBUG [vcfcache.workflow_manager.py.run:60] Command: bcftools norm -m- /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005443-DNA_D06.GRCh38.small_variants.vcf.gz -Ob | bcftools view -e 'ALT="*"' -o /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_normalized.bcf -Ob -W --threads 8
+[2026-08-05 12:23:17] INFO [vcfcache.workflow_manager.py.run:93] Command completed in 20.626s: bcftools norm
+[2026-08-05 12:23:17] DEBUG [vcfcache.workflow_manager.py.run:108] STDERR: Lines   total/split/joined/realigned/removed/skipped:	4748089/0/0/0/0/0
+
+[2026-08-05 12:23:17] INFO [vcfcache.workflow_manager.py._run_annotate:581] Step 1/4: Adding cache annotations
+[2026-08-05 12:23:17] DEBUG [vcfcache.workflow_manager.py.run:59] Running command in /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate
+[2026-08-05 12:23:17] DEBUG [vcfcache.workflow_manager.py.run:60] Command: bcftools annotate -a /mnt/data/vcfcache_benchmarks/external_wgs/cohort_caches/sgdp/cohort3_database/cache/vep115.2_everything/vcfcache_annotated.bcf /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_normalized.bcf -c INFO -o /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_isecvst.bcf -Ob -W --threads 8
+[2026-08-05 12:23:50] INFO [vcfcache.workflow_manager.py.run:93] Command completed in 33.590s: bcftools annotate
+[2026-08-05 12:23:50] INFO [vcfcache.workflow_manager.py._run_annotate:590] Step 2/4: Identifying variants missing from cache
+[2026-08-05 12:23:50] DEBUG [vcfcache.workflow_manager.py.run:59] Running command in /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate
+[2026-08-05 12:23:50] DEBUG [vcfcache.workflow_manager.py.run:60] Command: bcftools filter -i 'INFO/CSQ==""' /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_isecvst.bcf -o /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_isecvst_miss.bcf -Ob -W --threads 8
+[2026-08-05 12:24:14] INFO [vcfcache.workflow_manager.py.run:93] Command completed in 23.916s: bcftools filter
+[2026-08-05 12:24:14] INFO [vcfcache.workflow_manager.py._run_annotate:608] Found 859143 variants not in cache
+[2026-08-05 12:24:14] INFO [vcfcache.workflow_manager.py._run_annotate:612] Step 3/4: Annotating 859143 missing variants
+[2026-08-05 12:24:14] DEBUG [vcfcache.workflow_manager.py.run:59] Running command in /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate
+[2026-08-05 12:24:14] DEBUG [vcfcache.workflow_manager.py.run:60] Command: bcftools view /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_isecvst_miss.bcf | \
+apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/115/vep.sif vep \
+  --offline \
+  --buffer_size 100000 \
+  --fork 8 \
+  --cache \
+  --dir_cache /mnt/data/apps/ensembl-vep/115/cachedir \
+  --format vcf \
+  --vcf \
+  --force_overwrite \
+  -i stdin \
+  -o stdout \
+  -a GRCh38 \
+  --hgvsg \
+  --everything \
+  --stats_file /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/auxiliary/vep_stats.html \
+  --warning_file /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/auxiliary/vep_warnings.txt \
+  2> /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/auxiliary/vep_stderr.txt | \
+bcftools view -o /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_missing_annotated.bcf -Ob -W --threads 8
+
+[2026-08-05 12:43:14] INFO [vcfcache.workflow_manager.py.run:93] Command completed in 1139.692s: bcftools view
+[2026-08-05 12:43:14] INFO [vcfcache.workflow_manager.py._run_annotate:651] Step 4/4: Merging cache and newly annotated variants
+[2026-08-05 12:43:14] DEBUG [vcfcache.workflow_manager.py.run:59] Running command in /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate
+[2026-08-05 12:43:14] DEBUG [vcfcache.workflow_manager.py.run:60] Command: bcftools annotate -a /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_missing_annotated.bcf /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_isecvst.bcf -c INFO -o /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_merged.bcf -Ob -W --threads 8
+[2026-08-05 12:43:44] INFO [vcfcache.workflow_manager.py.run:93] Command completed in 29.421s: bcftools annotate
+[2026-08-05 12:43:44] DEBUG [vcfcache.workflow_manager.py.run:59] Running command in /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate
+[2026-08-05 12:43:44] DEBUG [vcfcache.workflow_manager.py.run:60] Command: bcftools view -i 'INFO/CSQ!=""' /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work/annotate/LP6005443-DNA_D06.GRCh38.small_variants.vcf_merged.bcf -o /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/output.bcf -Ob -W --threads 8
+[2026-08-05 12:44:16] INFO [vcfcache.workflow_manager.py.run:93] Command completed in 32.290s: bcftools view
+[2026-08-05 12:44:16] INFO [vcfcache.workflow_manager.py._run_annotate:724] Annotation complete: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/output.bcf
+[2026-08-05 12:44:16] DEBUG [vcfcache.workflow_manager.py._write_trace_file:918] Trace file written to: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/vep115.2_everything_trace.txt
+[2026-08-05 12:44:16] INFO [vcfcache.workflow_manager.py.run:332] Workflow completed successfully in 1279.6s
+[2026-08-05 12:45:15] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:944] Cleaning up work directory
+[2026-08-05 12:45:15] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:947] Removing work directory: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-43/runs/cohort_3_genomes/pilot/LP6005443-DNA_D06/43beeb6e010c/cached_r01/stats/LP6005443-DNA_D06_vcstats/work

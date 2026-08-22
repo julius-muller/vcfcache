@@ -1,0 +1,14 @@
+Pilot preflight OK: HG01465, 77,081 records, commit 32a760323fc5
+Pilot preflight OK: HG01465, 77,081 records, commit 32a760323fc5
+Cached pilot completed in 186.5s
+Pilot preflight OK: HG01465, 77,081 records, commit 32a760323fc5
+Uncached pilot completed in 441.1s
+Semantic comparison FAIL: 77,081 records
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 815, in <module>
+    main()
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 803, in main
+    compare_outputs(config)
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 710, in compare_outputs
+    raise RuntimeError(
+RuntimeError: Cached and uncached outputs differ; see /mnt/data/tmp/vcfcache_runs/assay-singlepass-32a760323fc5/measured/task-0/pilot/HG01465/32a760323fc5/semantic_comparison_r01.json

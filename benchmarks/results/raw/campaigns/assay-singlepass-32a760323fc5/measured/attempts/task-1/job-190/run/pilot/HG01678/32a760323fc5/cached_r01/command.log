@@ -1,0 +1,25 @@
+[11:14:17] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating HG01678.GRCh38.wes_twist_core.vcf.gz (cached mode)...
+[11:14:17] Genome build (params.yaml): GRCh38
+[11:14:17] Genome build (annotation.yaml): GRCh38
+[11:14:17] Initializing annotation of HG01678.GRCh38.wes_twist_core.vcf.gz
+[11:14:17] Contig overlap: cache=24 input=23 overlap=23
+[11:14:17] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[11:14:17] Running workflow in mode: annotate
+[11:14:17] Annotating sample using cache (4-step process)
+[11:14:17] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[11:14:18] Command completed in 0.808s: bcftools norm
+[11:14:18] Step 1/4: Adding cache annotations
+[11:14:53] Command completed in 34.679s: bcftools annotate
+[11:14:53] Step 2/4: Identifying variants missing from cache
+[11:14:55] Command completed in 1.708s: bcftools filter
+[11:14:55] Found 1824 variants not in cache
+[11:14:55] Step 3/4: Annotating 1824 missing variants
+[11:17:05] Command completed in 129.911s: bcftools view
+[11:17:05] Step 4/4: Merging cache and newly annotated variants
+[11:17:07] Command completed in 2.128s: bcftools annotate
+[11:17:09] Command completed in 1.965s: bcftools view
+[11:17:09] Annotation complete: /mnt/data/tmp/vcfcache_runs/assay-singlepass-32a760323fc5/measured/task-1/pilot/HG01678/32a760323fc5/cached_r01/output.bcf
+[11:17:09] Workflow completed successfully in 171.3s
+Annotation completed in 171.5s
+Computing MD5 for /mnt/data/tmp/vcfcache_runs/assay-singlepass-32a760323fc5/measured/task-1/pilot/HG01678/32a760323fc5/cached_r01/stats/HG01678_vcstats/workflow/annotation.snapshot.yaml ...

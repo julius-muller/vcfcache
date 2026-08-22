@@ -1,0 +1,14 @@
+[09:16:50] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating huCDD5EE.GRCh37.small_variants.vcf.gz (uncached mode)...
+[09:16:50] Genome build (params.yaml): GRCh37
+[09:16:50] Genome build (annotation.yaml): GRCh37
+[09:16:50] Initializing annotation of huCDD5EE.GRCh37.small_variants.vcf.gz
+[09:16:50] Running workflow in mode: annotate-nocache
+[09:16:50] Annotating sample directly (no cache)
+[09:16:50] Splitting multiallelic variants and removing spanning deletions
+[09:18:05] Command completed in 74.926s: bcftools norm
+[10:51:51] Command completed in 5625.738s: bcftools view
+[10:51:51] Direct annotation complete: /mnt/data/tmp/vcfcache_external_runs/external-vep-light-full52-bbef41d7db8e/measured/task-5/runs/uncached/pilot/huCDD5EE/bbef41d7db8e/uncached_r01/output.bcf
+[10:51:51] Workflow completed successfully in 5701.0s
+Annotation completed in 5701.0s
+Computing MD5 for /mnt/data/tmp/vcfcache_external_runs/external-vep-light-full52-bbef41d7db8e/measured/task-5/runs/uncached/pilot/huCDD5EE/bbef41d7db8e/uncached_r01/stats/huCDD5EE_vcstats/workflow/annotation.snapshot.yaml ...

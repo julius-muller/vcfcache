@@ -1,0 +1,25 @@
+[20:15:32] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating huB333AA.GRCh37.small_variants.vcf.gz (cached mode)...
+[20:15:32] Genome build (params.yaml): GRCh37
+[20:15:32] Genome build (annotation.yaml): GRCh37
+[20:15:32] Initializing annotation of huB333AA.GRCh37.small_variants.vcf.gz
+[20:15:33] Contig overlap: cache=22 input=22 overlap=22
+[20:15:33] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[20:15:33] Running workflow in mode: annotate
+[20:15:33] Annotating sample using cache (4-step process)
+[20:15:33] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[20:15:53] Command completed in 20.520s: bcftools norm
+[20:15:53] Step 1/4: Adding cache annotations
+[20:16:02] Command completed in 9.083s: bcftools annotate
+[20:16:02] Step 2/4: Identifying variants missing from cache
+[20:16:08] Command completed in 5.431s: bcftools filter
+[20:16:08] Found 548249 variants not in cache
+[20:16:08] Step 3/4: Annotating 548249 missing variants
+[20:16:20] Command completed in 12.077s: bcftools view
+[20:16:20] Step 4/4: Merging cache and newly annotated variants
+[20:16:26] Command completed in 5.818s: bcftools annotate
+[20:16:31] Command completed in 5.354s: bcftools view
+[20:16:31] Annotation complete: /mnt/data/tmp/vcfcache_external_runs/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/task-13/runs/cohort_3_genomes/pilot/huB333AA/6bd1f4e52c1e/cached_r01/output.bcf
+[20:16:31] Workflow completed successfully in 58.4s
+Annotation completed in 58.5s
+Computing MD5 for /mnt/data/tmp/vcfcache_external_runs/external-fastvep-2cd2ab56d8ee-light-strict-v2/measured/task-13/runs/cohort_3_genomes/pilot/huB333AA/6bd1f4e52c1e/cached_r01/stats/huB333AA_vcstats/workflow/annotation.snapshot.yaml ...

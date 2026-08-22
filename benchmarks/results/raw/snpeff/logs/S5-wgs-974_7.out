@@ -1,0 +1,13 @@
+[2026-08-21T22:42:18.286] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-21T22:42:18.288] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-21T22:42:18+02:00] jobs=3 heap=8g threshold=500000
+Lines   total/split/joined/realigned/removed/skipped:	4690406/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T22:42:27+02:00] LP6005443-DNA_B07/wgs n=4690406 =====
+snpeff_run: serial, 4690406 records, 8g heap
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-21T23:56:13+02:00] direct=4406.304106460s
+Annotation completed in 488.1s
+Computing MD5 for /mnt/data/tmp/s5-974-7/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-22T00:04:43+02:00] cached=488.763543560s miss=323687
+[2026-08-22T00:41:12.587] error: *** JOB 986 ON sl-w4 CANCELLED AT 2026-08-22T00:41:12 DUE to SIGNAL Terminated ***

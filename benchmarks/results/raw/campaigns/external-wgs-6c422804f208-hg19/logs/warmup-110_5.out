@@ -1,0 +1,17 @@
+Pilot preflight OK: huCDD5EE, 4,834,765 records, commit 43beeb6e010c
+Cached pilot completed in 1412.3s
+Pilot preflight OK: huCDD5EE, 4,834,765 records, commit 43beeb6e010c
+Cached pilot completed in 915.4s
+Pilot preflight OK: huCDD5EE, 4,834,765 records, commit 43beeb6e010c
+Cached pilot completed in 1600.6s
+Pilot preflight OK: huCDD5EE, 4,834,765 records, commit 43beeb6e010c
+Uncached pilot completed in 5711.8s
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/benchmarks/run_external_task.py", line 202, in <module>
+    main()
+  File "/mnt/data/vcfcache/benchmarks/run_external_task.py", line 198, in main
+    execute(args)
+  File "/mnt/data/vcfcache/benchmarks/run_external_task.py", line 145, in execute
+    raise RuntimeError(f"Semantic comparison failed: {comparison_path}")
+RuntimeError: Semantic comparison failed: /mnt/data/tmp/vcfcache_external_runs/external-wgs-6c422804f208-hg19/warmup/task-5/semantic_gnomad_af_0.1.json
+srun: error: sl-w1: task 0: Exited with exit code 1

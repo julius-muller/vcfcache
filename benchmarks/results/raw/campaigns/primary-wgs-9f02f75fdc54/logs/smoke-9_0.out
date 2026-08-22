@@ -1,0 +1,11 @@
+Pilot preflight OK: HG02079, 4,329,621 records, commit 9f02f75fdc54
+Pilot preflight OK: HG02079, 4,329,621 records, commit 9f02f75fdc54
+Traceback (most recent call last):
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 737, in <module>
+    main()
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 723, in main
+    run_one(config, args.mode)
+  File "/mnt/data/vcfcache/benchmarks/run_pilot.py", line 394, in run_one
+    raise RuntimeError(f"{mode} pilot failed; see {log_file}")
+RuntimeError: uncached pilot failed; see /mnt/data/tmp/vcfcache_runs/primary-wgs-9f02f75fdc54/smoke/task-0/pilot/HG02079/9f02f75fdc54/uncached_r01/command.log
+srun: error: sl-w1: task 0: Exited with exit code 1

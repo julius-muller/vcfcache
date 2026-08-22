@@ -1,0 +1,14 @@
+[09:21:46] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+Annotating HG02374.GRCh38.wes_twist_core.vcf.gz (uncached mode)...
+[09:21:46] Genome build (params.yaml): GRCh38
+[09:21:46] Genome build (annotation.yaml): GRCh38
+[09:21:46] Initializing annotation of HG02374.GRCh38.wes_twist_core.vcf.gz
+[09:21:46] Running workflow in mode: annotate-nocache
+[09:21:46] Annotating sample directly (no cache)
+[09:21:46] Splitting multiallelic variants and removing spanning deletions
+[09:21:47] Command completed in 0.822s: bcftools norm
+[09:28:22] Command completed in 395.221s: bcftools view
+[09:28:23] Direct annotation complete: /mnt/data/tmp/vcfcache_controlled_runs/controlled-runtime-light-cc100c0-50-90/baseline/task-1/run/pilot/HG02374/cc100c0331ae/uncached_r01/output.bcf
+[09:28:23] Workflow completed successfully in 396.1s
+Annotation completed in 396.1s
+Computing MD5 for /mnt/data/tmp/vcfcache_controlled_runs/controlled-runtime-light-cc100c0-50-90/baseline/task-1/run/pilot/HG02374/cc100c0331ae/uncached_r01/stats/HG02374_vcstats/workflow/annotation.snapshot.yaml ...

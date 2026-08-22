@@ -1,0 +1,44 @@
+[2026-08-21T00:31:18.177] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-08-21T00:31:18.179] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	289/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T00:31:19+02:00] KPGP-00128/panel n=289 =====
+Warning: cannot determine contig names given the .csi index alone
+Annotation completed in 91.3s
+Computing MD5 for /mnt/data/tmp/s3b-945-0/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-21T00:36:11+02:00] KPGP-00128/panel direct=97.196399503s cached=91.664505985s miss=32
+Lines   total/split/joined/realigned/removed/skipped:	74215/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T00:36:56+02:00] KPGP-00128/wes n=74215 =====
+Warning: cannot determine contig names given the .csi index alone
+Annotation completed in 163.9s
+Computing MD5 for /mnt/data/tmp/s3b-945-0/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-21T00:47:36+02:00] KPGP-00128/wes direct=233.687736228s cached=164.316821984s miss=5638
+Lines   total/split/joined/realigned/removed/skipped:	4598973/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-21T00:47:45+02:00] KPGP-00128/wgs n=4598973 =====
+Checking the headers and starting positions of 22 files
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr1.bcf	2.236352 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr2.bcf	1.618749 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr3.bcf	1.520345 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr4.bcf	1.208807 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr5.bcf	0.974574 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr6.bcf	1.259188 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr7.bcf	1.137255 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr8.bcf	1.229275 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr9.bcf	1.019884 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr10.bcf	1.209193 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr11.bcf	1.038158 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr12.bcf	0.958644 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr13.bcf	0.570408 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr14.bcf	0.672234 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr15.bcf	0.649648 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr16.bcf	0.635606 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr17.bcf	0.680151 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr18.bcf	0.518239 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr19.bcf	0.546509 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr20.bcf	0.457249 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr21.bcf	0.332788 seconds
+Concatenating /mnt/data/tmp/s3b-945-0/tmp/snpeff_par.kyHy2y/chr22.bcf	0.399424 seconds
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-21T08:31:22.042] error: *** JOB 946 ON sl-w1 CANCELLED AT 2026-08-21T08:31:22 DUE TO TIME LIMIT ***
