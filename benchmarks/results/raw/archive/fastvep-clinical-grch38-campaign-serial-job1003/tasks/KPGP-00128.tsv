@@ -1,0 +1,7 @@
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+KPGP-00128	kpgp	fastvep	clinical	GRCh38	panel	direct	11.658185870	289	289		84514a34006185e0b95397f6119d21a2	
+KPGP-00128	kpgp	fastvep	clinical	GRCh38	panel	cached	33.025302499	289	289	32	84514a34006185e0b95397f6119d21a2	PASS
+KPGP-00128	kpgp	fastvep	clinical	GRCh38	wes	direct	46.707402090	74215	74215		35f9a41a30bec65b21992343fd84e038	
+KPGP-00128	kpgp	fastvep	clinical	GRCh38	wes	cached	.298898172	74215	289		84514a34006185e0b95397f6119d21a2	FAIL
+KPGP-00128	kpgp	fastvep	clinical	GRCh38	wgs	direct	456.827814256	4598973	4598973		1e79e88af1d7b8bc167417debd867c27	
+KPGP-00128	kpgp	fastvep	clinical	GRCh38	wgs	cached	.515969321	4598973	289		84514a34006185e0b95397f6119d21a2	FAIL

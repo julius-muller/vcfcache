@@ -1,0 +1,26 @@
+[2026-08-23T08:59:49.483] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T08:59:49.484] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	206/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T08:59:50+02:00] hu1D5A29/panel n=206 =====
+snpeff_clinical_run: serial, 206 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T09:00:56+02:00] direct=33.094414571s
+Annotation completed in 37.9s
+Computing MD5 for /mnt/data/tmp/c2-1023-0/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T09:01:34+02:00] cached=38.348390053s miss=26 concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	67751/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T09:02:23+02:00] hu1D5A29/wes n=67751 =====
+snpeff_clinical_run: serial, 67751 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T09:12:09+02:00] direct=298.274934655s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1023-0/c.bcf
+If intended, use --force to overwrite.
+[2026-08-23T09:12:09+02:00] cached=.374153182s miss=NA concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu1D5A29	pgp	snpeff	clinical	GRCh37	panel	direct	33.094414571	206	206		043334ed1765498fe497cd2ea9ddcfc9	
+hu1D5A29	pgp	snpeff	clinical	GRCh37	panel	cached	38.348390053	206	206	26	6dc7c8bcfca086de5c0842e7a16f299d	FAIL
+hu1D5A29	pgp	snpeff	clinical	GRCh37	wes	direct	298.274934655	67751	67751		4acc9ade2e89a41653eb63f068b96878	
+hu1D5A29	pgp	snpeff	clinical	GRCh37	wes	cached	.374153182	67751	206		6dc7c8bcfca086de5c0842e7a16f299d	FAIL
+[2026-08-23T09:12:09+02:00] done hu1D5A29

@@ -1,0 +1,106 @@
+[2026-08-23T09:56:58.993] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T09:56:58.994] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	5005430/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+input:  5005430
+input contigs:
+  chr1 408145
+  chr2 412753
+  chr3 331168
+  chr4 365472
+  chr5 293286
+  chr6 283147
+  chr7 306710
+  chr8 254316
+  chr9 258423
+  chr10 250850
+  chr11 250657
+  chr12 239839
+  chr13 183954
+  chr14 161883
+  chr15 151600
+  chr16 170771
+  chr17 146748
+  chr18 140465
+  chr20 115824
+  chr19 118761
+  chr22 74671
+  chr21 85987
+cache contigs:
+  chr1 1416429
+  chr2 1485399
+  chr3 1241076
+  chr4 1270279
+  chr5 1118309
+  chr6 1143082
+  chr7 1063835
+  chrX 688289
+  chr8 969768
+  chr9 819002
+  chr10 903763
+  chr11 861424
+  chr12 861164
+  chr13 633331
+  chr14 594301
+  chr15 554429
+  chr16 578347
+  chr17 526899
+  chr18 499632
+  chr20 397287
+  chrY 14368
+  chr19 454752
+  chr22 262778
+  chr21 283461
+  chr1_gl000192_random 2374
+  chrUn_gl000225 3
+  chr4_gl000194_random 2
+  chr4_gl000193_random 4051
+  chrUn_gl000222 5
+  chrUn_gl000212 2907
+fastvep_run: serial, 5005430 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+direct: 5005430
+Annotation completed in 200.9s
+Computing MD5 for /mnt/data/tmp/d3-1101/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+vcfcache rc=0
+Warning: cannot determine contig names given the .csi index alone
+cached: 4989016
+=== in direct, absent from cached: 16414 ===
+--- by contig ---
+   1377 chr1
+   1322 chr4
+   1248 chr2
+   1043 chr3
+   1008 chr7
+    905 chr6
+    897 chr5
+    868 chr11
+    853 chr12
+    780 chr9
+    687 chr8
+    652 chr16
+--- variant class ---
+   1209 DEL
+   2376 INS
+  12829 SNV
+--- 8 examples ---
+chr1	100625161	C	T
+chr1	100991385	G	T
+chr1	101019428	A	T
+chr1	101043258	A	T
+chr1	1011095	A	G
+chr1	101117192	C	A
+chr1	101117890	A	AC
+chr1	101171731	C	CA
+=== duplicate keys in direct? (same CHROM/POS/REF/ALT twice) ===
+19963
+chr1	100625161	C	T
+chr1	100991385	G	T
+chr1	101019428	A	T
+chr1	101043258	A	T
+chr1	1011095	A	G
+=== duplicate keys in cached? ===
+3549
+=== counting with duplicates preserved ===
+direct lines: 5005430  cached lines: 4989016
+direct distinct: 4985467  cached distinct: 4985467

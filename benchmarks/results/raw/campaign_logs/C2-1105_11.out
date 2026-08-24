@@ -1,0 +1,40 @@
+[2026-08-23T15:27:18.861] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T15:27:18.862] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	231/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	231/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T15:27:19+02:00] LP6005619-DNA_B01/panel n=231 =====
+snpeff_clinical_run: serial, 231 records, 8g heap, genome GRCh38.115
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T15:29:24+02:00] direct=62.291808549s
+Annotation completed in 63.7s
+Computing MD5 for /mnt/data/tmp/c2-1105-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T15:30:28+02:00] cached=63.928762220s miss=19 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	85796/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	85796/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T15:30:50+02:00] LP6005619-DNA_B01/wes n=85796 =====
+snpeff_clinical_run: serial, 85796 records, 8g heap, genome GRCh38.115
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T15:41:27+02:00] direct=315.080310540s
+Annotation completed in 112.7s
+Computing MD5 for /mnt/data/tmp/c2-1105-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T15:43:21+02:00] cached=112.944262173s miss=6652 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	4998072/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	4998072/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T15:43:32+02:00] LP6005619-DNA_B01/wgs n=4998072 =====
+snpeff_clinical_run: serial, 4998072 records, 8g heap, genome GRCh38.115
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T17:10:32+02:00] direct=5189.401779829s
+Annotation completed in 448.4s
+Computing MD5 for /mnt/data/tmp/c2-1105-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T17:18:33+02:00] cached=448.789051929s miss=349139 concordance=PASS
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+LP6005619-DNA_B01	sgdp	snpeff	clinical	GRCh38	panel	direct	62.291808549	231	231		465d680e52a4010bda748e2ebec31fdc	
+LP6005619-DNA_B01	sgdp	snpeff	clinical	GRCh38	panel	cached	63.928762220	231	231	19	465d680e52a4010bda748e2ebec31fdc	PASS
+LP6005619-DNA_B01	sgdp	snpeff	clinical	GRCh38	wes	direct	315.080310540	85796	85796		199fb7d3d3600e2db18fd3d665ecbcbe	
+LP6005619-DNA_B01	sgdp	snpeff	clinical	GRCh38	wes	cached	112.944262173	85796	85796	6652	199fb7d3d3600e2db18fd3d665ecbcbe	PASS
+LP6005619-DNA_B01	sgdp	snpeff	clinical	GRCh38	wgs	direct	5189.401779829	4998072	4998072		f74546892ff3f8f664763f6d3d6ff2d7	
+LP6005619-DNA_B01	sgdp	snpeff	clinical	GRCh38	wgs	cached	448.789051929	4998072	4998072	349139	f74546892ff3f8f664763f6d3d6ff2d7	PASS
+[2026-08-23T17:18:33+02:00] done LP6005619-DNA_B01

@@ -1,0 +1,26 @@
+[2026-08-23T09:12:10.458] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T09:12:10.459] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	254/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T09:12:11+02:00] hu6664F3/panel n=254 =====
+snpeff_clinical_run: serial, 254 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T09:13:39+02:00] direct=44.674251167s
+Annotation completed in 41.2s
+Computing MD5 for /mnt/data/tmp/c2-1023-4/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T09:14:20+02:00] cached=41.748053113s miss=26 concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	87212/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T09:15:29+02:00] hu6664F3/wes n=87212 =====
+snpeff_clinical_run: serial, 87212 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T09:30:20+02:00] direct=434.670972861s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1023-4/c.bcf
+If intended, use --force to overwrite.
+[2026-08-23T09:30:20+02:00] cached=.361370862s miss=NA concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu6664F3	pgp	snpeff	clinical	GRCh37	panel	direct	44.674251167	254	254		9850944129a56dac7b2103ba91dbc62b	
+hu6664F3	pgp	snpeff	clinical	GRCh37	panel	cached	41.748053113	254	254	26	269e5107cc68d34fa2ba17450b2b2792	FAIL
+hu6664F3	pgp	snpeff	clinical	GRCh37	wes	direct	434.670972861	87212	87212		17f93e0eed41f4e39ef63246a962e866	
+hu6664F3	pgp	snpeff	clinical	GRCh37	wes	cached	.361370862	87212	254		269e5107cc68d34fa2ba17450b2b2792	FAIL
+[2026-08-23T09:30:20+02:00] done hu6664F3

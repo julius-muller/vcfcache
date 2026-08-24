@@ -1,0 +1,26 @@
+[2026-08-23T09:36:48.728] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T09:36:48.730] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	299/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T09:36:50+02:00] huCDD5EE/panel n=299 =====
+snpeff_clinical_run: serial, 299 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T09:38:41+02:00] direct=54.836884399s
+Annotation completed in 46.9s
+Computing MD5 for /mnt/data/tmp/c2-1023-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T09:39:29+02:00] cached=47.488071388s miss=33 concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	82785/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T09:40:37+02:00] huCDD5EE/wes n=82785 =====
+snpeff_clinical_run: serial, 82785 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T09:54:40+02:00] direct=415.730805991s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1023-11/c.bcf
+If intended, use --force to overwrite.
+[2026-08-23T09:54:41+02:00] cached=.391567160s miss=NA concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+huCDD5EE	pgp	snpeff	clinical	GRCh37	panel	direct	54.836884399	299	299		e074845232265b22438104a9c3223be1	
+huCDD5EE	pgp	snpeff	clinical	GRCh37	panel	cached	47.488071388	299	299	33	f1de817d2df590232ddec8bf3f562f63	FAIL
+huCDD5EE	pgp	snpeff	clinical	GRCh37	wes	direct	415.730805991	82785	82785		891047fe27854876b354353f12978c61	
+huCDD5EE	pgp	snpeff	clinical	GRCh37	wes	cached	.391567160	82785	299		f1de817d2df590232ddec8bf3f562f63	FAIL
+[2026-08-23T09:54:41+02:00] done huCDD5EE

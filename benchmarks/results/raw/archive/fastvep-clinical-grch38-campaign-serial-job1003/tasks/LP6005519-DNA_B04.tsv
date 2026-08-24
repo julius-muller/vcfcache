@@ -1,0 +1,7 @@
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+LP6005519-DNA_B04	sgdp	fastvep	clinical	GRCh38	panel	direct	10.443626622	269	269		50c53a0d39a50a823670f346706e27ab	
+LP6005519-DNA_B04	sgdp	fastvep	clinical	GRCh38	panel	cached	25.745098831	269	269	33	50c53a0d39a50a823670f346706e27ab	PASS
+LP6005519-DNA_B04	sgdp	fastvep	clinical	GRCh38	wes	direct	48.163492604	83079	83079		be5f355bd3ad2e2275d0eabece5d4a39	
+LP6005519-DNA_B04	sgdp	fastvep	clinical	GRCh38	wes	cached	.324224386	83079	269		50c53a0d39a50a823670f346706e27ab	FAIL
+LP6005519-DNA_B04	sgdp	fastvep	clinical	GRCh38	wgs	direct	477.377986115	4876494	4876494		063b14f29324cea21ac4ff8dff86b2d7	
+LP6005519-DNA_B04	sgdp	fastvep	clinical	GRCh38	wgs	cached	.529732033	4876494	269		50c53a0d39a50a823670f346706e27ab	FAIL

@@ -1,0 +1,37 @@
+[2026-08-22T23:45:33.577] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-22T23:45:33.578] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	247/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-22T23:45:34+02:00] LP6005442-DNA_B04/panel n=247 =====
+fastvep_run: serial, 247 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-22T23:45:46+02:00] direct=6.382207719s
+Annotation completed in 18.1s
+Computing MD5 for /mnt/data/tmp/c2-1003-6/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-22T23:46:05+02:00] cached=18.270435175s miss=6 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	82675/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-22T23:46:27+02:00] LP6005442-DNA_B04/wes n=82675 =====
+fastvep_run: serial, 82675 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-22T23:47:28+02:00] direct=30.076138917s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1003-6/c.bcf
+If intended, use --force to overwrite.
+[2026-08-22T23:47:28+02:00] cached=.199213743s miss=NA concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	4823693/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-22T23:47:35+02:00] LP6005442-DNA_B04/wgs n=4823693 =====
+fastvep_run: serial, 4823693 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-22T23:53:32+02:00] direct=309.544253839s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1003-6/c.bcf
+If intended, use --force to overwrite.
+[2026-08-22T23:53:32+02:00] cached=.196300748s miss=NA concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+LP6005442-DNA_B04	sgdp	fastvep	clinical	GRCh38	panel	direct	6.382207719	247	247		1cb1a401d72d82b17ae25955fb2b4f00	
+LP6005442-DNA_B04	sgdp	fastvep	clinical	GRCh38	panel	cached	18.270435175	247	247	6	1cb1a401d72d82b17ae25955fb2b4f00	PASS
+LP6005442-DNA_B04	sgdp	fastvep	clinical	GRCh38	wes	direct	30.076138917	82675	82675		d928a5f8f8e40627750da5363938e1fa	
+LP6005442-DNA_B04	sgdp	fastvep	clinical	GRCh38	wes	cached	.199213743	82675	247		1cb1a401d72d82b17ae25955fb2b4f00	FAIL
+LP6005442-DNA_B04	sgdp	fastvep	clinical	GRCh38	wgs	direct	309.544253839	4823693	4823693		d763e86b6432c87c7f30ed39a1bd6a30	
+LP6005442-DNA_B04	sgdp	fastvep	clinical	GRCh38	wgs	cached	.196300748	4823693	247		1cb1a401d72d82b17ae25955fb2b4f00	FAIL
+[2026-08-22T23:53:32+02:00] done LP6005442-DNA_B04

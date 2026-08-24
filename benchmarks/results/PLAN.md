@@ -78,10 +78,9 @@ annotation is run.
 ## Outstanding
 
 1. ~~Build the five caches.~~ **All five are built and content-verified.**
-2. Campaigns: 12 GRCh38 genomes and 12 PGP GRCh37 genomes, Panel/WES/WGS,
-   direct and cached, at both levels.
+2. ~~Campaigns.~~ **Done** — 180 cells, 176 concordant. See `RESULTS.md`.
 3. Fold SnpEff and the clinical level into the manuscript; register the new
-   claims in `claims.tsv`.
+   claims in `claims.tsv`. **Next step.**
 4. Reconcile the cohort-confounding wording in `sections/03_findings.md` with the
    requirement that PGP appears in every arm.
 
@@ -121,6 +120,10 @@ differ in which one it is. That is a less contrived demonstration than the
 `SyntheticDelay.pm` sweep, because nothing was arranged to produce it.
 
 ## Open questions
+
+- `hu6664F3` fails concordance on SnpEff (all assays, both levels) while passing
+  on fastVEP, with matching record counts. Unexplained; suspected batch-dependent
+  non-determinism in SnpEff's `ANN`. One genome of twelve.
 
 - `LP6005592-DNA_C05` has 6.17 M variants against 4.6-5.0 M for its siblings and
   a 78.98% hit rate against a 91-93% band. Its indel fraction matches the others,

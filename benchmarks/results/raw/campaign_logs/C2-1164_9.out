@@ -1,0 +1,40 @@
+[2026-08-23T21:58:14.255] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T21:58:14.255] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	252/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	252/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T21:58:14+02:00] huB333AA/panel n=252 =====
+snpeff_run: serial, 252 records, 8g heap
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T21:58:53+02:00] direct=19.644473817s
+Annotation completed in 23.6s
+Computing MD5 for /mnt/data/tmp/c2-1164-9/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T21:59:17+02:00] cached=23.838240710s miss=12 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	62668/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	62668/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T21:59:37+02:00] huB333AA/wes n=62668 =====
+snpeff_run: serial, 62668 records, 8g heap
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T22:00:31+02:00] direct=26.606152910s
+Annotation completed in 25.9s
+Computing MD5 for /mnt/data/tmp/c2-1164-9/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T22:00:58+02:00] cached=26.053274737s miss=2550 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	3354528/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	3354528/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T22:01:09+02:00] huB333AA/wgs n=3354528 =====
+snpeff_run: serial, 3354528 records, 8g heap
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T22:03:17+02:00] direct=114.953109563s
+Annotation completed in 68.7s
+Computing MD5 for /mnt/data/tmp/c2-1164-9/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T22:04:41+02:00] cached=68.990420705s miss=104051 concordance=PASS
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+huB333AA	pgp	snpeff	core	GRCh37	panel	direct	19.644473817	252	252		cc7c27e679cfe07c763954064b7c265a	
+huB333AA	pgp	snpeff	core	GRCh37	panel	cached	23.838240710	252	252	12	cc7c27e679cfe07c763954064b7c265a	PASS
+huB333AA	pgp	snpeff	core	GRCh37	wes	direct	26.606152910	62668	62668		9e50eb4a066c6422e72a6db0612e9346	
+huB333AA	pgp	snpeff	core	GRCh37	wes	cached	26.053274737	62668	62668	2550	9e50eb4a066c6422e72a6db0612e9346	PASS
+huB333AA	pgp	snpeff	core	GRCh37	wgs	direct	114.953109563	3354528	3354528		0946888892e2e66f5ab7a6f886b3ff48	
+huB333AA	pgp	snpeff	core	GRCh37	wgs	cached	68.990420705	3354528	3354528	104051	0946888892e2e66f5ab7a6f886b3ff48	PASS
+[2026-08-23T22:04:41+02:00] done huB333AA

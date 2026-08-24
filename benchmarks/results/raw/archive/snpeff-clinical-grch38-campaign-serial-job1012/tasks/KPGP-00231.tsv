@@ -1,0 +1,7 @@
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+KPGP-00231	kpgp	snpeff	clinical	GRCh38	panel	direct	107.188774951	224	224		9396d93b0e1ecfee46a02e5667121c3e	
+KPGP-00231	kpgp	snpeff	clinical	GRCh38	panel	cached	105.766835314	224	224	30	9396d93b0e1ecfee46a02e5667121c3e	PASS
+KPGP-00231	kpgp	snpeff	clinical	GRCh38	wes	direct	478.626439245	75859	75859		e7926a65cc06bfaf6e6e9e727296f356	
+KPGP-00231	kpgp	snpeff	clinical	GRCh38	wes	cached	.570981336	75859	224		9396d93b0e1ecfee46a02e5667121c3e	FAIL
+KPGP-00231	kpgp	snpeff	clinical	GRCh38	wgs	direct	8679.745049009	4697636	4697636		2b77b28f10ce2d98097f136f472c5c73	
+KPGP-00231	kpgp	snpeff	clinical	GRCh38	wgs	cached	.534974613	4697636	224		9396d93b0e1ecfee46a02e5667121c3e	FAIL

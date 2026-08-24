@@ -1,0 +1,39 @@
+[2026-08-22T23:37:09.107] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-22T23:37:09.108] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+mkdir: Already exists
+mkdir: Already exists
+/var/spool/slurmd/job01007/slurm_script: line 106: /results/benchmark_archive/fastvep-clinical-grch38-campaign-serial-job1003/tasks/KPGP-00320.tsv: No such file or directory
+Lines   total/split/joined/realigned/removed/skipped:	267/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-22T23:37:10+02:00] KPGP-00320/panel n=267 =====
+fastvep_run: serial, 267 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+/var/spool/slurmd/job01007/slurm_script: line 124: /results/benchmark_archive/fastvep-clinical-grch38-campaign-serial-job1003/tasks/KPGP-00320.tsv: No such file or directory
+[2026-08-22T23:37:31+02:00] direct=10.819380211s
+Annotation completed in 22.2s
+Computing MD5 for /mnt/data/tmp/c2-1003-3/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-22T23:37:54+02:00] cached=22.660338320s miss=19 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	79364/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-22T23:38:27+02:00] KPGP-00320/wes n=79364 =====
+fastvep_run: serial, 79364 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-22T23:40:02+02:00] direct=46.975250890s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1003-3/c.bcf
+If intended, use --force to overwrite.
+[2026-08-22T23:40:03+02:00] cached=.361003636s miss=NA concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	4684091/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-22T23:40:13+02:00] KPGP-00320/wgs n=4684091 =====
+fastvep_run: serial, 4684091 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-22T23:48:51+02:00] direct=463.731808302s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1003-3/c.bcf
+If intended, use --force to overwrite.
+[2026-08-22T23:48:51+02:00] cached=.383942810s miss=NA concordance=FAIL
+KPGP-00320	kpgp	fastvep	clinical	GRCh38	panel	cached	22.660338320	267	267	19	6d8dc0eef93bfa339477955347ea0796	PASS
+KPGP-00320	kpgp	fastvep	clinical	GRCh38	wes	direct	46.975250890	79364	79364		f4cacc25676d35cd098c8886b4321dae	
+KPGP-00320	kpgp	fastvep	clinical	GRCh38	wes	cached	.361003636	79364	267		6d8dc0eef93bfa339477955347ea0796	FAIL
+KPGP-00320	kpgp	fastvep	clinical	GRCh38	wgs	direct	463.731808302	4684091	4684091		51160930b39d86c1c19a9c533ae31452	
+KPGP-00320	kpgp	fastvep	clinical	GRCh38	wgs	cached	.383942810	4684091	267		6d8dc0eef93bfa339477955347ea0796	FAIL
+[2026-08-22T23:48:51+02:00] done KPGP-00320

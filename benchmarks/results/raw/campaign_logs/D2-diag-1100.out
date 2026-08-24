@@ -1,0 +1,21 @@
+[2026-08-23T09:47:51.661] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T09:47:51.662] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	74215/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+input: 74215
+input contigs: 22
+cache contigs: 24
+fastvep_run: serial, 74215 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+direct: 74215
+Annotation completed in 50.2s
+Computing MD5 for /mnt/data/tmp/d2-1100/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+Warning: cannot determine contig names given the .csi index alone
+cached: 74215
+=== records in direct but not cached: 0 ===
+--- by contig ---
+--- REF/ALT length profile of missing ---
+--- 8 examples ---
+--- longest missing REF/ALT ---
+=== are missing keys in the cache itself? ===
+in cache: 0 of 0

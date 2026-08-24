@@ -1,0 +1,15 @@
+[2026-08-23T00:18:22.521] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T00:18:22.522] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	4860872/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T00:18:55+02:00] hu9AF7CC/wgs n=4860872 =====
+snpeff_run: serial, 4860872 records, 8g heap
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T00:57:35+02:00] direct=2289.070200651s
+Annotation completed in 366.6s
+Computing MD5 for /mnt/data/tmp/c2-1011-8/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T01:04:11+02:00] cached=367.858452854s miss=523192 concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu9AF7CC	pgp	snpeff	core	GRCh37	wgs	direct	2289.070200651	4860872	4860872		498f8ab4442e4af5cc371297baefdcfc	
+hu9AF7CC	pgp	snpeff	core	GRCh37	wgs	cached	367.858452854	4860872	4843123	523192	e8e2eeba1318d2c9c428319e2b76c6ef	FAIL
+[2026-08-23T01:04:11+02:00] done hu9AF7CC

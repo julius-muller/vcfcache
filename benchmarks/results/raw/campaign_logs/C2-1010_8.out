@@ -1,0 +1,15 @@
+[2026-08-23T00:07:04.552] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T00:07:04.554] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	4860872/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T00:07:33+02:00] hu9AF7CC/wgs n=4860872 =====
+fastvep_run: serial, 4860872 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T00:14:02+02:00] direct=356.014373919s
+Annotation completed in 229.5s
+Computing MD5 for /mnt/data/tmp/c2-1010-8/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T00:18:21+02:00] cached=230.460151080s miss=523192 concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu9AF7CC	pgp	fastvep	clinical	GRCh37	wgs	direct	356.014373919	4860872	4860872		a92209d566c69e2b7fc8996e6b99f3b4	
+hu9AF7CC	pgp	fastvep	clinical	GRCh37	wgs	cached	230.460151080	4860872	4843123	523192	534c0518eeb68ef0725df411fd87fac5	FAIL
+[2026-08-23T00:18:21+02:00] done hu9AF7CC

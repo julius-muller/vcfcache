@@ -1,0 +1,15 @@
+[2026-08-23T06:39:54.834] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T06:39:54.836] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	5009165/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T06:40:20+02:00] hu6664F3/wgs n=5009165 =====
+snpeff_clinical_run: serial, 5009165 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T08:38:01+02:00] direct=7039.322498911s
+Annotation completed in 1158.5s
+Computing MD5 for /mnt/data/tmp/c2-1013-4/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T08:57:46+02:00] cached=1159.231050307s miss=660351 concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu6664F3	pgp	snpeff	clinical	GRCh37	wgs	direct	7039.322498911	5009165	5009165		4216d89dff3d70d1cb9ac48e21bedeb5	
+hu6664F3	pgp	snpeff	clinical	GRCh37	wgs	cached	1159.231050307	5009165	4992792	660351	144209ad028ba4a0130c224d54b609f1	FAIL
+[2026-08-23T08:57:46+02:00] done hu6664F3

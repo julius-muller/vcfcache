@@ -1,0 +1,40 @@
+[2026-08-23T10:30:25.386] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T10:30:25.387] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	330/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	330/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T10:30:26+02:00] LP6005592-DNA_C05/panel n=330 =====
+fastvep_run: serial, 330 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T10:30:39+02:00] direct=6.425791661s
+Annotation completed in 19.6s
+Computing MD5 for /mnt/data/tmp/c2-1102-10/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T10:30:58+02:00] cached=19.822234775s miss=96 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	108539/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	108539/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T10:31:21+02:00] LP6005592-DNA_C05/wes n=108539 =====
+fastvep_run: serial, 108539 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T10:32:25+02:00] direct=30.449798298s
+Annotation completed in 36.7s
+Computing MD5 for /mnt/data/tmp/c2-1102-10/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T10:33:03+02:00] cached=36.913303407s miss=31351 concordance=PASS
+Lines   total/split/joined/realigned/removed/skipped:	6169350/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	6169350/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T10:33:17+02:00] LP6005592-DNA_C05/wgs n=6169350 =====
+fastvep_run: serial, 6169350 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T10:39:59+02:00] direct=342.170247703s
+Annotation completed in 188.7s
+Computing MD5 for /mnt/data/tmp/c2-1102-10/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T10:44:10+02:00] cached=189.148059387s miss=1296702 concordance=PASS
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+LP6005592-DNA_C05	sgdp	fastvep	clinical	GRCh38	panel	direct	6.425791661	330	330		cfd711ee31194ae0dad6095355d5a27b	
+LP6005592-DNA_C05	sgdp	fastvep	clinical	GRCh38	panel	cached	19.822234775	330	330	96	cfd711ee31194ae0dad6095355d5a27b	PASS
+LP6005592-DNA_C05	sgdp	fastvep	clinical	GRCh38	wes	direct	30.449798298	108539	108539		3f426550c006b33341a17d6bdd32a520	
+LP6005592-DNA_C05	sgdp	fastvep	clinical	GRCh38	wes	cached	36.913303407	108539	108539	31351	3f426550c006b33341a17d6bdd32a520	PASS
+LP6005592-DNA_C05	sgdp	fastvep	clinical	GRCh38	wgs	direct	342.170247703	6169350	6169350		56b05565b7db1ad2ee1314e9de07e5df	
+LP6005592-DNA_C05	sgdp	fastvep	clinical	GRCh38	wgs	cached	189.148059387	6169350	6169350	1296702	56b05565b7db1ad2ee1314e9de07e5df	PASS
+[2026-08-23T10:44:10+02:00] done LP6005592-DNA_C05

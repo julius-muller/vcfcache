@@ -1,0 +1,26 @@
+[2026-08-23T08:19:21.214] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T08:19:21.214] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	255/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T08:19:21+02:00] hu6ABACE/panel n=255 =====
+fastvep_run: serial, 255 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T08:19:26+02:00] direct=2.541043936s
+Annotation completed in 7.7s
+Computing MD5 for /mnt/data/tmp/c2-1021-5/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T08:19:34+02:00] cached=7.909454773s miss=17 concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	69911/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T08:20:00+02:00] hu6ABACE/wes n=69911 =====
+fastvep_run: serial, 69911 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T08:20:33+02:00] direct=15.837899705s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1021-5/c.bcf
+If intended, use --force to overwrite.
+[2026-08-23T08:20:33+02:00] cached=.180119227s miss=NA concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu6ABACE	pgp	fastvep	clinical	GRCh37	panel	direct	2.541043936	255	255		fa5546bbe22be0defc914278e1795d88	
+hu6ABACE	pgp	fastvep	clinical	GRCh37	panel	cached	7.909454773	255	255	17	67d807489e9642f2ef6f2fc035a5be99	FAIL
+hu6ABACE	pgp	fastvep	clinical	GRCh37	wes	direct	15.837899705	69911	69911		2916ff30933dcd87ef4dceb16eb9eaf8	
+hu6ABACE	pgp	fastvep	clinical	GRCh37	wes	cached	.180119227	69911	255		67d807489e9642f2ef6f2fc035a5be99	FAIL
+[2026-08-23T08:20:33+02:00] done hu6ABACE

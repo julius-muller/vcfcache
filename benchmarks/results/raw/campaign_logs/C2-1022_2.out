@@ -1,0 +1,26 @@
+[2026-08-23T08:32:44.232] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T08:32:44.232] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	225/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T08:32:44+02:00] hu365511/panel n=225 =====
+snpeff_run: serial, 225 records, 8g heap
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T08:33:39+02:00] direct=27.872644155s
+Annotation completed in 25.3s
+Computing MD5 for /mnt/data/tmp/c2-1022-2/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T08:34:05+02:00] cached=25.519114323s miss=28 concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	86769/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T08:34:33+02:00] hu365511/wes n=86769 =====
+snpeff_run: serial, 86769 records, 8g heap
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T08:36:51+02:00] direct=68.451783610s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1022-2/c.bcf
+If intended, use --force to overwrite.
+[2026-08-23T08:36:51+02:00] cached=.179224584s miss=NA concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu365511	pgp	snpeff	core	GRCh37	panel	direct	27.872644155	225	225		8c3379fbde90c1e330feabc585a364cc	
+hu365511	pgp	snpeff	core	GRCh37	panel	cached	25.519114323	225	225	28	3e34a619efd3f29d6b6ad81c08a857d8	FAIL
+hu365511	pgp	snpeff	core	GRCh37	wes	direct	68.451783610	86769	86769		d9cb24692cd63ac5ace367573a380faf	
+hu365511	pgp	snpeff	core	GRCh37	wes	cached	.179224584	86769	225		3e34a619efd3f29d6b6ad81c08a857d8	FAIL
+[2026-08-23T08:36:51+02:00] done hu365511

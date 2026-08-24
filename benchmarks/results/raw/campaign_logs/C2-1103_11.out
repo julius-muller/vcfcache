@@ -1,0 +1,40 @@
+[2026-08-23T10:57:00.526] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T10:57:00.526] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	299/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	299/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T10:57:01+02:00] huCDD5EE/panel n=299 =====
+fastvep_run: serial, 299 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T10:57:06+02:00] direct=2.630699476s
+Annotation completed in 8.1s
+Computing MD5 for /mnt/data/tmp/c2-1103-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T10:57:14+02:00] cached=8.265610496s miss=33 concordance=FAIL_CONTENT
+Lines   total/split/joined/realigned/removed/skipped:	82785/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	82785/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T10:57:42+02:00] huCDD5EE/wes n=82605 =====
+fastvep_run: serial, 82605 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T10:58:18+02:00] direct=18.046943398s
+Annotation completed in 20.7s
+Computing MD5 for /mnt/data/tmp/c2-1103-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T10:58:40+02:00] cached=20.874731643s miss=8489 concordance=FAIL_CONTENT
+Lines   total/split/joined/realigned/removed/skipped:	4834765/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	4834765/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T10:59:09+02:00] huCDD5EE/wgs n=4815438 =====
+fastvep_run: serial, 4815438 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T11:01:57+02:00] direct=149.943346253s
+Annotation completed in 127.1s
+Computing MD5 for /mnt/data/tmp/c2-1103-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T11:04:23+02:00] cached=127.485123074s miss=506263 concordance=FAIL_CONTENT
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+huCDD5EE	pgp	fastvep	clinical	GRCh37	panel	direct	2.630699476	299	299		e5afe9a342cbcffe05886f11e8e9a477	
+huCDD5EE	pgp	fastvep	clinical	GRCh37	panel	cached	8.265610496	299	299	33	6cb9ebcc2d410614a21782021354706f	FAIL_CONTENT
+huCDD5EE	pgp	fastvep	clinical	GRCh37	wes	direct	18.046943398	82605	82605		8ad2f3b170059e6da129b081b352722e	
+huCDD5EE	pgp	fastvep	clinical	GRCh37	wes	cached	20.874731643	82605	82605	8489	9eb5611b0921987d999b392729c4c62b	FAIL_CONTENT
+huCDD5EE	pgp	fastvep	clinical	GRCh37	wgs	direct	149.943346253	4815438	4815438		671b1c33141f658afa33d4d2e7518fd5	
+huCDD5EE	pgp	fastvep	clinical	GRCh37	wgs	cached	127.485123074	4815438	4815438	506263	a056370b184e384bb7ec42de20955c98	FAIL_CONTENT
+[2026-08-23T11:04:23+02:00] done huCDD5EE

@@ -9,6 +9,8 @@ that make them interpretable:
 
 | file | what it is |
 |---|---|
+| `RESULTS.md` | **the findings** — final campaign table and what it shows |
+| `campaign_metrics.tsv` | all 360 campaign rows, one per genome/assay/condition |
 | `README.md` | this file: goals, index, and the history log |
 | `GUIDELINES.md` | how a benchmark is run and what has to be stored |
 | `PLAN.md` | the annotation-configuration matrix and what is still outstanding |
@@ -92,6 +94,8 @@ was flawed and the numbers do not estimate what they appear to.
 | 2026-08-22 | SnpEff clinical gates | GRCh38 and GRCh37 both passed: cached output identical to direct on ANN + CLNSIG + AF | primary |
 | 2026-08-22 | SnpEff core GRCh37 gate | Passed; the newly installed GRCh37.75 database validated against VCFcache | primary |
 | 2026-08-22 | fastVEP clinical annotations | ClinVar and gnomAD `.osa2` built for **both** assemblies | primary |
+| 2026-08-23 | Campaigns v1 (jobs 1003-1023) | Invalidated: stale outputs across assays, duplicate PGP inputs, contig-order digest | **excluded** |
+| 2026-08-24 | **Final campaign** (jobs 1102-1165) | 180 cells, 12 genomes x 3 assays x 2 conditions x 5 tool/level/assembly arms; 176/180 concordant. See `RESULTS.md` | primary |
 | 2026-08-22 | fastVEP clinical gates | GRCh38 and GRCh37 both passed on CSQ + FV_CLINVAR + FV_GNOMAD | primary |
 | 2026-08-22 | `fastvep_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 625 MB, built in 6:05 | primary |
 | 2026-08-22 | `fastvep_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.9 GB, built in 28:49 | primary |

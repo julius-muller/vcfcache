@@ -1,0 +1,8 @@
+{
+  "run_id": "snpeff-clinical-grch37-v2-serial", "tool": "snpeff", "level": "clinical",
+  "assembly": "GRCh37", "genome_db": "GRCh37.75", "cache": "/results/snpeff/caches/snpeff_clinical_grch37_af001/cache/snpeff_clinical_grch37_af001",
+  "assays": ["panel wes wgs"], "genomes": 12, "cohorts": ["pgp"],
+  "invocation": "serial (documented single-process form)",
+  "slurm_job": 1106, "status": "primary",
+  "note": "Direct arm calls the annotator bare, without vcfcache in the path. Concordance uses a CHROM+POS block-local digest; a plain order-sensitive digest fails on same-position record reordering and an external sort outruns the annotation at WGS scale."
+}

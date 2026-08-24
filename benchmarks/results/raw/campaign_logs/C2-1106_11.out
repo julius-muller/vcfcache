@@ -1,0 +1,40 @@
+[2026-08-23T20:09:01.110] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T20:09:01.111] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	299/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	299/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T20:09:01+02:00] huCDD5EE/panel n=299 =====
+snpeff_clinical_run: serial, 299 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T20:10:11+02:00] direct=34.625465728s
+Annotation completed in 30.8s
+Computing MD5 for /mnt/data/tmp/c2-1106-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T20:10:42+02:00] cached=30.950772381s miss=33 concordance=FAIL_CONTENT
+Lines   total/split/joined/realigned/removed/skipped:	82785/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	82785/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T20:11:10+02:00] huCDD5EE/wes n=82605 =====
+snpeff_clinical_run: serial, 82605 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T20:19:51+02:00] direct=259.411366761s
+Annotation completed in 76.3s
+Computing MD5 for /mnt/data/tmp/c2-1106-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T20:21:08+02:00] cached=76.565410295s miss=8489 concordance=FAIL_CONTENT
+Lines   total/split/joined/realigned/removed/skipped:	4834765/0/0/0/0/0
+Lines   total/split/joined/realigned/removed/skipped:	4834765/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T20:21:36+02:00] huCDD5EE/wgs n=4815438 =====
+snpeff_clinical_run: serial, 4815438 records, 8g heap, genome GRCh37.75
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T21:23:45+02:00] direct=3712.841462147s
+Annotation completed in 554.7s
+Computing MD5 for /mnt/data/tmp/c2-1106-11/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T21:33:17+02:00] cached=555.125085010s miss=506263 concordance=FAIL_CONTENT
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+huCDD5EE	pgp	snpeff	clinical	GRCh37	panel	direct	34.625465728	299	299		e074845232265b22438104a9c3223be1	
+huCDD5EE	pgp	snpeff	clinical	GRCh37	panel	cached	30.950772381	299	299	33	f1de817d2df590232ddec8bf3f562f63	FAIL_CONTENT
+huCDD5EE	pgp	snpeff	clinical	GRCh37	wes	direct	259.411366761	82605	82605		4c6c1c89cb23809b237fb932314b1946	
+huCDD5EE	pgp	snpeff	clinical	GRCh37	wes	cached	76.565410295	82605	82605	8489	1329ac7f0440bef5ad30ce5814cd675c	FAIL_CONTENT
+huCDD5EE	pgp	snpeff	clinical	GRCh37	wgs	direct	3712.841462147	4815438	4815438		171b5c85b0cb861996649873d9fcdb12	
+huCDD5EE	pgp	snpeff	clinical	GRCh37	wgs	cached	555.125085010	4815438	4815438	506263	c654601efd804d9d20fc46d2eb6c3067	FAIL_CONTENT
+[2026-08-23T21:33:17+02:00] done huCDD5EE

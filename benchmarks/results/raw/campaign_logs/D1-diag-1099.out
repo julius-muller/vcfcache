@@ -1,0 +1,41 @@
+[2026-08-23T09:47:16.372] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T09:47:16.373] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	75084/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+input: 75084
+fastvep_run: serial, 75084 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh38
+Warning: cannot determine contig names given the .csi index alone
+direct: 75084
+Annotating in.bcf (cached mode)...
+Annotation completed in 21.9s
+Computing MD5 for /mnt/data/tmp/d1-1099/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+Warning: cannot determine contig names given the .csi index alone
+cached: 75084
+=== keys present in direct but MISSING from cached (first 10) ===
+0
+=== are those keys in the input? ===
+0
+=== keys in cached but not direct ===
+0
+=== full input records for 3 missing keys ===
+=== workflow log tail ===
+[2026-08-23 09:47:30] INFO [vcfcache.workflow_manager.py.__init__:252] Genome build (annotation.yaml): GRCh38
+[2026-08-23 09:47:30] INFO [vcfcache.annotator.py.__init__:505] Initializing annotation of in.bcf
+[2026-08-23 09:47:30] INFO [vcfcache.annotator.py._log_contig_overlap:521] Contig overlap: cache=24 input=1 overlap=1
+[2026-08-23 09:47:30] INFO [vcfcache.annotator.py._log_contig_overlap:529] Overlapping contigs (first 10): chr22
+[2026-08-23 09:47:30] INFO [vcfcache.workflow_manager.py.run:302] Running workflow in mode: annotate
+[2026-08-23 09:47:30] INFO [vcfcache.workflow_manager.py._run_annotate:562] Annotating sample using cache (4-step process)
+[2026-08-23 09:47:30] INFO [vcfcache.workflow_manager.py._run_annotate:587] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[2026-08-23 09:47:30] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.340s: bcftools norm
+[2026-08-23 09:47:30] INFO [vcfcache.workflow_manager.py._run_annotate:602] Step 1/4: Adding cache annotations
+[2026-08-23 09:47:44] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 14.302s: bcftools annotate
+[2026-08-23 09:47:44] INFO [vcfcache.workflow_manager.py._run_annotate:611] Step 2/4: Identifying variants missing from cache
+[2026-08-23 09:47:45] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.330s: bcftools filter
+[2026-08-23 09:47:45] INFO [vcfcache.workflow_manager.py._run_annotate:629] Found 7323 variants not in cache
+[2026-08-23 09:47:45] INFO [vcfcache.workflow_manager.py._run_annotate:633] Step 3/4: Annotating 7323 missing variants
+[2026-08-23 09:47:51] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 6.213s: bcftools view
+[2026-08-23 09:47:51] INFO [vcfcache.workflow_manager.py._run_annotate:672] Step 4/4: Merging cache and newly annotated variants
+[2026-08-23 09:47:51] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.289s: bcftools annotate
+[2026-08-23 09:47:52] INFO [vcfcache.workflow_manager.py.run:91] Command completed in 0.279s: bcftools view
+[2026-08-23 09:47:52] INFO [vcfcache.workflow_manager.py._run_annotate:749] Annotation complete: /mnt/data/tmp/d1-1099/c.bcf
+[2026-08-23 09:47:52] INFO [vcfcache.workflow_manager.py.run:340] Workflow completed successfully in 21.8s

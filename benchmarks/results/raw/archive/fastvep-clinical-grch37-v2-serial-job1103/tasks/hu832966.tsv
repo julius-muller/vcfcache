@@ -1,0 +1,7 @@
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu832966	pgp	fastvep	clinical	GRCh37	panel	direct	5.226078659	156	156		0a9aae8cbb83b079dde3e4bc5b04c88d	
+hu832966	pgp	fastvep	clinical	GRCh37	panel	cached	10.189071507	156	156	5	d78cb7b403126f2b76e044f5cdb3faa3	FAIL_CONTENT
+hu832966	pgp	fastvep	clinical	GRCh37	wes	direct	28.802610100	58658	58658		3674ef7defff3d4283c89cfdb9907d9a	
+hu832966	pgp	fastvep	clinical	GRCh37	wes	cached	25.529662048	58658	58658	1843	85bc9b57223e8a090d5f67b38ade4874	FAIL_CONTENT
+hu832966	pgp	fastvep	clinical	GRCh37	wgs	direct	127.414554081	3273520	3273520		e2075d4e6c593d1d578db43e562164ea	
+hu832966	pgp	fastvep	clinical	GRCh37	wgs	cached	65.244371976	3273520	3273520	66796	e2075d4e6c593d1d578db43e562164ea	PASS

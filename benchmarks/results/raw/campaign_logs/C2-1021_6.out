@@ -1,0 +1,26 @@
+[2026-08-23T08:20:34.215] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+[2026-08-23T08:20:34.216] error: couldn't chdir to `/mnt/data/slurm-results/snpeff/scripts': No such file or directory: going to /tmp instead
+Lines   total/split/joined/realigned/removed/skipped:	156/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T08:20:34+02:00] hu832966/panel n=156 =====
+fastvep_run: serial, 156 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T08:20:39+02:00] direct=2.467735774s
+Annotation completed in 7.6s
+Computing MD5 for /mnt/data/tmp/c2-1021-6/st/in_vcstats/workflow/annotation.snapshot.yaml ...
+[2026-08-23T08:20:47+02:00] cached=7.777868309s miss=5 concordance=FAIL
+Lines   total/split/joined/realigned/removed/skipped:	58658/0/0/0/0/0
+Warning: cannot determine contig names given the .csi index alone
+===== [2026-08-23T08:21:12+02:00] hu832966/wes n=58658 =====
+fastvep_run: serial, 58658 records, 8 rayon threads, sa=/results/richness/sa/clinical_GRCh37
+Warning: cannot determine contig names given the .csi index alone
+[2026-08-23T08:21:42+02:00] direct=15.053397796s
+FileExistsError: Output file already exists: /mnt/data/tmp/c2-1021-6/c.bcf
+If intended, use --force to overwrite.
+[2026-08-23T08:21:43+02:00] cached=.177146658s miss=NA concordance=FAIL
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu832966	pgp	fastvep	clinical	GRCh37	panel	direct	2.467735774	156	156		0a9aae8cbb83b079dde3e4bc5b04c88d	
+hu832966	pgp	fastvep	clinical	GRCh37	panel	cached	7.777868309	156	156	5	d78cb7b403126f2b76e044f5cdb3faa3	FAIL
+hu832966	pgp	fastvep	clinical	GRCh37	wes	direct	15.053397796	58658	58658		3674ef7defff3d4283c89cfdb9907d9a	
+hu832966	pgp	fastvep	clinical	GRCh37	wes	cached	.177146658	58658	156		d78cb7b403126f2b76e044f5cdb3faa3	FAIL
+[2026-08-23T08:21:43+02:00] done hu832966
