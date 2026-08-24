@@ -1,6 +1,0 @@
-# Ignore rules elsewhere -- the repo's own `*.log` and, on some machines, global
-# rules for `logs/` and `work/` -- silently dropped thousands of files from this
-# archive's first commit. Job logs and per-task work directories are primary
-# evidence here: one superseded run in the history log was reconstructed entirely
-# from job logs. Nothing below this directory is ever ignored.
-!*

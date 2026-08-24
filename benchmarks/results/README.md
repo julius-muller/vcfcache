@@ -9,12 +9,13 @@ that make them interpretable:
 
 | file | what it is |
 |---|---|
+| `RUN_LOG.md` | every cluster job run, in order, with its outcome |
 | `RESULTS.md` | **the findings** — final campaign table and what it shows |
 | `campaign_metrics.tsv` | all 360 campaign rows, one per genome/assay/condition |
 | `README.md` | this file: goals, index, and the history log |
 | `GUIDELINES.md` | how a benchmark is run and what has to be stored |
 | `PLAN.md` | the annotation-configuration matrix and what is still outstanding |
-| `raw/` | tool output exactly as written, never edited |
+| `raw/` | results and provenance: metrics, manifests, timings, cluster config |
 
 ## Goals
 
