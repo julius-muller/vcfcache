@@ -1,4 +1,4 @@
-# TODO: like-for-like VEP and fastVEP complexity assessment
+# TODO: VEP and fastVEP annotation-complexity assessment
 
 ## Current result
 
@@ -15,7 +15,8 @@ This does **not** show that GRCh37 is intrinsically faster. The runs used differ
 Therefore:
 
 - Do not interpret the current cross-assembly difference as an assembly effect.
-- Keep PGP out of the matched main comparison figure.
+- Do not pool PGP with GRCh38 cohorts when interpreting cross-assembly runtime;
+  show assembly-stratified results instead.
 - Existing within-assembly VEP and fastVEP benchmarks remain useful.
 - Source measurements: `benchmarks/figures/source_data/final/2026-08-09T223718Z-light-matched-final/fastvep_external_wgs_metrics.tsv`.
 
@@ -108,24 +109,29 @@ We can explain whether an observed runtime difference comes from the annotator, 
 
 ---
 
-## Resolution (2026-08-21)
+## Revised resolution (2026-08-25)
 
-This document's completion criterion — being able to say whether a runtime
-difference comes from the annotator, the assembly, the cohort, the transcript
-universe, supplementary lookups or output volume — is being addressed by the
-configuration matrix in `benchmarks/docs/ANNOTATION_LEVELS.md`.
+The audit established that an exact minimalist three-tool output is not
+available natively. VEP emits `CSQ`, fastVEP has its own consequence model and
+`FV_*` fields, and SnpEff emits `ANN` from a separately built transcript
+database and computes HGVS independently. ClinVar and gnomAD inputs can be
+standardized, but this does not standardize the consequence calculation,
+information content or output schema. Stripping the native results and adding
+common fields afterward would benchmark the post-processing layer rather than
+the annotators.
 
-The specific finding that closes the "nominal command complexity" concern: VEP's
-offline cache 115 already ships ClinVar 202502, gnomAD exomes v4.1 and gnomAD
-genomes v4.1, so `--everything` is already a clinical-grade configuration. The
-imbalance was therefore not that VEP was over-configured but that fastVEP and
-SnpEff were run at their documented minimums with zero supplementary databases.
-Bringing those two to ClinVar plus gnomAD allele frequencies puts all three at a
-level a practitioner would recognise, without re-running VEP.
+The manuscript therefore reports direct-versus-cached speed-up only within an
+unchanged tool and recipe. VEP `--everything` remains the realistic
+annotation-rich VEP condition; completed fastVEP and SnpEff core/clinical
+conditions, the dense fastVEP pilot and the synthetic-delay sweep provide the
+remaining pipeline-cost range. Cross-tool wall times are descriptive context,
+not a controlled ranking. The exploratory narrow VEP recipe passed short gates,
+but its cache builds and dependent campaign were canceled before producing
+timed measurements.
 
 The cross-assembly caution in this document still stands and is now handled by
 requiring PGP (GRCh37) in every comparison rather than treating it as optional,
 so no claim rests on GRCh38 cohorts alone.
 
-Runs are archived per `benchmarks/docs/BENCHMARK_ARCHIVE.md`; superseded
-configurations are kept rather than discarded.
+Runs are archived per `benchmarks/docs/BENCHMARK_ARCHIVE.md`; superseded or
+aborted configurations are kept and labelled rather than presented as results.

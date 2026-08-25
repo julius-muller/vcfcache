@@ -59,3 +59,11 @@ C57	Enriched fastVEP start-up share of direct runtime	94	percent	one exome, 74,2
 C58	Enriched fastVEP WES speedup, shared versus node-local databases	1.01/1.10	fold	same 12 genomes and recipe	benchmarks/figures/source_data/enriched_wes_campaign_v2.tsv	frozen
 C59	Enriched fastVEP cached output agreement	12	of 12 genomes	sorted CHROM/POS/REF/ALT/CSQ digest equality	benchmarks/figures/source_data/enriched_wes_md5_local.tsv	frozen
 C60	Per-database increment, allele-level versus gene-level	5-14/0.6	seconds	single-exome ladder, 75,051 records	benchmarks/figures/source_data/richness_ladder_v2.tsv	frozen
+C61	Final clinical campaign paired cells	180	cells	12 genomes by three assays across five tool/level/assembly arms	benchmarks/results/campaign_metrics.tsv	frozen
+C62	Final clinical campaign concordant cells	176	of 180 cells	four hu6664F3 SnpEff WES/WGS cells excluded before inference	benchmarks/results/concordance_failures.tsv	frozen
+C63	SnpEff clinical WES speedup, GRCh38/GRCh37	2.66/3.62	fold	median of 12/11 concordant independent genomes	benchmarks/results/campaign_summary.tsv	frozen
+C64	SnpEff clinical WGS speedup, GRCh38/GRCh37	10.78/12.31	fold	median of 12/11 concordant independent genomes	benchmarks/results/campaign_summary.tsv	frozen
+C65	SnpEff core-to-clinical WES speedup change, GRCh37	1.16/3.62	fold	same genomes and cache membership; annotation load changed	benchmarks/results/campaign_summary.tsv	frozen
+C66	SnpEff core-to-clinical WGS speedup change, GRCh37	4.46/12.31	fold	same genomes and cache membership; annotation load changed	benchmarks/results/campaign_summary.tsv	frozen
+C67	fastVEP clinical WGS speedup, GRCh38/GRCh37	2.54/1.70	fold	median of 12 concordant independent genomes per assembly	benchmarks/results/campaign_summary.tsv	frozen
+C68	SnpEff warning processing-order reproducer	1	warning-only target allele	direct SnpEff 5.4c; preceding chr2:11273458 A>AC adds WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS to chr2:11273459 C>T, reversed order removes it	benchmarks/results/raw/diagnostics/hu6664F3/snpeff_context/minimal_matrix.tsv	frozen

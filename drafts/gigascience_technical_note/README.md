@@ -30,6 +30,12 @@ snapshot dated 2026-08-09 and the final dual-cache pipeline-complexity snapshot
 dated 2026-08-12. KPGP, SGDP and PGP evaluation genomes were not used to build
 the cohort caches and had no documented project overlap with gnomAD.
 
+The final native annotation campaign dated 2026-08-24 adds clinical fastVEP
+and SnpEff across GRCh38 and GRCh37, plus a GRCh37 core-to-clinical SnpEff
+contrast. It contains 180 paired cells; 176 passed strict comparison and four
+warning-only SnpEff cells were excluded before inference. Claims remain
+within-tool because the native recipes do not emit identical annotation sets.
+
 Main Figure 2 and Supplementary Figure 3 add a matched assay-scale extension
 using 12 independent GRCh38 KPGP and SGDP genomes, the bundled gnomAD AF ≥1%
 strategy, and exactly one retained direct and cached observation per

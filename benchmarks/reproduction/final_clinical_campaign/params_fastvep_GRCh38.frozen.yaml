@@ -1,0 +1,10 @@
+genome_build: GRCh38
+annotation_tool_cmd: /mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep
+tool_version_command: /mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep --version
+bcftools_cmd: bcftools
+temp_dir: /mnt/data/tmp/fastvep-publication
+threads: 8
+rayon_threads: 8
+transcript_cache: /mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache
+fasta: /mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa
+optional_checks: {}

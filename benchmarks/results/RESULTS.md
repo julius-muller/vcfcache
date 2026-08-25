@@ -1,10 +1,13 @@
 # Results
 
 Final campaign, 2026-08-24. Every cell is one genome, one assay, direct and
-cached, serial invocation. Medians over 12 genomes.
+cached, serial invocation. Medians use up to 12 genomes; `n` shows the accepted
+paired cells after explicit concordance exclusions.
 
-Source: `campaign_metrics.tsv` (360 rows); raw per-task files under
-`raw/archive/*-v2-serial*` (GRCh38) and `*-v3-serial*` (GRCh37).
+Source: `campaign_metrics.tsv` (360 rows). The validated, machine-generated
+outputs are `campaign_summary.tsv` and `concordance_failures.tsv`; regenerate
+them with `../summarize_final_campaign.py`. The canonical archive index is
+`raw/final_campaign/RUN_MANIFEST.json`.
 
 ## Break-even by annotator and assay
 
@@ -28,9 +31,11 @@ Source: `campaign_metrics.tsv` (360 rows); raw per-task files under
 
 ## What it shows
 
-**Caching returns per-variant work, never start-up.** Every annotator loses on a
-255-variant panel and wins at whole genome. Where it crosses over is set by how
-much per-variant work the recipe does, not by the assay label.
+**Caching returns per-variant work, never start-up.** Panels are start-up
+dominated: fastVEP is slower with caching, while SnpEff medians are effectively
+at break-even (1.03--1.07x) and should not be interpreted as meaningful panel
+acceleration. Every annotator wins at whole genome. Where it crosses over is set
+by how much per-variant work the recipe does, not by the assay label.
 
 - **fastVEP** (Rust, low per-variant cost) is still at 0.93-1.02x on exomes and
   only reaches 1.70-2.54x at whole genome.
@@ -56,13 +61,28 @@ biological rather than an artefact of sample selection.
 
 ## Concordance
 
-176 of 180 cells pass: cached output identical to direct on every annotation
-field, compared with a contig- and position-order-insensitive digest.
+176 of 180 cells pass: cached output identical to direct for the fields defining
+the tested annotation level, compared with a contig-order-independent digest
+that canonicalizes record order within each chromosome-position block.
 
-The 4 failures are all one genome, `hu6664F3`, and SnpEff only — fastVEP passes
-the same genome on all three assays, and record counts match. **Unexplained.**
-Most likely batch-dependent non-determinism in SnpEff's `ANN`, analogous to the
-documented VEP `HGNC_ID` behaviour, but that is a hypothesis and not a finding.
+The four excluded cells are one genome, `hu6664F3`, at WES and WGS scale in
+both SnpEff levels. Its two panel cells and all three fastVEP cells pass, and all
+record counts match. Retained-output diagnosis found exactly one differing WES
+allele, `chr2:11273459 C>T`, at both levels: cache-build SnpEff adds
+`WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS` to two `C2orf50` consequences while
+whole-exome SnpEff omits it. Consequence, transcript, HGVS, ClinVar and gnomAD
+values otherwise agree. A direct-SnpEff-only two-record reproducer proved that
+processing `chr2:11273458 A>AC` immediately before the target adds the warning,
+while reversing the records removes it. Thus this is an upstream SnpEff 5.4c
+processing-order side effect, not a VCFcache merge error. It is still an output
+difference: no general warning exception was introduced and the four cells
+remain excluded from the medians above. Exact inputs, outputs and values are
+stored under `raw/diagnostics/hu6664F3/`.
+
+The final GRCh37 arm uses the 12 samples frozen in
+`../reproduction/final_clinical_campaign/samples.tsv`. It differs by two genomes
+from the older 52-genome external campaign, so its 95.8% median hit rate must not
+be substituted for the older campaign's 92.7% PGP estimate.
 
 Three earlier campaign rounds were invalidated by harness defects, not by
 VCFcache: stale output files across assay iterations with an unchecked return

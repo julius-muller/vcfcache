@@ -1,0 +1,89 @@
+{
+  "campaign_id": "final-clinical-campaign-2026-08-24",
+  "status": "primary",
+  "paired_cells": 180,
+  "accepted_cells": 176,
+  "excluded_cells": 4,
+  "conditions": ["direct", "cached"],
+  "assays": ["panel", "wes", "wgs"],
+  "invocation": "serial documented single-process annotator invocation",
+  "sample_manifest": "../../../reproduction/final_clinical_campaign/samples.tsv",
+  "runner": "../../../reproduction/final_clinical_campaign/C2_campaign.frozen.sh",
+  "digest_implementation": "../../../reproduction/final_clinical_campaign/blocksort.frozen.awk",
+  "toolchain": "../../../reproduction/final_clinical_campaign/toolchain/",
+  "arms": [
+    {
+      "tool": "fastVEP",
+      "level": "clinical",
+      "assembly": "GRCh38",
+      "slurm_job": 1102,
+      "cohorts": ["kpgp", "sgdp"],
+      "source_archives": [
+        "../archive/fastvep-clinical-grch38-v2-serial",
+        "../archive/fastvep-clinical-grch38-v2-serial-job1102"
+      ]
+    },
+    {
+      "tool": "SnpEff",
+      "level": "clinical",
+      "assembly": "GRCh38",
+      "slurm_job": 1105,
+      "cohorts": ["kpgp", "sgdp"],
+      "source_archives": [
+        "../archive/snpeff-clinical-grch38-v2-serial",
+        "../archive/snpeff-clinical-grch38-v2-serial-job1105"
+      ]
+    },
+    {
+      "tool": "fastVEP",
+      "level": "clinical",
+      "assembly": "GRCh37",
+      "slurm_job": 1163,
+      "cohorts": ["pgp"],
+      "source_archives": [
+        "../archive/fastvep-clinical-grch37-v3-serial",
+        "../archive/fastvep-clinical-grch37-v3-serial-job1163"
+      ]
+    },
+    {
+      "tool": "SnpEff",
+      "level": "core",
+      "assembly": "GRCh37",
+      "slurm_job": 1164,
+      "cohorts": ["pgp"],
+      "source_archives": [
+        "../archive/snpeff-core-grch37-v3-serial",
+        "../archive/snpeff-core-grch37-v3-serial-job1164"
+      ]
+    },
+    {
+      "tool": "SnpEff",
+      "level": "clinical",
+      "assembly": "GRCh37",
+      "slurm_job": 1165,
+      "cohorts": ["pgp"],
+      "source_archives": [
+        "../archive/snpeff-clinical-grch37-v3-serial",
+        "../archive/snpeff-clinical-grch37-v3-serial-job1165"
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "sample": "hu6664F3",
+      "tool": "SnpEff",
+      "level": "core",
+      "assembly": "GRCh37",
+      "assays": ["wes", "wgs"],
+      "reason": "FAIL_CONTENT"
+    },
+    {
+      "sample": "hu6664F3",
+      "tool": "SnpEff",
+      "level": "clinical",
+      "assembly": "GRCh37",
+      "assays": ["wes", "wgs"],
+      "reason": "FAIL_CONTENT"
+    }
+  ]
+}

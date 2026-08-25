@@ -12,6 +12,8 @@ that make them interpretable:
 | `RUN_LOG.md` | every cluster job run, in order, with its outcome |
 | `RESULTS.md` | **the findings** — final campaign table and what it shows |
 | `campaign_metrics.tsv` | all 360 campaign rows, one per genome/assay/condition |
+| `campaign_summary.tsv` | validated medians generated from accepted direct/cached pairs |
+| `concordance_failures.tsv` | the four explicitly excluded cells and their digests |
 | `README.md` | this file: goals, index, and the history log |
 | `GUIDELINES.md` | how a benchmark is run and what has to be stored |
 | `PLAN.md` | the annotation-configuration matrix and what is still outstanding |
@@ -36,9 +38,10 @@ that make them interpretable:
 - **Assays** — ACMG SF v3.3 panel, Twist core exome, whole genome.
 - **Cohorts** — KPGP (GRCh38), SGDP (GRCh38), PGP (GRCh37). All held out from
   the gnomAD AF>=1% blueprint the caches are built over.
-- **Levels** — core (consequences only) and clinical (core + ClinVar + gnomAD
-  allele frequencies). VEP's `--everything` cache already sits at the clinical
-  level, which is what fixes the target for the other two.
+- **Configurations** — VEP `--everything`, fastVEP core and supplementary
+  databases, and SnpEff core/clinical. They are realistic native configurations,
+  not identical cross-tool outputs. Every reported speed-up compares direct and
+  cached execution of the same tool and recipe.
 
 GIAB genomes and the 1000 Genomes primary cohort appear in the early entries
 below. **GIAB was dropped** and no GIAB result supports any manuscript claim;

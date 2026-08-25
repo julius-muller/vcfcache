@@ -59,3 +59,32 @@ Primary runs, by archive directory:
 
 - `*-grch38-v2-serial*` — fastVEP clinical, SnpEff clinical (GRCh38)
 - `*-grch37-v3-serial*` — fastVEP clinical, SnpEff core, SnpEff clinical (GRCh37)
+
+## 2026-08-25 — audit corrections and aborted narrow VEP exploration
+
+| job | what | outcome |
+|---|---|---|
+| 1199 | retained-output `hu6664F3` diagnostic | failed before comparison — submitted as `ubuntu`, which cannot execute the `appuser` VCFcache environment |
+| 1201 | diagnostic under `appuser` | annotation completed; comparator failed because core SnpEff correctly has no clinical INFO tags |
+| 1205 | corrected core + clinical WES diagnostic | **complete** — one warning-only difference at `chr2:11273459 C>T` in both levels; exact values archived under `raw/diagnostics/hu6664F3/` |
+| 1214 | toolchain fingerprint | **complete** — binaries, versions, references, transcript caches and supplementary databases frozen under `benchmarks/reproduction/final_clinical_campaign/toolchain/` |
+| 1203 | first matched-VEP recipe smoke, both assemblies | passed, then superseded because it included gnomAD genome and exome frequencies while the fastVEP/SnpEff level uses the prepared exome source |
+| 1206 | first VEP cache-build attempt | failed before annotation — build script pre-created an invalid empty database directory |
+| 1210 | second VEP cache-build attempt | failed before annotation — VEP statistics directory absent |
+| 1215 | third VEP cache-build attempt | failed before annotation — VEP HTML statistics path not container-visible; annotator reports removed consistently |
+| 1220 | broader-load cache build | canceled when the exome-only load mismatch was identified; no measurements accepted |
+| 1225 | exact ClinVar + gnomAD-exome VEP smoke, both assemblies | **passed** |
+| 1226 | exact-load builds | GRCh37 task completed only by detecting/reusing the wrong broader cache and was excluded; GRCh38 task canceled at 09:03 CEST before completion; no measurements accepted |
+| 1231 | exact-load GRCh37 rebuild with recipe-identity guard | canceled by design at 09:03 CEST before completion; no measurements accepted |
+| 1232/1233 | dependent narrow-load VEP campaigns, GRCh37/GRCh38 | canceled while still dependency-pending; no array task started |
+| 1236 | direct-SnpEff context matrix for `chr2:11273459 C>T` | **complete** — target alone is warning-free from both sample and blueprint; the blueprint ±1 kb context introduces the warning |
+| 1237 | first minimal direct-SnpEff reproducer | failed before annotation because of a shell-local initialization error; no result produced |
+| 1238 | corrected minimal direct-SnpEff reproducer | **complete** — preceding `chr2:11273458 A>AC` adds the warning; reversing the same two records removes it |
+| 1241 | compact public-ticket reproducer verification | **complete** — all three minimal VCFs reproduced the expected warning pattern and target ANN digests |
+
+The narrow-load campaign was abandoned after review established that common
+source labels would not produce identical annotation work or output across VEP,
+fastVEP and SnpEff. Existing VEP `--everything` measurements remain the native
+annotation-rich VEP result. The exploratory scripts are retained as provenance
+only and are excluded from summaries, figures and claims. The recipe-identity
+guard remains a useful general safeguard for future cache builds.
