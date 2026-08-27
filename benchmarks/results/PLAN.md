@@ -1,6 +1,6 @@
 # Plan: the annotation-configuration matrix
 
-Status as of 2026-08-22.
+Status as of 2026-08-25.
 
 ## Why this matrix exists
 
@@ -17,13 +17,13 @@ of configuration.
 
 ## The fact that shapes it
 
-VEP's offline cache 115 already ships ClinVar 202502, gnomAD exomes and genomes
-v4.1, dbSNP 156, SIFT, PolyPhen, COSMIC and the regulatory build. With
-`--everything`, **VEP is already at the clinical level** — it needs no rerun.
-
-That fixes the target for the other two: adding ClinVar + gnomAD allele
-frequencies brings fastVEP and SnpEff to a level VEP already occupies, using
-sources all three support natively.
+VEP's offline cache 115 ships ClinVar, gnomAD, dbSNP, SIFT, PolyPhen, COSMIC and
+the regulatory build, so `--everything` is the realistic annotation-rich VEP
+condition. VEP, fastVEP and SnpEff do not expose identical transcript models,
+consequence/HGVS implementations or output schemas; a narrower VEP command
+would standardize some source names but not the actual annotation work. The
+matrix therefore spans realistic native configurations and makes inference
+within each tool, not from absolute runtime rankings between tools.
 
 ## Levels
 
@@ -33,9 +33,9 @@ sources all three support natively.
 
 | tool | L1 core | L2 clinical |
 |---|---|---|
-| VEP | not run — would need a new VEP cache (~10 h) | **done** (`--everything`, both assemblies) |
-| fastVEP | **done** (both assemblies, 52 genomes) | annotations built; caches outstanding |
-| SnpEff | GRCh38 **done**; GRCh37 building | GRCh38 and GRCh37 building |
+| VEP | not run | **done** (`--everything --hgvsg`, both assemblies; annotation-rich) |
+| fastVEP | **done** (both assemblies, 52 genomes) | **done** (both assemblies) |
+| SnpEff | GRCh38 **done**; GRCh37 **done** | GRCh38 and GRCh37 **done** |
 
 `benchmarks/vep_plugins/SyntheticDelay.pm` remains the controlled continuous
 sweep of per-variant cost. It models the axis; it does not compare tools.
@@ -46,10 +46,10 @@ PGP is the cohort with the least gnomAD-overlap concern and it is GRCh37, while
 KPGP and SGDP are GRCh38. Every tool therefore needs both.
 
 The concern this answers: ~92% of a random genome's variants falling in the
-gnomAD AF>=1% blueprint could look tuned. It is not. Hit rates are 91.95% (KPGP),
-93.04% (SGDP) and 92.66% (PGP) — PGP is a different provider on a different
-assembly and lands in the same place, which argues the rate is biological rather
-than a property of the sample selection.
+gnomAD AF>=1% blueprint could look tuned. It is not. The older 52-genome cohort
+gave 91.95% (KPGP), 93.04% (SGDP) and 92.66% (PGP). The final 12-genome PGP
+selection differs by two samples and gives 95.8%; the two estimates are kept
+separate and their exact sample lists are frozen.
 
 ## Cache builds
 
@@ -58,29 +58,79 @@ Immutable per recipe, so each level needs its own genome-wide build over the
 
 | cache | assembly | estimate | state |
 |---|---|---|---|
-| SnpEff core | GRCh38 | 2:55:28 measured | done |
-| SnpEff core | GRCh37 | ~3 h | building (job 1000) |
-| SnpEff clinical | GRCh38 | ~12.4 h | building (job 995) |
-| SnpEff clinical | GRCh37 | ~8-10 h | building (job 999) |
-| fastVEP clinical | GRCh38 | ~2 h | annotations built; cache outstanding |
-| fastVEP clinical | GRCh37 | ~2 h | annotations building (job 997) |
+| SnpEff core | GRCh38 | 2:55:28 | **done** |
+| SnpEff core | GRCh37 | 3:01:38 | **done** |
+| SnpEff clinical | GRCh38 | 13:11:20 | **done** |
+| SnpEff clinical | GRCh37 | 7:20:53 | **done** |
+| fastVEP clinical | GRCh38 | 28:49 | **done** |
+| fastVEP clinical | GRCh37 | 6:05 | **done** |
+
+The two fastVEP estimates were ~2 h; both were wrong by more than an order of
+magnitude, in the direction of fastVEP being far cheaper than scaling from
+SnpEff suggested. Estimates in this table are labelled as such.
 
 The partition's `MaxTime` was raised from 12 h to 24 h so the clinical builds fit
-serially. That matters: a split build would still produce a valid cache, but it
+serially. That was necessary rather than precautionary: the GRCh38 clinical build
+took **13:11:20** and would have been killed at the old limit. That matters: a split build would still produce a valid cache, but it
 would be the one artefact in the matrix not made the way the paper says
 annotation is run.
 
 ## Outstanding
 
-1. Finish the five caches above.
-2. Campaigns: 12 GRCh38 genomes and 12 PGP GRCh37 genomes, Panel/WES/WGS,
-   direct and cached, at both levels.
-3. Fold SnpEff and the clinical level into the manuscript; register the new
-   claims in `claims.tsv`.
-4. Reconcile the cohort-confounding wording in `sections/03_findings.md` with the
+1. ~~Build the five caches.~~ **All five are built and content-verified.**
+2. ~~Campaigns.~~ **Done** — 180 cells, 176 concordant. See `RESULTS.md`.
+3. ~~Assess a narrow VEP clinical arm.~~ **Closed** — exact three-tool output is
+   not natively achievable; exploratory builds and campaigns were canceled
+   before timed measurements.
+4. Fold the native VEP, fastVEP and SnpEff results into the manuscript without
+   presenting cross-tool wall time as a controlled annotator ranking.
+5. Reconcile the cohort-confounding wording in `sections/03_findings.md` with the
    requirement that PGP appears in every arm.
 
+## Assembly is a cost axis for one annotator and not the other
+
+Measured on the built caches, chr22, annotations per record:
+
+| | GRCh37 | GRCh38 | ratio | build time ratio |
+|---|---|---|---|---|
+| fastVEP | 3.19 | 12.14 | 3.8x | 4.7x (6:05 -> 28:49) |
+| SnpEff | 4.27 | 12.29 | 2.9x | 0.97x (3:01:38 -> 2:55:28) |
+
+Both annotators agree the assemblies differ: `GRCh37.75` is Ensembl release 75
+and carries a far smaller transcript set than `GRCh38.115`, so every variant has
+roughly a third of the consequences to compute. fastVEP's runtime tracks that
+almost exactly. **SnpEff's does not move at all** -- it took marginally longer on
+the assembly with a third of the work.
+
+So SnpEff's per-variant cost is dominated by fixed per-record overhead rather
+than per-transcript work, while fastVEP's is dominated by the annotation itself.
+
+Two consequences for how the results are read:
+
+- **Hit rates stay comparable across assemblies.** Cache membership is
+  annotator-independent, so the 91.95 / 93.04 / 92.66% across KPGP / SGDP / PGP
+  remains a fair comparison and still defends the ~92% figure.
+- **Speedups are not comparable across assemblies for fastVEP.** A lower fastVEP
+  speedup on the GRCh37 PGP genomes would mean "less per-variant work to return",
+  not a cohort effect. Presenting them side by side without that caveat invites
+  exactly the wrong reading. For SnpEff the assembly is close to a null variable
+  and PGP can be read as a straight replicate.
+
+This strengthens the break-even argument rather than complicating it: caching
+returns per-variant work regardless of whether that work is consequence
+calculation, database lookup or fixed per-record overhead. The native-tool
+results show that behaviour in realistic configurations, while
+`SyntheticDelay.pm` supplies the controlled cost axis.
+
 ## Open questions
+
+- `hu6664F3` fails concordance on SnpEff at WES and WGS scale (both levels),
+  while its panels and every fastVEP assay pass with matching record counts.
+  Retained-output job 1205 isolated one warning-only difference at
+  `chr2:11273459 C>T`: cache-build SnpEff adds
+  `WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS` to two consequences while direct
+  WES SnpEff omits it. The four cells remain excluded; no broad exception is
+  applied.
 
 - `LP6005592-DNA_C05` has 6.17 M variants against 4.6-5.0 M for its siblings and
   a 78.98% hit rate against a 91-93% band. Its indel fraction matches the others,

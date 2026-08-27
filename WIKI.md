@@ -631,6 +631,28 @@ This means that while VCFcache guarantees functional equivalence (same variants 
 
 **Recommendation**: For validation purposes, compare annotation content semantically (e.g., verify that the same variants have the same CSQ tags) rather than relying solely on MD5 checksums when using affected VEP versions.
 
+**SnpEff 5.4c processing-order-dependent transcript warning**
+
+An untimed direct-SnpEff reproducer found that the diagnostic token
+`WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS` can depend on record order. For the
+tested `GRCh37.75` database, `chr2:11273459 C>T` has no warning when annotated
+alone. Processing the adjacent `chr2:11273458 A>AC` first adds the warning to two
+`C2orf50` consequences; reversing the same two records removes it. VCFcache was
+not involved in the reproducer, and the consequence, transcript and HGVS values
+were unchanged.
+
+**Impact**: This is an upstream transcript-diagnostic metadata difference, not
+evidence that SnpEff intentionally uses other variants' INFO fields for
+consequence annotation. Exact record equality cannot be claimed for an affected
+SnpEff recipe until upstream behavior is resolved. VCFcache does not suppress
+or rewrite this warning.
+
+**Recommendation**: Treat an affected SnpEff cache as experimental, compare the
+complete `ANN` field during validation, and report any warning-only differences
+explicitly. The copy-ready upstream report and verified minimal reproducer are
+documented in
+[`benchmarks/docs/SNPEFF_PROCESSING_ORDER_BUG.md`](benchmarks/docs/SNPEFF_PROCESSING_ORDER_BUG.md).
+
 ---
 
 ## 10) CLI reference (all commands & flags)

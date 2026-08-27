@@ -1,0 +1,13 @@
+genome_build: GRCh37
+annotation_tool_cmd: /results/snpeff/dist/jre/bin/java
+bcftools_cmd: bcftools
+temp_dir: /mnt/data/tmp/b1-1000/tmp
+threads: 8
+java_cmd: /results/snpeff/dist/jre/bin/java
+snpeff_jar: /results/snpeff/dist/snpEff/snpEff.jar
+snpeff_config: /results/snpeff/dist/snpEff/snpEff.config
+snpeff_data: /results/snpeff/dist/snpEff/data
+snpeff_genome: GRCh37.75
+optional_checks: {}
+snpeff_parallel: /results/snpeff/dist/snpeff_parallel.sh
+snpeff_clinical_run: /results/snpeff/dist/snpeff_clinical_run.sh

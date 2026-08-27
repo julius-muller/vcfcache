@@ -7,10 +7,12 @@ per-variant work but never its start-up cost. Testing it needs points spanning a
 range of per-variant cost, and every point must be a configuration somebody
 would actually run.
 
-The campaigns as originally run did not satisfy the second condition. VEP ran
-its maximal built-in configuration while fastVEP and SnpEff ran their documented
-minimums, so part of the measured spread was configuration rather than
-annotator. `TODO.md` recorded this as an unresolved, paper-critical gap.
+The configurations intentionally span native workloads rather than pretending
+to form a controlled annotator race. VEP, fastVEP and SnpEff cannot produce an
+identical minimalist record: their transcript models, consequence and HGVS
+implementations, supplementary fields and output schemas differ. The paper
+therefore estimates the effect of caching within each tool and treats cross-tool
+wall times only as context.
 
 ## The levels
 
@@ -20,16 +22,20 @@ start-up-bound regime visible, and it is the only level at which a fast
 annotator can be shown to lose time.
 
 **Level 2 — clinical.** Core plus ClinVar and gnomAD allele frequencies. This is
-the realistic level.
+a realistic native configuration for fastVEP and SnpEff, not an assertion of
+identical output between tools.
 
-VEP's offline cache 115 already ships ClinVar 202502, gnomAD exomes v4.1 and
-gnomAD genomes v4.1 alongside dbSNP, SIFT, PolyPhen, COSMIC and the regulatory
-build. With `--everything` VEP therefore already sits at level 2, and its
-existing campaigns are reused unchanged — VEP is not re-run.
+VEP's offline cache 115 ships ClinVar and gnomAD alongside dbSNP, SIFT,
+PolyPhen, COSMIC and the regulatory build. `--everything` enables these
+efficiently from VEP's prepared cache and remains the real-world
+annotation-rich VEP condition. An exploratory narrower recipe
+(`--hgvs --check_existing --af_gnomade`) was not promoted to a publication
+campaign because it would still not make VEP output or computational work
+identical to fastVEP or SnpEff.
 
 | annotator | level 1 | level 2 |
 |---|---|---|
-| VEP 115.2 | not measured (would need a new cache) | `--everything --hgvsg`, existing |
+| VEP 115.2 | not measured | `--everything --hgvsg`, existing annotation-rich condition |
 | fastVEP 0.3.0 | `--hgvs --no-progress`, existing | + ClinVar + gnomAD via `sa-build` / `--sa-dir` |
 | SnpEff 5.4c | bare `ANN` | + ClinVar + gnomAD via `SnpSift annotate` |
 
@@ -40,20 +46,20 @@ gnomAD-overlap concern of the three cohorts, so it is required in every
 comparison rather than optional, and every annotator therefore needs both
 assemblies.
 
-The observed hit rates support treating the cohorts as comparable: against the
-gnomAD AF >=1% cache the medians are 91.95% (KPGP), 93.04% (SGDP) and 92.66%
-(PGP). PGP is a different provider on a different assembly and lands in the same
-place, which is what one expects if the rate reflects the fraction of an
-individual genome that is common variation rather than any leakage between
-cache and evaluation set.
+The older 52-genome cohort gave median gnomAD AF >=1% hit rates of 91.95%
+(KPGP), 93.04% (SGDP) and 92.66% (PGP). The final campaign uses a frozen
+12-genome subset per assembly; its PGP selection differs by two genomes and
+has a 95.8% median. These are separate estimates, not conflicting results.
 
 ## Cross-tool comparability
 
 `ANNOTATOR_FOLLOWUP_PLAN.md` governs: the question is how much VCFcache reduces
-each annotator's runtime, not which annotator is best. Cross-tool wall times are
-context, not speedups. The levels therefore do not force identical annotation
-content across tools — they place each tool in a configuration a practitioner
-would recognise, at two separated levels of per-variant cost.
+each annotator's runtime, not which annotator is best. Every speed-up pairs
+direct and cached execution of the same native recipe. Cross-tool wall times are
+context only and are not labelled workload-matched or like-for-like. The
+annotation-rich VEP and dense fastVEP experiments, the SnpEff core/clinical
+contrast and the synthetic-delay sweep jointly test how benefit changes with
+pipeline cost.
 
 ## Sources
 

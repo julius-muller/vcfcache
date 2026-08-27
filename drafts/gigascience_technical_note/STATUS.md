@@ -12,6 +12,9 @@ Status: publication-format working draft
 - concise abstract, Findings, Methods, availability, and declarations
 - reproducible Markdown, LaTeX, DOCX, and PDF build with justified body text
 - independent-sample VEP and fastVEP performance results
+- final 180-cell fastVEP/SnpEff native annotation campaign, with 176 strict
+  passes and four transparently excluded upstream warning-only SnpEff pairs
+- direct-SnpEff minimal reproducer and copy-ready upstream issue report
 - complete 72-cell matched Panel/WES/WGS extension with 48 newly measured
   Panel/WES cells and no execution or semantic failures
 - held-out-WGS fastVEP CPU-by-annotation-complexity experiment with strict

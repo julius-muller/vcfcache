@@ -1,0 +1,7 @@
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+LP6005443-DNA_B07	sgdp	snpeff	clinical	GRCh38	panel	direct	101.218381035	245	245		673b1eb3c03e32416a20d61a69073c1a	
+LP6005443-DNA_B07	sgdp	snpeff	clinical	GRCh38	panel	cached	92.941018925	245	245	15	673b1eb3c03e32416a20d61a69073c1a	PASS
+LP6005443-DNA_B07	sgdp	snpeff	clinical	GRCh38	wes	direct	499.765412097	81015	81015		68b7277ef73416c8c16566e00f8eb94c	
+LP6005443-DNA_B07	sgdp	snpeff	clinical	GRCh38	wes	cached	.304378123	81015	245		673b1eb3c03e32416a20d61a69073c1a	FAIL
+LP6005443-DNA_B07	sgdp	snpeff	clinical	GRCh38	wgs	direct	8884.400208792	4690406	4690406		00df1a5fab18d3013368e4e942691775	
+LP6005443-DNA_B07	sgdp	snpeff	clinical	GRCh38	wgs	cached	.313030911	4690406	245		673b1eb3c03e32416a20d61a69073c1a	FAIL

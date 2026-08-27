@@ -23,6 +23,13 @@ an evaluation-sample replicate and was excluded from all summaries. The need
 for this control was established before retaining extension timings, when a
 discarded pilot showed that cold-state condition order dominated short cells.
 
+The final clinical campaign used 12 independent genomes per assembly and five
+tool/recipe/assembly arms: clinical fastVEP on GRCh38 and GRCh37, clinical
+SnpEff on both assemblies, and core SnpEff on GRCh37. Panel, WES and WGS cells
+each contained one direct and one cached run. The gnomAD AF ≥1% blueprint set
+cache membership; every cache was annotated locally with its own frozen recipe.
+No cache annotation was transferred between tools.
+
 Medians summarize sample-level speedups. Stratified bootstrap intervals used
 10,000 resamples within KPGP, SGDP and PGP while preserving a sampled genome's
 paired conditions. This respects the deliberately heterogeneous 20/20/12

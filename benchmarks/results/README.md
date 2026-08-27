@@ -9,10 +9,15 @@ that make them interpretable:
 
 | file | what it is |
 |---|---|
+| `RUN_LOG.md` | every cluster job run, in order, with its outcome |
+| `RESULTS.md` | **the findings** — final campaign table and what it shows |
+| `campaign_metrics.tsv` | all 360 campaign rows, one per genome/assay/condition |
+| `campaign_summary.tsv` | validated medians generated from accepted direct/cached pairs |
+| `concordance_failures.tsv` | the four explicitly excluded cells and their digests |
 | `README.md` | this file: goals, index, and the history log |
 | `GUIDELINES.md` | how a benchmark is run and what has to be stored |
 | `PLAN.md` | the annotation-configuration matrix and what is still outstanding |
-| `raw/` | tool output exactly as written, never edited |
+| `raw/` | results and provenance: metrics, manifests, timings, cluster config |
 
 ## Goals
 
@@ -33,9 +38,10 @@ that make them interpretable:
 - **Assays** — ACMG SF v3.3 panel, Twist core exome, whole genome.
 - **Cohorts** — KPGP (GRCh38), SGDP (GRCh38), PGP (GRCh37). All held out from
   the gnomAD AF>=1% blueprint the caches are built over.
-- **Levels** — core (consequences only) and clinical (core + ClinVar + gnomAD
-  allele frequencies). VEP's `--everything` cache already sits at the clinical
-  level, which is what fixes the target for the other two.
+- **Configurations** — VEP `--everything`, fastVEP core and supplementary
+  databases, and SnpEff core/clinical. They are realistic native configurations,
+  not identical cross-tool outputs. Every reported speed-up compares direct and
+  cached execution of the same tool and recipe.
 
 GIAB genomes and the 1000 Genomes primary cohort appear in the early entries
 below. **GIAB was dropped** and no GIAB result supports any manuscript claim;
@@ -91,7 +97,15 @@ was flawed and the numbers do not estimate what they appear to.
 | 2026-08-21 | `snpeff-core-grch38-wgs-serial` | **SnpEff core WGS, 12 genomes, serial**; median 8.17x, median hit rate 92.58% | primary |
 | 2026-08-22 | SnpEff clinical gates | GRCh38 and GRCh37 both passed: cached output identical to direct on ANN + CLNSIG + AF | primary |
 | 2026-08-22 | SnpEff core GRCh37 gate | Passed; the newly installed GRCh37.75 database validated against VCFcache | primary |
-| 2026-08-22 | fastVEP clinical annotations | ClinVar and gnomAD `.osa2` built for GRCh38 (GRCh37 in progress) | primary |
+| 2026-08-22 | fastVEP clinical annotations | ClinVar and gnomAD `.osa2` built for **both** assemblies | primary |
+| 2026-08-23 | Campaigns v1 (jobs 1003-1023) | Invalidated: stale outputs across assays, duplicate PGP inputs, contig-order digest | **excluded** |
+| 2026-08-24 | **Final campaign** (jobs 1102-1165) | 180 cells, 12 genomes x 3 assays x 2 conditions x 5 tool/level/assembly arms; 176/180 concordant. See `RESULTS.md` | primary |
+| 2026-08-22 | fastVEP clinical gates | GRCh38 and GRCh37 both passed on CSQ + FV_CLINVAR + FV_GNOMAD | primary |
+| 2026-08-22 | `fastvep_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 625 MB, built in 6:05 | primary |
+| 2026-08-22 | `fastvep_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.9 GB, built in 28:49 | primary |
+| 2026-08-22 | `snpeff_core_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 682 MB, built in 3:01:38 | primary |
+| 2026-08-22 | `snpeff_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 721 MB, built in 7:20:53 | primary |
+| 2026-08-22 | `snpeff_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.5 GB, built in 13:11:20 | primary |
 
 ### Measured constants worth keeping in one place
 
@@ -104,3 +118,9 @@ was flawed and the numbers do not estimate what they appear to.
 | SnpEff clinical per-variant cost, GRCh38 | ~2.37 ms | two-point fit, start-up separated |
 | SnpEff clinical start-up | ~215 s | three JVM loads plus database reads |
 | fastVEP cache overhead | 21.7 s + 27.5 us per variant | `benchmarks/analyze_breakeven.py` |
+| SnpEff core cache build, GRCh37, 18.67 M alleles | 3:01:38 | `raw/snpeff/results/build_time_snpeff_core_grch37_af001.txt` |
+| fastVEP clinical cache build, GRCh37 | 6:05 | `raw/richness/results/build_time_fastvep_clinical_grch37_af001.txt` |
+| fastVEP clinical cache build, GRCh38 | 28:49 | `raw/richness/results/build_time_fastvep_clinical_grch38_af001.txt` |
+| Annotations per record, chr22, GRCh37 / GRCh38 | fastVEP 3.19 / 12.14; SnpEff 4.27 / 12.29 | `bcftools query` over the built caches |
+| SnpEff clinical cache build, GRCh37 / GRCh38 | 7:20:53 / 13:11:20 | `raw/snpeff/results/build_time_snpeff_clinical_*.txt` |
+| Clinical content, chr22 (CLNSIG / gnomAD AF) | SnpEff 3061 / 27581 (GRCh37), 3069 / 28591 (GRCh38); fastVEP 3437 / 28904 (GRCh37) | `bcftools query` over the built caches |

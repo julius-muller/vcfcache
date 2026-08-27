@@ -1,0 +1,7 @@
+sample	cohort	tool	level	assembly	assay	condition	wall_seconds	input_records	output_records	missing_variants	digest	concordant
+hu6664F3	pgp	snpeff	clinical	GRCh37	panel	direct	42.125032794	254	254		f9ac5608afafff049e3160d8070a73cc	
+hu6664F3	pgp	snpeff	clinical	GRCh37	panel	cached	39.013107684	254	254	26	f9ac5608afafff049e3160d8070a73cc	PASS
+hu6664F3	pgp	snpeff	clinical	GRCh37	wes	direct	425.138455449	86997	86997		37fbec0f79d3e0df1ef20f0e353f98a2	
+hu6664F3	pgp	snpeff	clinical	GRCh37	wes	cached	135.068405772	86997	86997	12340	1ee22f8ad9c8b5ee49af6be11e3ad456	FAIL_CONTENT
+hu6664F3	pgp	snpeff	clinical	GRCh37	wgs	direct	6527.322428169	4989374	4989374		4a6c7b0bf4f7bf8be90b34f30549a62c	
+hu6664F3	pgp	snpeff	clinical	GRCh37	wgs	cached	1070.750443470	4989374	4989374	640584	1968c0618b91767ac934587d6809adfd	FAIL_CONTENT

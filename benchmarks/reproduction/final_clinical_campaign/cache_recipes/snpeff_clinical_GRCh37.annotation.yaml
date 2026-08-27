@@ -1,0 +1,10 @@
+genome_build: "GRCh37"
+annotation_cmd: |
+  ${params.snpeff_clinical_run} \
+    \${INPUT_BCF} \${OUTPUT_BCF} \${AUXILIARY_DIR} \
+    ${params.java_cmd} ${params.snpeff_jar} ${params.snpeff_config} \
+    ${params.snpeff_data} ${params.snpeff_genome}
+
+must_contain_info_tag: ANN
+required_tool_version: "5.4"
+optional_checks: {}

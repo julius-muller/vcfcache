@@ -1,4 +1,4 @@
-# collected 2026-08-22T10:53:02+02:00 from sl-head
+# collected 2026-08-22T13:12:01+02:00 from sl-head
 
 ## partition
 PartitionName=benchmark
@@ -18,19 +18,19 @@ PartitionName=benchmark
 
 ## a compute node
 NodeName=sl-w1 Arch=x86_64 CoresPerSocket=1 
-   CPUAlloc=0 CPUEfctv=16 CPUTot=16 CPULoad=0.10
+   CPUAlloc=16 CPUEfctv=16 CPUTot=16 CPULoad=1.60
    AvailableFeatures=(null)
    ActiveFeatures=(null)
    Gres=(null)
    NodeAddr=10.0.0.64 NodeHostName=sl-w1 Version=25.11.2
    OS=Linux 7.0.0-14-generic #14-Ubuntu SMP PREEMPT_DYNAMIC Mon Apr 13 11:09:53 UTC 2026 
-   RealMemory=30000 AllocMem=0 FreeMem=26696 Sockets=16 Boards=1
-   State=IDLE ThreadsPerCore=1 TmpDisk=0 Weight=1 Owner=N/A MCS_label=N/A
+   RealMemory=30000 AllocMem=30000 FreeMem=16208 Sockets=16 Boards=1
+   State=ALLOCATED ThreadsPerCore=1 TmpDisk=0 Weight=1 Owner=N/A MCS_label=N/A
    Partitions=benchmark 
    BootTime=2026-07-31T14:57:31 SlurmdStartTime=2026-08-21T06:08:07
    LastBusyTime=2026-08-22T10:20:05 ResumeAfterTime=None
    CfgTRES=cpu=16,mem=30000M,billing=16
-   AllocTRES=
+   AllocTRES=cpu=16,mem=30000M
    CurrentWatts=0 AveWatts=0
 
 
