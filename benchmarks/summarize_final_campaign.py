@@ -14,7 +14,6 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
-
 PAIR_FIELDS = ("sample", "cohort", "tool", "level", "assembly", "assay")
 GROUP_FIELDS = ("tool", "level", "assembly", "assay")
 SUMMARY_FIELDS = (
@@ -35,6 +34,7 @@ def _median(values: list[float]) -> float:
 
 
 def read_and_pair(path: Path) -> dict[tuple[str, ...], dict[str, dict[str, str]]]:
+    """Read campaign metrics and pair direct and cached rows by benchmark cell."""
     pairs: dict[tuple[str, ...], dict[str, dict[str, str]]] = defaultdict(dict)
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
@@ -73,6 +73,7 @@ def read_and_pair(path: Path) -> dict[tuple[str, ...], dict[str, dict[str, str]]
 def summarize(
     pairs: dict[tuple[str, ...], dict[str, dict[str, str]]]
 ) -> tuple[list[dict[str, object]], list[dict[str, str]]]:
+    """Summarize concordant pairs and retain explicit excluded-cell records."""
     valid: dict[tuple[str, ...], list[dict[str, float]]] = defaultdict(list)
     failed_by_group: dict[tuple[str, ...], int] = defaultdict(int)
     failures: list[dict[str, str]] = []
@@ -152,6 +153,7 @@ def summarize(
 def write_tsv(
     path: Path, fieldnames: tuple[str, ...], rows: list[dict[str, object]]
 ) -> None:
+    """Write dictionaries to a tab-separated table with a fixed schema."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
@@ -160,6 +162,7 @@ def write_tsv(
 
 
 def main() -> None:
+    """Validate a campaign table and emit summaries and failure records."""
     parser = argparse.ArgumentParser()
     parser.add_argument("metrics", type=Path)
     parser.add_argument("--summary", type=Path, required=True)

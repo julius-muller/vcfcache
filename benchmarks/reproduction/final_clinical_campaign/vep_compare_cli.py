@@ -11,6 +11,7 @@ from benchmarks.run_pilot import semantic_compare
 
 
 def main() -> None:
+    """Run VEP semantic comparison and write its structured report."""
     parser = argparse.ArgumentParser()
     parser.add_argument("direct", type=Path)
     parser.add_argument("cached", type=Path)

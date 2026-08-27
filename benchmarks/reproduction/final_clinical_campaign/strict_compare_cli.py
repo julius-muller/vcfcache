@@ -11,6 +11,7 @@ from benchmarks.run_pilot import strict_semantic_compare
 
 
 def main() -> None:
+    """Run strict comparison and write its structured report."""
     parser = argparse.ArgumentParser()
     parser.add_argument("direct", type=Path)
     parser.add_argument("cached", type=Path)

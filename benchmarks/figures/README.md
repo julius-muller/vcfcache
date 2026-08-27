@@ -206,3 +206,24 @@ headline, and the incremental benefit of the AF >= 1% cache are also exported.
   runtime rule. The newer `headliner_scenario_map` instead uses annotator-specific
   median overhead inferred from the 52 real-world genomes and labels its cells
   as modeled scenarios.
+
+## Render the final native-annotator figure set
+
+The additive `2026-08-25T224623Z-native-annotation-final-v3` snapshot combines
+the completed native VEP, fastVEP, and SnpEff campaigns without ranking tools by
+their unlike annotation recipes. It also contains the paired SnpEff core versus
+clinical analysis and the controlled dual-cache VEP pipeline spectrum.
+
+```bash
+Rscript --vanilla benchmarks/figures/R/render_final_native_campaign.R \
+  benchmarks/results/campaign_metrics.tsv \
+  benchmarks/external_assay_v3/source_data/external_assay_v3_metrics.tsv \
+  benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/source/dual_cache_pipeline_spectrum.tsv \
+  benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3
+```
+
+The snapshot includes SVG, PDF, and 600 dpi PNG composites, separately exported
+high-resolution manuscript panels, source tables, source provenance, an output
+manifest, and proposed journal captions in `FIGURE_INDEX.md`. The 12 matched
+GRCh38 genomes are KPGP/SGDP samples; no 1000 Genomes sample contributes to the
+combined native-annotator figure.

@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 def rows(path: Path) -> dict[tuple[str, str, str, str], tuple[str, str, str]]:
+    """Load SnpEff annotations keyed by normalized variant identity."""
     fmt = r"%CHROM\t%POS\t%REF\t%ALT\t%INFO/ANN\t%INFO/CLNSIG\t%INFO/AF\n"
     proc = subprocess.Popen(
         ["bcftools", "query", "--allow-undef-tags", "-f", fmt, str(path)],
@@ -29,10 +30,12 @@ def rows(path: Path) -> dict[tuple[str, str, str, str], tuple[str, str, str]]:
 
 
 def canonical(value: str) -> tuple[str, ...]:
+    """Return a list-valued annotation in deterministic lexical order."""
     return tuple(sorted(value.split(",")))
 
 
 def main() -> None:
+    """Compare direct and cached SnpEff records from command-line paths."""
     parser = argparse.ArgumentParser()
     parser.add_argument("direct", type=Path)
     parser.add_argument("cached", type=Path)
