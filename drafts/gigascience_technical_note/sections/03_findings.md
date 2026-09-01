@@ -7,23 +7,25 @@ VEP or SnpEff data caches avoid repeated database downloads, but each invocation
 still computes every requested consequence [@mclaren2016vep;
 @cingolani2012snpeff]. Field-transfer tools can copy selected columns from a
 donor VCF, but do not define how missing alleles traverse a composite pipeline
-[@danecek2021bcftools; @vcfanno2016]. VCFcache instead stores the output of a
-fixed recipe: annotator version, flags, plugins and supplementary databases.
-For each new sample, cached alleles are retrieved, misses pass through that
-same recipe, and both paths are assembled as a sorted, indexed BCF (Figure 1).
+[@danecek2021bcftools; @vcfanno2016]. VCFcache instead stores the completed
+output of a frozen recipe: annotator version, flags, plugins and supplementary
+databases. For each new sample, cached alleles are retrieved, misses pass
+through the same recipe, and both paths are assembled as a sorted, indexed BCF
+(Figure 1).
 
-![](figures/main/figure1_workflow_v3.png){width=100%}
+![](figures/main_v4/figure1_workflow_and_value_v4.png){width=100%}
 
-**Figure 1: Recipe-specific cache construction and per-sample annotation
-reuse.** (A) Users may download a ready-to-use cache when build, annotator and
-recipe match; annotate a public blueprint once with a custom recipe; or build a
-blueprint from cohort variants. (B) A new sample is normalized and divided by
-cache lookup. Stored annotations are returned for hits, only misses are
-annotated, and both paths are merged into a coordinate-sorted, indexed BCF.
-BCF, binary variant call format.
+**Figure 1: VCFcache reuses annotation work without changing the completed
+record set.** (A) Each input VCF is matched against a recipe-specific cache.
+Existing annotations are retrieved, only cache misses are sent to the configured
+annotator, and both streams are merged and sorted into a complete output VCF.
+Users may download a ready-to-use recipe cache or a blueprint from Zenodo. (B)
+Benefit is governed by cache coverage, the cost of the underlying annotation
+recipe and the number of samples over which any local cache build is amortized.
+BCF, binary variant call format; VCF, variant call format.
 
-For $N$ variants, fixed annotator start-up $s_{\mathrm{ann}}$, per-variant cost
-$t_{\mathrm{ann}}$, hit rate $f$ and VCFcache processing cost $C(N)$,
+For $N$ variants, annotator start-up $s_{\mathrm{ann}}$, per-variant cost
+$t_{\mathrm{ann}}$, cache hit rate $f$ and VCFcache processing cost $C(N)$,
 
 $$
 T_{\mathrm{direct}}=s_{\mathrm{ann}}+Nt_{\mathrm{ann}}, \qquad
@@ -31,112 +33,143 @@ T_{\mathrm{cached}}\approx s_{\mathrm{ann}}+(1-f)Nt_{\mathrm{ann}}+C(N).
 $$
 
 Caching helps when $fNt_{\mathrm{ann}}>C(N)$. It can return per-variant work,
-but not annotator start-up; consequently, high coverage alone does not
-guarantee acceleration for very small inputs or minimal recipes. A custom
-cache's one-time build cost is amortized as
+but not annotator start-up; high coverage therefore need not accelerate very
+small inputs or minimal recipes. A custom cache's one-time build cost is
+amortized as
 $T_{\mathrm{effective}}\approx T_{\mathrm{cached}}+T_{\mathrm{build}}/S$
 after $S$ uses.
 
-## Public and cohort caches accelerate held-out genomes
+## Assay scale and annotation cost determine practical benefit
 
-We evaluated 20 Korean Personal Genome Project (KPGP), 20 Simons Genome
-Diversity Project (SGDP) and 12 Harvard Personal Genome Project (PGP) genomes
-[@kpgp_data; @mallick2016sgdp; @ball2012pgp]. KPGP and SGDP remained in
-GRCh38, PGP in GRCh37. Three additional genomes from each provider formed
-disjoint cohort caches; relatedness screening prevented a second-degree-or-
-closer training/evaluation pair. The public alternatives were bundled,
+Twelve independent GRCh38 genomes (six KPGP and six SGDP) were represented as
+matched ACMG panel, WES and WGS inputs and evaluated with the bundled gnomAD
+AF ≥1% cache. Each native annotator configuration was compared only with its
+own direct baseline. VEP `--everything` produced median speedups of 0.71-,
+2.29- and 9.50-fold for Panel, WES and WGS, respectively. The corresponding
+values were 0.46-, 0.93- and 2.54-fold for clinical fastVEP and 1.06-, 2.66-
+and 10.78-fold for clinical SnpEff (Figure 2). Thus fixed lookup and output
+costs can outweigh saved work for small inputs, whereas WGS contained enough
+recoverable work to accelerate all three configurations.
+
+![](figures/main_v4/figure2_empirical_time_and_throughput_v4.png){width=100%}
+
+**Figure 2: VCFcache returns most WGS annotation time across three native
+annotator configurations.** Twelve independent GRCh38 genomes were tested as
+ACMG SF v3.3 Panel, Twist Human Core Exome WES and WGS inputs with the bundled
+gnomAD AF ≥1% strategy. VEP used `--everything`; fastVEP and SnpEff used their
+clinical recipes. Configurations are compared only against their own direct
+baseline. (A) Distribution of end-to-end runtime remaining after caching; the
+dashed line marks equal runtime. (B) Median serial throughput calculated as
+86,400 seconds divided by median per-sample wall time; open circles denote
+direct annotation and arrowheads denote VCFcache. Cohort shapes identify
+independent biological samples. AF, allele frequency; KPGP, Korean Personal
+Genome Project; SGDP, Simons Genome Diversity Project; VEP, Variant Effect
+Predictor; WES, whole-exome sequencing; WGS, whole-genome sequencing.
+
+For WGS, median serial throughput increased from 9.3 to 88.4 genomes per day
+for VEP, from 186.3 to 471.2 for fastVEP and from 9.9 to 105.4 for SnpEff under
+the benchmark allocations. These values show the operational effect of reuse
+within each recipe; they are not a ranking of annotators because the native
+recipes intentionally differ in annotation scope.
+
+## Cache coverage defines opportunity; pipeline cost determines time returned
+
+Across the 108 matched GRCh38 sample-tool-assay pairs, runtime remaining
+approached the zero-overhead expectation, $1-f$, as direct annotation became
+more expensive (Figure 3A). The deviation for Panel and some WES cells shows
+the fixed cost represented by $C(N)$; hit rate alone is insufficient to predict
+benefit for short jobs.
+
+![](figures/main_v4/figure3_runtime_rule_v4.png){width=100%}
+
+**Figure 3: Cache coverage defines the theoretical opportunity, while
+annotation cost determines how much time is returned.** (A) Observed runtime
+remaining for 108 matched GRCh38 sample-tool-assay pairs. Dashed curves show
+the zero-overhead expectation, $1-f$, for hit rate $f$; point area represents
+direct annotation time. Fixed lookup, preprocessing and output costs dominate
+very short Panel jobs but become small relative to WGS annotation. (B) One
+4.80-million-variant KPGP genome was processed with six controlled VEP loads
+and bundled gnomAD AF ≥10% and AF ≥1% caches. Solid lines show observed hours
+returned as pipeline cost increases; dashed lines show the cache-coverage
+opportunity, $f \times$ direct runtime. All 12 outputs passed semantic
+comparison. AF, allele frequency; KPGP, Korean Personal Genome Project; VEP,
+Variant Effect Predictor; WGS, whole-genome sequencing.
+
+The controlled VEP recipes spanned 4.2--22.7 hours without changing their
+annotation content. At 80.23% cache coverage, 19.7--21.7% of direct wall time
+remained (4.62--5.07-fold speedup); at 90.26% coverage, 9.9--11.9% remained
+(8.39--10.10-fold). For the longest recipe, VCFcache returned 18.19 and 20.45
+hours per genome at the two cache depths. Measured and coverage-predicted
+relative runtimes differed by at most 0.56 percentage points. Relative speedup
+therefore approaches a hit-rate ceiling even while the absolute time returned
+continues to grow with pipeline cost.
+
+## Public and cohort caches support different deployment models
+
+We next evaluated 20 KPGP, 20 SGDP and 12 Harvard PGP genomes
+[@kpgp_data; @mallick2016sgdp; @ball2012pgp]. KPGP and SGDP remained in GRCh38
+and PGP in GRCh37. Three additional, disjoint genomes from each provider formed
+cohort caches; relatedness screening prevented a second-degree-or-closer
+training/evaluation pair. The public alternatives were bundled,
 assembly-matched gnomAD v4.1 caches containing alleles reaching AF ≥10% or
 AF ≥1% in any reported frequency stratum [@gnomad2024release].
 
-With VEP 115.2 `--everything`, median end-to-end speedups across 52 genomes
-were 4.75-fold (AF ≥10%), 9.21-fold (AF ≥1%) and 4.59-fold (cohort cache).
-With fastVEP 0.3.0 core consequence/HGVS recipes, they were 1.84-, 2.05- and
-1.81-fold. Median AF ≥1% coverage was stable across KPGP, SGDP and PGP
-(91.95–93.04%), whereas three-genome cohort coverage ranged from 77.45% to
-82.88% (Supplementary Figure 1). The cohort caches repaid their measured build
-cost after two subsequent genomes; bundled caches require no local build.
+Across these 52 held-out genomes, VEP median end-to-end speedups were 4.75-fold
+(AF ≥10%), 9.21-fold (AF ≥1%) and 4.59-fold (cohort cache). With the core
+fastVEP recipe, they were 1.84-, 2.05- and 1.81-fold. Median AF ≥1% coverage
+was 91.95--93.04% across providers, whereas three-genome cohort coverage was
+77.45--82.88% (Supplementary Figure 1).
 
-## Assay size and annotation load set the break-even point
+![](figures/main_v4/figure4_cohort_economics_v4.png){width=100%}
 
-Twelve independent GRCh38 genomes were represented as matched ACMG panel, WES
-and WGS inputs. At similar median coverage (90.35–93.23%), VEP speedups were
-0.71-, 2.29- and 9.50-fold, whereas core fastVEP speedups were 0.31-, 0.54-
-and 2.02-fold (Figure 2). Panel and core-fastVEP exome cells were dominated by
-fixed workflow or annotator costs; genome-scale work was large enough to
-recover them.
+**Figure 4: A cohort-derived cache repays its build cost rapidly and returns
+cumulative compute time.** Three held-out real-world cohorts were evaluated
+with caches built from three disjoint genomes. (A) Effective speedup includes
+the complete one-time cache-build duration divided across the indicated cohort
+size; circles mark empirical break-even. (B) Compute days returned after build
+cost for cohorts of 10, 100 and 1,000 samples, using measured cohort-specific
+median direct and cached VEP WGS runtimes. KPGP, Korean Personal Genome Project;
+PGP, Personal Genome Project; SGDP, Simons Genome Diversity Project; VEP,
+Variant Effect Predictor; WGS, whole-genome sequencing.
 
-![](figures/main/figure2_assay_annotator_v3.png){width=100%}
+All three cohort caches repaid their measured build cost after two subsequent
+genomes; downloaded bundled caches require no local annotation build. At 100
+genomes, the observed VEP rates corresponded to 8.5, 8.3 and 3.8 compute days
+returned for KPGP, SGDP and PGP, respectively. At 1,000 genomes, these values
+were 86.7, 84.7 and 39.1 days. The calculation includes the complete local
+cache-build time and therefore distinguishes immediate public-cache use from
+cohort-specific amortization.
 
-**Figure 2: Recoverable annotation work sets the cache break-even point.**
-Twelve independent GRCh38 genomes (six KPGP and six SGDP) were evaluated as
-matched ACMG SF v3.3 Panel, Twist Human Core Exome WES and WGS inputs with the
-gnomAD AF ≥1% strategy. (A) Median direct runtime (open circle) and cached
-runtime (arrowhead) on a logarithmic scale. Green arrows indicate time returned
-and muted red arrows additional fixed workflow time. (B) Median speedup and
-percentage wall-time change. Each sample/tool/assay cell contributed one
-direct and one cached measurement. All outputs passed annotator-specific
-semantic comparison. AF, allele frequency; KPGP, Korean Personal Genome
-Project; SGDP, Simons Genome Diversity Project; VEP, Variant Effect Predictor;
-WES, whole-exome sequencing; WGS, whole-genome sequencing.
+## Caching complements efficient and parallel annotators
 
-A second campaign tested fastVEP and SnpEff 5.4c across 12 genomes per assembly
-and the same three assay scales. Clinical SnpEff comprised consequence
-annotation followed by ClinVar and gnomAD exome annotation. Its median speedups
-were 2.66- and 3.62-fold for WES and 10.78- and 12.31-fold for WGS on GRCh38
-and GRCh37, respectively. On the same GRCh37 genomes and cache membership,
-moving from core to clinical SnpEff increased WES speedup from 1.16- to
-3.62-fold and WGS speedup from 4.46- to 12.31-fold (Supplementary Table 1).
-Clinical fastVEP reached 2.54-fold (GRCh38) and 1.70-fold (GRCh37) at WGS.
-These are within-tool comparisons: native recipes differ in output scope and
-do not rank annotators against one another.
+Increasing annotation load strengthened benefit without changing cache
+membership. On the same GRCh37 genomes, extending SnpEff from core consequence
+annotation to a clinical ClinVar and gnomAD recipe increased median speedup
+from 1.16- to 3.62-fold for WES and from 4.46- to 12.31-fold for WGS
+(Supplementary Figure 3 and Supplementary Table 1).
 
-An engineering experiment further tested whether additional CPUs eliminate
-the benefit for fast native annotation. A dense ten-database fastVEP recipe
+An independent engineering experiment asked whether more CPUs eliminate reuse
+benefit for fast native annotation. A dense ten-database fastVEP recipe
 saturated between process-wide limits of 10 and 32 CPUs (706.2 versus 691.4 s
-direct) but retained 3.07- and 3.37-fold speedups at 90% cache hits. At 10 CPUs,
-caching returned 7.9 minutes per genome (Supplementary Figure 2). Parallelism
-and reuse therefore reduce different parts of runtime.
-
-## Cache coverage controls relative savings; pipeline cost controls hours saved
-
-One held-out 4.80-million-variant KPGP genome was annotated with six controlled
-VEP recipes spanning 4.2–22.7 hours. A no-output plugin added 0.5–10 ms per
-transcript consequence without changing annotations. Bundled caches covered
-80.23% and 90.26% of variants. The former left 19.7–21.7% of direct wall time
-(4.62–5.07-fold speedup); the latter left 9.9–11.9% (8.39–10.10-fold). For the
-longest recipe, 22.71 hours fell to 4.52 and 2.25 hours (Figure 3).
-
-![](figures/main/figure3_pipeline_complexity_v3.png){width=100%}
-
-**Figure 3: Absolute time returned grows while relative speedup approaches a
-hit-rate ceiling.** One held-out KPGP WGS was processed with six VEP pipeline
-loads and bundled AF ≥10% and AF ≥1% caches. (A) Direct runtime (open circles),
-cached runtime (arrowheads) and wall time returned. (B) Speedup; dashed lines
-show the asymptotic $1/(1-f)$ ceilings for observed hit rate $f$. The synthetic
-plugin emitted no annotation field. All 12 cached outputs passed semantic
-validation. AF, allele frequency; VEP, Variant Effect Predictor; WGS,
-whole-genome sequencing.
-
-Measured and predicted relative runtimes differed by at most 0.56 percentage
-points. Thus relative speedup plateaus near $1/(1-f)$ even while absolute time
-saved continues to increase—a distinction useful to both high-throughput
-services and laboratories evaluating a particular recipe.
+direct) but retained 3.07- and 3.37-fold speedups at approximately 90% cache
+hits. At 10 CPUs, caching returned 7.9 minutes per genome (Supplementary Figure
+2). Parallelism and reuse therefore reduce different components of runtime.
 
 ## Correctness was assessed outside timed cells
 
 All 156 VEP and 156 fastVEP whole-genome pairs passed annotator-specific
 semantic comparison. For VEP, 8,898 of 734,582,949 records (0.0012%) differed
 only in `HGNC_ID`, a documented VEP 115.2 batching effect [@vep_issue_1959];
-this field was reported but excluded from pass/fail. fastVEP comparison covered
+the field was reported but excluded from pass/fail. fastVEP comparison covered
 all INFO, FORMAT and relevant header values, canonicalizing order only.
 
-In the final fastVEP/SnpEff campaign, 176 of 180 pairs passed. Four SnpEff
-WES/WGS cells from one GRCh37 genome were conservatively excluded because one
-allele differed only by `WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS`; consequence,
-transcript, HGVS, ClinVar, gnomAD, genotype and record counts agreed. A
-two-record direct-SnpEff reproducer showed that the warning appears when an
-adjacent insertion is processed first and disappears when record order is
-reversed. VCFcache was absent from this reproducer, so no warning-specific
-normalization was added. These results support equivalence under a fixed tool,
-version, reference and recipe, not byte identity or equivalence between
-annotators.
+In the final clinical campaign, all 176 eligible direct/cached pairs were
+semantically concordant (Supplementary Figure 3). Four of 180 SnpEff pairs
+were excluded before inference because one GRCh37 allele differed only by
+`WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS`; consequence, transcript, HGVS,
+ClinVar, gnomAD, genotype and record counts agreed. A direct-SnpEff reproducer
+showed that the warning changed when two adjacent input records were reversed,
+without VCFcache involvement. We therefore documented the annotator-order
+effect rather than adding warning-specific normalization. These results
+support equivalence under a fixed tool, version, reference and recipe, not byte
+identity or equivalence between annotators.

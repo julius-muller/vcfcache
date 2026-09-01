@@ -8,8 +8,9 @@ than changing these sources in place.
 
 The current Findings can be split into an unheaded introduction, Results and
 Discussion. The abstract must be reduced to at most 150 words. The current
-three-figure narrative fits the Article display-item allowance, while detailed
-benchmark preparation can become Online Methods and Extended Data.
+four-figure narrative can be condensed to fit the Article display-item
+allowance, while detailed benchmark preparation can become Online Methods and
+Extended Data.
 
 A Nature Methods submission would need a stronger case for broad methodological
 importance and general applicability beyond variant annotation throughput. It

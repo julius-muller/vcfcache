@@ -66,6 +66,15 @@ def polish_docx(path: Path) -> None:
             justification.set(f"{WORD}val", "both")
 
         if style_id in {"Heading1", "Heading2", "Heading3"}:
+            paragraph_properties = style.find(f"{WORD}pPr")
+            if paragraph_properties is None:
+                paragraph_properties = ET.Element(f"{WORD}pPr")
+                style.insert(0, paragraph_properties)
+            justification = paragraph_properties.find(f"{WORD}jc")
+            if justification is None:
+                justification = ET.SubElement(paragraph_properties, f"{WORD}jc")
+            justification.set(f"{WORD}val", "left")
+
             run_properties = style.find(f"{WORD}rPr")
             if run_properties is None:
                 run_properties = ET.SubElement(style, f"{WORD}rPr")

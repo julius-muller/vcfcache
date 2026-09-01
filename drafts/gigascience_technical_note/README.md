@@ -25,10 +25,11 @@ protocols that are needed for reproducibility but not for the central story.
 
 ## Evidence boundary
 
-Primary performance claims use only the complete 52-genome VEP/fastVEP
-snapshot dated 2026-08-09 and the final dual-cache pipeline-complexity snapshot
-dated 2026-08-12. KPGP, SGDP and PGP evaluation genomes were not used to build
-the cohort caches and had no documented project overlap with gnomAD.
+Primary performance claims use the complete 52-genome VEP/fastVEP snapshot
+dated 2026-08-09, the final dual-cache pipeline-complexity snapshot dated
+2026-08-12 and the final native annotation campaign dated 2026-08-24. KPGP,
+SGDP and PGP evaluation genomes were not used to build the cohort caches and
+had no documented project overlap with gnomAD.
 
 The final native annotation campaign dated 2026-08-24 adds clinical fastVEP
 and SnpEff across GRCh38 and GRCh37, plus a GRCh37 core-to-clinical SnpEff
@@ -36,10 +37,18 @@ contrast. It contains 180 paired cells; 176 passed strict comparison and four
 warning-only SnpEff cells were excluded before inference. Claims remain
 within-tool because the native recipes do not emit identical annotation sets.
 
-Main Figure 2 and Supplementary Figure 3 add a matched assay-scale extension
-using 12 independent GRCh38 KPGP and SGDP genomes, the bundled gnomAD AF ≥1%
-strategy, and exactly one retained direct and cached observation per
-sample-tool-assay cell. No 1000 Genomes-derived performance sample is used.
+Main Figures 2 and 3 add a matched assay-scale comparison using 12 independent
+GRCh38 KPGP and SGDP genomes, the bundled gnomAD AF ≥1% strategy, and exactly
+one retained direct and cached observation per sample-tool-assay cell. VEP,
+clinical fastVEP and clinical SnpEff are compared only with their own direct
+baselines because their native output scopes differ. No 1000 Genomes-derived
+performance sample is used.
+
+Main Figure 4 uses only disjoint three-genome cohort caches and explicitly
+includes the measured cache-build cost. Supplementary Figure 3 contrasts core
+and clinical SnpEff on the same genomes and reports all 176 eligible final
+campaign comparisons as semantically concordant; four upstream warning-order
+cells were excluded before inference.
 
 Supplementary Figure 2 adds a controlled computing interaction experiment on
 one held-out KPGP genome. It compares core and deliberately dense fastVEP

@@ -37,13 +37,16 @@ coding intervals padded by 20 bp. The resulting WES and Panel inputs therefore
 retained the providers and variant-calling pipelines of the independent WGS
 cohorts and did not introduce 1000 Genomes-derived performance samples.
 
-Each input was processed once with VEP 115.2 and fastVEP 0.3.0, directly and
-through the gnomAD AF ≥1% strategy. The same genomes' frozen WGS observations
-completed the matched two-annotator by three-assay design. All cached outputs
-were subjected to the same annotator-specific external semantic comparators as
-the full WGS campaign. The experiment was designed to identify the sample-size
-boundary at which fixed cache-workflow costs are recovered, not to imply that
-every assay benefits.
+Each input was processed once with VEP 115.2 `--everything`, clinical fastVEP
+0.3.0 and clinical SnpEff 5.4c, directly and through recipe-specific caches
+built on the same gnomAD AF ≥1% blueprint. The VEP observations came from the
+matched assay extension and the clinical fastVEP/SnpEff observations from the
+final native annotation campaign; sample identity, assay definition and cache
+membership were held fixed. All cached outputs were subjected to their
+annotator-specific external semantic comparators. The 108 paired observations
+were designed to identify where fixed cache-workflow costs are recovered, not
+to imply that every assay benefits or that the three native recipes have equal
+annotation content.
 
 ## Public-cache provenance
 

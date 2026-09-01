@@ -2,15 +2,19 @@
 
 ## Main figures
 
-1. `figure1_workflow_v3` connects ready Zenodo caches, Zenodo blueprints and
-   cohort-derived blueprints to the per-sample split, annotation-reuse,
-   miss-annotation and merge paths.
-2. `figure2_assay_annotator_v3` uses matched independent GRCh38 genomes to show
-   where Panel, WES and WGS cross the fixed-overhead break-even point for VEP
-   and fastVEP. It contains no 1000 Genomes-derived performance sample.
-3. `figure3_pipeline_complexity_v3` uses time-return arrows and explicit
-   hit-rate ceilings to reconcile increasing absolute savings with bounded
-   relative speedup.
+1. `main_v4/figure1_workflow_and_value_v4` connects ready Zenodo caches,
+   Zenodo blueprints and cohort-derived blueprints to the per-sample cache-hit,
+   miss-annotation and sorted-output paths.
+2. `main_v4/figure2_empirical_time_and_throughput_v4` uses 12 matched GRCh38
+   genomes to show runtime remaining and serial throughput for native VEP,
+   clinical fastVEP and clinical SnpEff configurations across Panel, WES and
+   WGS. It contains no 1000 Genomes-derived performance sample.
+3. `main_v4/figure3_runtime_rule_v4` links empirical runtime remaining to cache
+   coverage across 108 observations and uses controlled VEP loads to show that
+   absolute time returned grows with pipeline cost.
+4. `main_v4/figure4_cohort_economics_v4` includes measured cohort-cache build
+   cost and reports effective speedup and compute days returned as cohort size
+   increases.
 
 ## Supplementary figures
 
@@ -19,8 +23,9 @@
 2. `supplementary_figure2_fastvep_cpu_complexity` tests whether process-wide
    CPU availability removes the benefit of reuse in core and deliberately
    annotation-dense fastVEP configurations on one held-out WGS.
-3. `supplementary_figure3_matched_assays_v3` shows every selected genome's
-   cache coverage and speedup across the matched assay extension.
+3. `v4/supplementary_figure3_annotation_load_fidelity_v4` pairs core and
+   clinical SnpEff results on the same genomes and accounts for every one of
+   the 180 final-campaign direct/cached comparisons.
 
 No figure contains an internal title, subtitle or provenance footer. Panel
 letters remain in the artwork; numbered legends and abbreviation definitions
@@ -31,11 +36,12 @@ exports for every panel under the corresponding `panels/` directory.
 
 ## Candidate headlines
 
-The `candidates/` directory contains three existing simplified alternatives.
-They are not cited by the Technical Note and are retained for a bioRxiv landing
-page, repository README, graphical abstract, or a later brief article format.
-They must not replace the measured manuscript panels without updating the
-legend and evidence mapping.
+The `candidates_v4/` directory contains three simplified alternatives from the
+same frozen evidence snapshot: one-day throughput, WGS wall clocks and compute
+time returned for 100 genomes. They are not cited by the Technical Note and
+are retained for a bioRxiv landing page, repository README, graphical abstract
+or later brief article format. They must not replace a manuscript panel without
+updating the legend and evidence mapping.
 
 ## Provenance
 

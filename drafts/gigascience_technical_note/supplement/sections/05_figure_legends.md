@@ -32,19 +32,16 @@ complete-record comparison with its direct counterpart. KPGP, Korean Personal
 Genome Project; VCF, variant call format; VCFcache, cached annotation workflow;
 WGS, whole-genome sequencing.
 
-![](supplement/figures/supplementary_figure3_matched_assays_v3.png){width=100%}
+![](supplement/figures/v4/supplementary_figure3_annotation_load_fidelity_v4.png){width=100%}
 
-**Supplementary Figure 3: Sample-level cache coverage and performance across
-matched assay scales.** Twelve independent GRCh38 genomes were represented as
-ACMG SF v3.3 Panel, Twist Human Core Exome WES and WGS inputs. Colour and shape
-identify the provider cohort; black horizontal marks denote medians. (A) The
-fraction of variants found in the gnomAD AF ≥1% cache. Cache membership is
-annotator-independent and is therefore shown once per sample and assay. (B)
-End-to-end speedup for VEP 115.2 and fastVEP 0.3.0. The dashed line denotes
-equal direct and cached runtime; values below it identify cells in which fixed
-cache-workflow costs exceeded annotation work saved. Each sample-tool-assay
-combination was measured once, and every cached output passed its
-annotator-specific semantic comparator. ACMG, American College of Medical
-Genetics and Genomics; AF, allele frequency; KPGP, Korean Personal Genome
-Project; SGDP, Simons Genome Diversity Project; VEP, Variant Effect Predictor;
-WES, whole-exome sequencing; WGS, whole-genome sequencing.
+**Supplementary Figure 3: Annotation load increases reuse benefit without a
+cache-attributable change in output.** (A) Paired SnpEff speedups for core and
+clinical recipes on the same GRCh37 PGP samples. Lines connect identical
+samples; the dashed line marks equal runtime. The documented warning-only
+sample was excluded before inference for WES and WGS. (B) Of 180 direct/cached
+cells in the final clinical campaign, 176 were eligible and semantically
+concordant. Four SnpEff cells were excluded because direct SnpEff itself changed
+output with input order; these are not counted as evidence for or against
+VCFcache. No eligible pair contained a cache-attributable mismatch. PGP,
+Personal Genome Project; WES, whole-exome sequencing; WGS, whole-genome
+sequencing.

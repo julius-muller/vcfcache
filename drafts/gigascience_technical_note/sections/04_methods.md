@@ -23,9 +23,12 @@ boundary.
 
 Matched-assay experiments used six KPGP and six SGDP GRCh38 evaluation genomes,
 subset to Twist Human Core Exome intervals padded by 125 bp and ACMG SF v3.3
-MANE Select coding intervals padded by 20 bp. The final clinical campaign used
-12 genomes per assembly across Panel, WES and WGS; frozen sample membership is
-provided with its reproducer.
+MANE Select coding intervals padded by 20 bp. The principal matched comparison
+combined VEP `--everything`, clinical fastVEP and clinical SnpEff measurements
+on these identical 12 inputs and the same gnomAD AF ≥1% cache membership,
+yielding 108 direct/cached sample-tool-assay pairs. The wider final clinical
+campaign used 12 genomes per assembly across Panel, WES and WGS; frozen sample
+membership is provided with its reproducer.
 
 Public strategies were assembly-matched VCFcache gnomAD v4.1 joint
 exome/genome caches containing sites reaching AF ≥10% or AF ≥1% in any
@@ -106,10 +109,13 @@ instrumented builds rather than inferred from input size.
 
 The primary outcome was speedup
 $T_{\mathrm{direct}}/T_{\mathrm{cached}}$; secondary outcomes were relative
-runtime, paired time saved, hit rate and cache-build amortization. Medians were
-calculated across genomes. Pooled confidence intervals used 10,000
-sample-level bootstrap resamples stratified by provider cohort while
-preserving paired conditions. Modelled and measured values were labelled
-separately. Figures were generated in R with ggplot2, assembled with patchwork,
-and exported as SVG, PDF and 600-dpi PNG with frozen source tables and session
-information.
+runtime, paired time saved, hit rate and cache-build amortization. Serial
+throughput was reported descriptively as 86,400 s divided by median wall time.
+Cumulative cohort time returned was
+$S(T_{\mathrm{direct}}-T_{\mathrm{cached}})-T_{\mathrm{build}}$ and was
+converted to compute days. Medians were calculated across genomes. Pooled
+confidence intervals used 10,000 sample-level bootstrap resamples stratified
+by provider cohort while preserving paired conditions. Modelled and measured
+values were labelled separately. Figures were generated in R with ggplot2,
+assembled with patchwork, and exported as SVG, PDF and 600-dpi PNG with frozen
+source tables and session information.

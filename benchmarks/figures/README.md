@@ -227,3 +227,25 @@ high-resolution manuscript panels, source tables, source provenance, an output
 manifest, and proposed journal captions in `FIGURE_INDEX.md`. The 12 matched
 GRCh38 genomes are KPGP/SGDP samples; no 1000 Genomes sample contributes to the
 combined native-annotator figure.
+
+## Render the story-driven figure set
+
+The additive `2026-08-27T225600Z-story-campaign-final-v4` snapshot presents the
+same validated evidence as a broader package narrative: application workflow,
+runtime remaining and serial throughput, the cache-coverage/runtime rule,
+cohort-cache amortization, annotation load, and semantic fidelity. It adds two
+repository headliners and an alternative 100-sample cohort value graphic.
+
+```bash
+Rscript --vanilla benchmarks/figures/R/render_story_campaign.R \
+  benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3/source \
+  benchmarks/figures/output/final/2026-08-12T223200Z-pipeline-complexity-dual-cache-final-v2/source/dual_cache_pipeline_spectrum.tsv \
+  benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_economics.tsv \
+  benchmarks/figures/output/final/2026-08-09T223718Z-light-matched-final/source/external_cohort_break_even.tsv \
+  benchmarks/figures/output/final/2026-08-27T225600Z-story-campaign-final-v4
+```
+
+Read the snapshot's `FIGURE_INDEX.md` before reuse. It contains publication-ready
+captions and explicitly limits three-annotator claims to within-tool comparisons
+because the native annotation recipes differ. Every manuscript composite and
+component panel is exported as SVG, PDF, and 600 dpi PNG.

@@ -16,8 +16,7 @@ r-setup:
 	R_PROFILE_USER=/dev/null R_ENVIRON_USER=/dev/null $(R_SCRIPT) --vanilla ../../benchmarks/figures/R/setup_packages.R
 
 figures:
-	R_PROFILE_USER=/dev/null R_ENVIRON_USER=/dev/null $(R_SCRIPT) --vanilla scripts/render_publication_figures_v3.R .
-	R_PROFILE_USER=/dev/null R_ENVIRON_USER=/dev/null $(R_SCRIPT) --vanilla scripts/render_fastvep_cpu_complexity.R .
+	$(PYTHON) scripts/sync_story_figures.py
 	$(PYTHON) scripts/record_provenance.py
 
 draft: figures check
