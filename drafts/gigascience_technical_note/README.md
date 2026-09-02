@@ -71,6 +71,8 @@ Generated files are placed in `build/` and are not the editable source:
 - `vcfcache_supplementary_material.docx`
 - `vcfcache_supplementary_material.tex`
 - `vcfcache_supplementary_material.pdf`
+- `vcfcache_complete_preprint.md`
+- `vcfcache_complete_preprint.docx` (manuscript and supplement in one file)
 
 Body paragraphs are justified in the editable DOCX and review PDF. Equations
 are authored as LaTeX mathematics in Markdown and are emitted as native Word

@@ -22,3 +22,8 @@
 
 ## Docs
 - `WIKI.md` is canonical for alias/manifest schema, Zenodo pull/push, Docker usage, cache layout. README mirrors high-level usage.
+
+## Git workflow
+- After completing and verifying requested repository changes, commit them and push the current branch unless the user explicitly asks not to.
+- Author commits as `Julius Müller <julius.mueller@dkfz-heidelberg.de>` rather than with the VM's default `ubuntu` identity.
+- Inspect the worktree before staging, preserve unrelated user changes, and describe the committed scope in the final response.

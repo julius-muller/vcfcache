@@ -7,6 +7,9 @@ from pathlib import Path
 
 DRAFT_DIR = Path(__file__).resolve().parents[1]
 BUILD_DIR = DRAFT_DIR / "build"
+PAGE_BREAK_OPENXML = """```{=openxml}
+<w:p><w:r><w:br w:type="page"/></w:r></w:p>
+```"""
 
 
 def assemble(
@@ -26,6 +29,21 @@ def assemble(
     output.write_text("\n\n".join(parts) + "\n", encoding="utf-8")
 
 
+def assemble_complete(output: Path) -> None:
+    """Combine the manuscript and supplement into one editable document."""
+    parts = [DRAFT_DIR.joinpath("metadata.yaml").read_text(encoding="utf-8").strip()]
+    for path in sorted(DRAFT_DIR.joinpath("sections").glob("*.md")):
+        if path.name == "11_figure_legends.md":
+            continue
+        parts.append(path.read_text(encoding="utf-8").strip())
+
+    parts.extend((PAGE_BREAK_OPENXML, "# Supplementary Information"))
+    for path in sorted(DRAFT_DIR.joinpath("supplement/sections").glob("*.md")):
+        parts.append(path.read_text(encoding="utf-8").strip())
+
+    output.write_text("\n\n".join(parts) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     """Assemble the main manuscript and supplementary material."""
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
@@ -40,6 +58,7 @@ def main() -> None:
         BUILD_DIR / "vcfcache_supplementary_material.md",
         DRAFT_DIR / "supplement" / "metadata.yaml",
     )
+    assemble_complete(BUILD_DIR / "vcfcache_complete_preprint.md")
 
 
 if __name__ == "__main__":

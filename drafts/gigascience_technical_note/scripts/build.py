@@ -19,6 +19,7 @@ DOCUMENTS = (
     ("vcfcache_gigascience_technical_note", "metadata.yaml"),
     ("vcfcache_supplementary_material", "supplement/metadata.yaml"),
 )
+COMPLETE_DOCUMENT = ("vcfcache_complete_preprint", "metadata.yaml")
 
 
 def require_program(name: str) -> str:
@@ -136,6 +137,25 @@ def main() -> None:
                 str(latex.relative_to(DRAFT_DIR)),
             ]
         )
+
+    complete_stem, complete_metadata = COMPLETE_DOCUMENT
+    complete_source = BUILD_DIR / f"{complete_stem}.md"
+    complete_docx = BUILD_DIR / f"{complete_stem}.docx"
+    run(
+        [
+            pandoc,
+            "--standalone",
+            "--citeproc",
+            "--csl=styles/gigascience.csl",
+            f"--metadata-file={complete_metadata}",
+            "--bibliography=references.bib",
+            "--resource-path=.",
+            str(complete_source.relative_to(DRAFT_DIR)),
+            "--output",
+            str(complete_docx.relative_to(DRAFT_DIR)),
+        ]
+    )
+    polish_docx(complete_docx)
 
     with tempfile.TemporaryDirectory(prefix="vcfcache-manuscript-lo-") as profile:
         profile_uri = Path(profile).resolve().as_uri()
