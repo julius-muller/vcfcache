@@ -15,9 +15,8 @@ fastVEP 1.84-, 2.05- and 1.81-fold. Controlled VEP pipelines spanning
 4.2–22.7 hours returned 3.3–20.5 hours per genome as annotation work increased.
 Three-genome cohort caches broke even after two subsequent genomes; at 1,000
 genomes, measured VEP rates corresponded to 39.1–86.7 compute days returned.
-All 176 eligible comparisons in the final clinical campaign were semantically
-concordant. Four SnpEff cells were excluded before inference because direct
-SnpEff itself exhibited a processing-order-dependent warning.
+All 176 evaluable direct/cached comparisons in the final clinical campaign
+were semantically concordant, with no cache-attributable annotation mismatch.
 
 **Conclusions:** Relative acceleration is governed by cache coverage and
 recoverable per-variant work, whereas absolute time saved increases with
