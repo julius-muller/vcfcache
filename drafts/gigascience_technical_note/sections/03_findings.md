@@ -1,24 +1,27 @@
 # Findings
 
-## VCFcache reuses complete annotation recipes
+## VCFcache reuses complete, recipe-specific annotations
 
-Variant annotation repeatedly evaluates alleles shared among samples. Local
-VEP or SnpEff data caches avoid repeated database downloads, but each invocation
-still computes every requested consequence [@mclaren2016vep;
-@cingolani2012snpeff]. Field-transfer tools can copy selected columns from a
-donor VCF, but do not define how missing alleles traverse a composite pipeline
-[@danecek2021bcftools; @vcfanno2016]. VCFcache instead stores the completed
-output of a frozen recipe: annotator version, flags, plugins and supplementary
-databases. For each new sample, cached alleles are retrieved, misses pass
-through the same recipe, and both paths are assembled as a sorted, indexed BCF
-(Figure 1).
+Across separately annotated samples, the same alleles recur, yet conventional
+annotation recomputes the requested annotations on every run. VEP and SnpEff
+use local reference data to avoid repeated remote database access, but still
+evaluate each input allele [@mclaren2016vep; @cingolani2012snpeff].
+Lookup-based tools such as vcfanno and echtvar efficiently retrieve
+pre-existing annotation fields from reference files or indexed archives, but
+do not themselves invoke a user-defined annotation workflow for variants
+absent from those resources [@vcfanno2016; @pedersen2023echtvar].
+VCFcache combines reuse with automatic fallback: it retrieves complete
+per-allele output produced by a fixed annotation recipe—defined by the
+annotator version, command-line options, plugins and supplementary
+resources—and sends cache misses through that same recipe. Cached and newly
+annotated records are then merged into a sorted, indexed BCF (Figure 1).
 
 ![](figures/main_v4/figure1_workflow_and_value_v4.png){width=100%}
 
 **Figure 1: VCFcache reuses annotation work without changing the completed
 record set.** (A) Each input VCF is matched against a recipe-specific cache.
 Existing annotations are retrieved, only cache misses are sent to the configured
-annotator, and both streams are merged and sorted into a complete output VCF.
+annotator, and both streams are merged into a sorted, indexed output BCF.
 Users may download a ready-to-use recipe cache or a blueprint from Zenodo. (B)
 Benefit is governed by cache coverage, the cost of the underlying annotation
 recipe and the number of samples over which any local cache build is amortized.
