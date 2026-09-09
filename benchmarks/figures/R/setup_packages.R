@@ -8,7 +8,7 @@ local_library <- Sys.getenv(
 dir.create(local_library, recursive = TRUE, showWarnings = FALSE)
 .libPaths(c(local_library, .libPaths()))
 
-packages <- c("ggplot2", "patchwork", "scales", "jsonlite")
+packages <- c("ggplot2", "patchwork", "scales", "jsonlite", "tibble")
 missing <- packages[!vapply(packages, requireNamespace, logical(1), quietly = TRUE)]
 if (length(missing) > 0) {
   install.packages(missing, repos = "https://cloud.r-project.org", Ncpus = 1)

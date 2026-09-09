@@ -25,6 +25,23 @@ may be retained in a preliminary snapshot but are explicitly marked
 `comparator_pending_*`. A final snapshot requires all expected external genomes
 and successful semantic validation for every cached output.
 
+## Load all benchmark result tables
+
+`R/load_benchmark_results.R` provides a reusable loader for the TSV result tables
+under `benchmarks/figures/output`. It returns a named list in which every value
+is a tibble; names encode the relative path beneath the output directory.
+
+```r
+source("benchmarks/figures/R/load_benchmark_results.R")
+results <- load_benchmark_results()
+print_benchmark_results(results)
+results[["final__2026_08_25T224623Z_native_annotation_final_v3__source__campaign_metrics"]]
+```
+
+Use `load_benchmark_table(path, required = c("sample", "tool"))` when a script
+needs one table and should validate its required columns. The existing
+`read_tsv()` helper in `common.R` delegates to the same loader.
+
 ## Render the complete VEP snapshot
 
 Install the small R dependency set once:

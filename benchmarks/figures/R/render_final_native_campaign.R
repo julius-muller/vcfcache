@@ -13,7 +13,16 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(patchwork)
   library(scales)
+  library(tibble)
 })
+
+full_arguments <- commandArgs(trailingOnly = FALSE)
+file_argument <- full_arguments[grepl("^--file=", full_arguments)]
+if (length(file_argument) != 1) {
+  stop("Could not determine the render_final_native_campaign.R location")
+}
+script_dir <- dirname(normalizePath(sub("^--file=", "", file_argument)))
+source(file.path(script_dir, "load_benchmark_results.R"))
 
 campaign_path <- normalizePath(args[[1]], mustWork = TRUE)
 assay_path <- normalizePath(args[[2]], mustWork = TRUE)
@@ -26,13 +35,6 @@ for (subdir in c(
   "alternatives", "alternatives/panels"
 )) {
   dir.create(file.path(output_dir, subdir), recursive = TRUE, showWarnings = FALSE)
-}
-
-read_tsv <- function(path) {
-  read.delim(
-    path, sep = "\t", header = TRUE, stringsAsFactors = FALSE,
-    check.names = FALSE, na.strings = c("", "NA")
-  )
 }
 
 write_tsv <- function(value, path) {
@@ -112,7 +114,7 @@ format_seconds <- function(value) {
   }, character(1))
 }
 
-campaign <- read_tsv(campaign_path)
+campaign <- load_benchmark_table(campaign_path)
 pair_keys <- c("sample", "cohort", "tool", "level", "assembly", "assay")
 direct <- campaign[campaign$condition == "direct", ]
 cached <- campaign[campaign$condition == "cached", ]
@@ -129,7 +131,7 @@ pairs$relative_runtime <- pairs$cached_seconds / pairs$direct_seconds
 pairs$time_saved_seconds <- pairs$direct_seconds - pairs$cached_seconds
 pairs$hit_rate <- 1 - pairs$missing_variants_cached / pairs$input_records_cached
 
-external <- read_tsv(assay_path)
+external <- load_benchmark_table(assay_path)
 external <- external[
   external$tool == "vep" & tolower(external$semantic_pass) == "true",
 ]
@@ -373,7 +375,7 @@ save_plot(p2a, file.path(output_dir, "manuscript", "panels", "figure_snpeff_A_sa
 save_plot(p2b, file.path(output_dir, "manuscript", "panels", "figure_snpeff_B_runtime"), 7.2, 2.8)
 
 # Figure 3: controlled VEP pipeline load at two biological cache depths.
-complexity <- read_tsv(complexity_path)
+complexity <- load_benchmark_table(complexity_path)
 complexity <- complexity[tolower(complexity$semantic_pass) == "true", ]
 if (nrow(complexity) != 12) {
   stop("Expected 12 validated pipeline-complexity rows")

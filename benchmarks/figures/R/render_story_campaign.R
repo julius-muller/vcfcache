@@ -13,7 +13,16 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(patchwork)
   library(scales)
+  library(tibble)
 })
+
+full_arguments <- commandArgs(trailingOnly = FALSE)
+file_argument <- full_arguments[grepl("^--file=", full_arguments)]
+if (length(file_argument) != 1) {
+  stop("Could not determine the render_story_campaign.R location")
+}
+script_dir <- dirname(normalizePath(sub("^--file=", "", file_argument)))
+source(file.path(script_dir, "load_benchmark_results.R"))
 
 source_dir <- normalizePath(args[[1]], mustWork = TRUE)
 complexity_path <- normalizePath(args[[2]], mustWork = TRUE)
@@ -26,13 +35,6 @@ for (subdir in c(
   "supplement/panels", "repository", "alternatives"
 )) {
   dir.create(file.path(output_dir, subdir), recursive = TRUE, showWarnings = FALSE)
-}
-
-read_tsv <- function(path) {
-  read.delim(
-    path, sep = "\t", header = TRUE, stringsAsFactors = FALSE,
-    check.names = FALSE, na.strings = c("", "NA")
-  )
 }
 
 write_tsv <- function(value, path) {
@@ -144,7 +146,7 @@ for (path in c(three_path, snpeff_path, campaign_path)) {
   }
 }
 
-three <- read_tsv(three_path)
+three <- load_benchmark_table(three_path)
 three$tool_label <- factor(three$tool_label, levels = tool_levels)
 three$assay_label <- factor(three$assay_label, levels = assay_levels)
 three$cohort_label <- factor(three$cohort_label, levels = c("KPGP", "SGDP"))
@@ -167,7 +169,7 @@ three_summary$direct_per_day <- 86400 / three_summary$direct_seconds
 three_summary$cached_per_day <- 86400 / three_summary$cached_seconds
 three_summary$throughput_gain <- three_summary$cached_per_day / three_summary$direct_per_day
 
-complexity <- read_tsv(complexity_path)
+complexity <- load_benchmark_table(complexity_path)
 complexity <- complexity[tolower(complexity$semantic_pass) == "true", ]
 if (nrow(complexity) != 12) {
   stop("Expected 12 validated pipeline-complexity observations")
@@ -185,11 +187,11 @@ complexity$maximum_returnable_hours <-
 complexity$return_efficiency <-
   100 * complexity$returned_hours / complexity$maximum_returnable_hours
 
-snpeff <- read_tsv(snpeff_path)
+snpeff <- load_benchmark_table(snpeff_path)
 snpeff$recipe_label <- factor(snpeff$recipe_label, levels = c("Core", "Clinical"))
 snpeff$assay_label <- factor(snpeff$assay_label, levels = assay_levels)
 
-economics <- read_tsv(economics_path)
+economics <- load_benchmark_table(economics_path)
 economics$cohort_label <- factor(
   economics$cohort,
   levels = c("kpgp", "sgdp", "pgp"),
@@ -201,7 +203,7 @@ economics$cached_seconds <-
   economics$effective_seconds_per_sample -
   economics$cache_build_seconds / economics$cohort_size
 
-break_even <- read_tsv(break_even_path)
+break_even <- load_benchmark_table(break_even_path)
 break_even$cohort_label <- factor(
   break_even$cohort,
   levels = c("kpgp", "sgdp", "pgp"),
@@ -239,7 +241,7 @@ economic_bars$cohort_size_label <- factor(
   levels = paste0("n = ", economic_sizes)
 )
 
-campaign <- read_tsv(campaign_path)
+campaign <- load_benchmark_table(campaign_path)
 pair_fields <- c("sample", "cohort", "tool", "level", "assembly", "assay")
 campaign_direct <- campaign[campaign$condition == "direct", ]
 campaign_cached <- campaign[campaign$condition == "cached", ]

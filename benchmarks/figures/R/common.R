@@ -7,7 +7,7 @@ vcfcache_r_library <- Sys.getenv(
 )
 .libPaths(c(vcfcache_r_library, .libPaths()))
 
-required_packages <- c("ggplot2", "patchwork", "scales", "jsonlite")
+required_packages <- c("ggplot2", "patchwork", "scales", "jsonlite", "tibble")
 missing_packages <- required_packages[
   !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
 ]
@@ -20,6 +20,19 @@ if (length(missing_packages) > 0) {
 
 library(ggplot2)
 library(patchwork)
+
+.common_file <- NULL
+for (.frame in rev(sys.frames())) {
+  if (!is.null(.frame$ofile)) {
+    .common_file <- .frame$ofile
+    break
+  }
+}
+if (is.null(.common_file)) {
+  stop("Could not determine the common.R location")
+}
+source(file.path(dirname(normalizePath(.common_file, mustWork = TRUE)), "load_benchmark_results.R"))
+rm(.common_file, .frame)
 
 vcf_colors <- c(
   ink = "#18323F",
@@ -51,15 +64,8 @@ theme_vcfcache <- function(base_size = 11) {
     )
 }
 
-read_tsv <- function(path) {
-  read.delim(
-    path,
-    sep = "\t",
-    header = TRUE,
-    stringsAsFactors = FALSE,
-    check.names = FALSE,
-    na.strings = c("", "NA")
-  )
+read_tsv <- function(path, required = NULL) {
+  load_benchmark_table(path, required = required)
 }
 
 write_tsv <- function(value, path) {
