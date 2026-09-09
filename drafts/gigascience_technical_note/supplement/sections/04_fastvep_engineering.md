@@ -32,7 +32,17 @@ therefore addressed different components of runtime.
 
 Profiling at 100% hits attributed material wall time to cache lookup, the
 guaranteed-empty miss scan and final output construction; subprocess startup
-was negligible. In the affinity-controlled experiment, both direct fastVEP and
+was negligible. The original heavy pilot's diagnostic commands took 4.0 s for
+input filtering/BCF writing, 22.2 s for lookup with compressed output, 20.0 s
+for the empty-miss scan and 18.3 s for final filtering/compressed output.
+Standalone index construction took approximately 15 s; production commands
+built indexes inline. These are diagnostic timings from separate commands,
+not additive partitions of one end-to-end observation: compression and indexing
+overlap other work. At 100% hits there is no native annotation stage. A complete
+stage decomposition at a non-perfect hit rate remains to be measured before
+fitting all components of the runtime model independently.
+
+In the affinity-controlled experiment, both direct fastVEP and
 VCFcache were restricted using `taskset`; the plotted axis therefore denotes
 CPUs available to the process rather than only a configured thread count. An
 exploratory dense one-CPU cell was stopped after sustained, impractically low

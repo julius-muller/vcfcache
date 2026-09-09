@@ -1,6 +1,6 @@
 # Findings
 
-## VCFcache reuses complete, recipe-specific annotations
+## VCFcache turns repeated annotation into incremental computation
 
 Across separately annotated samples, the same alleles recur, yet conventional
 annotation recomputes the requested annotations on every run. VEP and SnpEff
@@ -10,11 +10,15 @@ Lookup-based tools such as vcfanno and echtvar efficiently retrieve
 pre-existing annotation fields from reference files or indexed archives, but
 do not themselves invoke a user-defined annotation workflow for variants
 absent from those resources [@vcfanno2016; @pedersen2023echtvar].
-VCFcache combines reuse with automatic fallback: it retrieves complete
-per-allele output produced by a fixed annotation recipe—defined by the
+VCFcache combines reuse with automatic fallback: it retrieves allele-level
+INFO annotation payloads produced by a fixed annotation recipe—defined by the
 annotator version, command-line options, plugins and supplementary
 resources—and sends cache misses through that same recipe. Cached and newly
 annotated records are then merged into a sorted, indexed BCF (Figure 1).
+This makes an existing recipe reusable across incoming samples: laboratories
+can retain their configured annotator while avoiding computation already
+performed for recurring alleles. Reuse requires consistent allele representation
+and a fixed reference assembly [@tan2015unified].
 
 ![](figures/main_v4/figure1_workflow_and_value_v4.png){width=100%}
 
@@ -27,17 +31,26 @@ Benefit is governed by cache coverage, the cost of the underlying annotation
 recipe and the number of samples over which any local cache build is amortized.
 BCF, binary variant call format; VCF, variant call format.
 
-For $N$ variants, annotator start-up $s_{\mathrm{ann}}$, per-variant cost
-$t_{\mathrm{ann}}$, cache hit rate $f$ and VCFcache processing cost $C(N)$,
+For $N$ input alleles, hit fraction $f$ and $M=N(1-f)$ misses, let $A_0$
+denote annotator start-up and $A_1$ average per-allele annotation cost.
+Let $B_d(N)$ and $B_c(N)$ denote the non-annotation costs of the direct and
+cached paths, respectively, including preprocessing and output processing.
 
 $$
-T_{\mathrm{direct}}=s_{\mathrm{ann}}+Nt_{\mathrm{ann}}, \qquad
-T_{\mathrm{cached}}\approx s_{\mathrm{ann}}+(1-f)Nt_{\mathrm{ann}}+C(N).
+T_{\mathrm{direct}}\approx B_d(N)+A_0+A_1N,
 $$
 
-Caching helps when $fNt_{\mathrm{ann}}>C(N)$. It can return per-variant work,
-but not annotator start-up; high coverage therefore need not accelerate very
-small inputs or minimal recipes. A custom cache's one-time build cost is
+$$
+T_{\mathrm{cached}}\approx B_c(N)+\mathbf{1}_{M>0}(A_0+A_1M).
+$$
+
+The indicator is one when misses remain and zero otherwise: a perfect hit
+rate also avoids annotator start-up. With any miss, caching breaks even when
+$A_1fN>B_c(N)-B_d(N)$; at perfect coverage, the saving additionally includes
+$A_0$. This approximation assumes comparable average annotation cost for hits
+and misses; variant and transcript composition can change that cost. High
+coverage alone therefore need not accelerate small inputs or minimal recipes.
+A custom cache's one-time build cost is
 amortized as
 $T_{\mathrm{effective}}\approx T_{\mathrm{cached}}+T_{\mathrm{build}}/S$
 after $S$ uses.
@@ -78,9 +91,9 @@ recipes intentionally differ in annotation scope.
 ## Cache coverage defines opportunity; pipeline cost determines time returned
 
 Across the 108 matched GRCh38 sample-tool-assay pairs, runtime remaining
-approached the zero-overhead expectation, $1-f$, as direct annotation became
+approached the annotation-dominated approximation, $1-f$, as direct annotation became
 more expensive (Figure 3A). The deviation for Panel and some WES cells shows
-the fixed cost represented by $C(N)$; hit rate alone is insufficient to predict
+the extra processing cost $B_c(N)-B_d(N)$; hit rate alone is insufficient to predict
 benefit for short jobs.
 
 ![](figures/main_v4/figure3_runtime_rule_v4.png){width=100%}
@@ -88,13 +101,14 @@ benefit for short jobs.
 **Figure 3: Cache coverage defines the theoretical opportunity, while
 annotation cost determines how much time is returned.** (A) Observed runtime
 remaining for 108 matched GRCh38 sample-tool-assay pairs. Dashed curves show
-the zero-overhead expectation, $1-f$, for hit rate $f$; point area represents
+the annotation-dominated, negligible-overhead approximation, $1-f$, for hit rate $f$; point area represents
 direct annotation time. Fixed lookup, preprocessing and output costs dominate
 very short Panel jobs but become small relative to WGS annotation. (B) One
 4.80-million-variant KPGP genome was processed with six controlled VEP loads
 and bundled gnomAD AF ≥10% and AF ≥1% caches. Solid lines show observed hours
 returned as pipeline cost increases; dashed lines show the cache-coverage
-opportunity, $f \times$ direct runtime. All 12 outputs passed semantic
+approximation, $f \times$ direct runtime, valid when per-allele annotation
+dominates runtime. All 12 outputs passed semantic
 comparison. AF, allele frequency; KPGP, Korean Personal Genome Project; VEP,
 Variant Effect Predictor; WGS, whole-genome sequencing.
 
@@ -116,6 +130,9 @@ cohort caches; relatedness screening prevented a second-degree-or-closer
 training/evaluation pair. The public alternatives were bundled,
 assembly-matched gnomAD v4.1 caches containing alleles reaching AF ≥10% or
 AF ≥1% in any reported frequency stratum [@gnomad2024release].
+gnomAD supplies a broad public allele universe [@karczewski2020gnomad]; the
+coverage measured here remains specific to these cohorts, filters and variant
+representations, rather than a general clinical hit-rate estimate.
 
 Across these 52 held-out genomes, VEP median end-to-end speedups were 4.75-fold
 (AF ≥10%), 9.21-fold (AF ≥1%) and 4.59-fold (cohort cache). With the core
@@ -176,3 +193,23 @@ without VCFcache involvement. We therefore documented the annotator-order
 effect rather than adding warning-specific normalization. These results
 support equivalence under a fixed tool, version, reference and recipe, not byte
 identity or equivalence between annotators.
+
+## Scope and relationship to existing approaches
+
+The contribution is recipe-specific incremental execution: an indexed payload
+cache, automatic execution of the same recipe for misses, and assembly of one
+sample-level result. vcfanno and echtvar address efficient joins of supplied
+annotation fields, and VarNote accelerates access to large functional resources
+[@vcfanno2016; @pedersen2023echtvar; @huang2020varnote]. GEMINI persists cohort
+variants, genotypes and annotations for downstream query [@paila2013gemini].
+These approaches establish that annotation reuse and fast lookup are not new
+in themselves; VCFcache makes reuse part of executing an existing recipe on
+successive samples. Faster lookup can further reduce its processing cost.
+
+Reuse is appropriate for allele-local INFO annotations stable under the frozen
+recipe. Genotype-dependent, haplotype-dependent or processing-order-dependent
+output requires separate validation; arbitrary FORMAT changes and changes to
+the record set are outside the demonstrated contract. The observed VEP and
+SnpEff differences therefore delimit the equivalence claim. Within the tested
+scope, reusable public and cohort caches turn recurrent alleles into saved
+annotation work, including around a fast parallel annotator.

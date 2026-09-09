@@ -10,6 +10,30 @@ and parameter snapshots. Sample annotation splits records into cache hits and
 misses, applies the same command to misses, and produces a coordinate-sorted,
 indexed BCF. Semantic comparison was performed afterward and was never timed.
 
+Cache matching uses CHROM, POS, REF and ALT within an assembly-specific
+namespace, rather than a position-only or genotype key. Equivalent alleles can
+have different VCF encodings [@tan2015unified]. Sample preprocessing decomposes
+multiallelic records with `bcftools norm -m-` and removes spanning-deletion
+`ALT=*` alleles; it does not recombine the split records. This command does not
+perform reference-based left alignment. Input and cache must therefore already
+share the intended left-aligned/minimal representation and contig naming;
+reference-based normalization, when required, must use the same FASTA upstream.
+Assembly and contig-name compatibility checks do not establish biological
+equivalence between differently represented indels. Tested inputs contained
+biallelic autosomal SNPs and short indels; this study does not validate arbitrary
+structural variants or record-changing recipes.
+
+The cache stores INFO payloads, while sample genotypes remain attached to the
+input records. The recipe's required INFO tag identifies annotated records and
+must be populated for the supported variant universe. Recipe and parameter
+snapshots record the command and resource paths; a YAML checksum alone cannot
+detect a changed binary or database at an unchanged path. The benchmark adds
+tool versions, binary/reference/database hashes and frozen wrapper scripts in
+its provenance manifests. Annotator, option, plugin, reference, resource or
+output-schema changes require a separately built cache. The archived resource
+checksums, rather than automatic hashing of every external dependency by the
+CLI, define the benchmark's frozen execution environment.
+
 ## Samples and cache strategies
 
 The external WGS benchmark used open KPGP and SGDP GRCh38 genomes and Harvard
@@ -38,6 +62,11 @@ reserved genomes; annotations were built independently for every tool and
 recipe.
 No documented overlap between evaluation cohorts and gnomAD was identified,
 although undisclosed sample-level overlap cannot be excluded.
+The gnomAD resource citation and v4.1 release identify the source population
+data; the AF ≥10% and AF ≥1% GRCh38 VEP cache DOIs identify the downloadable
+artifacts [@karczewski2020gnomad; @gnomad2024release;
+@vcfcache_af10_cache; @vcfcache_af1_cache]. fastVEP and SnpEff caches were
+annotated locally from the corresponding allele sets.
 
 ## Annotation recipes and execution
 
@@ -78,6 +107,9 @@ summary statistics. Diagnosis used direct SnpEff 5.4c outside all timing: the
 target alone, an adjacent insertion followed by the target, and the reversed
 pair. No VCFcache process was involved. Exact inputs, outputs and checksums are
 archived with the final campaign.
+These four cells failed the original equivalence gate and remain reported as
+such; their upstream explanation does not turn them into concordant results.
+Likewise, the VEP pass criterion does not establish equality of `HGNC_ID`.
 
 ## Controlled annotation-load experiments
 

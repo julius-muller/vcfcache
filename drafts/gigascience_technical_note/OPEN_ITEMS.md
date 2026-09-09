@@ -4,6 +4,12 @@ These items are intentionally not inferred from the repository.
 
 ## Required before bioRxiv submission
 
+- [ ] Add a representative non-perfect-hit WGS stage profile with measured
+      preprocessing, lookup, miss selection, annotation, merge and write/index
+      durations; the existing perfect-hit diagnostics are not an additive profile.
+- [ ] Audit assembly, contig and reference-normalization provenance for each
+      input/cache pairing; do not infer left alignment from `bcftools norm -m-`.
+
 - [ ] Final title.
 - [ ] Complete author order, affiliations, email addresses, and ORCIDs.
 - [ ] Corresponding author designation.

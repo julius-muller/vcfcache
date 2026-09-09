@@ -1,7 +1,7 @@
 # Abstract
 
 **Background:** Variant annotators repeatedly compute the same consequences
-when alleles recur across samples. VCFcache stores the output of a fixed
+when alleles recur across samples. VCFcache stores INFO annotation payloads from a fixed
 annotation recipe and sends only cache misses to the original annotator.
 
 **Findings:** In 12 independent GRCh38 genomes using a bundled gnomAD
