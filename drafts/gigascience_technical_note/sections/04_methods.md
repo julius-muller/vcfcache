@@ -15,9 +15,10 @@ namespace, rather than a position-only or genotype key. Equivalent alleles can
 have different VCF encodings [@tan2015unified]. Sample preprocessing decomposes
 multiallelic records with `bcftools norm -m-` and removes spanning-deletion
 `ALT=*` alleles; it does not recombine the split records. This command does not
-perform reference-based left alignment. Input and cache must therefore already
-share the intended left-aligned/minimal representation and contig naming;
-reference-based normalization, when required, must use the same FASTA upstream.
+perform reference-based left alignment. Input and cache must share allele
+representation and contig naming for matching; reference-based left alignment
+and minimal representation can establish consistent keys and, when applied,
+must use the same reference sequence upstream.
 Assembly and contig-name compatibility checks do not establish biological
 equivalence between differently represented indels. Tested inputs contained
 biallelic autosomal SNPs and short indels; this study does not validate arbitrary
@@ -25,7 +26,9 @@ structural variants or record-changing recipes.
 
 The cache stores INFO payloads, while sample genotypes remain attached to the
 input records. The recipe's required INFO tag identifies annotated records and
-must be populated for the supported variant universe. Recipe and parameter
+must be populated for records intended to count as annotated hits. By default,
+records still lacking that tag after annotation are filtered; the
+`--preserve-unannotated` option retains them. Recipe and parameter
 snapshots record the command and resource paths; a YAML checksum alone cannot
 detect a changed binary or database at an unchanged path. The benchmark adds
 tool versions, binary/reference/database hashes and frozen wrapper scripts in

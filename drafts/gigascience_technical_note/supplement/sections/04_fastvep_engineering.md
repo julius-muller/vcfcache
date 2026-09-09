@@ -38,9 +38,12 @@ for the empty-miss scan and 18.3 s for final filtering/compressed output.
 Standalone index construction took approximately 15 s; production commands
 built indexes inline. These are diagnostic timings from separate commands,
 not additive partitions of one end-to-end observation: compression and indexing
-overlap other work. At 100% hits there is no native annotation stage. A complete
-stage decomposition at a non-perfect hit rate remains to be measured before
-fitting all components of the runtime model independently.
+overlap other work. The 100% condition was a deliberately constructed pilot
+cache, not an observed perfect hit rate in the final biological campaign.
+Archived runs with misses also contain stage timings, including the real-WGS
+example in the Supplementary runtime model. That command-level breakdown
+includes compression and indexing within each stage; it does not separately
+identify every internal operation or fit all model parameters.
 
 In the affinity-controlled experiment, both direct fastVEP and
 VCFcache were restricted using `taskset`; the plotted axis therefore denotes

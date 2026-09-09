@@ -18,7 +18,7 @@ retained. Precision about the execution contract strengthens these claims.
 | Specify recipe fingerprint | Distinguish product snapshots/YAML identity from benchmark resource checksums; identify recipe changes requiring a new cache. |
 | Specify equivalence | Keep all existing comparator definitions and failures; explicitly state that the HGNC exception and excluded SnpEff cells do not establish equality of those outputs. |
 | Separate population data from cache provenance | Cite gnomAD, its release and the existing Zenodo cache artifacts separately; explain cohort-specific coverage and local fastVEP/SnpEff annotation. |
-| Add stage profile | Supplement reports existing perfect-hit diagnostics with overlap limitations. A complete non-perfect-hit profile is an explicit submission item, not a fabricated measurement. |
+| Add stage profile | Supplement reports a real-WGS command-level breakdown at 92.99% hits recovered from the archived measured run, alongside the separate controlled perfect-hit diagnostics. No new benchmark is required. |
 | Broaden citations | Add Tan, GEMINI, VarNote and gnomAD. VRS and GenomicsDB are omitted to keep the note concise; VCFcache does not implement VRS identifiers. |
 
 ## Citation corrections
@@ -35,6 +35,19 @@ the memo's preprint footnote.
 ## Remaining evidence work
 
 No new benchmark execution is implied by this editorial pass. Existing measured
-claims remain unchanged. The non-perfect-hit stage profile and normalization
-provenance audit are listed in `OPEN_ITEMS.md`; author, ethics and archive
+headline claims remain unchanged. The stage breakdown is now documented from
+existing evidence. The normalization provenance audit remains in `OPEN_ITEMS.md`;
+author, ethics and archive
 metadata remain outstanding. Do not describe the draft as submission-final.
+
+## Correction following evidence recheck
+
+The initial revision incorrectly stated that stage timing with cache misses
+remained to be measured. Both the early pilot's `stage_timings.tsv` (80%, 90%
+and 100% conditions) and real-WGS `workflow.log` files already record command
+durations. The supplement now includes a measured real-WGS example reconciled
+to its retained metrics row. None of the 180 cached final-campaign cells has
+zero misses. The 100% diagnostic belongs to a constructed engineering cache.
+Normalization wording was also refined: consistent allele keys enable reuse;
+left alignment is not an automatic consequence of multiallelic splitting or
+a prerequisite for matching records that already share the same representation.

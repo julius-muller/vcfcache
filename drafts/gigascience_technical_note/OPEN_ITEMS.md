@@ -4,9 +4,8 @@ These items are intentionally not inferred from the repository.
 
 ## Required before bioRxiv submission
 
-- [ ] Add a representative non-perfect-hit WGS stage profile with measured
-      preprocessing, lookup, miss selection, annotation, merge and write/index
-      durations; the existing perfect-hit diagnostics are not an additive profile.
+- [x] Summarize a representative WGS stage profile from existing measured-run
+      logs (92.99% hits); see Supplementary runtime model. No new run is needed.
 - [ ] Audit assembly, contig and reference-normalization provenance for each
       input/cache pairing; do not infer left alignment from `bcftools norm -m-`.
 

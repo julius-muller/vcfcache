@@ -33,8 +33,8 @@ Status: publication-format working draft
 3. Complete the code/data archive DOI and software identifiers.
 4. Obtain the institutionally appropriate public-data ethics wording.
 5. Resolve all items in `OPEN_ITEMS.md`, then run `make release-check`.
-6. Complete the non-perfect-hit stage profile and normalization provenance audit
-   identified in the citation review before describing those aspects as validated.
+6. Complete the normalization provenance audit. The representative WGS stage
+   breakdown has been recovered from archived logs and included in the supplement.
 
 Alternative title retained for discussion: *Annotate what is new: VCFcache
 accelerates repeated variant annotation without changing results*.

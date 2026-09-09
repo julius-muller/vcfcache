@@ -20,5 +20,38 @@ recoverable work is the sum of annotation costs over hits, not necessarily
 $f$ times the total. Similarly, processing costs can depend on cache size,
 output payload, storage and thread allocation as well as input count.
 The curves in Figure 3 are explanatory approximations; they do not estimate
-every model parameter from independently timed stages. Existing perfect-hit
-diagnostics are described under fastVEP engineering pilots.
+every model parameter from independently timed stages.
+
+### Observed stage timings from an existing real-WGS run
+
+The archived measured VEP run for SGDP genome `LP6005519-DNA_B04` with the
+gnomAD AF ≥1% cache contains 4,876,494 input alleles and 342,007 misses
+(92.99% hits). Its command durations provide the following breakdown without
+rerunning the sample.
+
+| Operation | Wall time (s) |
+|---|---:|
+| Multiallelic splitting and input filtering | 34.409 |
+| Cache annotation lookup | 102.368 |
+| Miss extraction | 44.556 |
+| VEP on misses, including input/output conversion | 911.632 |
+| Merge annotations | 52.822 |
+| Final filtering and output | 59.591 |
+| Other end-to-end overhead (difference) | 1.902 |
+| End-to-end cached runtime | 1,207.280 |
+
+Each command includes its own output processing, compression and inline index
+creation where specified. The six sequential command durations sum to
+1,205.378 s. The residual is calculated against the recorded end-to-end time,
+not attributed to a separately measured component. Direct annotation took
+11,467.473 s; the retained pair passed its VEP semantic gate and achieved
+9.499-fold speedup. Thus real-sample stage timing already exists; only
+separation of internal costs such as compression versus lookup would require
+additional instrumentation.
+
+Evidence: `figures/source_data/external_wgs_metrics.tsv`, VEP/sample/AF ≥1% row,
+and the archived `workflow.log` under
+`benchmarks/results/raw/campaigns/external-vep-light-full52-bbef41d7db8e/measured/tasks/task-23/runs/gnomad_af_0.01/pilot/LP6005519-DNA_B04/bbef41d7db8e/cached_r01/stats/LP6005519-DNA_B04_vcstats/`.
+The final native campaign's 180 cached cells contain no zero-miss observation;
+the perfect-hit case discussed in the model and early engineering pilot is a
+separate controlled condition.
