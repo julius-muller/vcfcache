@@ -1,0 +1,28 @@
+{
+  "created_at": "2026-10-14T11:55:34.453784+00:00",
+  "purpose": "untimed coverage and QC diagnostic; no new annotation performance claims",
+  "source_url": "https://ddbj.nig.ac.jp/public/public-human-genomes/GRCh38/SGDP/GVCF/LP6005677-DNA_D03.hs38DH/LP6005677-DNA_D03.hs38DH.BQSR.autosome.g.vcf.gz",
+  "cache": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/blueprint/vcfcache.bcf",
+  "reference": "/mnt/data/resources/reference/ucsc/hg38.fa.gz",
+  "preselection": "GT=\"alt\" before the existing normalization helper; complete source retained",
+  "bcftools_version": "bcftools 1.21",
+  "common_region_definition": "chr20 PASS/dot gVCF records; complete GT; GQ>=20; MIN_DP>=10 when present, otherwise DP>=10; intersection of all five samples; variant start in interval; compare with matched chr20 baseline",
+  "samples": {
+    "LP6005592-DNA_C05": "Khomani_San",
+    "SS6004480": "Dinka",
+    "LP6005677-DNA_G01": "Luo",
+    "LP6005442-DNA_B04": "Georgian",
+    "LP6005677-DNA_D03": "Khomani_San"
+  },
+  "source_sha256": "54ee70c730a6ef3140f2ade6157fd6ce16e17b13604751adae2f747f9887b422",
+  "reference_sha256": "68dabbf6c07654f5ffcda4975afb48ceb233ca549b3459dcc5c7e7289d9fa4b9",
+  "cache_sha256": "2828116ca9a996fbd5259ea7cb477ec4499a2c01c77c6662d2c345610695057b",
+  "normalized_input_sha256": {
+    "LP6005592-DNA_C05": "0958ba82c15402c7c9129948ddb0c4ff8617f2fff9df7fba3b5de17601c6b0f4",
+    "SS6004480": "ff0580042c0db77d12813902f1a10c11fa75fde6e02dca4671edaf8fe5c532f3",
+    "LP6005677-DNA_G01": "25dbd582ed3c5e8f16e3b6fcb5ca0cbd1ef72ffa924ac5d899373323002b1e8c",
+    "LP6005442-DNA_B04": "0dbac1d1eb57f88de26a5753583a496199356eae32a6324e415f629091708732",
+    "LP6005677-DNA_D03": "d377c96d02065b4168cedb5075214cc3361ce3c84edd9f094fb845a6d19feb37"
+  },
+  "common_genotyped_bases": 59954567
+}
