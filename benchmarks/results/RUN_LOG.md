@@ -110,16 +110,19 @@ prediction, not a speedup, is what a vep-rs arm would test.
 |---|---|---|
 | 1243, 1245, 1247, 1249 | heavy-ladder attempts | failed before measuring; causes in `V5_heavy_ladder.sh` header |
 | 1250 | heavy ladder, partial | `L0`/`L1` measured, then died on a `printf '%s'` that left `\t` literal in a TSV header |
-| 1251 | heavy ladder, genome-wide gnomAD | see `raw/archive/veprs-heavy-*/` |
+| 1251 | heavy ladder, genome-wide gnomAD | **complete** — 66 cells, all rc=0; `raw/archive/veprs-heavy-grch38-chr22-genomewide/` |
 | — | fused-routing threshold check (local) | `raw/archive/fused-routing-threshold-check/` |
 
-**One genome-wide gnomAD source already crosses break-even.** Job 1250 measured
-vep-rs core at 7.49 µs/variant and core plus `gnomADc` over the 99.9 M-record
-genome-wide joint gnomAD at **34.4 µs/variant**, with the field asserted present
-on 3,540,863 of 3,787,554 output rows. Against the 29.7 µs legacy threshold that
-is a win on a single supplementary source — not the two-to-three the
-exome-restricted probe had suggested, because the exome file simply has no AF to
-return off-target.
+**One genome-wide gnomAD source already crosses break-even.** Job 1251's full
+ladder puts vep-rs core at 7.42 µs/variant and core plus `gnomADc` over the
+99.9 M-record genome-wide joint gnomAD at **31.95 µs/variant**, the field
+asserted present on 3,540,863 of 3,787,554 output rows. Against the 29.7 µs
+legacy threshold that is a win on a single supplementary source — not the
+two-to-three the exome-restricted probe had suggested, because the exome file has
+almost no AF to return outside exons. Every richer rung is further past it
+(clinical 40.76, `--everything` + clinical 59.65, heaviest 95.59 µs); only bare
+core stays below, so the rule keeps a real negative region. The exome-restricted
+file costs **more** per variant (48.92 µs) and returns 6.2× fewer annotations.
 
 **Fused routing roughly halves the threshold.** Per-variant overhead 11.03 µs
 legacy against 5.55 µs fused (1.99×), while start-up moves only 0.752 → 0.729 s.

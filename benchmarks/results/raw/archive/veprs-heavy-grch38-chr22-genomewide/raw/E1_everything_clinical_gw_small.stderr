@@ -1,0 +1,16 @@
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-22T08:53:22.718827Z[0m [33m WARN[0m [2mvep_cli::config[0m[2m:[0m --everything implies --regulatory, which has no effect: regulatory-feature annotation is not implemented, so no TFBS_* or regulatory_region_* consequence is emitted
+[2m2026-10-22T08:53:22.719494Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: /mnt/data/tmp/veprs-heavy-1251/small.vcf
+[2m2026-10-22T08:53:22.719523Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: /mnt/data/tmp/veprs-heavy-1251/E1_everything_clinical_gw_small.txt
+[2m2026-10-22T08:53:22.719530Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vep
+[2m2026-10-22T08:53:22.720646Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 8 threads for annotation
+[2m2026-10-22T08:53:22.803854Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:53:22.808049Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"dbNSFP"
+[2m2026-10-22T08:53:22.808090Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Loaded 2 built-in plugin(s)
+[2m2026-10-22T08:53:22.808100Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_chr22 (lazy per-chromosome, index impl=bin)
+[2m2026-10-22T08:53:22.808632Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Loading variations from JSON cache: /results/veprs/json_cache/GRCh38_chr22
+[2m2026-10-22T08:53:22.808672Z[0m [32m INFO[0m [2mvep_cli::json_cache[0m[2m:[0m No variations directory found at /results/veprs/json_cache/GRCh38_chr22/variations
+[2m2026-10-22T08:53:22.949654Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 10000 variants...Processed 16385 variants (76783 consequences) in 0.7s using 8 threads

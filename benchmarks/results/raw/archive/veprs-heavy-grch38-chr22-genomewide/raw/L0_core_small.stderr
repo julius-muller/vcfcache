@@ -1,0 +1,10 @@
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-22T08:44:55.299136Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: /mnt/data/tmp/veprs-heavy-1251/small.vcf
+[2m2026-10-22T08:44:55.299176Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: /mnt/data/tmp/veprs-heavy-1251/L0_core_small.txt
+[2m2026-10-22T08:44:55.299183Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vep
+[2m2026-10-22T08:44:55.300236Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 8 threads for annotation
+[2m2026-10-22T08:44:55.300339Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_chr22 (lazy per-chromosome, index impl=bin)
+[2m2026-10-22T08:44:55.476419Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 10000 variants...Processed 16385 variants (76783 consequences) in 0.2s using 8 threads

@@ -1,0 +1,23 @@
+rung                       c (us/var)   s (s)    rec/s   legacy   fused
+------------------------------------------------------------------------
+L0_core                          7.42   0.232   122629     lose    lose
+L1_gw_af                        31.95   0.206    30674      WIN     WIN
+L2_clinical_gw                  40.76   0.083    24378      WIN     WIN
+L3_clinical_hgvs                52.93  -0.060    18963      WIN     WIN
+L4_clinical_plus_scores         76.36  -0.268    13243      WIN     WIN
+W2_gw_wholefile_x2              53.63   0.024    18622      WIN     WIN
+W4_gw_wholefile_x4              68.56   0.202    14450      WIN     WIN
+W8_gw_wholefile_x8              98.66   0.168    10081      WIN     WIN
+X1_exome_wholefile              48.92   0.034    20396      WIN     WIN
+E1_everything_clinical_gw       59.65  -0.130    16880      WIN     WIN
+E2_everything_heavy_gw          95.59  -0.278    10559      WIN     WIN
+
+per-source cost of a whole-file genome-wide gnomAD lookup:
+  1 instance(s):   31.95 us total,  24.53 us per source
+  2 instance(s):   53.63 us total,  23.11 us per source
+  4 instance(s):   68.56 us total,  15.29 us per source
+  8 instance(s):   98.66 us total,  11.41 us per source
+
+genome-wide vs exome-restricted, one whole-file source:
+  genome-wide joint (99.9 M rec)      31.95 us/variant
+  exome-restricted (183.7 M rec)      48.92 us/variant

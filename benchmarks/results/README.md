@@ -59,6 +59,8 @@ which do not share samples with gnomAD.
 | fastVEP annotation-richness ladder | `raw/richness/results/` |
 | Controlled per-variant cost sweep | `raw/campaigns/controlled-runtime-light-*/` |
 | vep-rs 0.4.0 capability and cost pilot | `raw/archive/veprs-pilot-grch38-chr22-diagnostic/` |
+| vep-rs annotation-heavy ladder, genome-wide gnomAD | `raw/archive/veprs-heavy-grch38-chr22-genomewide/` |
+| Fused-routing engine threshold check | `raw/archive/fused-routing-threshold-check/` |
 | Cluster and tool versions at collection | `raw/COLLECTION_ENV.txt` |
 
 Figure inputs and the derived tables the manuscript cites remain where the
@@ -108,6 +110,8 @@ was flawed and the numbers do not estimate what they appear to.
 | 2026-08-22 | `snpeff_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 721 MB, built in 7:20:53 | primary |
 | 2026-08-22 | `snpeff_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.5 GB, built in 13:11:20 | primary |
 | 2026-10-22 | vep-rs 0.4.0 pilot (job 1242) | Perl->JSON cache conversion works; clinical level unreachable; 5.68-14.00 us/variant, so the break-even rule predicts caching loses at every scale | diagnostic |
+| 2026-10-22 | vep-rs heavy ladder (job 1251) | 66 cells; clinical level IS reachable via the plugin path; one genome-wide gnomAD source takes 7.42 -> 31.95 us/variant and crosses break-even | primary |
+| 2026-10-22 | fused-routing threshold check | VCFcache per-variant overhead 11.03 -> 5.55 us (1.99x), start-up flat; threshold ~29.7 -> ~15.0 us/variant | diagnostic |
 
 ### Measured constants worth keeping in one place
 
@@ -129,3 +133,7 @@ was flawed and the numbers do not estimate what they appear to.
 | vep-rs per-variant cost, GRCh38, `--fork 8` | 5.68 us (core) to 14.00 us (`--everything`) | `raw/archive/veprs-pilot-grch38-chr22-diagnostic/pilot_1242.tsv` |
 | vep-rs start-up | 0.16-0.25 s (transcript index load) | same, two-point fit |
 | Per-variant cost needed to reach break-even at f=0.9258 | 29.7 us | 27.5 us VCFcache overhead / f |
+| vep-rs + one genome-wide gnomAD source | 31.95 us/variant | `raw/archive/veprs-heavy-grch38-chr22-genomewide/fit_ladder.txt` |
+| vep-rs clinical level (ClinVar + genome-wide gnomAD AF) | 40.76 us/variant | same |
+| VCFcache per-variant overhead, fused-routing engine | 5.55 us (1.99x below legacy) | `raw/archive/fused-routing-threshold-check/fit.txt` |
+| Break-even threshold, fused-routing engine | ~15.0 us/variant | same, scaled from the synthetic harness |

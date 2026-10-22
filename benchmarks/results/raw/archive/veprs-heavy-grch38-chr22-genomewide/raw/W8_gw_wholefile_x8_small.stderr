@@ -1,0 +1,19 @@
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-22T08:50:50.429385Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: /mnt/data/tmp/veprs-heavy-1251/small.vcf
+[2m2026-10-22T08:50:50.431100Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: /mnt/data/tmp/veprs-heavy-1251/W8_gw_wholefile_x8_small.txt
+[2m2026-10-22T08:50:50.431111Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vep
+[2m2026-10-22T08:50:50.432522Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 8 threads for annotation
+[2m2026-10-22T08:50:50.514430Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:50.588884Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:50.663368Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:50.740429Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:50.813037Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:50.888267Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:50.962627Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:51.038378Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-22T08:50:51.038439Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Loaded 8 built-in plugin(s)
+[2m2026-10-22T08:50:51.038470Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_chr22 (lazy per-chromosome, index impl=bin)
+[2m2026-10-22T08:50:51.206345Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 10000 variants...Processed 16385 variants (76783 consequences) in 1.8s using 8 threads

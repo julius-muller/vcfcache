@@ -1,0 +1,27 @@
+{
+  "run_id": "veprs-heavy-grch38-chr22-genomewide",
+  "tool": "vep-rs 0.4.0 (reports itself as Ensembl VEP (Rust) v116.2)",
+  "database": "Perl VEP 115 GRCh38 cache, chr22, converted to JSON (12,225 transcripts)",
+  "supplementary_sources": {
+    "gnomad_joint_gw_GRCh38.vcf.gz": "99,942,855 records, GENOME-WIDE joint genomes+exomes v4.1, AF>=0.01%, AF populated on every record. Staged into the shared results tree from /mnt/data/vcfcache_data/raw (head-node only) and given a fresh .tbi, since vep-rs refuses the shipped .csi.",
+    "gnomad_exomes_GRCh38.vcf.gz": "183,717,261 records but exome-restricted; kept only for the exome-vs-genome-wide contrast",
+    "clinvar_GRCh38.vcf.gz": "4,465,932 records, chr22 slice as a dbNSFP-format tabix TSV (96,778 rows)"
+  },
+  "assembly": "GRCh38",
+  "level": "per-variant cost ladder; L2 is the project's clinical level (ClinVar + gnomAD AF)",
+  "invocation": "vep --fork 8 --json_cache <dir>, single process per cell, 3 reps per size",
+  "assays": ["chr22 blueprint slice 16,385 records", "chr22 blueprint slice 314,314 records"],
+  "genomes": 0,
+  "cohorts": [],
+  "cache": "gnomAD v4.1 GRCh38 joint AF>=1% blueprint, chr22 slices (the cuts job 1242 and the SnpEff clinical gate used)",
+  "slurm_job": 1251,
+  "status": "primary",
+  "note": "66 cells, all rc=0, every level's defining field asserted present. Answers the question job 1242 left open: vep-rs is only below break-even in its transcripts-only state. One genome-wide gnomAD source takes it from 7.42 to 31.95 us/variant, past even the legacy 29.7 us threshold, and every richer rung is further past it. See ANALYSIS.md for the fits and the two model caveats that matter.",
+  "superseded_attempts": {
+    "1243": "container bound -B /mnt/data while the TSV path was under /results",
+    "1245": "paths moved to /mnt/data/slurm-results, which is the head node's name for the share; on a worker it is an empty mountpoint",
+    "1247": "genome-wide gnomAD read from /mnt/data/vcfcache_data/raw, head-node only",
+    "1249": "local name=$1 ... out=$TSV/$name.tsv -- local expands all its words before it runs, so $name was unset under set -u",
+    "1250": "printf '%s' left the \\t separators literal in the ClinVar TSV header; the rc check also sat after the artifact copy, so head reported a missing file instead of the plugin error"
+  }
+}

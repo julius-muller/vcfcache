@@ -1,0 +1,70 @@
+## ENSEMBL VARIANT EFFECT PREDICTOR v116.2
+## Output produced at 2026-10-22 08:50:51
+## Using cache in /results/veprs/json_cache/GRCh38_chr22
+## Using API version 116, DB version ?
+## 1000genomes version phase3
+## COSMIC version 101
+## ClinVar version 202502
+## HGMD-PUBLIC version 20204
+## assembly version GRCh38.p14
+## dbSNP version 156
+## gencode version GENCODE 49
+## genebuild version GENCODE49
+## gnomADe version v4.1
+## gnomADg version v4.1
+## polyphen version 2.2.3
+## regbuild version 1.0
+## sift version 6.2.1
+## Column descriptions:
+## Uploaded_variation : Identifier of uploaded variant
+## Location : Location of variant in standard coordinate format (chr:start or chr:start-end)
+## Allele : The variant allele used to calculate the consequence
+## Gene : Stable ID of affected gene
+## Feature : Stable ID of feature
+## Feature_type : Type of feature - Transcript, RegulatoryFeature or MotifFeature
+## Consequence : Consequence type
+## cDNA_position : Relative position of base pair in cDNA sequence
+## CDS_position : Relative position of base pair in coding sequence
+## Protein_position : Relative position of amino acid in protein
+## Amino_acids : Reference and variant amino acids
+## Codons : Reference and variant codon sequence
+## Existing_variation : Identifier(s) of co-located known variants
+## Extra column keys:
+## IMPACT : Subjective impact classification of consequence type
+## DISTANCE : Shortest distance from variant to transcript
+## STRAND : Strand of the feature (1/-1)
+## FLAGS : Transcript quality flags
+## VEP command-line: vep --assembly GRCh38 --force_overwrite --fork 8 --input_file [PATH]/small.vcf --json_cache [PATH]/GRCh38_chr22 --output_file [PATH]/W8_gw_wholefile_x8_small.txt --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz --plugin gnomADc,[PATH]/gnomad_joint_gw_GRCh38.vcf.gz
+#Uploaded_variation	Location	Allele	Gene	Feature	Feature_type	Consequence	cDNA_position	CDS_position	Protein_position	Amino_acids	Codons	Existing_variation	Extra
+chr22_16000012_T/C	chr22:16000012	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.404493%3BAC=19499;gnomADc_REF=T
+chr22_16000078_C/T	chr22:16000078	T	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=T;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.02409%3BAC=1534;gnomADc_REF=C
+chr22_16000139_G/C	chr22:16000139	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.167528%3BAC=4471;gnomADc_REF=G
+chr22_16000173_A/G	chr22:16000173	G	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=G;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0673633%3BAC=1560;gnomADc_REF=A
+chr22_16000175_C/A	chr22:16000175	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0104446%3BAC=397;gnomADc_REF=C
+chr22_16000181_A/C	chr22:16000181	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0156581%3BAC=576;gnomADc_REF=A
+chr22_16000359_C/A	chr22:16000359	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0666883%3BAC=7806;gnomADc_REF=C
+chr22_16000380_A/G	chr22:16000380	G	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=G;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0101042%3BAC=1138;gnomADc_REF=A
+chr22_16000574_C/A	chr22:16000574	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0145793%3BAC=210;gnomADc_REF=C
+chr22_16001022_G/A	chr22:16001022	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.404332%3BAC=224;gnomADc_REF=G
+chr22_16001123_A/C	chr22:16001123	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0273213%3BAC=419;gnomADc_REF=A
+chr22_16001239_A/C	chr22:16001239	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0279501%3BAC=721;gnomADc_REF=A
+chr22_16001423_C/T	chr22:16001423	T	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.000144246%3BAC=16;gnomADc_REF=C
+chr22_16001610_G/A	chr22:16001610	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0541497%3BAC=826;gnomADc_REF=G
+chr22_16005801_G/A	chr22:16005801	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.66768%3BAC=25922;gnomADc_REF=G
+chr22_16005904_T/C	chr22:16005904	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.337352%3BAC=42248;gnomADc_REF=T
+chr22_16005967_G/A	chr22:16005967	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.26026%3BAC=38074;gnomADc_REF=G
+chr22_16006011_G/T	chr22:16006011	T	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=T;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0823115%3BAC=11774;gnomADc_REF=G
+chr22_16006039_A/G	chr22:16006039	G	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=G;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0762108%3BAC=10165;gnomADc_REF=A
+chr22_16006112_G/A	chr22:16006112	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0151469%3BAC=987;gnomADc_REF=G
+chr22_16007506_G/A	chr22:16007506	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.105134%3BAC=86;gnomADc_REF=G
+chr22_16007629_C/A	chr22:16007629	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0103563%3BAC=150;gnomADc_REF=C
+chr22_16007638_T/C	chr22:16007638	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0510561%3BAC=2683;gnomADc_REF=T
+chr22_16007651_C/T	chr22:16007651	T	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=T;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0228471%3BAC=1014;gnomADc_REF=C
+chr22_16007746_G/A	chr22:16007746	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0419567%3BAC=4316;gnomADc_REF=G
+chr22_16007915_A/G	chr22:16007915	G	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=ATG;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0015347%3BAC=231;gnomADc_REF=A
+chr22_16007995_G/A	chr22:16007995	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0709386%3BAC=9887;gnomADc_REF=G
+chr22_16008394_G/A	chr22:16008394	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.010118%3BAC=12;gnomADc_REF=G
+chr22_16012271_C/T	chr22:16012271	T	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=T;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0824885%3BAC=1611;gnomADc_REF=C
+chr22_16012473_G/A	chr22:16012473	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.110575%3BAC=13033;gnomADc_REF=G
+chr22_16012500_G/A	chr22:16012500	A	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=A;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.286083%3BAC=30449;gnomADc_REF=G
+chr22_16012621_T/C	chr22:16012621	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER;gnomADc_ALT=C;gnomADc_FILTER=PASS;gnomADc_INFO=AF=0.0265461%3BAC=91;gnomADc_REF=T

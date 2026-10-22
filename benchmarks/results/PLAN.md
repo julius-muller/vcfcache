@@ -36,7 +36,7 @@ within each tool, not from absolute runtime rankings between tools.
 | VEP | not run | **done** (`--everything --hgvsg`, both assemblies; annotation-rich) |
 | fastVEP | **done** (both assemblies, 52 genomes) | **done** (both assemblies) |
 | SnpEff | GRCh38 **done**; GRCh37 **done** | GRCh38 and GRCh37 **done** |
-| vep-rs | piloted, GRCh38 (job 1242) | **not reachable** — converted cache carries transcripts only |
+| vep-rs | **done** GRCh38 (jobs 1242, 1251) | **done** via the plugin path (job 1251); not reachable from the converted cache's own data |
 
 `benchmarks/vep_plugins/SyntheticDelay.pm` remains the controlled continuous
 sweep of per-variant cost. It models the axis; it does not compare tools.
@@ -87,10 +87,22 @@ annotation is run.
    presenting cross-tool wall time as a controlled annotator ranking.
 5. Reconcile the cohort-confounding wording in `sections/03_findings.md` with the
    requirement that PGP appears in every arm.
-6. Decide the vep-rs arm. The pilot places it at 5.68-14.00 us/variant, below
-   the 29.7 us break-even threshold at every configuration, so a campaign would
-   test a predicted **loss** rather than measure a speedup. See
-   `raw/archive/veprs-pilot-grch38-chr22-diagnostic/ANALYSIS.md`.
+6. ~~Decide the vep-rs arm.~~ **Resolved by job 1251, in the opposite direction
+   to the pilot's prediction.** The pilot measured transcripts only. With one
+   genome-wide gnomAD source vep-rs runs at 31.95 us/variant and crosses even the
+   legacy threshold; the clinical level is 40.76 us. Only bare core (7.42 us)
+   stays below. A vep-rs campaign therefore measures a predicted **win** at
+   clinical level and a predicted **loss** at core — both sides of the rule in one
+   annotator, which no other tool in the matrix provides. See
+   `raw/archive/veprs-heavy-grch38-chr22-genomewide/ANALYSIS.md`.
+7. Decide whether the fused-routing engine enters the manuscript. It halves
+   VCFcache's per-variant overhead (11.03 -> 5.55 us) and so moves the threshold
+   from ~29.7 to ~15.0 us/variant, which changes the verdict for one
+   configuration (`--everything` on transcripts alone, 14.00 us). The figure is
+   scaled from a synthetic harness; validating it against a real WGS cache is the
+   open step, and `benchmarks/fused_engine/RESULTS.md` names it too. The engine is
+   opt-in and legacy remains the default, so every published number stays legacy
+   unless this is deliberately changed.
 
 ## Assembly is a cost axis for one annotator and not the other
 
@@ -155,8 +167,10 @@ order of magnitude and, in doing so, crosses to the other side of break-even:
 |---|---|---|
 | SnpEff clinical, GRCh38 | ~2370 us | wins by a wide margin |
 | SnpEff core, GRCh38 | 558 us | wins |
-| vep-rs `--everything` | 14.0 us | **loses at every N** |
-| vep-rs core | 5.68 us | **loses at every N** |
+| vep-rs clinical, genome-wide gnomAD | 40.8 us | wins |
+| vep-rs + one genome-wide gnomAD source | 32.0 us | wins, just |
+| vep-rs `--everything`, transcripts only | 14.0 us | loses on legacy; **at break-even on fused** |
+| vep-rs core | 7.4 us | **loses at every N** |
 
 Break-even needs per-variant cost above 29.7 us, which is VCFcache's own
 27.5 us/variant overhead divided by the hit rate. Below that the per-variant

@@ -1,0 +1,208 @@
+[2026-10-22T10:44:42.027] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-10-22T10:44:42.028] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-10-22T10:44:42+02:00] vep-rs vep 0.4.0 on sl-w1, 16 CPUs
+[2026-10-22T10:44:43+02:00] small slice: 16385 records
+[2026-10-22T10:44:43+02:00] big slice: 314314 records
+[2026-10-22T10:44:43+02:00] genome-wide joint gnomAD: 1.1G, tbi 1.9M
+[2026-10-22T10:44:43+02:00] genome-wide joint gnomAD: 99942855 records
+[2026-10-22T10:44:53+02:00] built gnomad_joint.tsv.gz: 1626030 rows, 17M
+[2026-10-22T10:44:55+02:00] built clinvar.tsv.gz: 96778 rows, 692K
+[2026-10-22T10:44:55+02:00] L0_core/small rep1 rc=0 wall=0.353146s lines=82562
+[2026-10-22T10:44:56+02:00] L0_core/small rep2 rc=0 wall=0.353957s lines=82562
+[2026-10-22T10:44:56+02:00] L0_core/small rep3 rc=0 wall=0.355286s lines=82562
+[2026-10-22T10:44:58+02:00] L0_core/big rep1 rc=0 wall=2.128374s lines=3787554
+[2026-10-22T10:45:01+02:00] L0_core/big rep2 rc=0 wall=2.563138s lines=3787554
+[2026-10-22T10:45:04+02:00] L0_core/big rep3 rc=0 wall=2.674078s lines=3787554
+[2026-10-22T10:45:05+02:00] L1_gw_af/small rep1 rc=0 wall=0.706764s lines=82562
+[2026-10-22T10:45:06+02:00] L1_gw_af/small rep2 rc=0 wall=0.729272s lines=82562
+[2026-10-22T10:45:07+02:00] L1_gw_af/small rep3 rc=0 wall=0.742473s lines=82562
+[2026-10-22T10:45:07+02:00] L1_gw_af/small asserted gnomADc_INFO on 76798 rows
+[2026-10-22T10:45:19+02:00] L1_gw_af/big rep1 rc=0 wall=11.563018s lines=3787554
+[2026-10-22T10:45:30+02:00] L1_gw_af/big rep2 rc=0 wall=10.247004s lines=3787554
+[2026-10-22T10:45:40+02:00] L1_gw_af/big rep3 rc=0 wall=9.883887s lines=3787554
+[2026-10-22T10:45:42+02:00] L1_gw_af/big asserted gnomADc_INFO on 3540863 rows
+[2026-10-22T10:45:43+02:00] L2_clinical_gw/small rep1 rc=0 wall=0.750611s lines=82562
+[2026-10-22T10:45:43+02:00] L2_clinical_gw/small rep2 rc=0 wall=0.748625s lines=82562
+[2026-10-22T10:45:44+02:00] L2_clinical_gw/small rep3 rc=0 wall=0.780713s lines=82562
+[2026-10-22T10:45:44+02:00] L2_clinical_gw/small asserted dbNSFP_CV_CLNSIG on 1154 rows
+[2026-10-22T10:46:00+02:00] L2_clinical_gw/big rep1 rc=0 wall=14.662565s lines=3787554
+[2026-10-22T10:46:13+02:00] L2_clinical_gw/big rep2 rc=0 wall=12.893389s lines=3787554
+[2026-10-22T10:46:26+02:00] L2_clinical_gw/big rep3 rc=0 wall=12.518626s lines=3787554
+[2026-10-22T10:46:27+02:00] L2_clinical_gw/big asserted dbNSFP_CV_CLNSIG on 65605 rows
+[2026-10-22T10:46:28+02:00] L3_clinical_hgvs/small rep1 rc=0 wall=0.651957s lines=82562
+[2026-10-22T10:46:29+02:00] L3_clinical_hgvs/small rep2 rc=0 wall=0.817350s lines=82562
+[2026-10-22T10:46:30+02:00] L3_clinical_hgvs/small rep3 rc=0 wall=0.807167s lines=82562
+[2026-10-22T10:46:30+02:00] L3_clinical_hgvs/small asserted dbNSFP_CV_CLNSIG on 1154 rows
+[2026-10-22T10:46:47+02:00] L3_clinical_hgvs/big rep1 rc=0 wall=16.575511s lines=3787554
+[2026-10-22T10:47:05+02:00] L3_clinical_hgvs/big rep2 rc=0 wall=16.917044s lines=3787554
+[2026-10-22T10:47:20+02:00] L3_clinical_hgvs/big rep3 rc=0 wall=14.095798s lines=3787554
+[2026-10-22T10:47:21+02:00] L3_clinical_hgvs/big asserted dbNSFP_CV_CLNSIG on 65605 rows
+[2026-10-22T10:47:22+02:00] L4_clinical_plus_scores/small rep1 rc=0 wall=0.913092s lines=82562
+[2026-10-22T10:47:23+02:00] L4_clinical_plus_scores/small rep2 rc=0 wall=0.983704s lines=82562
+[2026-10-22T10:47:24+02:00] L4_clinical_plus_scores/small rep3 rc=0 wall=1.010690s lines=82562
+[2026-10-22T10:47:24+02:00] L4_clinical_plus_scores/small asserted dbNSFP_GJ_FREQ on 54830 rows
+[2026-10-22T10:47:48+02:00] L4_clinical_plus_scores/big rep1 rc=0 wall=23.064371s lines=3787554
+[2026-10-22T10:48:13+02:00] L4_clinical_plus_scores/big rep2 rc=0 wall=23.734487s lines=3787554
+[2026-10-22T10:48:38+02:00] L4_clinical_plus_scores/big rep3 rc=0 wall=24.040671s lines=3787554
+[2026-10-22T10:48:40+02:00] L4_clinical_plus_scores/big asserted dbNSFP_GJ_FREQ on 2744620 rows
+[2026-10-22T10:48:41+02:00] W2_gw_wholefile_x2/small rep1 rc=0 wall=0.719998s lines=82562
+[2026-10-22T10:48:42+02:00] W2_gw_wholefile_x2/small rep2 rc=0 wall=0.902285s lines=82562
+[2026-10-22T10:48:43+02:00] W2_gw_wholefile_x2/small rep3 rc=0 wall=0.983668s lines=82562
+[2026-10-22T10:48:43+02:00] W2_gw_wholefile_x2/small asserted gnomADc_INFO on 76798 rows
+[2026-10-22T10:49:00+02:00] W2_gw_wholefile_x2/big rep1 rc=0 wall=16.878785s lines=3787554
+[2026-10-22T10:49:18+02:00] W2_gw_wholefile_x2/big rep2 rc=0 wall=17.602478s lines=3787554
+[2026-10-22T10:49:35+02:00] W2_gw_wholefile_x2/big rep3 rc=0 wall=16.032664s lines=3787554
+[2026-10-22T10:49:37+02:00] W2_gw_wholefile_x2/big asserted gnomADc_INFO on 3540863 rows
+[2026-10-22T10:49:38+02:00] W4_gw_wholefile_x4/small rep1 rc=0 wall=1.325331s lines=82562
+[2026-10-22T10:49:40+02:00] W4_gw_wholefile_x4/small rep2 rc=0 wall=1.417576s lines=82562
+[2026-10-22T10:49:41+02:00] W4_gw_wholefile_x4/small rep3 rc=0 wall=1.272059s lines=82562
+[2026-10-22T10:49:41+02:00] W4_gw_wholefile_x4/small asserted gnomADc_INFO on 76798 rows
+[2026-10-22T10:50:04+02:00] W4_gw_wholefile_x4/big rep1 rc=0 wall=22.334521s lines=3787554
+[2026-10-22T10:50:26+02:00] W4_gw_wholefile_x4/big rep2 rc=0 wall=21.576921s lines=3787554
+[2026-10-22T10:50:48+02:00] W4_gw_wholefile_x4/big rep3 rc=0 wall=21.752262s lines=3787554
+[2026-10-22T10:50:50+02:00] W4_gw_wholefile_x4/big asserted gnomADc_INFO on 3540863 rows
+[2026-10-22T10:50:52+02:00] W8_gw_wholefile_x8/small rep1 rc=0 wall=1.932157s lines=82562
+[2026-10-22T10:50:54+02:00] W8_gw_wholefile_x8/small rep2 rc=0 wall=1.676647s lines=82562
+[2026-10-22T10:50:55+02:00] W8_gw_wholefile_x8/small rep3 rc=0 wall=1.784379s lines=82562
+[2026-10-22T10:50:56+02:00] W8_gw_wholefile_x8/small asserted gnomADc_INFO on 76798 rows
+[2026-10-22T10:51:25+02:00] W8_gw_wholefile_x8/big rep1 rc=0 wall=29.153739s lines=3787554
+[2026-10-22T10:51:57+02:00] W8_gw_wholefile_x8/big rep2 rc=0 wall=31.177666s lines=3787554
+[2026-10-22T10:52:29+02:00] W8_gw_wholefile_x8/big rep3 rc=0 wall=31.551596s lines=3787554
+[2026-10-22T10:52:30+02:00] W8_gw_wholefile_x8/big asserted gnomADc_INFO on 3540863 rows
+[2026-10-22T10:52:31+02:00] X1_exome_wholefile/small rep1 rc=0 wall=0.749493s lines=82562
+[2026-10-22T10:52:32+02:00] X1_exome_wholefile/small rep2 rc=0 wall=0.836804s lines=82562
+[2026-10-22T10:52:33+02:00] X1_exome_wholefile/small rep3 rc=0 wall=0.835992s lines=82562
+[2026-10-22T10:52:33+02:00] X1_exome_wholefile/small asserted gnomADc_INFO on 14562 rows
+[2026-10-22T10:52:49+02:00] X1_exome_wholefile/big rep1 rc=0 wall=15.314290s lines=3787554
+[2026-10-22T10:53:05+02:00] X1_exome_wholefile/big rep2 rc=0 wall=15.882588s lines=3787554
+[2026-10-22T10:53:21+02:00] X1_exome_wholefile/big rep3 rc=0 wall=15.410259s lines=3787554
+[2026-10-22T10:53:22+02:00] X1_exome_wholefile/big asserted gnomADc_INFO on 573173 rows
+[2026-10-22T10:53:23+02:00] E1_everything_clinical_gw/small rep1 rc=0 wall=0.847643s lines=82562
+[2026-10-22T10:53:24+02:00] E1_everything_clinical_gw/small rep2 rc=0 wall=0.855136s lines=82562
+[2026-10-22T10:53:25+02:00] E1_everything_clinical_gw/small rep3 rc=0 wall=0.844760s lines=82562
+[2026-10-22T10:53:25+02:00] E1_everything_clinical_gw/small asserted dbNSFP_CV_CLNSIG on 1154 rows
+[2026-10-22T10:53:45+02:00] E1_everything_clinical_gw/big rep1 rc=0 wall=18.724014s lines=3787554
+[2026-10-22T10:54:04+02:00] E1_everything_clinical_gw/big rep2 rc=0 wall=18.620251s lines=3787554
+[2026-10-22T10:54:22+02:00] E1_everything_clinical_gw/big rep3 rc=0 wall=17.395731s lines=3787554
+[2026-10-22T10:54:25+02:00] E1_everything_clinical_gw/big asserted dbNSFP_CV_CLNSIG on 65605 rows
+[2026-10-22T10:54:26+02:00] E2_everything_heavy_gw/small rep1 rc=0 wall=1.130930s lines=82562
+[2026-10-22T10:54:27+02:00] E2_everything_heavy_gw/small rep2 rc=0 wall=1.299681s lines=82562
+[2026-10-22T10:54:29+02:00] E2_everything_heavy_gw/small rep3 rc=0 wall=1.288116s lines=82562
+[2026-10-22T10:54:29+02:00] E2_everything_heavy_gw/small asserted dbNSFP_GJ_FREQ on 54830 rows
+[2026-10-22T10:54:58+02:00] E2_everything_heavy_gw/big rep1 rc=0 wall=28.538035s lines=3787554
+[2026-10-22T10:55:29+02:00] E2_everything_heavy_gw/big rep2 rc=0 wall=30.157644s lines=3787554
+[2026-10-22T10:56:00+02:00] E2_everything_heavy_gw/big rep3 rc=0 wall=29.766331s lines=3787554
+[2026-10-22T10:56:02+02:00] E2_everything_heavy_gw/big asserted dbNSFP_GJ_FREQ on 2744620 rows
+[2026-10-22T10:56:37+02:00] --- supplementary coverage ---
+config	column	rows_with_value	total_rows
+L1_gw_af	gnomADc_INFO	3540863	3787554
+L1_gw_af	dbNSFP_CV_CLNSIG	0	3787554
+L1_gw_af	dbNSFP_GJ_FREQ	0	3787554
+L1_gw_af	dbNSFP_GJ_AC	0	3787554
+L2_clinical_gw	gnomADc_INFO	3540863	3787554
+L2_clinical_gw	dbNSFP_CV_CLNSIG	65605	3787554
+L2_clinical_gw	dbNSFP_GJ_FREQ	0	3787554
+L2_clinical_gw	dbNSFP_GJ_AC	0	3787554
+L4_clinical_plus_scores	gnomADc_INFO	3540863	3787554
+L4_clinical_plus_scores	dbNSFP_CV_CLNSIG	65605	3787554
+L4_clinical_plus_scores	dbNSFP_GJ_FREQ	2744620	3787554
+L4_clinical_plus_scores	dbNSFP_GJ_AC	2744620	3787554
+X1_exome_wholefile	gnomADc_INFO	573173	3787554
+X1_exome_wholefile	dbNSFP_CV_CLNSIG	0	3787554
+X1_exome_wholefile	dbNSFP_GJ_FREQ	0	3787554
+X1_exome_wholefile	dbNSFP_GJ_AC	0	3787554
+E1_everything_clinical_gw	gnomADc_INFO	3540863	3787554
+E1_everything_clinical_gw	dbNSFP_CV_CLNSIG	65605	3787554
+E1_everything_clinical_gw	dbNSFP_GJ_FREQ	0	3787554
+E1_everything_clinical_gw	dbNSFP_GJ_AC	0	3787554
+[2026-10-22T10:56:37+02:00] --- field assertions ---
+config	size	column	rows_with_value
+L1_gw_af	small	gnomADc_INFO	76798
+L1_gw_af	big	gnomADc_INFO	3540863
+L2_clinical_gw	small	dbNSFP_CV_CLNSIG	1154
+L2_clinical_gw	big	dbNSFP_CV_CLNSIG	65605
+L3_clinical_hgvs	small	dbNSFP_CV_CLNSIG	1154
+L3_clinical_hgvs	big	dbNSFP_CV_CLNSIG	65605
+L4_clinical_plus_scores	small	dbNSFP_GJ_FREQ	54830
+L4_clinical_plus_scores	big	dbNSFP_GJ_FREQ	2744620
+W2_gw_wholefile_x2	small	gnomADc_INFO	76798
+W2_gw_wholefile_x2	big	gnomADc_INFO	3540863
+W4_gw_wholefile_x4	small	gnomADc_INFO	76798
+W4_gw_wholefile_x4	big	gnomADc_INFO	3540863
+W8_gw_wholefile_x8	small	gnomADc_INFO	76798
+W8_gw_wholefile_x8	big	gnomADc_INFO	3540863
+X1_exome_wholefile	small	gnomADc_INFO	14562
+X1_exome_wholefile	big	gnomADc_INFO	573173
+E1_everything_clinical_gw	small	dbNSFP_CV_CLNSIG	1154
+E1_everything_clinical_gw	big	dbNSFP_CV_CLNSIG	65605
+E2_everything_heavy_gw	small	dbNSFP_GJ_FREQ	54830
+E2_everything_heavy_gw	big	dbNSFP_GJ_FREQ	2744620
+[2026-10-22T10:56:37+02:00] --- results ---
+config	size	records	rep	wall_seconds	rc	output_lines
+L0_core	small	16385	1	0.353146	0	82562
+L0_core	small	16385	2	0.353957	0	82562
+L0_core	small	16385	3	0.355286	0	82562
+L0_core	big	314314	1	2.128374	0	3787554
+L0_core	big	314314	2	2.563138	0	3787554
+L0_core	big	314314	3	2.674078	0	3787554
+L1_gw_af	small	16385	1	0.706764	0	82562
+L1_gw_af	small	16385	2	0.729272	0	82562
+L1_gw_af	small	16385	3	0.742473	0	82562
+L1_gw_af	big	314314	1	11.563018	0	3787554
+L1_gw_af	big	314314	2	10.247004	0	3787554
+L1_gw_af	big	314314	3	9.883887	0	3787554
+L2_clinical_gw	small	16385	1	0.750611	0	82562
+L2_clinical_gw	small	16385	2	0.748625	0	82562
+L2_clinical_gw	small	16385	3	0.780713	0	82562
+L2_clinical_gw	big	314314	1	14.662565	0	3787554
+L2_clinical_gw	big	314314	2	12.893389	0	3787554
+L2_clinical_gw	big	314314	3	12.518626	0	3787554
+L3_clinical_hgvs	small	16385	1	0.651957	0	82562
+L3_clinical_hgvs	small	16385	2	0.817350	0	82562
+L3_clinical_hgvs	small	16385	3	0.807167	0	82562
+L3_clinical_hgvs	big	314314	1	16.575511	0	3787554
+L3_clinical_hgvs	big	314314	2	16.917044	0	3787554
+L3_clinical_hgvs	big	314314	3	14.095798	0	3787554
+L4_clinical_plus_scores	small	16385	1	0.913092	0	82562
+L4_clinical_plus_scores	small	16385	2	0.983704	0	82562
+L4_clinical_plus_scores	small	16385	3	1.010690	0	82562
+L4_clinical_plus_scores	big	314314	1	23.064371	0	3787554
+L4_clinical_plus_scores	big	314314	2	23.734487	0	3787554
+L4_clinical_plus_scores	big	314314	3	24.040671	0	3787554
+W2_gw_wholefile_x2	small	16385	1	0.719998	0	82562
+W2_gw_wholefile_x2	small	16385	2	0.902285	0	82562
+W2_gw_wholefile_x2	small	16385	3	0.983668	0	82562
+W2_gw_wholefile_x2	big	314314	1	16.878785	0	3787554
+W2_gw_wholefile_x2	big	314314	2	17.602478	0	3787554
+W2_gw_wholefile_x2	big	314314	3	16.032664	0	3787554
+W4_gw_wholefile_x4	small	16385	1	1.325331	0	82562
+W4_gw_wholefile_x4	small	16385	2	1.417576	0	82562
+W4_gw_wholefile_x4	small	16385	3	1.272059	0	82562
+W4_gw_wholefile_x4	big	314314	1	22.334521	0	3787554
+W4_gw_wholefile_x4	big	314314	2	21.576921	0	3787554
+W4_gw_wholefile_x4	big	314314	3	21.752262	0	3787554
+W8_gw_wholefile_x8	small	16385	1	1.932157	0	82562
+W8_gw_wholefile_x8	small	16385	2	1.676647	0	82562
+W8_gw_wholefile_x8	small	16385	3	1.784379	0	82562
+W8_gw_wholefile_x8	big	314314	1	29.153739	0	3787554
+W8_gw_wholefile_x8	big	314314	2	31.177666	0	3787554
+W8_gw_wholefile_x8	big	314314	3	31.551596	0	3787554
+X1_exome_wholefile	small	16385	1	0.749493	0	82562
+X1_exome_wholefile	small	16385	2	0.836804	0	82562
+X1_exome_wholefile	small	16385	3	0.835992	0	82562
+X1_exome_wholefile	big	314314	1	15.314290	0	3787554
+X1_exome_wholefile	big	314314	2	15.882588	0	3787554
+X1_exome_wholefile	big	314314	3	15.410259	0	3787554
+E1_everything_clinical_gw	small	16385	1	0.847643	0	82562
+E1_everything_clinical_gw	small	16385	2	0.855136	0	82562
+E1_everything_clinical_gw	small	16385	3	0.844760	0	82562
+E1_everything_clinical_gw	big	314314	1	18.724014	0	3787554
+E1_everything_clinical_gw	big	314314	2	18.620251	0	3787554
+E1_everything_clinical_gw	big	314314	3	17.395731	0	3787554
+E2_everything_heavy_gw	small	16385	1	1.130930	0	82562
+E2_everything_heavy_gw	small	16385	2	1.299681	0	82562
+E2_everything_heavy_gw	small	16385	3	1.288116	0	82562
+E2_everything_heavy_gw	big	314314	1	28.538035	0	3787554
+E2_everything_heavy_gw	big	314314	2	30.157644	0	3787554
+E2_everything_heavy_gw	big	314314	3	29.766331	0	3787554
+[2026-10-22T10:56:37+02:00] done; outputs in /results/veprs/results/heavy_1251
