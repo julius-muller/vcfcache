@@ -8,14 +8,12 @@ dist/
 history
 *history
 *.docx*
-
 # Environments
 .env/
 .env
 .venv*/
 env/
 venv/
-
 # Testing
 .pytest_cache/
 .coverage
@@ -23,22 +21,18 @@ htmlcov/
 /test_db/
 tests/data/expected_output/
 tests/config/old/
-
 # IDE
 /.idea/
 /.vscode/
-
 # Nextflow
 /.nextflow/
 /work/
 .nextflow.log*
-
 # extra
 *.log
 RELEASE.md
 VARIANT_COUNT_ANALYSIS.md
 TEST_SUMMARY.md
-
 docker/gnomad-data/
 tests/benchmarks/
 !/VARIANT_PRESERVATION_SUMMARY.md
@@ -48,3 +42,6 @@ tests/benchmarks/
 manuscript/
 !benchmarks/figures/output/**/manuscript/
 !benchmarks/figures/output/**/manuscript/**
+.Rproj.user
+vcfcache.Rproj
+.posit/assistant
