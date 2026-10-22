@@ -56,7 +56,27 @@ RUN git init -q /app && \
     git -C /app commit -q --allow-empty -m "container test stub"
 CMD ["/opt/venv/bin/python", "-m", "pytest", "tests", "-q"]
 
-########## Final minimal image ##########
+########## Optional native prototype (normal images remain Rust-free) ##########
+FROM rust:1-bookworm AS native-build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      build-essential pkg-config zlib1g-dev libclang-dev && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /native
+COPY native/Cargo.toml native/Cargo.lock ./
+COPY native/src ./src
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    cargo build --release --locked
+
+FROM base AS native-final
+COPY --from=native-build /native/target/release/vcfcache-engine /usr/local/bin/
+ENTRYPOINT ["vcfcache"]
+CMD ["--help"]
+
+FROM test AS native-test
+COPY --from=native-build /native/target/release/vcfcache-engine /usr/local/bin/
+CMD ["/opt/venv/bin/python", "-m", "pytest", "tests/test_fused_engine.py", "-q"]
+
+########## Final minimal image (still the default final stage) ##########
 FROM base AS final
 ENTRYPOINT ["vcfcache"]
 CMD ["--help"]

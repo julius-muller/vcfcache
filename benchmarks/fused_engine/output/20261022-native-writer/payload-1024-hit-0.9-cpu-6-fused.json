@@ -1,0 +1,86 @@
+{
+  "engine": "fused",
+  "configured_cpus": 6,
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "wall_seconds": 7.023356275996775,
+  "cpu_seconds": 21.436341,
+  "max_child_process_rss_kib": 35596,
+  "memory_note": "largest child-process RSS, NOT simultaneous aggregate peak",
+  "artifact_bytes": 1397412459,
+  "stats": {
+    "engine": "fused",
+    "requested_engine": "fused",
+    "native_version": "vcfcache-engine 0.1.0",
+    "workers": 3,
+    "cpu_budget": 6,
+    "stage_timings": [
+      {
+        "stage": "preprocess",
+        "wall_seconds": 0.5247645920026116
+      },
+      {
+        "stage": "preprocess",
+        "wall_seconds": 0.7258089340029983
+      },
+      {
+        "stage": "preprocess",
+        "wall_seconds": 0.7333819799969206
+      },
+      {
+        "stage": "route",
+        "wall_seconds": 1.634829415997956
+      },
+      {
+        "stage": "route",
+        "wall_seconds": 2.302414958990994
+      },
+      {
+        "stage": "route",
+        "wall_seconds": 2.3391932009981247
+      },
+      {
+        "stage": "collect-misses",
+        "wall_seconds": 0.061351741998805664
+      },
+      {
+        "stage": "annotate-misses",
+        "wall_seconds": 0.998674596005003
+      },
+      {
+        "stage": "assemble",
+        "wall_seconds": 1.710828422990744
+      },
+      {
+        "stage": "assemble",
+        "wall_seconds": 2.2288299100036966
+      },
+      {
+        "stage": "assemble",
+        "wall_seconds": 2.338125720998505
+      },
+      {
+        "stage": "gather",
+        "wall_seconds": 0.09775976899254601
+      },
+      {
+        "stage": "index",
+        "wall_seconds": 0.3659272939985385
+      }
+    ],
+    "input_variants": 1000000,
+    "missing_variants": 100000,
+    "output_variants": 1000000,
+    "annotated_output": 1000000,
+    "missing_annotated": 100000,
+    "dropped_variants": 0
+  },
+  "payload_bytes": 1024,
+  "cache_hit_rate": 0.9
+}

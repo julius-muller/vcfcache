@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
@@ -329,7 +330,7 @@ def compute_md5(file_path: Path) -> str:
     if not file_path.exists():
         raise FileNotFoundError(str(file_path))
 
-    print(f"Computing MD5 for {file_path} ...")
+    print(f"Computing MD5 for {file_path} ...", file=sys.stderr)
     md5_hash = hashlib.md5()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):

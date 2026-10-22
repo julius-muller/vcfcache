@@ -443,7 +443,12 @@ class VCFAnnotator(VCFDatabase):
         self.stats_dir = stats_output_dir
         self.output_annotations = AnnotatedUserOutput(str(stats_output_dir))
         self.output_annotations.validate_label(self.output_annotations.name)
-        self._setup_output(force=force)
+        if self.no_stats:
+            # mkdtemp already created this uniquely owned directory. Populate
+            # it directly instead of rejecting it as a pre-existing user path.
+            self.output_annotations.create_structure()
+        else:
+            self._setup_output(force=force)
         self.output_dir = self.output_annotations.root_dir
 
         self.logger: Logger = setup_logging(
@@ -476,7 +481,12 @@ class VCFAnnotator(VCFDatabase):
             ), f"Workflow annotation params file not found: {wfi}, required if no yaml provided!"
             shutil.copyfile(wfi, self.params_file)
             print(
-                f"Using default params from cache: {wfi.relative_to(wfi.parent.parent.parent)}"
+                f"Using default params from cache: {wfi.relative_to(wfi.parent.parent.parent)}",
+                file=(
+                    sys.stderr
+                    if getattr(self, "output_to_stdout", False)
+                    else sys.stdout
+                ),
             )
         assert (
             self.params_file.exists()
@@ -592,7 +602,12 @@ class VCFAnnotator(VCFDatabase):
             ):  # we dont want to remove a random dir....
                 if force:
                     print(
-                        f"Output directory already exists, removing: {self.output_annotations.root_dir}"
+                        f"Output directory already exists, removing: {self.output_annotations.root_dir}",
+                        file=(
+                            sys.stderr
+                            if getattr(self, "output_to_stdout", False)
+                            else sys.stdout
+                        ),
                     )
                     shutil.rmtree(self.output_annotations.root_dir)
                 else:
@@ -831,6 +846,8 @@ class VCFAnnotator(VCFDatabase):
         preserve_unannotated: bool = False,
         skip_split_multiallelic: bool = False,
         md5_all: bool = False,
+        engine: str = "legacy",
+        engine_workers: int = 0,
     ) -> None:
         """Run annotation workflow on input VCF file.
 
@@ -840,6 +857,8 @@ class VCFAnnotator(VCFDatabase):
             preserve_unannotated: Whether to preserve variants without annotation in output
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
             md5_all: Compute full MD5 of all variants (no header) and store in stats
+            engine: Cached workflow engine, legacy (default) or fused
+            engine_workers: Native contig workers; zero selects automatically
 
         Returns:
             Path to output file (BCF or Parquet)
@@ -847,6 +866,14 @@ class VCFAnnotator(VCFDatabase):
              annotation_db="~/tmp/test/test_out/cache/testor", output_file="~/tmp/test/aout.bcf", stats_dir="~/tmp/test/aout_stats", force=True)
 
         """
+        if engine not in {"legacy", "fused"}:
+            raise ValueError("engine must be legacy or fused")
+        if engine_workers < 0:
+            raise ValueError("engine_workers must be non-negative")
+        if engine_workers and engine != "fused":
+            raise ValueError("engine_workers requires engine='fused'")
+        if uncached and engine != "legacy":
+            raise ValueError("engine='fused' cannot be used with uncached=True")
         if md5_all and getattr(self, "statistics", "full") != "full":
             raise ValueError("md5_all requires statistics='full'")
 
@@ -867,21 +894,25 @@ class VCFAnnotator(VCFDatabase):
                 report=True,
                 preserve_unannotated=preserve_unannotated,
                 skip_split_multiallelic=skip_split_multiallelic,
+                **(
+                    {"engine": engine, "engine_workers": engine_workers}
+                    if engine != "legacy"
+                    else {}
+                ),
             )
             duration = time.time() - start_time
             # Always show completion (even in default mode)
-            print(f"Annotation completed in {duration:.1f}s")
+            print(
+                f"Annotation completed in {duration:.1f}s",
+                file=(
+                    sys.stderr
+                    if getattr(self, "output_to_stdout", False)
+                    else sys.stdout
+                ),
+            )
 
             if not self.no_stats:
-                from vcfcache.utils.completion import write_completion_flag
-
                 mode = "uncached" if uncached else "cached"
-                write_completion_flag(
-                    output_dir=self.output_annotations.root_dir,
-                    command="annotate",
-                    mode=mode,
-                    output_file=str(self.output_vcf) if self.output_vcf else "stdout",
-                )
                 self._write_compare_stats(
                     mode=mode,
                     md5_all=md5_all,
@@ -895,6 +926,16 @@ class VCFAnnotator(VCFDatabase):
                     )
                 # threads = self.nx_workflow.nf_config_content['params'].get('vep_max_forks',1) * self.nx_workflow.nf_config_content['params'].get('vep_max_chr_parallel', 1)
                 self._convert_to_parquet(self.output_vcf)  # , threads=threads)
+
+            if not self.no_stats:
+                from vcfcache.utils.completion import write_completion_flag
+
+                write_completion_flag(
+                    output_dir=self.output_annotations.root_dir,
+                    command="annotate",
+                    mode="uncached" if uncached else "cached",
+                    output_file=str(self.output_vcf) if self.output_vcf else "stdout",
+                )
 
             if not self.debug:
                 self.nx_workflow.cleanup_work_dir()
@@ -970,12 +1011,24 @@ class VCFAnnotator(VCFDatabase):
         }
 
         last_stats = getattr(self.nx_workflow, "last_run_stats", {}) or {}
+        stats["engine"] = last_stats.get("engine", "legacy")
+        for key in (
+            "requested_engine",
+            "native_version",
+            "workers",
+            "cpu_budget",
+            "stage_timings",
+            "fallback_reason",
+        ):
+            if key in last_stats:
+                stats[key] = last_stats[key]
         stats["variant_counts"]["dropped_variants"] = last_stats.get("dropped_variants")
         stats["variant_counts"]["missing_variants"] = last_stats.get("missing_variants")
         stats["variant_counts"]["missing_annotated"] = last_stats.get(
             "missing_annotated"
         )
         stats["variant_counts"]["input_variants"] = last_stats.get("input_variants")
+        stats["variant_counts"]["total_output"] = last_stats.get("output_variants")
 
         if self.output_vcf and self.output_vcf.exists():
             stats["variant_counts"]["total_output"] = last_stats.get("output_variants")
@@ -1022,6 +1075,8 @@ class VCFAnnotator(VCFDatabase):
                     ]["total_output"]
 
         tool_annotated = None
+        if last_stats.get("annotated_output") is not None:
+            stats["variant_counts"]["annotated_output"] = last_stats["annotated_output"]
         if mode == "cached":
             tool_annotated = last_stats.get("missing_annotated")
         elif mode == "uncached":

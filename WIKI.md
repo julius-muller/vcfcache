@@ -707,6 +707,8 @@ Annotate a sample VCF/BCF using a cache.
 - `-a/--annotation_db`: cache annotation directory (local path) or cache alias (Zenodo).
 - `-i/--vcf`: input sample VCF/BCF.
 - `-o/--output`: output BCF file (use `-`/`stdout` to stream).
+- `--engine {legacy,fused}`: workflow engine (default `legacy`). The experimental `fused` engine requires the optional `vcfcache-engine` executable; see [native build, parallelism and compatibility notes](native/README.md).
+- `--engine-workers N`: fused contig workers; `0` automatically selects within the configured `params.yaml` thread budget and process affinity. Annotation still runs once on all misses. Cannot be combined with the legacy engine or `--uncached`.
 - `--stats-dir`: optional directory for logs/workflow/auxiliary. If provided, stats are written under `<stats_dir>/<input_basename>_vcstats`; if omitted, they default to `<cwd>/<input_basename>_vcstats`.
 - `--statistics {light,full,none}`: statistics detail. `light` (default) reuses workflow/index counters and does not rescan the output; `full` additionally recounts annotated records and computes top/bottom comparison hashes; `none` discards the stats/log directory.
 - `--no-stats`: deprecated alias for `--statistics none`.

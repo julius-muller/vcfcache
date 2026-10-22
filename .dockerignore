@@ -1,5 +1,8 @@
 # Exclude benchmark data from Docker builds (can be 1-2GB)
 tests/benchmarks/
+native/target/
+.venv*/
+benchmarks/fused_engine/output/
 
 # Exclude git and version control
 .git/

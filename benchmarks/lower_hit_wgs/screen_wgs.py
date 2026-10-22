@@ -33,6 +33,7 @@ AUTOSOMES = {str(n) for n in range(1, 23)}
 
 
 def write_table(path, rows):
+    """Write nonempty diagnostic rows as a tab-separated table."""
     rows = list(rows)
     if not rows:
         raise ValueError(f"Empty results: {path}")
@@ -43,6 +44,7 @@ def write_table(path, rows):
 
 
 def digest(path):
+    """Return the SHA-256 digest without loading a source file into memory."""
     checksum = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -87,6 +89,7 @@ def intersect(a, b):
 
 
 def append_interval(intervals, lo, hi):
+    """Append an ordered interval, coalescing overlaps with the previous one."""
     if intervals and lo <= intervals[-1][1]:
         intervals[-1] = (intervals[-1][0], max(hi, intervals[-1][1]))
     else:
@@ -120,7 +123,7 @@ def quality_and_regions(source, sample, out):
     ]))
     row = {"sample": sample, "population": SAMPLES[sample], "source_scope": "chr20"}
     names = ["carried_source_records", "gq_missing", "gq_below20", "dp_missing", "dp_below10", "qual_missing", "qual_below30"]
-    row.update(dict(zip(names, map(int, lines[-1].split()))))
+    row.update(dict(zip(names, map(int, lines[-1].split()), strict=False)))
     with bed.open() as handle:
         for line in handle:
             chrom, lo, hi = line.split()
@@ -131,6 +134,7 @@ def quality_and_regions(source, sample, out):
 
 
 def count_variants(path, cache=None, regions=None):
+    """Count streamed variant-type and quality subsets, optionally intersecting a cache."""
     commands = []
     if cache:
         commands.append(["bcftools", "isec", "-c", "none", "-n=2", "-w1", "-Ou", str(path), str(cache)])
@@ -155,6 +159,7 @@ def count_variants(path, cache=None, regions=None):
 
 
 def screen(path, sample, cache, out, scope="whole_autosomes", regions=None):
+    """Reuse or generate the hit-rate diagnostic for one sample and region scope."""
     target = out / f"{sample}.{scope}.tsv"
     if target.exists():
         with target.open() as handle:
@@ -179,6 +184,7 @@ def screen(path, sample, cache, out, scope="whole_autosomes", regions=None):
 
 
 def main():
+    """Run the requested source-quality and lower-hit WGS screening diagnostics."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)

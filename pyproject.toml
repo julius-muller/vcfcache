@@ -78,7 +78,7 @@ source = ["vcfcache"]
 omit = ["vcfcache/demo.py"]
 
 [tool.hatch.build.targets.sdist]
-include = ["vcfcache/**", "tests/**"]
+include = ["vcfcache/**", "tests/**", "native/Cargo.toml", "native/Cargo.lock", "native/src/**", "native/README.md", "README.md", "LICENSE"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["vcfcache"]

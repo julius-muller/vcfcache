@@ -20,6 +20,7 @@ Date: 16-03-2025
 """
 
 import argparse
+import contextlib
 import os
 import re
 import subprocess
@@ -688,6 +689,18 @@ def main() -> None:
         ),
     )
     statistics_group = vcf_parser.add_mutually_exclusive_group()
+    vcf_parser.add_argument(
+        "--engine",
+        choices=("legacy", "fused"),
+        default="legacy",
+        help="Annotation workflow engine (default: legacy). Fused requires vcfcache-engine.",
+    )
+    vcf_parser.add_argument(
+        "--engine-workers",
+        type=int,
+        default=0,
+        help="Fused contig workers; 0 selects automatically within the params.yaml threads budget.",
+    )
     statistics_group.add_argument(
         "--statistics",
         choices=("light", "full", "none"),
@@ -940,6 +953,12 @@ def main() -> None:
             parser.error("--statistics none/--no-stats cannot be used with --stats-dir")
         if args.md5_all and args.statistics != "full":
             parser.error("--md5-all requires --statistics full")
+        if args.engine_workers < 0 or (args.engine_workers and args.engine != "fused"):
+            parser.error(
+                "--engine-workers must be non-negative and requires --engine fused"
+            )
+        if args.uncached and args.engine == "fused":
+            parser.error("--engine fused cannot be combined with --uncached")
 
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)
@@ -1215,7 +1234,10 @@ def main() -> None:
             # Always show what we're doing (even in default mode)
             input_name = Path(args.i).name
             mode = "uncached" if args.uncached else "cached"
-            print(f"Annotating {input_name} ({mode} mode)...")
+            print(
+                f"Annotating {input_name} ({mode} mode)...",
+                file=sys.stderr if args.output_file in {"-", "stdout"} else sys.stdout,
+            )
 
             vcf_annotator = VCFAnnotator(
                 annotation_db=args.a,
@@ -1238,6 +1260,11 @@ def main() -> None:
                 preserve_unannotated=preserve_unannotated,
                 skip_split_multiallelic=skip_split_multiallelic,
                 md5_all=args.md5_all,
+                **(
+                    {"engine": args.engine, "engine_workers": args.engine_workers}
+                    if args.engine != "legacy"
+                    else {}
+                ),
             )
 
             # Show detailed timing if --debug is enabled
@@ -1250,7 +1277,10 @@ def main() -> None:
                 workflow_log = (
                     Path(args.stats_dir) / f"{output_name}_vcstats" / "workflow.log"
                 )
-                _show_detailed_timings(workflow_log)
+                with contextlib.redirect_stdout(
+                    sys.stderr if args.output_file in {"-", "stdout"} else sys.stdout
+                ):
+                    _show_detailed_timings(workflow_log)
 
         elif args.command == "list":
             # Get selector (required positional argument)

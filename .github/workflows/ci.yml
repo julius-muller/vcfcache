@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/fused-routing]
     tags: ["v*"]
   pull_request:
     branches: [main]
@@ -150,6 +150,23 @@ jobs:
       - name: Add built tools to PATH
         run: echo "${GITHUB_WORKSPACE}/.local/bin" >> "${GITHUB_PATH}"
 
+      - name: Install native engine build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libclang-dev zlib1g-dev pkg-config
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check and build native engine
+        run: |
+          cargo fmt --manifest-path native/Cargo.toml --check
+          cargo clippy --locked --manifest-path native/Cargo.toml -- -D warnings
+          cargo test --locked --manifest-path native/Cargo.toml
+          cargo build --release --locked --manifest-path native/Cargo.toml
+
       - name: Run tests
         env:
           VCFCACHE_BCFTOOLS: ${{ github.workspace }}/.local/bin/bcftools
@@ -171,6 +188,11 @@ jobs:
 
       - name: Run tests in container
         run: docker run --rm vcfcache:test /opt/venv/bin/python -m pytest tests -q
+
+      - name: Build and test optional native image
+        run: |
+          docker build --target native-test -f docker/Dockerfile.vcfcache -t vcfcache:native-test .
+          docker run --rm vcfcache:native-test
 
   docker-push:
     name: Build and push Docker images

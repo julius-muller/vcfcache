@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (c) 2024-2026 Julius Müller
 
-"""Pure Python workflow manager for VCFcache operations.
+"""Python workflow orchestration for VCFcache operations.
 
 This module implements a pure Python alternative to the Nextflow-based workflow
 system. It executes the same bcftools commands directly via subprocess, eliminating
-the need for Java and Nextflow dependencies.
+the need for Java and Nextflow dependencies. Cached annotation can opt into
+the separate Rust/HTSlib fused-routing executable.
 """
 
 import datetime
@@ -268,6 +269,8 @@ class WorkflowManager(WorkflowBase):
         temp: Union[Path, str] = "/tmp",
         preserve_unannotated: bool = False,
         skip_split_multiallelic: bool = False,
+        engine: str = "legacy",
+        engine_workers: int = 0,
     ) -> subprocess.CompletedProcess:
         """Execute the workflow using pure Python.
 
@@ -282,6 +285,8 @@ class WorkflowManager(WorkflowBase):
             temp: Temporary directory for intermediate files
             preserve_unannotated: Whether to preserve variants without annotation in output
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
+            engine: Cached workflow engine (legacy or optional fused)
+            engine_workers: Fused contig-worker override; zero selects automatically
 
         Returns:
             subprocess.CompletedProcess with execution results
@@ -316,11 +321,24 @@ class WorkflowManager(WorkflowBase):
             elif db_mode == "annotate":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for annotate mode")
-                result = self._run_annotate(
-                    db_bcf,
-                    preserve_unannotated=preserve_unannotated,
-                    skip_split_multiallelic=skip_split_multiallelic,
-                )
+                if engine == "fused":
+                    from vcfcache.database.fused import run_fused
+
+                    result = run_fused(
+                        self,
+                        db_bcf,
+                        preserve_unannotated,
+                        skip_split_multiallelic,
+                        engine_workers,
+                    )
+                elif engine == "legacy":
+                    result = self._run_annotate(
+                        db_bcf,
+                        preserve_unannotated=preserve_unannotated,
+                        skip_split_multiallelic=skip_split_multiallelic,
+                    )
+                else:
+                    raise ValueError("engine must be legacy or fused")
             elif db_mode == "annotate-nocache":
                 result = self._run_annotate_nocache(
                     skip_split_multiallelic=skip_split_multiallelic
