@@ -60,20 +60,42 @@ contigs it halves legacy: 10.2 s against 19.5 s.** That is the proof that the
 lever is real — restricting cache access to the input's regions cuts the fixed
 term by 2× already, with no further work.
 
-It is wrecked at both ends:
+It is wrecked at both ends. Reading the code establishes the first cause and
+narrows the second; an earlier version of this document called both "purely
+scheduling", which was wrong.
 
-- **Single-contig is pathological: 111.1 s, 5.7× worse than legacy.** The stage
-  breakdown puts 109.9 s of it in `route` alone. The engine's own README notes a
-  single-contig input cannot exploit contig parallelism, which explains the lost
-  speedup but not a 5.7× regression against legacy. This needs reading the route
-  path, not more measurement.
-- **At 22 contigs the four workers are badly unbalanced** — per-worker route
-  times 9.9 / 21.3 / 32.6 / 45.6 s, and wall time is set by the slowest. Total
-  route work is ~109 s over 4 workers; balanced across 8 it would be ~14 s.
-  Adjacent-contig grouping by record count is not achieving balance here.
+- **Single-contig: 111.1 s, 5.7× worse than legacy**, with 109.9 s of it in
+  `route`. This is now explained exactly. In `fused.py`, `workers` is clamped to
+  the number of contigs, so a single-contig input gives `workers == 1`; that
+  branch sets `contigs = [None]`, and `route` then builds `selection = ""`. **With
+  one worker there is no `-r` restriction at all**, so the stage streams the
+  entire 18.87 M-record cache through the router — strictly more work than
+  legacy's bcftools-only pass. It is a deliberate code path that disables region
+  restriction, not a scheduling artefact.
 
-So fused's 45.6 s fixed term at genome-wide span is **worse than legacy's 23.6 s**,
-despite route being the right idea, purely because of scheduling.
+- **At 22 contigs, per-worker route times are 9.9 / 21.3 / 32.6 / 45.6 s** and
+  wall time follows the slowest. The mechanism is **not** established. Three
+  candidates remain live, and this run cannot separate them:
+  1. *Balancing the wrong quantity.* Grouping uses
+     `bcftools index --stats` on **`manager.input_file`** — input variant counts,
+     not cache records. With ~11 variants per contig the groups come out with
+     roughly equal *input* counts and therefore roughly equal contig counts,
+     while cache work per contig varies ~6× (chr1 ≈ 1.9 M records against
+     chr21 ≈ 0.31 M). Note this means balancing sample counts is already what it
+     does, so doing more of that cannot be the fix.
+  2. *Repeated cache-prefix traversal.* The near-arithmetic progression
+     (+11.4, +11.3, +13.0 s) fits cost tracking each group's depth into the
+     coordinate-sorted cache rather than its volume.
+  3. *Uncontrolled threading* (below), which differs between the arms.
+
+Also material: the restriction is **whole-contig** (`-r <contig>
+--regions-overlap 0`). For a panel of a few genes on chr1 the stage still reads
+all of chr1's cache records, so substantial unnecessary reading remains even
+where restriction is active. The 2× measured at 2–4 contigs is what whole-contig
+restriction buys, not what region restriction could buy.
+
+So fused's 45.6 s fixed term at genome-wide span is **worse than legacy's 23.6 s**
+despite route being the right idea. Why, beyond the single-worker case, is open.
 
 ## Real assays: where the cached second actually goes
 
@@ -110,6 +132,55 @@ supported, and sharpened:
 A fixed term near 10 s would move panel from 0.46× to roughly break-even against
 a 10.5 s direct run; eliminating the full-cache pass entirely is what would make
 panel caching clearly profitable.
+
+## Corrections to the first version of this analysis
+
+Five claims were too strong. Recorded rather than silently edited.
+
+1. **"Purely scheduling" is withdrawn.** See above: one cause is a code path that
+   disables restriction, the other is unresolved between three candidates.
+2. **The "~14 s balanced over 8 workers" figure is withdrawn.** It was arithmetic
+   on an assumption of perfect balance, at a worker count never run. These jobs
+   configured VCFcache for 8 CPUs on 16-vCPU nodes, which yields
+   `cpu_budget // 2 = 4` workers. Eight workers was never measured.
+3. **The legacy/fused overlay comparison is not thread-controlled.** The legacy
+   overlay passes `--threads {threads}` (`workflow_manager.py:395-403`); the
+   `bcftools annotate` inside fused `route` passes **no thread option at all**,
+   and `compression_threads` evaluates to `8 // 4 - 2 = 0` for the preprocess
+   stage. Part of the legacy-versus-fused difference may simply be threading, and
+   an isolated comparison is needed before any of it is attributed to routing.
+4. **The "VEP" column is a residual, not an isolated measurement.** It is
+   `real-input total − matched zero-miss cell`, so it absorbs every other
+   difference between the two: `.vcf.gz` against `.bcf` input, different variant
+   composition, indexing, normalization work. It is also this cache's VEP 115.2
+   `--everything` recipe, so it cannot establish the runtime breakdown of the
+   fastVEP campaign cells, which the first version implied.
+5. **The two-point slopes (45.1 and 26.8 µs/variant) are exploratory**, from two
+   points with three reps on one node, and must not be quoted as new per-variant
+   constants beside the production 27.5 µs figure.
+
+### What survives unchanged
+
+Direct measurements with three reps per cell, no annotator involved:
+
+- Legacy's fixed term is **~20–24 s**, and at N=1 it is 24.0 s.
+- It is **flat across span** (19.6–21.3 s from 1 to 22 contigs): legacy applies no
+  restriction, which is visible in both the code and the measurement.
+- The fixed term **dominates at panel scale** and is still most of VCFcache's cost
+  at WES.
+- Whole-contig restriction in fused `route` is **~2× faster than legacy at 2–4
+  contigs** (10.2 s against 19.5 s).
+- Fused is **slower than legacy** at 1 contig (111.1 vs 19.6 s) and at 22 contigs
+  (45.7 vs 21.3 s), so it should not be promoted to default on this evidence.
+
+### The experiment that would settle the mechanism
+
+Time `route` alone on single contigs chosen to separate volume from file
+position, with threading held fixed and the `workers == 1` path forced off:
+**chr1** (≈1.9 M cache records, at the start of the file) against **chr21**
+(≈0.31 M records, near the end). Volume predicts chr21 much faster; prefix
+traversal predicts chr21 much slower. Repeat with `--threads` matched to legacy
+to size claim 3 separately.
 
 ## Caveats
 

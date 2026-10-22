@@ -156,8 +156,17 @@ the whole 18.87 M-record cache regardless. The fused route stage is
 region-restricted and at 2–4 contigs costs **10.2 s against legacy's 19.5 s**.
 
 **But fused must not be promoted to default.** It is 111.1 s on single-contig
-input (5.7× worse than legacy) and 45.7 s at 22 contigs, where its four workers
-are unbalanced (per-worker route 9.9 / 21.3 / 32.6 / 45.6 s). For a genome-wide
-panel fused is 41.7 s against legacy's 27.0 s. It wins the per-variant term,
-which is the one that does not matter at these scales. Both defects are
-scheduling, not algorithmic.
+input (5.7× worse than legacy) and 45.7 s at 22 contigs. For a genome-wide panel
+fused is 41.7 s against legacy's 27.0 s.
+
+The single-contig case is explained: `workers` is clamped to the contig count, so
+one contig gives `workers == 1`, that branch sets `contigs = [None]`, and `route`
+then applies **no `-r` restriction at all** — it streams the whole cache. The
+22-contig spread (per-worker route 9.9 / 21.3 / 32.6 / 45.6 s) is **not**
+explained: grouping balances input variant counts rather than cache records,
+cache-prefix traversal fits the near-arithmetic progression equally well, and the
+arms are not thread-controlled (legacy's overlay gets `--threads 8`, fused's
+`route` annotate gets none). An earlier version of this entry called both defects
+"scheduling"; that is withdrawn, along with a "~14 s over 8 workers" projection
+at a worker count never run. Restriction is also whole-contig, so a few-gene
+panel still reads that whole contig. See the archive's ANALYSIS.md.

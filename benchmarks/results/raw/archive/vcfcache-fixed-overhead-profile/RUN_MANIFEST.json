@@ -6,9 +6,16 @@
   "assembly": "GRCh38",
   "level": "engine/overhead profiling; Arm A and the span sweep invoke no annotator at all",
   "invocation": "vcfcache annotate -a <cache> --engine {legacy,fused} --stats-dir <dir>; one untimed warm-up then 3 timed reps per cell",
-  "assays": ["zero-miss 1/250/2000/75000 at genome-wide span", "250 variants at 1/2/4/8/22 contigs", "real ACMG SF v3.3 panel and Twist core exome samples"],
+  "assays": [
+    "zero-miss 1/250/2000/75000 at genome-wide span",
+    "250 variants at 1/2/4/8/22 contigs",
+    "real ACMG SF v3.3 panel and Twist core exome samples"
+  ],
   "cache": "gnomad_v4.1_GRCh38_joint_af001 / vep115.2_everything, 18,869,857 records, 3.7 GB",
-  "slurm_job": [1253, 1254],
+  "slurm_job": [
+    1253,
+    1254
+  ],
   "status": "primary",
   "result": {
     "legacy_fixed_seconds": 23.6,
@@ -19,15 +26,24 @@
     "fixed_share_at_wes_legacy": "87.5%",
     "legacy_span_dependence": "flat 19.6-21.3 s from 1 to 22 contigs: a full-cache pass, unrestricted",
     "fused_span_dependence": "111.1 / 10.2 / 10.4 / 18.6 / 45.7 s at 1/2/4/8/22 contigs",
-    "region_restriction_win": "2x at 2-4 contigs (10.2 s vs 19.5 s legacy)",
+    "region_restriction_win": "2x at 2-4 contigs (10.2 s vs 19.5 s legacy), and that is what WHOLE-CONTIG restriction buys: route uses -r <contig>, so a few-gene panel still reads all of that contig's cache",
     "panel_split": "legacy 27.0 s total = 23.7 s VCFcache + 3.3 s VEP (3 misses of 203)",
     "wes_split": "legacy 156.3 s total = 27.0 s VCFcache + 129.3 s VEP (1,339 misses of 75,135)"
   },
-  "note": "Answers where the campaign's panel loss (0.41-0.46x) comes from: it is a full-cache pass, not annotator start-up and not per-variant work. Region-restricted routing already exists in the fused route stage and is worth 2x at 2-4 contigs, but a single-contig regression (5.7x worse than legacy) and worker imbalance at 22 contigs (per-worker route 9.9/21.3/32.6/45.6 s) make fused's fixed term worse than legacy's at the spans real assays have. Fused must not be promoted to default on this evidence. See ANALYSIS.md for caveats, including that the 98.2-98.5% hit rates here are 1000 Genomes against a gnomAD cache and are NOT cohort coverage results.",
+  "note": "Answers where the campaign's panel loss comes from: VCFcache's fixed term, not annotator start-up and not per-variant work. Legacy's fixed term is ~20-24 s and flat across contig span, because legacy applies no region restriction. Whole-contig restriction in fused route is ~2x faster than legacy at 2-4 contigs. Fused is slower than legacy at 1 contig and at 22 contigs and must not be promoted to default on this evidence. See ANALYSIS.md: five claims in the first version were too strong and are corrected there, with the experiment that would settle the remaining mechanism question.",
   "excluded": {
     "1253_arm_C": "all three inputs were single-contig whatever span they claimed; the genome-wide pool is contig-ordered and selection took the first 250 matching rows. Superseded by job 1254. Rows left in the raw TSV."
   },
   "superseded_attempts": {
     "1252": "died silently on `awk {exit}` SIGPIPEing bcftools under `set -o pipefail`; proven in isolation (rc=141 vs rc=0). Fixed by draining; the 3.1 Gb cache scan also replaced with 22 indexed windows."
+  },
+  "caveats": {
+    "mechanism_not_established": "The 22-contig per-worker spread (9.9/21.3/32.6/45.6 s) has three live candidates this run cannot separate: grouping balances bcftools index --stats of the INPUT (variant counts) not cache records; repeated cache-prefix traversal, which the near-arithmetic progression fits; and uncontrolled threading. An earlier version called it 'purely scheduling', which is withdrawn.",
+    "single_contig_explained": "workers is clamped to the contig count, so 1 contig gives workers==1, that branch sets contigs=[None], and route then builds selection=''. With one worker there is NO -r restriction, so it streams the whole 18.87 M-record cache. A code path, not a scheduling artefact.",
+    "threading_uncontrolled": "Legacy overlay passes --threads {threads} (workflow_manager.py:395-403); the bcftools annotate inside fused route passes no thread option, and compression_threads = 8//4-2 = 0. Part of the legacy/fused gap may be threading; an isolated comparison is required.",
+    "worker_count": "8 CPUs configured on 16-vCPU nodes gives cpu_budget//2 = 4 workers. The previously stated '~14 s over 8 workers' is withdrawn as an extrapolation at a worker count never run.",
+    "vep_column_is_a_residual": "The VEP figures are real-input total minus the matched zero-miss cell, so they absorb input-format, composition, indexing and normalization differences too. They are this cache's VEP 115.2 --everything recipe and cannot establish the fastVEP campaign's breakdown.",
+    "slopes_exploratory": "45.1 and 26.8 us/variant come from two points, three reps, one node. Exploratory only; not new per-variant constants beside the production 27.5 us.",
+    "hit_rates_not_cohort_results": "98.2-98.5% here is 1000 Genomes against a gnomAD AF>=1% cache, not held out. Overhead is hit-rate independent so the profiling stands, but these must not be quoted as coverage."
   }
 }
