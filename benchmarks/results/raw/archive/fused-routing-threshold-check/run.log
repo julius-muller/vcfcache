@@ -1,0 +1,15 @@
+### records=200000
+{"records": 200000, "payload_bytes": 1024, "cache_hit_rate": 0.9, "cpus": 8, "legacy_seconds": 2.9585575889941538, "fused_seconds": 1.839520955007174, "semantic_pass": true, "speedup": 1.608330462852822, "reduction_percent": 37.823723227487626}
+Synthetic results: /home/j380r/.cache/vcfcache-fused-threshold-check/n200000
+Raw generated data retained at: /home/j380r/.cache/vcfcache-fused-threshold-check/work-n200000
+### records=800000
+{"records": 800000, "payload_bytes": 1024, "cache_hit_rate": 0.9, "cpus": 8, "legacy_seconds": 9.577666146011325, "fused_seconds": 5.171885628995369, "semantic_pass": true, "speedup": 1.8518712193316176, "reduction_percent": 46.000564749803566}
+Synthetic results: /home/j380r/.cache/vcfcache-fused-threshold-check/n800000
+Raw generated data retained at: /home/j380r/.cache/vcfcache-fused-threshold-check/work-n800000
+### summaries
+--- n200000
+records	payload_bytes	cache_hit_rate	cpus	legacy_seconds	fused_seconds	semantic_pass	speedup	reduction_percent
+200000	1024	0.9	8	2.9585575889941538	1.839520955007174	True	1.608330462852822	37.823723227487626
+--- n800000
+records	payload_bytes	cache_hit_rate	cpus	legacy_seconds	fused_seconds	semantic_pass	speedup	reduction_percent
+800000	1024	0.9	8	9.577666146011325	5.171885628995369	True	1.8518712193316176	46.000564749803566

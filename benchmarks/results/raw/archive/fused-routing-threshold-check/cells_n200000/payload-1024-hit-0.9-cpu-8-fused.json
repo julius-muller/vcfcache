@@ -1,0 +1,100 @@
+{
+  "engine": "fused",
+  "configured_cpus": 8,
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "wall_seconds": 1.839520955007174,
+  "cpu_seconds": 6.389873,
+  "max_child_process_rss_kib": 35692,
+  "memory_note": "largest child-process RSS, NOT simultaneous aggregate peak",
+  "artifact_bytes": 279531378,
+  "stats": {
+    "engine": "fused",
+    "requested_engine": "fused",
+    "native_version": "vcfcache-engine 0.1.0",
+    "workers": 4,
+    "cpu_budget": 8,
+    "stage_timings": [
+      {
+        "stage": "preprocess",
+        "wall_seconds": 0.13785827800165862
+      },
+      {
+        "stage": "preprocess",
+        "wall_seconds": 0.17446164799912367
+      },
+      {
+        "stage": "preprocess",
+        "wall_seconds": 0.17863470100564882
+      },
+      {
+        "stage": "preprocess",
+        "wall_seconds": 0.17863751300319564
+      },
+      {
+        "stage": "route",
+        "wall_seconds": 0.3385341280081775
+      },
+      {
+        "stage": "route",
+        "wall_seconds": 0.47025124399806373
+      },
+      {
+        "stage": "route",
+        "wall_seconds": 0.5006179319898365
+      },
+      {
+        "stage": "route",
+        "wall_seconds": 0.504466696002055
+      },
+      {
+        "stage": "collect-misses",
+        "wall_seconds": 0.06270802499784622
+      },
+      {
+        "stage": "annotate-misses",
+        "wall_seconds": 0.2600247490045149
+      },
+      {
+        "stage": "assemble",
+        "wall_seconds": 0.4093313760095043
+      },
+      {
+        "stage": "assemble",
+        "wall_seconds": 0.6027824069897179
+      },
+      {
+        "stage": "assemble",
+        "wall_seconds": 0.6153512229939224
+      },
+      {
+        "stage": "assemble",
+        "wall_seconds": 0.6184849270066479
+      },
+      {
+        "stage": "gather",
+        "wall_seconds": 0.05359193299955223
+      },
+      {
+        "stage": "index",
+        "wall_seconds": 0.09078429100918584
+      }
+    ],
+    "input_variants": 200000,
+    "missing_variants": 20000,
+    "output_variants": 200000,
+    "annotated_output": 200000,
+    "missing_annotated": 20000,
+    "dropped_variants": 0
+  },
+  "payload_bytes": 1024,
+  "cache_hit_rate": 0.9
+}

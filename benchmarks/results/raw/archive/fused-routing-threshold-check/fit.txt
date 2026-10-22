@@ -1,0 +1,16 @@
+engine    c (us/var)    s (s)
+legacy        11.032    0.752
+fused          5.554    0.729
+
+per-variant overhead reduction: 1.986x
+start-up barely moves: 0.752 s -> 0.729 s (0.969x) -- consistent with a per-variant-only win
+
+threshold = (VCFcache per-variant overhead) / f
+  legacy: 27.5 us / 0.9258 =  29.7 us/variant
+  fused : 13.84 us / 0.9258 =  15.0 us/variant  (scaled by the measured ratio)
+
+where the vep-rs rungs land:
+  core (job 1242, head)                  5.68 us   legacy: cache loses   fused: cache loses
+  core (job 1250, worker)                7.49 us   legacy: cache loses   fused: cache loses
+  --everything (job 1242)               14.00 us   legacy: cache loses   fused: cache loses
+  +genome-wide gnomAD (job 1250 L1)     34.38 us   legacy: cache WINS   fused: cache WINS

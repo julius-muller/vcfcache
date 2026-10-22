@@ -1,0 +1,34 @@
+{
+  "run_id": "fused-routing-threshold-check",
+  "tool": "VCFcache 0.5.5, branch feature/fused-routing at c878d86c3",
+  "engine_binary": "native/target/release/vcfcache-engine (prebuilt in the checkout; no cargo toolchain on PATH)",
+  "harness": "python -m benchmarks.fused_engine (the branch's own synthetic harness)",
+  "assembly": "n/a -- generated records across 22 contigs",
+  "level": "engine comparison; no annotator involved",
+  "invocation": "one matched pair per size, legacy then fused, --hit-rates 0.9 --payloads 1024 --cpus 8",
+  "assays": ["200000 records", "800000 records"],
+  "genomes": 0,
+  "cohorts": [],
+  "slurm_job": null,
+  "status": "diagnostic",
+  "question": "Does the fused-routing engine lower the per-variant break-even threshold, and by how much?",
+  "result": {
+    "legacy_per_variant_us": 11.032,
+    "fused_per_variant_us": 5.554,
+    "reduction": "1.986x",
+    "legacy_startup_s": 0.752,
+    "fused_startup_s": 0.729,
+    "threshold_legacy_us_per_variant": 29.7,
+    "threshold_fused_us_per_variant": 15.0,
+    "semantic_pass": "true in both cells"
+  },
+  "note": "Two input sizes so per-variant cost is a fitted slope, not one wall time. Start-up barely moves (0.969x) while the per-variant slope halves, which is the signature the break-even algebra needs: caching returns per-variant work and never start-up. The 15.0 us threshold is the production 27.5 us/variant legacy overhead divided by this measured 1.986x ratio and then by f=0.9258 -- an ESTIMATE scaled from a synthetic harness, not a production measurement. Work directory was NVMe, not tmpfs: only ~6 GB of RAM was free on the workstation, and the fused engine trades temp disk for fewer full-file scans, so disk-backed is the fairer test of that trade. One run per cell, shared workstation, no inferential intervals. benchmarks/fused_engine/RESULTS.md explicitly warns against inferring a vep-rs speedup from this harness; this run does not claim one, it rescales VCFcache's own overhead.",
+  "artefacts": {
+    "run.sh": "the driver, with its reasoning",
+    "run.log": "both harness invocations as they ran",
+    "summary_n*.tsv": "the harness's own summary per size",
+    "cells_n*/": "per-cell resource reports, equality reports, manifests, logs",
+    "fit.py": "the two-point fit and threshold rescaling",
+    "fit.txt": "its output"
+  }
+}
