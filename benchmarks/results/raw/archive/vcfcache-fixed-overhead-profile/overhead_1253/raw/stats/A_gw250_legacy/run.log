@@ -1,0 +1,25 @@
+[14:43:49] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[14:43:49] Genome build (params.yaml): GRCh38
+[14:43:49] Genome build (annotation.yaml): GRCh38
+[14:43:49] Initializing annotation of gw250.bcf
+[14:43:49] Contig overlap: cache=24 input=22 overlap=22
+[14:43:49] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[14:43:49] Running workflow in mode: annotate
+[14:43:49] Annotating sample using cache (4-step process)
+[14:43:49] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[14:43:49] Command completed in 0.112s: bcftools norm
+[14:43:49] Step 1/4: Adding cache annotations
+[14:44:12] Command completed in 22.509s: bcftools annotate
+[14:44:12] Step 2/4: Identifying variants missing from cache
+[14:44:12] Command completed in 0.035s: bcftools filter
+[14:44:12] Found 0 variants not in cache
+[14:44:12] Step 3/4: Skipped (all variants found in cache)
+[14:44:12] Step 4/4: Merging cache and newly annotated variants
+[14:44:12] Command completed in 0.009s: unknown
+[14:44:12] Command completed in 0.070s: bcftools view
+[14:44:12] Annotation complete: /mnt/data/tmp/overhead-1253/run/A_gw250_legacy_1/out.bcf
+[14:44:12] Workflow completed successfully in 22.8s
+Computing MD5 for /mnt/data/tmp/overhead-1253/run/A_gw250_legacy_1/gw250_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating gw250.bcf (cached mode)...
+Using default params from cache: cache/vep115.2_everything/params.snapshot.yaml
+Annotation completed in 23.0s

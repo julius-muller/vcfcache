@@ -1,0 +1,18 @@
+[14:38:03] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[14:38:03] Genome build (params.yaml): GRCh38
+[14:38:03] Genome build (annotation.yaml): GRCh38
+[14:38:03] Initializing annotation of gw1.bcf
+[14:38:03] Contig overlap: cache=24 input=1 overlap=1
+[14:38:03] Overlapping contigs (first 10): chr22
+[14:38:03] Running workflow in mode: annotate
+[14:38:03] Fused engine: vcfcache-engine 0.1.0; workers=1; CPU budget=8
+[14:38:03] Fused preprocess completed in 0.111s
+[14:39:50] Fused route completed in 106.303s
+[14:39:50] Fused assemble completed in 0.118s
+[14:39:50] Fused gather completed in 0.055s
+[14:39:50] Fused index completed in 0.029s
+[14:39:50] Workflow completed successfully in 106.7s
+Computing MD5 for /mnt/data/tmp/overhead-1253/run/A_gw1_fused_1/gw1_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating gw1.bcf (cached mode)...
+Using default params from cache: cache/vep115.2_everything/params.snapshot.yaml
+Annotation completed in 106.9s

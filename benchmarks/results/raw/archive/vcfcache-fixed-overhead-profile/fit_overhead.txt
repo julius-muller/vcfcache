@@ -1,0 +1,29 @@
+ARM A -- size at genome-wide span (22 contigs; gw1 is 1 contig), zero misses
+      N    legacy     fused
+      1      24.0     107.6
+    250      23.7      45.6
+   2000      22.0      45.9
+  75000      27.0      47.6
+
+legacy: fixed   23.6 s, per-variant  45.1 us
+   N=   250: fixed is 100.0% of VCFcache's cost
+   N= 75000: fixed is 87.5% of VCFcache's cost
+
+fused: fixed   45.6 s, per-variant  26.8 us
+   N=   250: fixed is 100.0% of VCFcache's cost
+   N= 75000: fixed is 95.8% of VCFcache's cost
+
+
+SPAN SWEEP (job 1254) -- 250 variants held constant, span varied
+ contigs    legacy     fused
+       1      19.6     111.1
+       2      19.5      10.2
+       4      19.7      10.4
+       8      20.9      18.6
+      22      21.3      45.7
+
+
+ARM B -- real assays, with misses, so VEP runs
+assay            N  miss   legacy    fused  VCFcache     VEP
+panel          203     3     27.0     41.7      23.7     3.3
+wes          75135  1339    156.3    177.0      27.0   129.3

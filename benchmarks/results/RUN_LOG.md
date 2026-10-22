@@ -131,3 +131,33 @@ Rescaling the production 27.5 µs/variant gives **~15.0 µs/variant**, down from
 29.7. vep-rs `--everything` at 14.0 µs then sits essentially *at* break-even on
 transcripts alone. Estimate scaled from the branch's synthetic harness, not a
 production measurement; validating it on a real WGS cache is the open step.
+
+## 2026-10-22 — VCFcache fixed-overhead profile, legacy vs fused
+
+| job | what | outcome |
+|---|---|---|
+| 1252 | overhead profile, first attempt | died silently on `awk {exit}` + `pipefail` (rc=141); superseded |
+| 1253 | size sweep + real panel/WES assays | **complete** — Arm C excluded (all cells single-contig) |
+| 1254 | span sweep, 250 variants at 1/2/4/8/22 contigs | **complete** |
+
+`raw/archive/vcfcache-fixed-overhead-profile/`
+
+**The panel loss is a full-cache pass.** With zero-miss inputs, so no annotator
+runs at all, legacy costs **23.6 s + 45.1 µs/variant**. That fixed term is ~100%
+of VCFcache's cost at panel scale and still 87.5% at WES. On real samples a
+203-variant panel splits 23.7 s VCFcache against 3.3 s VEP (3 misses): **88% of
+the cached run is overhead.** At WES it inverts — 27.0 s against 129.3 s VEP.
+Legacy at N=1 measured 24.0 s, confirming the 21.7 s `analyze_breakeven.py`
+intercept directly rather than by extrapolation.
+
+**Region restriction works, and is worth 2× already.** Holding N at 250 and
+varying span, legacy is flat at 19.6–21.3 s from 1 to 22 contigs — it streams
+the whole 18.87 M-record cache regardless. The fused route stage is
+region-restricted and at 2–4 contigs costs **10.2 s against legacy's 19.5 s**.
+
+**But fused must not be promoted to default.** It is 111.1 s on single-contig
+input (5.7× worse than legacy) and 45.7 s at 22 contigs, where its four workers
+are unbalanced (per-worker route 9.9 / 21.3 / 32.6 / 45.6 s). For a genome-wide
+panel fused is 41.7 s against legacy's 27.0 s. It wins the per-variant term,
+which is the one that does not matter at these scales. Both defects are
+scheduling, not algorithmic.

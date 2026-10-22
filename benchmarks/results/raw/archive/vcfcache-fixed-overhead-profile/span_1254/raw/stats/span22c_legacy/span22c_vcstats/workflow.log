@@ -1,0 +1,48 @@
+[2026-10-22 14:51:56] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/workflow.log
+[2026-10-22 14:51:56] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-22 14:51:56] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats
+[2026-10-22 14:51:56] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/workflow/params.snapshot.yaml
+[2026-10-22 14:51:56] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/annotation.yaml
+[2026-10-22 14:51:56] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-22 14:51:56] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-22 14:51:56] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-22 14:51:56] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/span-1254/in/span22c.bcf
+[2026-10-22 14:51:56] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-22 14:51:56] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of span22c.bcf
+[2026-10-22 14:51:56] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-22 14:51:56] DEBUG [vcfcache.annotator.py.annotate:882] Starting VCF annotation
+[2026-10-22 14:51:56] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-22 14:51:57] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/span-1254/in/span22c.bcf
+[2026-10-22 14:51:57] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=22 overlap=22
+[2026-10-22 14:51:57] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-22 14:51:57] DEBUG [vcfcache.workflow_manager.py._create_work_dir:981] Created work directory: /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work
+[2026-10-22 14:51:57] INFO [vcfcache.workflow_manager.py.run:307] Running workflow in mode: annotate
+[2026-10-22 14:51:57] INFO [vcfcache.workflow_manager.py._run_annotate:580] Annotating sample using cache (4-step process)
+[2026-10-22 14:51:57] INFO [vcfcache.workflow_manager.py._run_annotate:605] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[2026-10-22 14:51:57] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate
+[2026-10-22 14:51:57] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools norm -m- /mnt/data/tmp/span-1254/in/span22c.bcf -Ob | bcftools view -e 'ALT="*"' -o /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_normalized.bcf -Ob -W --threads 8
+[2026-10-22 14:51:57] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 0.115s: bcftools norm
+[2026-10-22 14:51:57] DEBUG [vcfcache.workflow_manager.py.run:107] STDERR: Lines   total/split/joined/realigned/removed/skipped:	242/0/0/0/0/0
+
+[2026-10-22 14:51:57] INFO [vcfcache.workflow_manager.py._run_annotate:620] Step 1/4: Adding cache annotations
+[2026-10-22 14:51:57] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate
+[2026-10-22 14:51:57] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools annotate -a /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_normalized.bcf -c INFO -o /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_isecvst.bcf -Ob -W --threads 8
+[2026-10-22 14:52:17] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 20.750s: bcftools annotate
+[2026-10-22 14:52:17] INFO [vcfcache.workflow_manager.py._run_annotate:629] Step 2/4: Identifying variants missing from cache
+[2026-10-22 14:52:17] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate
+[2026-10-22 14:52:17] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools filter -i 'INFO/CSQ==""' /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_isecvst.bcf -o /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_isecvst_miss.bcf -Ob -W --threads 8
+[2026-10-22 14:52:17] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 0.048s: bcftools filter
+[2026-10-22 14:52:18] INFO [vcfcache.workflow_manager.py._run_annotate:647] Found 0 variants not in cache
+[2026-10-22 14:52:18] INFO [vcfcache.workflow_manager.py._run_annotate:685] Step 3/4: Skipped (all variants found in cache)
+[2026-10-22 14:52:18] INFO [vcfcache.workflow_manager.py._run_annotate:690] Step 4/4: Merging cache and newly annotated variants
+[2026-10-22 14:52:18] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate
+[2026-10-22 14:52:18] DEBUG [vcfcache.workflow_manager.py.run:59] Command: cp /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_isecvst.bcf /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_merged.bcf && cp /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_isecvst.bcf.csi /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_merged.bcf.csi
+[2026-10-22 14:52:18] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 0.005s: unknown
+[2026-10-22 14:52:18] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate
+[2026-10-22 14:52:18] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools view -i 'INFO/CSQ!=""' /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work/annotate/span22c_merged.bcf -o /mnt/data/tmp/span-1254/run/span22c_legacy_1/out.bcf -Ob -W --threads 8
+[2026-10-22 14:52:18] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 0.048s: bcftools view
+[2026-10-22 14:52:18] INFO [vcfcache.workflow_manager.py._run_annotate:767] Annotation complete: /mnt/data/tmp/span-1254/run/span22c_legacy_1/out.bcf
+[2026-10-22 14:52:18] DEBUG [vcfcache.workflow_manager.py._write_trace_file:967] Trace file written to: /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/vep115.2_everything_trace.txt
+[2026-10-22 14:52:18] INFO [vcfcache.workflow_manager.py.run:358] Workflow completed successfully in 21.0s
+[2026-10-22 14:52:18] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:993] Cleaning up work directory
+[2026-10-22 14:52:18] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:996] Removing work directory: /mnt/data/tmp/span-1254/run/span22c_legacy_1/span22c_vcstats/work

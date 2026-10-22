@@ -1,0 +1,40 @@
+[2026-10-22 15:26:14] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/overhead-1253/run/B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused_1/HG00116_vcstats/workflow.log
+[2026-10-22 15:26:14] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-22 15:26:14] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/overhead-1253/run/B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused_1/HG00116_vcstats
+[2026-10-22 15:26:14] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/overhead-1253/run/B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused_1/HG00116_vcstats/workflow/params.snapshot.yaml
+[2026-10-22 15:26:14] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/annotation.yaml
+[2026-10-22 15:26:14] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-22 15:26:14] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-22 15:26:14] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-22 15:26:14] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/vcfcache_benchmarks/samples/GRCh38/panel_acmg_sf_v3.3/HG00116.GRCh38.panel_acmg_sf_v3.3.vcf.gz
+[2026-10-22 15:26:14] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-22 15:26:14] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of HG00116.GRCh38.panel_acmg_sf_v3.3.vcf.gz
+[2026-10-22 15:26:14] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-22 15:26:14] DEBUG [vcfcache.annotator.py.annotate:882] Starting VCF annotation
+[2026-10-22 15:26:14] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-22 15:26:14] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/vcfcache_benchmarks/samples/GRCh38/panel_acmg_sf_v3.3/HG00116.GRCh38.panel_acmg_sf_v3.3.vcf.gz
+[2026-10-22 15:26:14] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=18 overlap=18
+[2026-10-22 15:26:14] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-22 15:26:14] DEBUG [vcfcache.workflow_manager.py._create_work_dir:981] Created work directory: /mnt/data/tmp/overhead-1253/run/B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused_1/HG00116_vcstats/work
+[2026-10-22 15:26:14] INFO [vcfcache.workflow_manager.py.run:307] Running workflow in mode: annotate
+[2026-10-22 15:26:14] INFO [vcfcache.fused.py.run_fused:198] Fused engine: vcfcache-engine 0.1.0; workers=4; CPU budget=8
+[2026-10-22 15:26:15] INFO [vcfcache.fused.py.run:132] Fused preprocess completed in 0.043s
+[2026-10-22 15:26:15] INFO [vcfcache.fused.py.run:132] Fused preprocess completed in 0.043s
+[2026-10-22 15:26:15] INFO [vcfcache.fused.py.run:132] Fused preprocess completed in 0.042s
+[2026-10-22 15:26:15] INFO [vcfcache.fused.py.run:132] Fused preprocess completed in 0.043s
+[2026-10-22 15:26:24] INFO [vcfcache.fused.py.run:132] Fused route completed in 9.469s
+[2026-10-22 15:26:33] INFO [vcfcache.fused.py.run:132] Fused route completed in 18.953s
+[2026-10-22 15:26:44] INFO [vcfcache.fused.py.run:132] Fused route completed in 29.264s
+[2026-10-22 15:26:50] INFO [vcfcache.fused.py.run:132] Fused route completed in 35.850s
+[2026-10-22 15:26:50] INFO [vcfcache.fused.py.run:132] Fused collect-misses completed in 0.054s
+[2026-10-22 15:26:55] INFO [vcfcache.fused.py.run:132] Fused annotate-misses completed in 4.603s
+[2026-10-22 15:26:55] INFO [vcfcache.fused.py.run:132] Fused assemble completed in 0.055s
+[2026-10-22 15:26:55] INFO [vcfcache.fused.py.run:132] Fused assemble completed in 0.068s
+[2026-10-22 15:26:55] INFO [vcfcache.fused.py.run:132] Fused assemble completed in 0.080s
+[2026-10-22 15:26:55] INFO [vcfcache.fused.py.run:132] Fused assemble completed in 0.080s
+[2026-10-22 15:26:55] INFO [vcfcache.fused.py.run:132] Fused gather completed in 0.033s
+[2026-10-22 15:26:55] INFO [vcfcache.fused.py.run:132] Fused index completed in 0.030s
+[2026-10-22 15:26:55] DEBUG [vcfcache.workflow_manager.py._write_trace_file:967] Trace file written to: /mnt/data/tmp/overhead-1253/run/B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused_1/HG00116_vcstats/vep115.2_everything_trace.txt
+[2026-10-22 15:26:55] INFO [vcfcache.workflow_manager.py.run:358] Workflow completed successfully in 40.8s
+[2026-10-22 15:26:55] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:993] Cleaning up work directory
+[2026-10-22 15:26:55] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:996] Removing work directory: /mnt/data/tmp/overhead-1253/run/B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused_1/HG00116_vcstats/work

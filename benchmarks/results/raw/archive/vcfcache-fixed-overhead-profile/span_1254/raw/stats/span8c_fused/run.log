@@ -1,0 +1,27 @@
+[14:50:37] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[14:50:37] Genome build (params.yaml): GRCh38
+[14:50:37] Genome build (annotation.yaml): GRCh38
+[14:50:37] Initializing annotation of span8c.bcf
+[14:50:38] Contig overlap: cache=24 input=8 overlap=8
+[14:50:38] Overlapping contigs (first 10): chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8
+[14:50:38] Running workflow in mode: annotate
+[14:50:38] Fused engine: vcfcache-engine 0.1.0; workers=4; CPU budget=8
+[14:50:38] Fused preprocess completed in 0.059s
+[14:50:38] Fused preprocess completed in 0.071s
+[14:50:38] Fused preprocess completed in 0.074s
+[14:50:38] Fused preprocess completed in 0.073s
+[14:50:50] Fused route completed in 11.788s
+[14:50:50] Fused route completed in 12.443s
+[14:50:52] Fused route completed in 14.710s
+[14:50:55] Fused route completed in 17.417s
+[14:50:55] Fused assemble completed in 0.068s
+[14:50:55] Fused assemble completed in 0.094s
+[14:50:55] Fused assemble completed in 0.093s
+[14:50:55] Fused assemble completed in 0.114s
+[14:50:55] Fused gather completed in 0.079s
+[14:50:55] Fused index completed in 0.037s
+[14:50:55] Workflow completed successfully in 17.8s
+Computing MD5 for /mnt/data/tmp/span-1254/run/span8c_fused_1/span8c_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating span8c.bcf (cached mode)...
+Using default params from cache: cache/vep115.2_everything/params.snapshot.yaml
+Annotation completed in 18.0s

@@ -1,0 +1,25 @@
+[14:36:23] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[14:36:23] Genome build (params.yaml): GRCh38
+[14:36:23] Genome build (annotation.yaml): GRCh38
+[14:36:23] Initializing annotation of span1c.bcf
+[14:36:23] Contig overlap: cache=24 input=1 overlap=1
+[14:36:23] Overlapping contigs (first 10): chr1
+[14:36:23] Running workflow in mode: annotate
+[14:36:23] Annotating sample using cache (4-step process)
+[14:36:23] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[14:36:23] Command completed in 0.101s: bcftools norm
+[14:36:23] Step 1/4: Adding cache annotations
+[14:36:42] Command completed in 18.492s: bcftools annotate
+[14:36:42] Step 2/4: Identifying variants missing from cache
+[14:36:42] Command completed in 0.043s: bcftools filter
+[14:36:42] Found 0 variants not in cache
+[14:36:42] Step 3/4: Skipped (all variants found in cache)
+[14:36:42] Step 4/4: Merging cache and newly annotated variants
+[14:36:42] Command completed in 0.006s: unknown
+[14:36:42] Command completed in 0.048s: bcftools view
+[14:36:42] Annotation complete: /mnt/data/tmp/span-1254/run/span1c_legacy_1/out.bcf
+[14:36:42] Workflow completed successfully in 18.7s
+Computing MD5 for /mnt/data/tmp/span-1254/run/span1c_legacy_1/span1c_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating span1c.bcf (cached mode)...
+Using default params from cache: cache/vep115.2_everything/params.snapshot.yaml
+Annotation completed in 18.9s

@@ -1,0 +1,33 @@
+{
+  "run_id": "vcfcache-fixed-overhead-profile",
+  "tool": "VCFcache, branch feature/fused-routing at c878d86c3, engines legacy and fused",
+  "engine_binary": "vcfcache-engine 0.1.0, prebuilt locally and copied (cluster glibc 2.43 matches; HTSlib statically linked; no cargo on the cluster)",
+  "deployment": "/results/deployment/vcfcache-fused-c878d86c, shadowed over the stale editable install via PYTHONPATH. `vcfcache --version` reports 0.5.3 from the old dist-info; both jobs assert the branch by requiring --engine in the CLI.",
+  "assembly": "GRCh38",
+  "level": "engine/overhead profiling; Arm A and the span sweep invoke no annotator at all",
+  "invocation": "vcfcache annotate -a <cache> --engine {legacy,fused} --stats-dir <dir>; one untimed warm-up then 3 timed reps per cell",
+  "assays": ["zero-miss 1/250/2000/75000 at genome-wide span", "250 variants at 1/2/4/8/22 contigs", "real ACMG SF v3.3 panel and Twist core exome samples"],
+  "cache": "gnomad_v4.1_GRCh38_joint_af001 / vep115.2_everything, 18,869,857 records, 3.7 GB",
+  "slurm_job": [1253, 1254],
+  "status": "primary",
+  "result": {
+    "legacy_fixed_seconds": 23.6,
+    "legacy_per_variant_us": 45.1,
+    "fused_fixed_seconds": 45.6,
+    "fused_per_variant_us": 26.8,
+    "fixed_share_at_panel": "~100%",
+    "fixed_share_at_wes_legacy": "87.5%",
+    "legacy_span_dependence": "flat 19.6-21.3 s from 1 to 22 contigs: a full-cache pass, unrestricted",
+    "fused_span_dependence": "111.1 / 10.2 / 10.4 / 18.6 / 45.7 s at 1/2/4/8/22 contigs",
+    "region_restriction_win": "2x at 2-4 contigs (10.2 s vs 19.5 s legacy)",
+    "panel_split": "legacy 27.0 s total = 23.7 s VCFcache + 3.3 s VEP (3 misses of 203)",
+    "wes_split": "legacy 156.3 s total = 27.0 s VCFcache + 129.3 s VEP (1,339 misses of 75,135)"
+  },
+  "note": "Answers where the campaign's panel loss (0.41-0.46x) comes from: it is a full-cache pass, not annotator start-up and not per-variant work. Region-restricted routing already exists in the fused route stage and is worth 2x at 2-4 contigs, but a single-contig regression (5.7x worse than legacy) and worker imbalance at 22 contigs (per-worker route 9.9/21.3/32.6/45.6 s) make fused's fixed term worse than legacy's at the spans real assays have. Fused must not be promoted to default on this evidence. See ANALYSIS.md for caveats, including that the 98.2-98.5% hit rates here are 1000 Genomes against a gnomAD cache and are NOT cohort coverage results.",
+  "excluded": {
+    "1253_arm_C": "all three inputs were single-contig whatever span they claimed; the genome-wide pool is contig-ordered and selection took the first 250 matching rows. Superseded by job 1254. Rows left in the raw TSV."
+  },
+  "superseded_attempts": {
+    "1252": "died silently on `awk {exit}` SIGPIPEing bcftools under `set -o pipefail`; proven in isolation (rc=141 vs rc=0). Fixed by draining; the 3.1 Gb cache scan also replaced with 22 indexed windows."
+  }
+}

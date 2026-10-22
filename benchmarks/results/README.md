@@ -61,6 +61,7 @@ which do not share samples with gnomAD.
 | vep-rs 0.4.0 capability and cost pilot | `raw/archive/veprs-pilot-grch38-chr22-diagnostic/` |
 | vep-rs annotation-heavy ladder, genome-wide gnomAD | `raw/archive/veprs-heavy-grch38-chr22-genomewide/` |
 | Fused-routing engine threshold check | `raw/archive/fused-routing-threshold-check/` |
+| VCFcache fixed-overhead profile, panel/WES | `raw/archive/vcfcache-fixed-overhead-profile/` |
 | Cluster and tool versions at collection | `raw/COLLECTION_ENV.txt` |
 
 Figure inputs and the derived tables the manuscript cites remain where the
@@ -112,6 +113,7 @@ was flawed and the numbers do not estimate what they appear to.
 | 2026-10-22 | vep-rs 0.4.0 pilot (job 1242) | Perl->JSON cache conversion works; clinical level unreachable; 5.68-14.00 us/variant, so the break-even rule predicts caching loses at every scale | diagnostic |
 | 2026-10-22 | vep-rs heavy ladder (job 1251) | 66 cells; clinical level IS reachable via the plugin path; one genome-wide gnomAD source takes 7.42 -> 31.95 us/variant and crosses break-even | primary |
 | 2026-10-22 | fused-routing threshold check | VCFcache per-variant overhead 11.03 -> 5.55 us (1.99x), start-up flat; threshold ~29.7 -> ~15.0 us/variant | diagnostic |
+| 2026-10-22 | fixed-overhead profile (jobs 1253, 1254) | Panel loss is a full-cache pass: 23.6 s fixed, ~100% of cost at panel scale. Region-restricted routing worth 2x; fused regresses at 1 and 22 contigs | primary |
 
 ### Measured constants worth keeping in one place
 
@@ -137,3 +139,6 @@ was flawed and the numbers do not estimate what they appear to.
 | vep-rs clinical level (ClinVar + genome-wide gnomAD AF) | 40.76 us/variant | same |
 | VCFcache per-variant overhead, fused-routing engine | 5.55 us (1.99x below legacy) | `raw/archive/fused-routing-threshold-check/fit.txt` |
 | Break-even threshold, fused-routing engine | ~15.0 us/variant | same, scaled from the synthetic harness |
+| VCFcache fixed overhead, legacy, measured at N=1 | 23.6-24.0 s | `raw/archive/vcfcache-fixed-overhead-profile/fit_overhead.txt` |
+| Fixed-term share of VCFcache cost, panel / WES | ~100% / 87.5% | same |
+| Region-restricted routing, 2-4 contigs vs legacy | 10.2 s vs 19.5 s | `raw/archive/vcfcache-fixed-overhead-profile/span_1254/` |

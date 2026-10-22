@@ -1,0 +1,27 @@
+[14:55:15] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[14:55:15] Genome build (params.yaml): GRCh38
+[14:55:15] Genome build (annotation.yaml): GRCh38
+[14:55:15] Initializing annotation of gw75000.bcf
+[14:55:15] Contig overlap: cache=24 input=22 overlap=22
+[14:55:15] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[14:55:15] Running workflow in mode: annotate
+[14:55:15] Fused engine: vcfcache-engine 0.1.0; workers=4; CPU budget=8
+[14:55:15] Fused preprocess completed in 0.110s
+[14:55:15] Fused preprocess completed in 0.128s
+[14:55:15] Fused preprocess completed in 0.136s
+[14:55:15] Fused preprocess completed in 0.138s
+[14:55:25] Fused route completed in 10.101s
+[14:55:38] Fused route completed in 22.327s
+[14:55:50] Fused route completed in 34.398s
+[14:56:00] Fused route completed in 44.557s
+[14:56:01] Fused assemble completed in 0.877s
+[14:56:01] Fused assemble completed in 1.249s
+[14:56:01] Fused assemble completed in 1.306s
+[14:56:01] Fused assemble completed in 1.418s
+[14:56:01] Fused gather completed in 0.163s
+[14:56:02] Fused index completed in 0.166s
+[14:56:02] Workflow completed successfully in 46.6s
+Computing MD5 for /mnt/data/tmp/overhead-1253/run/A_gw75000_fused_1/gw75000_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating gw75000.bcf (cached mode)...
+Using default params from cache: cache/vep115.2_everything/params.snapshot.yaml
+Annotation completed in 46.8s

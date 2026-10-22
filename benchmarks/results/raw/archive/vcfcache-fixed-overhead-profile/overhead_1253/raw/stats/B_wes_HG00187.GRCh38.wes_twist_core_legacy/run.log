@@ -1,0 +1,26 @@
+[15:51:26] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[15:51:26] Genome build (params.yaml): GRCh38
+[15:51:26] Genome build (annotation.yaml): GRCh38
+[15:51:26] Initializing annotation of HG00187.GRCh38.wes_twist_core.vcf.gz
+[15:51:26] Contig overlap: cache=24 input=23 overlap=23
+[15:51:26] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[15:51:26] Running workflow in mode: annotate
+[15:51:26] Annotating sample using cache (4-step process)
+[15:51:26] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[15:51:27] Command completed in 0.824s: bcftools norm
+[15:51:27] Step 1/4: Adding cache annotations
+[15:51:52] Command completed in 24.308s: bcftools annotate
+[15:51:52] Step 2/4: Identifying variants missing from cache
+[15:51:53] Command completed in 1.551s: bcftools filter
+[15:51:53] Found 1779 variants not in cache
+[15:51:53] Step 3/4: Annotating 1779 missing variants
+[15:53:58] Command completed in 124.552s: bcftools view
+[15:53:58] Step 4/4: Merging cache and newly annotated variants
+[15:54:00] Command completed in 1.999s: bcftools annotate
+[15:54:02] Command completed in 1.947s: bcftools view
+[15:54:02] Annotation complete: /mnt/data/tmp/overhead-1253/run/B_wes_HG00187.GRCh38.wes_twist_core_legacy_1/out.bcf
+[15:54:02] Workflow completed successfully in 155.4s
+Computing MD5 for /mnt/data/tmp/overhead-1253/run/B_wes_HG00187.GRCh38.wes_twist_core_legacy_1/HG00187_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating HG00187.GRCh38.wes_twist_core.vcf.gz (cached mode)...
+Using default params from cache: cache/vep115.2_everything/params.snapshot.yaml
+Annotation completed in 155.5s

@@ -1,0 +1,529 @@
+[2026-10-22T14:34:21.955] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-10-22T14:34:21.957] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:23+02:00] engine: vcfcache-engine 0.1.0; cache: 18869857 records
+[2026-10-22T14:34:37+02:00] pool: 75020 rows across 22 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:37+02:00] input gw1: 1 records across 1 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:37+02:00] input gw250: 250 records across 22 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:38+02:00] input gw2000: 2000 records across 22 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:38+02:00] input gw75000: 75000 records across 22 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:38+02:00] input span1c: 250 records across 1 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:38+02:00] input span4c: 250 records across 1 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:34:38+02:00] input span22c: 250 records across 1 contigs
+[2026-10-22T14:34:39+02:00] === ARM A: size at genome-wide span, zero misses ===
+[2026-10-22T14:35:23+02:00] A_gw1_legacy rep1 rc=0 wall=21.895136s
+[2026-10-22T14:35:48+02:00] A_gw1_legacy rep2 rc=0 wall=25.424122s
+[2026-10-22T14:36:13+02:00] A_gw1_legacy rep3 rc=0 wall=24.015931s
+[2026-10-22T14:39:50+02:00] A_gw1_fused rep1 rc=0 wall=107.646733s
+[2026-10-22T14:41:40+02:00] A_gw1_fused rep2 rc=0 wall=110.125585s
+[2026-10-22T14:43:26+02:00] A_gw1_fused rep3 rc=0 wall=105.690265s
+[2026-10-22T14:44:12+02:00] A_gw250_legacy rep1 rc=0 wall=23.660045s
+[2026-10-22T14:44:35+02:00] A_gw250_legacy rep2 rc=0 wall=22.893324s
+[2026-10-22T14:44:59+02:00] A_gw250_legacy rep3 rc=0 wall=23.800002s
+[2026-10-22T14:46:36+02:00] A_gw250_fused rep1 rc=0 wall=51.975963s
+[2026-10-22T14:47:22+02:00] A_gw250_fused rep2 rc=0 wall=45.572702s
+[2026-10-22T14:48:08+02:00] A_gw250_fused rep3 rc=0 wall=45.551207s
+[2026-10-22T14:48:52+02:00] A_gw2000_legacy rep1 rc=0 wall=21.951001s
+[2026-10-22T14:49:15+02:00] A_gw2000_legacy rep2 rc=0 wall=22.840135s
+[2026-10-22T14:49:36+02:00] A_gw2000_legacy rep3 rc=0 wall=21.737868s
+[2026-10-22T14:51:08+02:00] A_gw2000_fused rep1 rc=0 wall=44.711744s
+[2026-10-22T14:51:55+02:00] A_gw2000_fused rep2 rc=0 wall=46.577914s
+[2026-10-22T14:52:41+02:00] A_gw2000_fused rep3 rc=0 wall=45.855312s
+[2026-10-22T14:53:34+02:00] A_gw75000_legacy rep1 rc=0 wall=27.449199s
+[2026-10-22T14:54:01+02:00] A_gw75000_legacy rep2 rc=0 wall=27.034587s
+[2026-10-22T14:54:26+02:00] A_gw75000_legacy rep3 rc=0 wall=25.156834s
+[2026-10-22T14:56:02+02:00] A_gw75000_fused rep1 rc=0 wall=47.465700s
+[2026-10-22T14:56:49+02:00] A_gw75000_fused rep2 rc=0 wall=47.572538s
+[2026-10-22T14:57:40+02:00] A_gw75000_fused rep3 rc=0 wall=50.131392s
+[2026-10-22T14:57:40+02:00] === ARM C: fixed size (250), varying contig span ===
+[2026-10-22T14:58:25+02:00] C_span1c_legacy rep1 rc=0 wall=22.595435s
+[2026-10-22T14:58:50+02:00] C_span1c_legacy rep2 rc=0 wall=24.471352s
+[2026-10-22T14:59:13+02:00] C_span1c_legacy rep3 rc=0 wall=23.057316s
+[2026-10-22T15:02:46+02:00] C_span1c_fused rep1 rc=0 wall=105.982561s
+[2026-10-22T15:04:34+02:00] C_span1c_fused rep2 rc=0 wall=107.789552s
+[2026-10-22T15:06:24+02:00] C_span1c_fused rep3 rc=0 wall=110.352590s
+[2026-10-22T15:07:13+02:00] C_span4c_legacy rep1 rc=0 wall=25.033163s
+[2026-10-22T15:07:37+02:00] C_span4c_legacy rep2 rc=0 wall=24.233481s
+[2026-10-22T15:08:03+02:00] C_span4c_legacy rep3 rc=0 wall=25.799498s
+[2026-10-22T15:11:40+02:00] C_span4c_fused rep1 rc=0 wall=108.871684s
+[2026-10-22T15:13:32+02:00] C_span4c_fused rep2 rc=0 wall=112.065320s
+[2026-10-22T15:15:23+02:00] C_span4c_fused rep3 rc=0 wall=110.452427s
+[2026-10-22T15:16:09+02:00] C_span22c_legacy rep1 rc=0 wall=21.945896s
+[2026-10-22T15:16:32+02:00] C_span22c_legacy rep2 rc=0 wall=22.665931s
+[2026-10-22T15:16:56+02:00] C_span22c_legacy rep3 rc=0 wall=23.871493s
+[2026-10-22T15:20:35+02:00] C_span22c_fused rep1 rc=0 wall=108.689488s
+[2026-10-22T15:22:21+02:00] C_span22c_fused rep2 rc=0 wall=106.309899s
+[2026-10-22T15:24:09+02:00] C_span22c_fused rep3 rc=0 wall=107.151464s
+[2026-10-22T15:24:09+02:00] === ARM B: real panel and WES samples (VEP runs on their misses) ===
+[2026-10-22T15:25:01+02:00] B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_legacy rep1 rc=0 wall=25.899431s
+[2026-10-22T15:25:29+02:00] B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_legacy rep2 rc=0 wall=28.029509s
+[2026-10-22T15:26:55+02:00] B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused rep1 rc=0 wall=41.750515s
+[2026-10-22T15:27:37+02:00] B_panel_HG00116.GRCh38.panel_acmg_sf_v3.3_fused rep2 rc=0 wall=41.745722s
+[2026-10-22T15:28:33+02:00] B_panel_HG00187.GRCh38.panel_acmg_sf_v3.3_legacy rep1 rc=0 wall=28.520442s
+[2026-10-22T15:29:01+02:00] B_panel_HG00187.GRCh38.panel_acmg_sf_v3.3_legacy rep2 rc=0 wall=27.768165s
+[2026-10-22T15:30:56+02:00] B_panel_HG00187.GRCh38.panel_acmg_sf_v3.3_fused rep1 rc=0 wall=54.419513s
+[2026-10-22T15:31:51+02:00] B_panel_HG00187.GRCh38.panel_acmg_sf_v3.3_fused rep2 rc=0 wall=54.874508s
+[2026-10-22T15:37:16+02:00] B_wes_HG00116.GRCh38.wes_twist_core_legacy rep1 rc=0 wall=149.020640s
+[2026-10-22T15:40:00+02:00] B_wes_HG00116.GRCh38.wes_twist_core_legacy rep2 rc=0 wall=163.614921s
+[2026-10-22T15:45:55+02:00] B_wes_HG00116.GRCh38.wes_twist_core_fused rep1 rc=0 wall=179.439114s
+[2026-10-22T15:48:50+02:00] B_wes_HG00116.GRCh38.wes_twist_core_fused rep2 rc=0 wall=174.543370s
+[2026-10-22T15:54:02+02:00] B_wes_HG00187.GRCh38.wes_twist_core_legacy rep1 rc=0 wall=156.165351s
+[2026-10-22T15:56:43+02:00] B_wes_HG00187.GRCh38.wes_twist_core_legacy rep2 rc=0 wall=160.835861s
+[2026-10-22T16:02:49+02:00] B_wes_HG00187.GRCh38.wes_twist_core_fused rep1 rc=0 wall=188.357661s
+[2026-10-22T16:05:50+02:00] B_wes_HG00187.GRCh38.wes_twist_core_fused rep2 rc=0 wall=181.189054s
+[2026-10-22T16:05:50+02:00] --- stage timings ---
+arm	cell	engine	stage	wall_seconds
+A	gw1	legacy	Command	0.109
+A	gw1	legacy	Command	20.893
+A	gw1	legacy	Command	0.062
+A	gw1	legacy	Command	0.007
+A	gw1	legacy	Command	0.051
+A	gw1	legacy	Command	0.109
+A	gw1	legacy	Command	20.893
+A	gw1	legacy	Command	0.062
+A	gw1	legacy	Command	0.007
+A	gw1	legacy	Command	0.051
+A	gw1	legacy	Annotation	21.4
+A	gw1	fused	preprocess	0.111
+A	gw1	fused	route	106.303
+A	gw1	fused	assemble	0.118
+A	gw1	fused	gather	0.055
+A	gw1	fused	index	0.029
+A	gw1	fused	preprocess	0.111
+A	gw1	fused	route	106.303
+A	gw1	fused	assemble	0.118
+A	gw1	fused	gather	0.055
+A	gw1	fused	index	0.029
+A	gw1	fused	Annotation	106.9
+A	gw250	legacy	Command	0.112
+A	gw250	legacy	Command	22.509
+A	gw250	legacy	Command	0.035
+A	gw250	legacy	Command	0.009
+A	gw250	legacy	Command	0.070
+A	gw250	legacy	Command	0.112
+A	gw250	legacy	Command	22.509
+A	gw250	legacy	Command	0.035
+A	gw250	legacy	Command	0.009
+A	gw250	legacy	Command	0.070
+A	gw250	legacy	Annotation	23.0
+A	gw250	fused	preprocess	0.066
+A	gw250	fused	preprocess	0.072
+A	gw250	fused	preprocess	0.079
+A	gw250	fused	preprocess	0.080
+A	gw250	fused	route	9.939
+A	gw250	fused	route	20.030
+A	gw250	fused	route	31.468
+A	gw250	fused	route	50.879
+A	gw250	fused	assemble	0.113
+A	gw250	fused	assemble	0.114
+A	gw250	fused	assemble	0.128
+A	gw250	fused	assemble	0.150
+A	gw250	fused	gather	0.103
+A	gw250	fused	index	0.041
+A	gw250	fused	preprocess	0.066
+A	gw250	fused	preprocess	0.072
+A	gw250	fused	preprocess	0.079
+A	gw250	fused	preprocess	0.080
+A	gw250	fused	route	9.939
+A	gw250	fused	route	20.030
+A	gw250	fused	route	31.468
+A	gw250	fused	route	50.879
+A	gw250	fused	assemble	0.113
+A	gw250	fused	assemble	0.114
+A	gw250	fused	assemble	0.128
+A	gw250	fused	assemble	0.150
+A	gw250	fused	gather	0.103
+A	gw250	fused	index	0.041
+A	gw250	fused	Annotation	51.5
+A	gw2000	legacy	Command	0.107
+A	gw2000	legacy	Command	21.101
+A	gw2000	legacy	Command	0.050
+A	gw2000	legacy	Command	0.006
+A	gw2000	legacy	Command	0.067
+A	gw2000	legacy	Command	0.107
+A	gw2000	legacy	Command	21.101
+A	gw2000	legacy	Command	0.050
+A	gw2000	legacy	Command	0.006
+A	gw2000	legacy	Command	0.067
+A	gw2000	legacy	Annotation	21.6
+A	gw2000	fused	preprocess	0.083
+A	gw2000	fused	preprocess	0.092
+A	gw2000	fused	preprocess	0.091
+A	gw2000	fused	preprocess	0.093
+A	gw2000	fused	route	10.077
+A	gw2000	fused	route	20.013
+A	gw2000	fused	route	33.894
+A	gw2000	fused	route	43.263
+A	gw2000	fused	assemble	0.146
+A	gw2000	fused	assemble	0.159
+A	gw2000	fused	assemble	0.164
+A	gw2000	fused	assemble	0.164
+A	gw2000	fused	gather	0.119
+A	gw2000	fused	index	0.050
+A	gw2000	fused	preprocess	0.083
+A	gw2000	fused	preprocess	0.092
+A	gw2000	fused	preprocess	0.091
+A	gw2000	fused	preprocess	0.093
+A	gw2000	fused	route	10.077
+A	gw2000	fused	route	20.013
+A	gw2000	fused	route	33.894
+A	gw2000	fused	route	43.263
+A	gw2000	fused	assemble	0.146
+A	gw2000	fused	assemble	0.159
+A	gw2000	fused	assemble	0.164
+A	gw2000	fused	assemble	0.164
+A	gw2000	fused	gather	0.119
+A	gw2000	fused	index	0.050
+A	gw2000	fused	Annotation	44.0
+A	gw75000	legacy	Command	0.384
+A	gw75000	legacy	Command	24.090
+A	gw75000	legacy	Command	0.992
+A	gw75000	legacy	Command	0.042
+A	gw75000	legacy	Command	0.908
+A	gw75000	legacy	Command	0.384
+A	gw75000	legacy	Command	24.090
+A	gw75000	legacy	Command	0.992
+A	gw75000	legacy	Command	0.042
+A	gw75000	legacy	Command	0.908
+A	gw75000	legacy	Annotation	26.7
+A	gw75000	fused	preprocess	0.110
+A	gw75000	fused	preprocess	0.128
+A	gw75000	fused	preprocess	0.136
+A	gw75000	fused	preprocess	0.138
+A	gw75000	fused	route	10.101
+A	gw75000	fused	route	22.327
+A	gw75000	fused	route	34.398
+A	gw75000	fused	route	44.557
+A	gw75000	fused	assemble	0.877
+A	gw75000	fused	assemble	1.249
+A	gw75000	fused	assemble	1.306
+A	gw75000	fused	assemble	1.418
+A	gw75000	fused	gather	0.163
+A	gw75000	fused	index	0.166
+A	gw75000	fused	preprocess	0.110
+A	gw75000	fused	preprocess	0.128
+A	gw75000	fused	preprocess	0.136
+A	gw75000	fused	preprocess	0.138
+A	gw75000	fused	route	10.101
+A	gw75000	fused	route	22.327
+A	gw75000	fused	route	34.398
+A	gw75000	fused	route	44.557
+A	gw75000	fused	assemble	0.877
+A	gw75000	fused	assemble	1.249
+A	gw75000	fused	assemble	1.306
+A	gw75000	fused	assemble	1.418
+A	gw75000	fused	gather	0.163
+A	gw75000	fused	index	0.166
+A	gw75000	fused	Annotation	46.8
+C	span1c	legacy	Command	0.123
+C	span1c	legacy	Command	21.344
+C	span1c	legacy	Command	0.068
+C	span1c	legacy	Command	0.011
+C	span1c	legacy	Command	0.071
+C	span1c	legacy	Command	0.123
+C	span1c	legacy	Command	21.344
+C	span1c	legacy	Command	0.068
+C	span1c	legacy	Command	0.011
+C	span1c	legacy	Command	0.071
+C	span1c	legacy	Annotation	21.9
+C	span1c	fused	preprocess	0.115
+C	span1c	fused	route	104.647
+C	span1c	fused	assemble	0.130
+C	span1c	fused	gather	0.049
+C	span1c	fused	index	0.058
+C	span1c	fused	preprocess	0.115
+C	span1c	fused	route	104.647
+C	span1c	fused	assemble	0.130
+C	span1c	fused	gather	0.049
+C	span1c	fused	index	0.058
+C	span1c	fused	Annotation	105.3
+C	span4c	legacy	Command	0.106
+C	span4c	legacy	Command	24.270
+C	span4c	legacy	Command	0.044
+C	span4c	legacy	Command	0.009
+C	span4c	legacy	Command	0.047
+C	span4c	legacy	Command	0.106
+C	span4c	legacy	Command	24.270
+C	span4c	legacy	Command	0.044
+C	span4c	legacy	Command	0.009
+C	span4c	legacy	Command	0.047
+C	span4c	legacy	Annotation	24.6
+C	span4c	fused	preprocess	0.108
+C	span4c	fused	route	107.411
+C	span4c	fused	assemble	0.138
+C	span4c	fused	gather	0.064
+C	span4c	fused	index	0.038
+C	span4c	fused	preprocess	0.108
+C	span4c	fused	route	107.411
+C	span4c	fused	assemble	0.138
+C	span4c	fused	gather	0.064
+C	span4c	fused	index	0.038
+C	span4c	fused	Annotation	108.1
+C	span22c	legacy	Command	0.101
+C	span22c	legacy	Command	21.048
+C	span22c	legacy	Command	0.043
+C	span22c	legacy	Command	0.010
+C	span22c	legacy	Command	0.047
+C	span22c	legacy	Command	0.101
+C	span22c	legacy	Command	21.048
+C	span22c	legacy	Command	0.043
+C	span22c	legacy	Command	0.010
+C	span22c	legacy	Command	0.047
+C	span22c	legacy	Annotation	21.5
+C	span22c	fused	preprocess	0.106
+C	span22c	fused	route	107.411
+C	span22c	fused	assemble	0.127
+C	span22c	fused	gather	0.047
+C	span22c	fused	index	0.041
+C	span22c	fused	preprocess	0.106
+C	span22c	fused	route	107.411
+C	span22c	fused	assemble	0.127
+C	span22c	fused	gather	0.047
+C	span22c	fused	index	0.041
+C	span22c	fused	Annotation	108.0
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.056
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	20.206
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.069
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	4.396
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.080
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.061
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.056
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	20.206
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.069
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	4.396
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.080
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.061
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	Annotation	25.1
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.043
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.043
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.042
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.043
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	9.469
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	18.953
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	29.264
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	35.850
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	collect-misses	0.054
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	annotate-misses	4.603
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.055
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.068
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.080
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.080
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	gather	0.033
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	index	0.030
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.043
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.043
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.042
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.043
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	9.469
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	18.953
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	29.264
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	route	35.850
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	collect-misses	0.054
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	annotate-misses	4.603
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.055
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.068
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.080
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.080
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	gather	0.033
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	index	0.030
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	Annotation	41.0
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.058
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	22.027
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.049
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	5.237
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.083
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.068
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.058
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	22.027
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.049
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	5.237
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.083
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Command	0.068
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	Annotation	27.8
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.042
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.042
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.047
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	route	17.388
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	route	20.626
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	route	47.761
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	collect-misses	0.051
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	annotate-misses	5.224
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.089
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.093
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.114
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	gather	0.032
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	index	0.030
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.042
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.042
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	preprocess	0.047
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	route	17.388
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	route	20.626
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	route	47.761
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	collect-misses	0.051
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	annotate-misses	5.224
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.089
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.093
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	assemble	0.114
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	gather	0.032
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	index	0.030
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	Annotation	53.6
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	0.846
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	22.183
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	1.506
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	119.417
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	2.090
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	1.897
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	0.846
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	22.183
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	1.506
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	119.417
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	2.090
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Command	1.897
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	Annotation	148.3
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.149
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.204
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.203
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.214
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	17.279
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	31.460
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	38.404
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	43.919
+B	wes_HG00116.GRCh38.wes_twist_core	fused	collect-misses	0.070
+B	wes_HG00116.GRCh38.wes_twist_core	fused	annotate-misses	129.576
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	1.960
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	2.999
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	3.374
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	3.606
+B	wes_HG00116.GRCh38.wes_twist_core	fused	gather	0.185
+B	wes_HG00116.GRCh38.wes_twist_core	fused	index	0.451
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.149
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.204
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.203
+B	wes_HG00116.GRCh38.wes_twist_core	fused	preprocess	0.214
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	17.279
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	31.460
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	38.404
+B	wes_HG00116.GRCh38.wes_twist_core	fused	route	43.919
+B	wes_HG00116.GRCh38.wes_twist_core	fused	collect-misses	0.070
+B	wes_HG00116.GRCh38.wes_twist_core	fused	annotate-misses	129.576
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	1.960
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	2.999
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	3.374
+B	wes_HG00116.GRCh38.wes_twist_core	fused	assemble	3.606
+B	wes_HG00116.GRCh38.wes_twist_core	fused	gather	0.185
+B	wes_HG00116.GRCh38.wes_twist_core	fused	index	0.451
+B	wes_HG00116.GRCh38.wes_twist_core	fused	Annotation	178.5
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	0.824
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	24.308
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	1.551
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	124.552
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	1.999
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	1.947
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	0.824
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	24.308
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	1.551
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	124.552
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	1.999
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Command	1.947
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	Annotation	155.5
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.158
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.210
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.215
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.219
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	17.168
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	36.457
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	39.969
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	41.106
+B	wes_HG00187.GRCh38.wes_twist_core	fused	collect-misses	0.067
+B	wes_HG00187.GRCh38.wes_twist_core	fused	annotate-misses	133.391
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	3.089
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	3.156
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	3.442
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	11.438
+B	wes_HG00187.GRCh38.wes_twist_core	fused	gather	0.190
+B	wes_HG00187.GRCh38.wes_twist_core	fused	index	0.495
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.158
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.210
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.215
+B	wes_HG00187.GRCh38.wes_twist_core	fused	preprocess	0.219
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	17.168
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	36.457
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	39.969
+B	wes_HG00187.GRCh38.wes_twist_core	fused	route	41.106
+B	wes_HG00187.GRCh38.wes_twist_core	fused	collect-misses	0.067
+B	wes_HG00187.GRCh38.wes_twist_core	fused	annotate-misses	133.391
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	3.089
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	3.156
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	3.442
+B	wes_HG00187.GRCh38.wes_twist_core	fused	assemble	11.438
+B	wes_HG00187.GRCh38.wes_twist_core	fused	gather	0.190
+B	wes_HG00187.GRCh38.wes_twist_core	fused	index	0.495
+B	wes_HG00187.GRCh38.wes_twist_core	fused	Annotation	187.4
+[2026-10-22T16:05:51+02:00] --- results ---
+arm	cell	engine	records	contigs	rep	wall_seconds	rc
+A	gw1	legacy	1	1	1	21.895136	0
+A	gw1	legacy	1	1	2	25.424122	0
+A	gw1	legacy	1	1	3	24.015931	0
+A	gw1	fused	1	1	1	107.646733	0
+A	gw1	fused	1	1	2	110.125585	0
+A	gw1	fused	1	1	3	105.690265	0
+A	gw250	legacy	250	22	1	23.660045	0
+A	gw250	legacy	250	22	2	22.893324	0
+A	gw250	legacy	250	22	3	23.800002	0
+A	gw250	fused	250	22	1	51.975963	0
+A	gw250	fused	250	22	2	45.572702	0
+A	gw250	fused	250	22	3	45.551207	0
+A	gw2000	legacy	2000	22	1	21.951001	0
+A	gw2000	legacy	2000	22	2	22.840135	0
+A	gw2000	legacy	2000	22	3	21.737868	0
+A	gw2000	fused	2000	22	1	44.711744	0
+A	gw2000	fused	2000	22	2	46.577914	0
+A	gw2000	fused	2000	22	3	45.855312	0
+A	gw75000	legacy	75000	22	1	27.449199	0
+A	gw75000	legacy	75000	22	2	27.034587	0
+A	gw75000	legacy	75000	22	3	25.156834	0
+A	gw75000	fused	75000	22	1	47.465700	0
+A	gw75000	fused	75000	22	2	47.572538	0
+A	gw75000	fused	75000	22	3	50.131392	0
+C	span1c	legacy	250	1	1	22.595435	0
+C	span1c	legacy	250	1	2	24.471352	0
+C	span1c	legacy	250	1	3	23.057316	0
+C	span1c	fused	250	1	1	105.982561	0
+C	span1c	fused	250	1	2	107.789552	0
+C	span1c	fused	250	1	3	110.352590	0
+C	span4c	legacy	250	4	1	25.033163	0
+C	span4c	legacy	250	4	2	24.233481	0
+C	span4c	legacy	250	4	3	25.799498	0
+C	span4c	fused	250	4	1	108.871684	0
+C	span4c	fused	250	4	2	112.065320	0
+C	span4c	fused	250	4	3	110.452427	0
+C	span22c	legacy	250	22	1	21.945896	0
+C	span22c	legacy	250	22	2	22.665931	0
+C	span22c	legacy	250	22	3	23.871493	0
+C	span22c	fused	250	22	1	108.689488	0
+C	span22c	fused	250	22	2	106.309899	0
+C	span22c	fused	250	22	3	107.151464	0
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	203		1	25.899431	0
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	legacy	203		2	28.029509	0
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	203		1	41.750515	0
+B	panel_HG00116.GRCh38.panel_acmg_sf_v3.3	fused	203		2	41.745722	0
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	290		1	28.520442	0
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	legacy	290		2	27.768165	0
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	290		1	54.419513	0
+B	panel_HG00187.GRCh38.panel_acmg_sf_v3.3	fused	290		2	54.874508	0
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	75135		1	149.020640	0
+B	wes_HG00116.GRCh38.wes_twist_core	legacy	75135		2	163.614921	0
+B	wes_HG00116.GRCh38.wes_twist_core	fused	75135		1	179.439114	0
+B	wes_HG00116.GRCh38.wes_twist_core	fused	75135		2	174.543370	0
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	76218		1	156.165351	0
+B	wes_HG00187.GRCh38.wes_twist_core	legacy	76218		2	160.835861	0
+B	wes_HG00187.GRCh38.wes_twist_core	fused	76218		1	188.357661	0
+B	wes_HG00187.GRCh38.wes_twist_core	fused	76218		2	181.189054	0
+[2026-10-22T16:05:51+02:00] done; outputs in /results/veprs/results/overhead_1253

@@ -1,0 +1,76 @@
+usage: vcfcache annotate [-h] [-v] [-q] [--debug] [-y PARAMS] -a DIR [-i VCF]
+                         [-o FILE] [--stats-dir DIR] [--engine {legacy,fused}]
+                         [--engine-workers ENGINE_WORKERS]
+                         [--statistics {light,full,none} | --no-stats]
+                         [--md5-all] [--uncached] [--preserve-unannotated]
+                         [--skip-split-multiallelic] [-f] [-p] [-r] [--list]
+
+Annotate a sample VCF file using a pre-built annotation cache. The cache
+enables rapid annotation by reusing annotations from common variants and only
+annotating novel variants not found in the cache.
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Increase verbosity: default is INFO, -v for DEBUG
+  -q, --quiet           Quiet mode: only show warnings and errors
+  --debug               Debug mode, keeping intermediate files such as the
+                        work directory
+  -y PARAMS, --yaml PARAMS
+                        (optional) Path to a params YAML containing
+                        environment variables related to paths and resources.
+                        Defaults to cache's params.snapshot.yaml if not
+                        provided.
+  -a DIR, --annotation_db DIR
+                        Path to specific annotation cache directory (e.g.,
+                        cache_root/cache/vep_gnomad). Use --list to see
+                        available caches.
+  -i VCF, --vcf VCF     Input VCF/BCF file to annotate (required unless using
+                        --list or --requirements). Use '-' to read from stdin.
+  -o FILE, --output FILE, --output-file FILE
+                        Output BCF file (required unless using --list or
+                        --requirements). Use '-' or 'stdout' to stream to
+                        stdout. If no extension is provided, '.bcf' is
+                        appended.
+  --stats-dir DIR       (optional) Directory to store annotation logs,
+                        workflow files, and auxiliary outputs. If provided,
+                        files are written under
+                        <stats_dir>/<input_basename>_vcstats. If omitted,
+                        stats are written to <cwd>/<input_basename>_vcstats.
+  --engine {legacy,fused}
+                        Annotation workflow engine (default: legacy). Fused
+                        requires vcfcache-engine.
+  --engine-workers ENGINE_WORKERS
+                        Fused contig workers; 0 selects automatically within
+                        the params.yaml threads budget.
+  --statistics {light,full,none}
+                        Statistics detail level (default: light). 'light'
+                        records workflow counters and indexed record counts
+                        without rescanning the output; 'full' additionally
+                        counts annotated records and computes comparison
+                        hashes; 'none' discards the statistics/log directory.
+  --no-stats            Deprecated alias for --statistics none.
+  --md5-all             (optional) Compute MD5 of all variants (no header) and
+                        store in stats. WARNING: can be slow for large files
+                        and may differ between runs due to upstream tool
+                        quirks.
+  --uncached            (optional) Skip cache, annotate all variants directly.
+                        For benchmarking only (default: False)
+  --preserve-unannotated
+                        (optional) Preserve variants without annotation in
+                        output. By default, vcfcache mirrors annotation tool
+                        behavior (default: False)
+  --skip-split-multiallelic
+                        (optional) Skip splitting multiallelic variants. Use
+                        ONLY if certain input has no multiallelic variants
+                        (ALT field contains no commas). Provides small speedup
+                        (~6% of runtime) but may cause format inconsistencies
+                        if multiallelic variants are present (default: False)
+  -f, --force           (optional) Force overwrite if output file or stats
+                        directory exists (default: False)
+  -p, --parquet         (optional) Also convert output to Parquet format for
+                        DuckDB access (default: False)
+  -r, --requirements    (optional) Show cache requirements (tool, versions,
+                        genome build) and the stored annotation command, then
+                        exit.
+  --list                (optional) List available annotation caches in the
+                        specified directory. Incomplete caches are marked.

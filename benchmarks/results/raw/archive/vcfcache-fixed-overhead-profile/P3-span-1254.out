@@ -1,0 +1,258 @@
+[2026-10-22T14:35:37.835] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+[2026-10-22T14:35:37.837] error: couldn't chdir to `/home/ubuntu': Permission denied: going to /tmp instead
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:35:39+02:00] input span1c: 250 records across 1 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:35:40+02:00] input span2c: 250 records across 2 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:35:43+02:00] input span4c: 248 records across 4 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:35:47+02:00] input span8c: 248 records across 8 contigs
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:35:57+02:00] input span22c: 242 records across 22 contigs
+input	records	contigs
+span1c	250	1
+span2c	250	2
+span4c	248	4
+span8c	248	8
+span22c	242	22
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:36:42+02:00] span1c_legacy rep1 rc=0 wall=19.401198s
+[2026-10-22T14:37:02+02:00] span1c_legacy rep2 rc=0 wall=19.628517s
+[2026-10-22T14:37:22+02:00] span1c_legacy rep3 rc=0 wall=20.395786s
+[2026-10-22T14:41:05+02:00] span1c_fused rep1 rc=0 wall=111.115311s
+[2026-10-22T14:42:56+02:00] span1c_fused rep2 rc=0 wall=110.363542s
+[2026-10-22T14:44:50+02:00] span1c_fused rep3 rc=0 wall=113.822585s
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:45:31+02:00] span2c_legacy rep1 rc=0 wall=21.158188s
+[2026-10-22T14:45:50+02:00] span2c_legacy rep2 rc=0 wall=19.463211s
+[2026-10-22T14:46:09+02:00] span2c_legacy rep3 rc=0 wall=18.421236s
+[2026-10-22T14:46:31+02:00] span2c_fused rep1 rc=0 wall=10.158525s
+[2026-10-22T14:46:41+02:00] span2c_fused rep2 rc=0 wall=10.243921s
+[2026-10-22T14:46:51+02:00] span2c_fused rep3 rc=0 wall=10.257895s
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:47:32+02:00] span4c_legacy rep1 rc=0 wall=19.718894s
+[2026-10-22T14:47:53+02:00] span4c_legacy rep2 rc=0 wall=20.701696s
+[2026-10-22T14:48:13+02:00] span4c_legacy rep3 rc=0 wall=19.264008s
+[2026-10-22T14:48:34+02:00] span4c_fused rep1 rc=0 wall=10.962653s
+[2026-10-22T14:48:44+02:00] span4c_fused rep2 rc=0 wall=10.312056s
+[2026-10-22T14:48:55+02:00] span4c_fused rep3 rc=0 wall=10.415046s
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:49:38+02:00] span8c_legacy rep1 rc=0 wall=20.870773s
+[2026-10-22T14:49:59+02:00] span8c_legacy rep2 rc=0 wall=20.904875s
+[2026-10-22T14:50:19+02:00] span8c_legacy rep3 rc=0 wall=19.973246s
+[2026-10-22T14:50:56+02:00] span8c_fused rep1 rc=0 wall=18.445758s
+[2026-10-22T14:51:14+02:00] span8c_fused rep2 rc=0 wall=18.551883s
+[2026-10-22T14:51:34+02:00] span8c_fused rep3 rc=0 wall=19.690235s
+Warning: cannot determine contig names given the .csi index alone
+[2026-10-22T14:52:18+02:00] span22c_legacy rep1 rc=0 wall=21.587280s
+[2026-10-22T14:52:38+02:00] span22c_legacy rep2 rc=0 wall=20.428599s
+[2026-10-22T14:53:00+02:00] span22c_legacy rep3 rc=0 wall=21.273418s
+[2026-10-22T14:54:31+02:00] span22c_fused rep1 rc=0 wall=46.701106s
+[2026-10-22T14:55:17+02:00] span22c_fused rep2 rc=0 wall=45.716469s
+[2026-10-22T14:56:02+02:00] span22c_fused rep3 rc=0 wall=45.072863s
+[2026-10-22T14:56:02+02:00] --- stage timings ---
+cell	engine	stage	wall_seconds
+span1c	legacy	Command	0.101
+span1c	legacy	Command	18.492
+span1c	legacy	Command	0.043
+span1c	legacy	Command	0.006
+span1c	legacy	Command	0.048
+span1c	legacy	Command	0.101
+span1c	legacy	Command	18.492
+span1c	legacy	Command	0.043
+span1c	legacy	Command	0.006
+span1c	legacy	Command	0.048
+span1c	legacy	Annotation	18.9
+span1c	fused	preprocess	0.132
+span1c	fused	route	109.912
+span1c	fused	assemble	0.125
+span1c	fused	gather	0.056
+span1c	fused	index	0.041
+span1c	fused	preprocess	0.132
+span1c	fused	route	109.912
+span1c	fused	assemble	0.125
+span1c	fused	gather	0.056
+span1c	fused	index	0.041
+span1c	fused	Annotation	110.5
+span2c	legacy	Command	0.118
+span2c	legacy	Command	20.197
+span2c	legacy	Command	0.073
+span2c	legacy	Command	0.008
+span2c	legacy	Command	0.059
+span2c	legacy	Command	0.118
+span2c	legacy	Command	20.197
+span2c	legacy	Command	0.073
+span2c	legacy	Command	0.008
+span2c	legacy	Command	0.059
+span2c	legacy	Annotation	20.6
+span2c	fused	preprocess	0.100
+span2c	fused	preprocess	0.100
+span2c	fused	route	9.253
+span2c	fused	route	9.259
+span2c	fused	assemble	0.068
+span2c	fused	assemble	0.096
+span2c	fused	gather	0.047
+span2c	fused	index	0.035
+span2c	fused	preprocess	0.100
+span2c	fused	preprocess	0.100
+span2c	fused	route	9.253
+span2c	fused	route	9.259
+span2c	fused	assemble	0.068
+span2c	fused	assemble	0.096
+span2c	fused	gather	0.047
+span2c	fused	index	0.035
+span2c	fused	Annotation	9.8
+span4c	legacy	Command	0.093
+span4c	legacy	Command	18.889
+span4c	legacy	Command	0.036
+span4c	legacy	Command	0.008
+span4c	legacy	Command	0.046
+span4c	legacy	Command	0.093
+span4c	legacy	Command	18.889
+span4c	legacy	Command	0.036
+span4c	legacy	Command	0.008
+span4c	legacy	Command	0.046
+span4c	legacy	Annotation	19.3
+span4c	fused	preprocess	0.059
+span4c	fused	preprocess	0.078
+span4c	fused	preprocess	0.081
+span4c	fused	preprocess	0.091
+span4c	fused	route	8.522
+span4c	fused	route	8.607
+span4c	fused	route	9.015
+span4c	fused	route	9.794
+span4c	fused	assemble	0.054
+span4c	fused	assemble	0.095
+span4c	fused	assemble	0.096
+span4c	fused	assemble	0.112
+span4c	fused	gather	0.059
+span4c	fused	index	0.034
+span4c	fused	preprocess	0.059
+span4c	fused	preprocess	0.078
+span4c	fused	preprocess	0.081
+span4c	fused	preprocess	0.091
+span4c	fused	route	8.522
+span4c	fused	route	8.607
+span4c	fused	route	9.015
+span4c	fused	route	9.794
+span4c	fused	assemble	0.054
+span4c	fused	assemble	0.095
+span4c	fused	assemble	0.096
+span4c	fused	assemble	0.112
+span4c	fused	gather	0.059
+span4c	fused	index	0.034
+span4c	fused	Annotation	10.3
+span8c	legacy	Command	0.084
+span8c	legacy	Command	20.071
+span8c	legacy	Command	0.058
+span8c	legacy	Command	0.008
+span8c	legacy	Command	0.066
+span8c	legacy	Command	0.084
+span8c	legacy	Command	20.071
+span8c	legacy	Command	0.058
+span8c	legacy	Command	0.008
+span8c	legacy	Command	0.066
+span8c	legacy	Annotation	20.5
+span8c	fused	preprocess	0.059
+span8c	fused	preprocess	0.071
+span8c	fused	preprocess	0.074
+span8c	fused	preprocess	0.073
+span8c	fused	route	11.788
+span8c	fused	route	12.443
+span8c	fused	route	14.710
+span8c	fused	route	17.417
+span8c	fused	assemble	0.068
+span8c	fused	assemble	0.094
+span8c	fused	assemble	0.093
+span8c	fused	assemble	0.114
+span8c	fused	gather	0.079
+span8c	fused	index	0.037
+span8c	fused	preprocess	0.059
+span8c	fused	preprocess	0.071
+span8c	fused	preprocess	0.074
+span8c	fused	preprocess	0.073
+span8c	fused	route	11.788
+span8c	fused	route	12.443
+span8c	fused	route	14.710
+span8c	fused	route	17.417
+span8c	fused	assemble	0.068
+span8c	fused	assemble	0.094
+span8c	fused	assemble	0.093
+span8c	fused	assemble	0.114
+span8c	fused	gather	0.079
+span8c	fused	index	0.037
+span8c	fused	Annotation	18.0
+span22c	legacy	Command	0.115
+span22c	legacy	Command	20.750
+span22c	legacy	Command	0.048
+span22c	legacy	Command	0.005
+span22c	legacy	Command	0.048
+span22c	legacy	Command	0.115
+span22c	legacy	Command	20.750
+span22c	legacy	Command	0.048
+span22c	legacy	Command	0.005
+span22c	legacy	Command	0.048
+span22c	legacy	Annotation	21.1
+span22c	fused	preprocess	0.067
+span22c	fused	preprocess	0.083
+span22c	fused	preprocess	0.086
+span22c	fused	preprocess	0.106
+span22c	fused	route	9.871
+span22c	fused	route	21.258
+span22c	fused	route	32.647
+span22c	fused	route	45.589
+span22c	fused	assemble	0.089
+span22c	fused	assemble	0.091
+span22c	fused	assemble	0.091
+span22c	fused	assemble	0.110
+span22c	fused	gather	0.087
+span22c	fused	index	0.035
+span22c	fused	preprocess	0.067
+span22c	fused	preprocess	0.083
+span22c	fused	preprocess	0.086
+span22c	fused	preprocess	0.106
+span22c	fused	route	9.871
+span22c	fused	route	21.258
+span22c	fused	route	32.647
+span22c	fused	route	45.589
+span22c	fused	assemble	0.089
+span22c	fused	assemble	0.091
+span22c	fused	assemble	0.091
+span22c	fused	assemble	0.110
+span22c	fused	gather	0.087
+span22c	fused	index	0.035
+span22c	fused	Annotation	46.1
+[2026-10-22T14:56:02+02:00] --- results ---
+cell	engine	records	contigs	rep	wall_seconds	rc
+span1c	legacy	250	1	1	19.401198	0
+span1c	legacy	250	1	2	19.628517	0
+span1c	legacy	250	1	3	20.395786	0
+span1c	fused	250	1	1	111.115311	0
+span1c	fused	250	1	2	110.363542	0
+span1c	fused	250	1	3	113.822585	0
+span2c	legacy	250	2	1	21.158188	0
+span2c	legacy	250	2	2	19.463211	0
+span2c	legacy	250	2	3	18.421236	0
+span2c	fused	250	2	1	10.158525	0
+span2c	fused	250	2	2	10.243921	0
+span2c	fused	250	2	3	10.257895	0
+span4c	legacy	248	4	1	19.718894	0
+span4c	legacy	248	4	2	20.701696	0
+span4c	legacy	248	4	3	19.264008	0
+span4c	fused	248	4	1	10.962653	0
+span4c	fused	248	4	2	10.312056	0
+span4c	fused	248	4	3	10.415046	0
+span8c	legacy	248	8	1	20.870773	0
+span8c	legacy	248	8	2	20.904875	0
+span8c	legacy	248	8	3	19.973246	0
+span8c	fused	248	8	1	18.445758	0
+span8c	fused	248	8	2	18.551883	0
+span8c	fused	248	8	3	19.690235	0
+span22c	legacy	242	22	1	21.587280	0
+span22c	legacy	242	22	2	20.428599	0
+span22c	legacy	242	22	3	21.273418	0
+span22c	fused	242	22	1	46.701106	0
+span22c	fused	242	22	2	45.716469	0
+span22c	fused	242	22	3	45.072863	0
+[2026-10-22T14:56:02+02:00] done; outputs in /results/veprs/results/span_1254
