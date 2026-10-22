@@ -1,0 +1,25 @@
+{
+  "run_id": "veprs-pilot-grch38-chr22-diagnostic",
+  "tool": "vep-rs 0.4.0 (reports itself as Ensembl VEP (Rust) v116.2)",
+  "tool_source": "github.com/natera-open-source/vep-rs, release v0.4.0 (2026-10-16), Apache-2.0; x86_64-unknown-linux-gnu tarball, SHA256 verified against SHA256SUMS",
+  "database": "Perl VEP 115 GRCh38 offline cache, chr22 only, converted to JSON by scripts/data/storable_to_json.pl run inside docker://ensemblorg/ensembl-vep:release_116.2 (apptainer). 51/51 files, 12225 transcripts, 60 MB, 11 s",
+  "assembly": "GRCh38",
+  "level": "capability and cost probe; no level claimed",
+  "invocation": "vep --fork 8 --json_cache <dir>, single process per cell",
+  "assays": ["chr22 blueprint slice 16385 records", "chr22 blueprint slice 314314 records"],
+  "genomes": 0,
+  "cohorts": [],
+  "cache": "gnomAD v4.1 GRCh38 joint AF>=1% blueprint, chr22 slices (the same cuts the SnpEff clinical gate used)",
+  "slurm_job": 1242,
+  "status": "diagnostic",
+  "note": "Not a direct-vs-cached comparison. Three questions, all answered: (1) a usable JSON cache can be converted from the Perl VEP 115 cache; (2) the converted cache reaches core consequences plus SYMBOL/BIOTYPE/CANONICAL/CCDS/TSL/ENSP/SWISSPROT/TREMBL/EXON/HGVSc/HGVSp, and nothing clinical -- storable_to_json.pl writes transcripts only, vep-rs logs 'No variations directory found', and 231 missense consequences carry no SIFT, PolyPhen, DOMAINS, AF, gnomAD or CLIN_SIG; (3) two-point fit at 16385 and 314314 records gives 5.68 us/variant (core) to 14.00 us/variant (--everything) with 0.16-0.25 s start-up. --everything additionally warns that --regulatory has no effect. See ANALYSIS.md.",
+  "artefacts": {
+    "pilot_1242.tsv": "the four configurations x two sizes, as written by the job",
+    "V1-pilot-1242.out": "full job log including the container pull and cache conversion",
+    "raw_1242/": "per-cell annotator stderr and output headers",
+    "V1_veprs_pilot.sh": "the submitted batch script",
+    "V2_veprs_field_probe.sh": "the follow-up field-capability probe, head node",
+    "veprs_field_probe.txt": "its complete output, two regions",
+    "json_cache_info.json": "the converted cache's own info.json, naming the source database versions"
+  }
+}

@@ -58,6 +58,15 @@ Every silent failure so far came from an unasserted assumption.
 So: every runner logs the path it took, fails loudly on a bad count, and asserts
 that the fields defining the level are actually present in its output.
 
+**A declared field is not a populated field.** VEP-format output prints a long
+`## Extra column keys:` block describing every annotation the format can carry,
+whether or not this run produced any of it. Reading that block as a capability
+list is how a tool gets credited with ClinVar and gnomAD annotation it never
+emitted. Assert against the body: count the keys actually present in the
+annotation column, and pick a region where the field in question could appear —
+absence of SIFT in an intergenic window proves nothing. See
+`raw/archive/veprs-pilot-grch38-chr22-diagnostic/veprs_field_probe.txt`.
+
 ## Gate before timing
 
 A new cache is proven on a chr22 slice — direct versus cached, comparing every
@@ -81,6 +90,16 @@ onward; the block-local digest cost 29 s where the external sort exceeded hours.
 Beware `set -o pipefail` with `grep -q`: `grep` closes the pipe on its first
 match, the producer dies of SIGPIPE, and the pipeline reports failure *because*
 the pattern was found. This killed a 40-minute run that had worked.
+
+The same trap has several doors. Any consumer that stops early — `grep -q`,
+`grep -m1`, `head -n`, `awk '{...; exit}'` — SIGPIPEs its producer and fails the
+pipeline under `pipefail`. It is worse than it looks because it only fires when
+the consumer finds something, so the script passes on the inputs where there is
+nothing to find. The vep-rs field probe reproduced exactly that: the intergenic
+region had no missense row, `awk` read to EOF and the script survived; the coding
+region had one, `awk` exited, and the script died. Either wrap the check in
+`set +o pipefail`, or use a consumer that drains its input (`awk 'NR<=10'` in
+place of `head -10`).
 
 ## Never discard a successful run
 

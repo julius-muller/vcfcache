@@ -1,0 +1,40 @@
+## ENSEMBL VARIANT EFFECT PREDICTOR v116.2
+## Output produced at 2026-10-22 05:50:49
+## Using cache in /results/veprs/json_cache/GRCh38_chr22
+## Using API version 116, DB version ?
+## 1000genomes version phase3
+## COSMIC version 101
+## ClinVar version 202502
+## HGMD-PUBLIC version 20204
+## assembly version GRCh38.p14
+## dbSNP version 156
+## gencode version GENCODE 49
+## genebuild version GENCODE49
+## gnomADe version v4.1
+## gnomADg version v4.1
+## polyphen version 2.2.3
+## regbuild version 1.0
+## sift version 6.2.1
+## Column descriptions:
+## Uploaded_variation : Identifier of uploaded variant
+## Location : Location of variant in standard coordinate format (chr:start or chr:start-end)
+## Allele : The variant allele used to calculate the consequence
+## Gene : Stable ID of affected gene
+## Feature : Stable ID of feature
+## Feature_type : Type of feature - Transcript, RegulatoryFeature or MotifFeature
+## Consequence : Consequence type
+## cDNA_position : Relative position of base pair in cDNA sequence
+## CDS_position : Relative position of base pair in coding sequence
+## Protein_position : Relative position of amino acid in protein
+## Amino_acids : Reference and variant amino acids
+## Codons : Reference and variant codon sequence
+## Existing_variation : Identifier(s) of co-located known variants
+## Extra column keys:
+## IMPACT : Subjective impact classification of consequence type
+## DISTANCE : Shortest distance from variant to transcript
+## STRAND : Strand of the feature (1/-1)
+## FLAGS : Transcript quality flags
+## VEP command-line: vep --assembly GRCh38 --force_overwrite --fork 8 --input_file [PATH]/small.vcf --json_cache [PATH]/GRCh38_chr22 --output_file [PATH]/core_small.txt
+#Uploaded_variation	Location	Allele	Gene	Feature	Feature_type	Consequence	cDNA_position	CDS_position	Protein_position	Amino_acids	Codons	Existing_variation	Extra
+chr22_16000012_T/C	chr22:16000012	C	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER
+chr22_16000078_C/T	chr22:16000078	T	-	-	-	intergenic_variant	-	-	-	-	-	-	IMPACT=MODIFIER

@@ -88,3 +88,18 @@ fastVEP and SnpEff. Existing VEP `--everything` measurements remain the native
 annotation-rich VEP result. The exploratory scripts are retained as provenance
 only and are excluded from summaries, figures and claims. The recipe-identity
 guard remains a useful general safeguard for future cache builds.
+
+## 2026-10-22 — vep-rs 0.4.0, pilot
+
+| job | what | outcome |
+|---|---|---|
+| 1242 | vep-rs pilot: convert Perl VEP 115 chr22 cache to JSON, then four configurations at two input sizes | **complete** — diagnostic; see `raw/archive/veprs-pilot-grch38-chr22-diagnostic/` |
+| — | field-capability probe on the converted cache, head node (`V2_veprs_field_probe.sh`) | **complete** — no clinical fields reachable |
+
+The converted cache carries transcripts only, so the reachable ceiling is core
+plus HGVS; `--everything` adds no SIFT, PolyPhen, gnomAD AF or ClinVar, and
+warns that `--regulatory` has no effect. Two-point fit: 5.68 µs/variant (core)
+to 14.00 µs/variant (`--everything`), start-up 0.16–0.25 s. Against VCFcache's
+21.7 s + 27.5 µs/variant, break-even needs ≥ 29.7 µs/variant at *f* = 0.9258, so
+the rule predicts caching **loses at every scale** for this tool. That negative
+prediction, not a speedup, is what a vep-rs arm would test.

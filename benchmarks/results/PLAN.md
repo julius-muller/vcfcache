@@ -1,6 +1,6 @@
 # Plan: the annotation-configuration matrix
 
-Status as of 2026-08-25.
+Status as of 2026-10-22.
 
 ## Why this matrix exists
 
@@ -36,6 +36,7 @@ within each tool, not from absolute runtime rankings between tools.
 | VEP | not run | **done** (`--everything --hgvsg`, both assemblies; annotation-rich) |
 | fastVEP | **done** (both assemblies, 52 genomes) | **done** (both assemblies) |
 | SnpEff | GRCh38 **done**; GRCh37 **done** | GRCh38 and GRCh37 **done** |
+| vep-rs | piloted, GRCh38 (job 1242) | **not reachable** — converted cache carries transcripts only |
 
 `benchmarks/vep_plugins/SyntheticDelay.pm` remains the controlled continuous
 sweep of per-variant cost. It models the axis; it does not compare tools.
@@ -86,6 +87,10 @@ annotation is run.
    presenting cross-tool wall time as a controlled annotator ranking.
 5. Reconcile the cohort-confounding wording in `sections/03_findings.md` with the
    requirement that PGP appears in every arm.
+6. Decide the vep-rs arm. The pilot places it at 5.68-14.00 us/variant, below
+   the 29.7 us break-even threshold at every configuration, so a campaign would
+   test a predicted **loss** rather than measure a speedup. See
+   `raw/archive/veprs-pilot-grch38-chr22-diagnostic/ANALYSIS.md`.
 
 ## Assembly is a cost axis for one annotator and not the other
 
@@ -140,3 +145,34 @@ results show that behaviour in realistic configurations, while
 - Two GRCh37 clinical throughput runs on the identical slice differed by 14%
   (707.7 s versus 622.6 s). Sizing uses the slower figure; the variance itself
   should be reported rather than averaged away.
+
+## vep-rs is the minimum-cost end of the axis
+
+The matrix was built to span per-variant cost. vep-rs extends it downward by an
+order of magnitude and, in doing so, crosses to the other side of break-even:
+
+| tool and level | per variant | caching at f = 0.9258 |
+|---|---|---|
+| SnpEff clinical, GRCh38 | ~2370 us | wins by a wide margin |
+| SnpEff core, GRCh38 | 558 us | wins |
+| vep-rs `--everything` | 14.0 us | **loses at every N** |
+| vep-rs core | 5.68 us | **loses at every N** |
+
+Break-even needs per-variant cost above 29.7 us, which is VCFcache's own
+27.5 us/variant overhead divided by the hit rate. Below that the per-variant
+coefficient of `T_direct − T_cached` is negative and the deficit grows with
+cohort size, so no amount of data rescues it.
+
+Two things follow for the manuscript. The rule is falsifiable and worth stating
+as such: it names a measurable threshold and predicts a direction on both sides
+of it. And the honest recommendation for a tool at vep-rs's cost point is not to
+cache — which is a better argument for the rule than a table where caching always
+wins.
+
+L2 clinical for vep-rs would need either a converter for the Perl cache's
+`all_vars.gz`, which the shipped `storable_to_json.pl` does not read, or a full
+native build (`vep-cache-builder --include-variations --variation-vcf-dir ...`,
+which also wants an indexed genome FASTA we do not hold locally). Neither is
+benchmarking work, and the arithmetic above says neither would move vep-rs across
+the threshold: adding allele-frequency lookups to a 14 us recipe does not make it
+a 30 us recipe.

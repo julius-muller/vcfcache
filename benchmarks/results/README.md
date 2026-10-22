@@ -34,7 +34,7 @@ that make them interpretable:
 ## What is being measured
 
 - **Annotators** — VEP 115.2 (`--everything --hgvsg`), fastVEP 0.3.0,
-  SnpEff 5.4c.
+  SnpEff 5.4c. vep-rs 0.4.0 has been piloted but not campaigned.
 - **Assays** — ACMG SF v3.3 panel, Twist core exome, whole genome.
 - **Cohorts** — KPGP (GRCh38), SGDP (GRCh38), PGP (GRCh37). All held out from
   the gnomAD AF>=1% blueprint the caches are built over.
@@ -58,6 +58,7 @@ which do not share samples with gnomAD.
 | Panel/WES assay extension (warm control) | `raw/campaigns/external-assay-v3-independent-af001-warm/` |
 | fastVEP annotation-richness ladder | `raw/richness/results/` |
 | Controlled per-variant cost sweep | `raw/campaigns/controlled-runtime-light-*/` |
+| vep-rs 0.4.0 capability and cost pilot | `raw/archive/veprs-pilot-grch38-chr22-diagnostic/` |
 | Cluster and tool versions at collection | `raw/COLLECTION_ENV.txt` |
 
 Figure inputs and the derived tables the manuscript cites remain where the
@@ -106,6 +107,7 @@ was flawed and the numbers do not estimate what they appear to.
 | 2026-08-22 | `snpeff_core_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 682 MB, built in 3:01:38 | primary |
 | 2026-08-22 | `snpeff_clinical_grch37_af001` | Genome-wide cache, 18,670,412 alleles, 721 MB, built in 7:20:53 | primary |
 | 2026-08-22 | `snpeff_clinical_grch38_af001` | Genome-wide cache, 18,869,857 alleles, 1.5 GB, built in 13:11:20 | primary |
+| 2026-10-22 | vep-rs 0.4.0 pilot (job 1242) | Perl->JSON cache conversion works; clinical level unreachable; 5.68-14.00 us/variant, so the break-even rule predicts caching loses at every scale | diagnostic |
 
 ### Measured constants worth keeping in one place
 
@@ -124,3 +126,6 @@ was flawed and the numbers do not estimate what they appear to.
 | Annotations per record, chr22, GRCh37 / GRCh38 | fastVEP 3.19 / 12.14; SnpEff 4.27 / 12.29 | `bcftools query` over the built caches |
 | SnpEff clinical cache build, GRCh37 / GRCh38 | 7:20:53 / 13:11:20 | `raw/snpeff/results/build_time_snpeff_clinical_*.txt` |
 | Clinical content, chr22 (CLNSIG / gnomAD AF) | SnpEff 3061 / 27581 (GRCh37), 3069 / 28591 (GRCh38); fastVEP 3437 / 28904 (GRCh37) | `bcftools query` over the built caches |
+| vep-rs per-variant cost, GRCh38, `--fork 8` | 5.68 us (core) to 14.00 us (`--everything`) | `raw/archive/veprs-pilot-grch38-chr22-diagnostic/pilot_1242.tsv` |
+| vep-rs start-up | 0.16-0.25 s (transcript index load) | same, two-point fit |
+| Per-variant cost needed to reach break-even at f=0.9258 | 29.7 us | 27.5 us VCFcache overhead / f |

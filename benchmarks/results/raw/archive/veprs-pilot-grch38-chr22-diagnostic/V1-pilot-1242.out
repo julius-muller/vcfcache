@@ -1,0 +1,61 @@
+[2026-10-22T07:49:25.077] error: couldn't chdir to `/mnt/data/slurm-results/veprs/scripts': No such file or directory: going to /tmp instead
+[2026-10-22T07:49:25.079] error: couldn't chdir to `/mnt/data/slurm-results/veprs/scripts': No such file or directory: going to /tmp instead
+[2026-10-22T07:49:25+02:00] vep-rs vep 0.4.0 on sl-w1, 16 CPUs
+[2026-10-22T07:49:25+02:00] pulling ensembl-vep container
+INFO:    Converting OCI blobs to SIF format
+INFO:    Starting build...
+INFO:    Fetching OCI image...
+INFO:    Extracting OCI image...
+2026/10/22 07:49:50  warn rootless{opt/vep/src/htslib/libhts.so.2} ignoring (usually) harmless EPERM on setxattr "user.rootlesscontainers"
+INFO:    Inserting Apptainer configuration...
+INFO:    Creating SIF file...
+-rwxr-xr-x+ 1 appuser appgroup 281M Oct 22 07:50 /results/veprs/dist/ensembl-vep_116.2.sif
+[2026-10-22T07:50:37+02:00] converting Perl cache chr22 -> JSON
+Processing 1 chromosomes
+  chr22: 51 files, 12225 transcripts
+Wrote /output/info.json
+
+Done. Converted: 51 / 51 files, 12225 total transcripts
+[2026-10-22T07:50:48+02:00] conversion took 11s
+[2026-10-22T07:50:48+02:00] json cache: 60M, 52 files
+{
+   "assembly" : "GRCh38",
+   "polyphen" : "b",
+   "regulatory" : true,
+   "sift" : "b",
+   "source_versions" : {
+      "1000genomes" : "phase3",
+      "COSMIC" : "101",
+      "ClinVar" : "202502",
+      "HGMD-PUBLIC" : "20204",
+      "assembly" : "GRCh38.p14",
+      "dbSNP" : "156",
+      "gencode" : "GENCODE 49",
+      "genebuild" : "GENCODE49",
+      "gnomADe" : "v4.1",
+      "gnomADg" : "v4.1",
+      "polyphen" : "2.2.3",
+      "regbuild" : "1.0",
+      "sift" : "6.2.1"
+   },
+[2026-10-22T07:50:49+02:00] small slice: 16385 records
+[2026-10-22T07:50:49+02:00] big slice: 314314 records
+[2026-10-22T07:50:49+02:00] core/small rc=0 wall=.346339430s lines=82562
+[2026-10-22T07:50:52+02:00] core/big rc=0 wall=2.038518157s lines=3787554
+[2026-10-22T07:50:52+02:00] symbol_canonical/small rc=0 wall=.344428845s lines=82562
+[2026-10-22T07:50:55+02:00] symbol_canonical/big rc=0 wall=2.241170297s lines=3787554
+[2026-10-22T07:50:55+02:00] hgvs/small rc=0 wall=.374169915s lines=82562
+[2026-10-22T07:50:59+02:00] hgvs/big rc=0 wall=3.528315094s lines=3787554
+[2026-10-22T07:51:00+02:00] everything/small rc=0 wall=.393701621s lines=82562
+[2026-10-22T07:51:05+02:00] everything/big rc=0 wall=4.565737449s lines=3787554
+[2026-10-22T07:51:05+02:00] --- results ---
+config	size	records	wall_seconds	rc	output_lines	csq_fields
+core	small	16385	.346339430	0	82562	14
+core	big	314314	2.038518157	0	3787554	14
+symbol_canonical	small	16385	.344428845	0	82562	14
+symbol_canonical	big	314314	2.241170297	0	3787554	14
+hgvs	small	16385	.374169915	0	82562	14
+hgvs	big	314314	3.528315094	0	3787554	14
+everything	small	16385	.393701621	0	82562	14
+everything	big	314314	4.565737449	0	3787554	14
+[2026-10-22T07:51:05+02:00] done

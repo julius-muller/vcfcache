@@ -1,0 +1,10 @@
+config              c (us/var)   s (s)     rec/s   f*c-27.5  needed c
+core                      5.68   0.253    154187     -22.24      29.7
+symbol_canonical          6.37   0.240    140245     -21.61      29.7
+hgvs                     10.59   0.201     89083     -17.70      29.7
+everything               14.00   0.164     68842     -14.54      29.7
+
+WGS projection, N = 4.8e6, everything config (richest reachable):
+  direct      67.4 s   (1.1 min)
+  cached     158.9 s   (2.6 min)
+  speedup     0.42x

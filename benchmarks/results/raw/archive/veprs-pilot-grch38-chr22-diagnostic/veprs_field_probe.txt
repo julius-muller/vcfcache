@@ -1,0 +1,251 @@
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+######## region chr22:16000000-16200000
+records: 2383
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-22T07:07:27.135775Z[0m [33m WARN[0m [2mvep_cli::config[0m[2m:[0m --everything implies --regulatory, which has no effect: regulatory-feature annotation is not implemented, so no TFBS_* or regulatory_region_* consequence is emitted
+[2m2026-10-22T07:07:27.135923Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: /mnt/data/tmp/veprs-probe-Jl8Ld6/probe.vcf
+[2m2026-10-22T07:07:27.135930Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: /mnt/data/tmp/veprs-probe-Jl8Ld6/out.txt
+[2m2026-10-22T07:07:27.135932Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vep
+[2m2026-10-22T07:07:27.136105Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 4 threads for annotation
+[2m2026-10-22T07:07:27.136112Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /mnt/data/slurm-results/veprs/json_cache/GRCh38_chr22 (lazy per-chromosome, index impl=bin)
+[2m2026-10-22T07:07:27.136345Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Loading variations from JSON cache: /mnt/data/slurm-results/veprs/json_cache/GRCh38_chr22
+[2m2026-10-22T07:07:27.136353Z[0m [32m INFO[0m [2mvep_cli::json_cache[0m[2m:[0m No variations directory found at /mnt/data/slurm-results/veprs/json_cache/GRCh38_chr22/variations
+[2m2026-10-22T07:07:27.200032Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 2383 variants...Processed 2383 variants (142 consequences) in 0.1s using 4 threads
+---- consequence classes
+   2241 intergenic_variant
+     79 upstream_gene_variant
+     63 downstream_gene_variant
+---- Extra keys present in the body (all rows)
+   2383 VARIANT_CLASS
+   2383 IMPACT
+   2383 ALLELE_NUM
+    142 SYMBOL_SOURCE
+    142 SYMBOL
+    142 STRAND
+    142 DISTANCE
+    142 CCDS
+    142 CANONICAL
+    142 BIOTYPE
+---- Extra keys present in missense rows
+---- one missense row
+---- full declared Extra key list (documentation header, not evidence of content)
+## Extra column keys:
+## ALLELE_NUM : Allele number from input; 0 is reference, 1 is first alternate etc
+## IMPACT : Subjective impact classification of consequence type
+## DISTANCE : Shortest distance from variant to transcript
+## STRAND : Strand of the feature (1/-1)
+## FLAGS : Transcript quality flags
+## VARIANT_CLASS : SO variant class
+## SYMBOL : Gene symbol (e.g. HGNC)
+## SYMBOL_SOURCE : Source of gene symbol
+## HGNC_ID : Stable identifer of HGNC gene symbol
+## BIOTYPE : Biotype of transcript or regulatory feature
+## CANONICAL : Indicates if transcript is canonical for this gene
+## MANE : MANE (Matched Annotation from NCBI and EMBL-EBI) set(s) the transcript belongs to
+## MANE_SELECT : MANE Select (Matched Annotation from NCBI and EMBL-EBI) Transcript
+## MANE_PLUS_CLINICAL : MANE Plus Clinical (Matched Annotation from NCBI and EMBL-EBI) Transcript
+## TSL : Transcript support level
+## APPRIS : Annotates alternatively spliced transcripts as primary or alternate based on a range of computational methods
+## CCDS : Indicates if transcript is a CCDS transcript
+## ENSP : Protein identifer
+## SWISSPROT : UniProtKB/Swiss-Prot accession
+## TREMBL : UniProtKB/TrEMBL accession
+## UNIPARC : UniParc accession
+## UNIPROT_ISOFORM : Direct mappings to UniProtKB isoforms
+## GENE_PHENO : Indicates if gene is associated with a phenotype, disease or trait
+## SIFT : SIFT prediction and/or score
+## PolyPhen : PolyPhen prediction and/or score
+## EXON : Exon number(s) / total
+## INTRON : Intron number(s) / total
+## DOMAINS : The source and identifer of any overlapping protein domains
+## miRNA : SO terms of overlapped miRNA secondary structure feature(s)
+## HGVSc : HGVS coding sequence name
+## HGVSp : HGVS protein sequence name
+## HGVS_OFFSET : Indicates by how many bases the HGVS notations for this variant have been shifted
+## HGVSg : HGVS genomic sequence name
+## AF : Frequency of existing variant in 1000 Genomes combined population
+## AFR_AF : Frequency of existing variant in 1000 Genomes combined African population
+## AMR_AF : Frequency of existing variant in 1000 Genomes combined American population
+## EAS_AF : Frequency of existing variant in 1000 Genomes combined East Asian population
+## EUR_AF : Frequency of existing variant in 1000 Genomes combined European population
+## SAS_AF : Frequency of existing variant in 1000 Genomes combined South Asian population
+## gnomADe_AF : Frequency of existing variant in gnomAD exomes combined population
+## gnomADe_AFR_AF : Frequency of existing variant in gnomAD exomes African/American population
+## gnomADe_AMR_AF : Frequency of existing variant in gnomAD exomes American population
+## gnomADe_ASJ_AF : Frequency of existing variant in gnomAD exomes Ashkenazi Jewish population
+## gnomADe_EAS_AF : Frequency of existing variant in gnomAD exomes East Asian population
+## gnomADe_FIN_AF : Frequency of existing variant in gnomAD exomes Finnish population
+## gnomADe_MID_AF : Frequency of existing variant in gnomAD exomes Mid-eastern population
+## gnomADe_NFE_AF : Frequency of existing variant in gnomAD exomes Non-Finnish European population
+## gnomADe_REMAINING_AF : Frequency of existing variant in gnomAD exomes remaining combined populations
+## gnomADe_SAS_AF : Frequency of existing variant in gnomAD exomes South Asian population
+## gnomADg_AF : Frequency of existing variant in gnomAD genomes combined population
+## gnomADg_AFR_AF : Frequency of existing variant in gnomAD genomes African/American population
+## gnomADg_AMI_AF : Frequency of existing variant in gnomAD genomes Amish population
+## gnomADg_AMR_AF : Frequency of existing variant in gnomAD genomes American population
+## gnomADg_ASJ_AF : Frequency of existing variant in gnomAD genomes Ashkenazi Jewish population
+## gnomADg_EAS_AF : Frequency of existing variant in gnomAD genomes East Asian population
+## gnomADg_FIN_AF : Frequency of existing variant in gnomAD genomes Finnish population
+## gnomADg_MID_AF : Frequency of existing variant in gnomAD genomes Mid-eastern population
+## gnomADg_NFE_AF : Frequency of existing variant in gnomAD genomes Non-Finnish European population
+## gnomADg_REMAINING_AF : Frequency of existing variant in gnomAD genomes remaining combined populations
+## gnomADg_SAS_AF : Frequency of existing variant in gnomAD genomes South Asian population
+## MAX_AF : Maximum observed allele frequency in 1000 Genomes, ESP and ExAC/gnomAD
+## MAX_AF_POPS : Populations in which maximum allele frequency was observed
+## CLIN_SIG : ClinVar clinical significance of the dbSNP variant
+## SOMATIC : Somatic status of existing variant
+## PHENO : Indicates if existing variant(s) is associated with a phenotype, disease or trait; multiple values correspond to multiple variants
+## PUBMED : Pubmed ID(s) of publications that cite existing variant
+## MOTIF_NAME : The stable identifier of a transcription factor binding profile (TFBP) aligned at this position
+## MOTIF_POS : The relative position of the variation in the aligned TFBP
+## HIGH_INF_POS : A flag indicating if the variant falls in a high information position of the TFBP
+## MOTIF_SCORE_CHANGE : The difference in motif score of the reference and variant sequences for the TFBP
+## TRANSCRIPTION_FACTORS : List of transcription factors which bind to the transcription factor binding profile
+## VEP command-line: vep --assembly GRCh38 --everything --force_overwrite --fork 4 --input_file [PATH]/probe.vcf --json_cache [PATH]/GRCh38_chr22 --output_file [PATH]/out.txt
+######## region chr22:19700000-20500000
+records: 5789
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-22T07:07:27.309371Z[0m [33m WARN[0m [2mvep_cli::config[0m[2m:[0m --everything implies --regulatory, which has no effect: regulatory-feature annotation is not implemented, so no TFBS_* or regulatory_region_* consequence is emitted
+[2m2026-10-22T07:07:27.309487Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: /mnt/data/tmp/veprs-probe-Jl8Ld6/probe.vcf
+[2m2026-10-22T07:07:27.309494Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: /mnt/data/tmp/veprs-probe-Jl8Ld6/out.txt
+[2m2026-10-22T07:07:27.309496Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vep
+[2m2026-10-22T07:07:27.309699Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 4 threads for annotation
+[2m2026-10-22T07:07:27.309706Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /mnt/data/slurm-results/veprs/json_cache/GRCh38_chr22 (lazy per-chromosome, index impl=bin)
+[2m2026-10-22T07:07:27.309979Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Loading variations from JSON cache: /mnt/data/slurm-results/veprs/json_cache/GRCh38_chr22
+[2m2026-10-22T07:07:27.309988Z[0m [32m INFO[0m [2mvep_cli::json_cache[0m[2m:[0m No variations directory found at /mnt/data/slurm-results/veprs/json_cache/GRCh38_chr22/variations
+[2m2026-10-22T07:07:27.379572Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 5789 variants (79297 consequences) in 0.2s using 4 threads
+---- consequence classes
+  28858 intron_variant
+  15791 downstream_gene_variant
+  15697 upstream_gene_variant
+  13998 intron_variant,non_coding_transcript_variant
+   1961 intron_variant,NMD_transcript_variant
+   1024 3_prime_UTR_variant
+    988 non_coding_transcript_exon_variant
+    536 intergenic_variant
+    265 synonymous_variant
+    226 missense_variant
+---- Extra keys present in the body (all rows)
+  79833 VARIANT_CLASS
+  79833 IMPACT
+  79833 ALLELE_NUM
+  79297 STRAND
+  79297 CCDS
+  79297 BIOTYPE
+  67149 SYMBOL_SOURCE
+  67149 SYMBOL
+  66978 HGNC_ID
+  48271 TREMBL
+  48271 SWISSPROT
+  48271 ENSP
+  47809 HGVSc
+  45002 INTRON
+  33251 TSL
+  31488 DISTANCE
+   8799 CANONICAL
+   4814 FLAGS
+   2809 EXON
+    513 HGVSp
+---- Extra keys present in missense rows
+    231 VARIANT_CLASS
+    231 TREMBL
+    231 SYMBOL_SOURCE
+    231 SYMBOL
+    231 SWISSPROT
+    231 STRAND
+    231 IMPACT
+    231 HGVSp
+    231 HGVSc
+    231 HGNC_ID
+    231 EXON
+    231 ENSP
+    231 CCDS
+    231 BIOTYPE
+    231 ALLELE_NUM
+     83 TSL
+     28 CANONICAL
+     12 FLAGS
+---- one missense row
+ALLELE_NUM=1;IMPACT=MODERATE;STRAND=1;VARIANT_CLASS=SNV;SYMBOL=TBX1;SYMBOL_SOURCE=HGNC;HGNC_ID=HGNC:11592;BIOTYPE=protein_coding;TSL=1;CCDS=CCDS13767.1;ENSP=ENSP00000331791;SWISSPROT=O43435.196;TREMBL=D9ZGG0.93;EXON=9/9;HGVSc=ENST00000332710.8:c.1189A>C;HGVSp=ENSP00000331791.4:p.Asn397His
+---- full declared Extra key list (documentation header, not evidence of content)
+## Extra column keys:
+## ALLELE_NUM : Allele number from input; 0 is reference, 1 is first alternate etc
+## IMPACT : Subjective impact classification of consequence type
+## DISTANCE : Shortest distance from variant to transcript
+## STRAND : Strand of the feature (1/-1)
+## FLAGS : Transcript quality flags
+## VARIANT_CLASS : SO variant class
+## SYMBOL : Gene symbol (e.g. HGNC)
+## SYMBOL_SOURCE : Source of gene symbol
+## HGNC_ID : Stable identifer of HGNC gene symbol
+## BIOTYPE : Biotype of transcript or regulatory feature
+## CANONICAL : Indicates if transcript is canonical for this gene
+## MANE : MANE (Matched Annotation from NCBI and EMBL-EBI) set(s) the transcript belongs to
+## MANE_SELECT : MANE Select (Matched Annotation from NCBI and EMBL-EBI) Transcript
+## MANE_PLUS_CLINICAL : MANE Plus Clinical (Matched Annotation from NCBI and EMBL-EBI) Transcript
+## TSL : Transcript support level
+## APPRIS : Annotates alternatively spliced transcripts as primary or alternate based on a range of computational methods
+## CCDS : Indicates if transcript is a CCDS transcript
+## ENSP : Protein identifer
+## SWISSPROT : UniProtKB/Swiss-Prot accession
+## TREMBL : UniProtKB/TrEMBL accession
+## UNIPARC : UniParc accession
+## UNIPROT_ISOFORM : Direct mappings to UniProtKB isoforms
+## GENE_PHENO : Indicates if gene is associated with a phenotype, disease or trait
+## SIFT : SIFT prediction and/or score
+## PolyPhen : PolyPhen prediction and/or score
+## EXON : Exon number(s) / total
+## INTRON : Intron number(s) / total
+## DOMAINS : The source and identifer of any overlapping protein domains
+## miRNA : SO terms of overlapped miRNA secondary structure feature(s)
+## HGVSc : HGVS coding sequence name
+## HGVSp : HGVS protein sequence name
+## HGVS_OFFSET : Indicates by how many bases the HGVS notations for this variant have been shifted
+## HGVSg : HGVS genomic sequence name
+## AF : Frequency of existing variant in 1000 Genomes combined population
+## AFR_AF : Frequency of existing variant in 1000 Genomes combined African population
+## AMR_AF : Frequency of existing variant in 1000 Genomes combined American population
+## EAS_AF : Frequency of existing variant in 1000 Genomes combined East Asian population
+## EUR_AF : Frequency of existing variant in 1000 Genomes combined European population
+## SAS_AF : Frequency of existing variant in 1000 Genomes combined South Asian population
+## gnomADe_AF : Frequency of existing variant in gnomAD exomes combined population
+## gnomADe_AFR_AF : Frequency of existing variant in gnomAD exomes African/American population
+## gnomADe_AMR_AF : Frequency of existing variant in gnomAD exomes American population
+## gnomADe_ASJ_AF : Frequency of existing variant in gnomAD exomes Ashkenazi Jewish population
+## gnomADe_EAS_AF : Frequency of existing variant in gnomAD exomes East Asian population
+## gnomADe_FIN_AF : Frequency of existing variant in gnomAD exomes Finnish population
+## gnomADe_MID_AF : Frequency of existing variant in gnomAD exomes Mid-eastern population
+## gnomADe_NFE_AF : Frequency of existing variant in gnomAD exomes Non-Finnish European population
+## gnomADe_REMAINING_AF : Frequency of existing variant in gnomAD exomes remaining combined populations
+## gnomADe_SAS_AF : Frequency of existing variant in gnomAD exomes South Asian population
+## gnomADg_AF : Frequency of existing variant in gnomAD genomes combined population
+## gnomADg_AFR_AF : Frequency of existing variant in gnomAD genomes African/American population
+## gnomADg_AMI_AF : Frequency of existing variant in gnomAD genomes Amish population
+## gnomADg_AMR_AF : Frequency of existing variant in gnomAD genomes American population
+## gnomADg_ASJ_AF : Frequency of existing variant in gnomAD genomes Ashkenazi Jewish population
+## gnomADg_EAS_AF : Frequency of existing variant in gnomAD genomes East Asian population
+## gnomADg_FIN_AF : Frequency of existing variant in gnomAD genomes Finnish population
+## gnomADg_MID_AF : Frequency of existing variant in gnomAD genomes Mid-eastern population
+## gnomADg_NFE_AF : Frequency of existing variant in gnomAD genomes Non-Finnish European population
+## gnomADg_REMAINING_AF : Frequency of existing variant in gnomAD genomes remaining combined populations
+## gnomADg_SAS_AF : Frequency of existing variant in gnomAD genomes South Asian population
+## MAX_AF : Maximum observed allele frequency in 1000 Genomes, ESP and ExAC/gnomAD
+## MAX_AF_POPS : Populations in which maximum allele frequency was observed
+## CLIN_SIG : ClinVar clinical significance of the dbSNP variant
+## SOMATIC : Somatic status of existing variant
+## PHENO : Indicates if existing variant(s) is associated with a phenotype, disease or trait; multiple values correspond to multiple variants
+## PUBMED : Pubmed ID(s) of publications that cite existing variant
+## MOTIF_NAME : The stable identifier of a transcription factor binding profile (TFBP) aligned at this position
+## MOTIF_POS : The relative position of the variation in the aligned TFBP
+## HIGH_INF_POS : A flag indicating if the variant falls in a high information position of the TFBP
+## MOTIF_SCORE_CHANGE : The difference in motif score of the reference and variant sequences for the TFBP
+## TRANSCRIPTION_FACTORS : List of transcription factors which bind to the transcription factor binding profile
+## VEP command-line: vep --assembly GRCh38 --everything --force_overwrite --fork 4 --input_file [PATH]/probe.vcf --json_cache [PATH]/GRCh38_chr22 --output_file [PATH]/out.txt
