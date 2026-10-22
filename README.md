@@ -12,6 +12,9 @@ VCFcache accelerates variant annotation by caching annotations for a user-define
 The project's correctness, compatibility, and fast-annotator performance
 targets are defined in [PROJECT_GOALS.md](PROJECT_GOALS.md).
 
+Future command-wrapper and automatic cache-discovery ideas are recorded in
+[CLI_DESIGN.md](CLI_DESIGN.md) (proposal; not implemented).
+
 ### When VCFcache helps
 
 VCFcache is useful when you either (a) repeatedly annotate many samples with a stable pipeline, or (b) want to quickly apply common annotations (e.g., VEP --everything) to a large VCF/BCF. Speedup depends on the cache hit rate of the input sample and the per-variant cost of the original annotation pipeline.
