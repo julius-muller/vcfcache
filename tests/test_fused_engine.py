@@ -403,6 +403,8 @@ def test_single_contig_multiple_tasks_annotates_once(native, tmp_path, monkeypat
 
 @pytest.mark.parametrize("hits", [0, 1, 2])
 def test_experimental_store_candidates(native, tmp_path, hits):
+    if "store-build" not in subprocess.check_output([native, "--help"], text=True):
+        pytest.skip("helper built without experimental-store feature")
     files = dataset(tmp_path / "data", hit_every=hits)
     store = tmp_path / "store"
     checked(native, "store-build", "--cache", files[1], "--output", store)

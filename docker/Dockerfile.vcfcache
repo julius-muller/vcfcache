@@ -32,6 +32,7 @@ COPY tests ./tests
 # tens of megabytes of frozen result tables that the tests never read.
 COPY benchmarks/*.py ./benchmarks/
 COPY benchmarks/fastvep_pilot/*.py ./benchmarks/fastvep_pilot/
+COPY benchmarks/branch_eval/*.py ./benchmarks/branch_eval/
 # Several tests assert that tracked manifests stay in step with the runner
 # allow-lists, so those small tables are needed too.
 COPY benchmarks/manifests ./benchmarks/manifests

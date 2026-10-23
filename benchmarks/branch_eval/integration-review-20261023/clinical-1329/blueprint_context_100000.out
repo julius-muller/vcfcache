@@ -1,0 +1,14 @@
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-23T13:32:47.969002Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: STDIN
+[2m2026-10-23T13:32:47.969026Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: STDOUT
+[2m2026-10-23T13:32:47.969034Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vcf
+[2m2026-10-23T13:32:47.971274Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 16 threads for annotation
+[2m2026-10-23T13:32:48.050385Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-23T13:32:48.077017Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"dbNSFP"
+[2m2026-10-23T13:32:48.077042Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Loaded 2 built-in plugin(s)
+[2m2026-10-23T13:32:48.077051Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_native_20261023 (lazy per-chromosome, index impl=bin)
+[2m2026-10-23T13:32:48.532080Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr1: 47849 transcripts
+[2m2026-10-23T13:32:48.630184Z[0m [33m WARN[0m [2mvep_cli::runner[0m[2m:[0m plugin execution error: plugin execution failed: failed to read line: stream did not contain valid UTF-8
+Processed 3110 variants...Processed 3110 variants (28759 consequences) in 0.7s using 16 threads

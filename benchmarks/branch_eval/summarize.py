@@ -66,6 +66,7 @@ def fit(points):
 
 
 def main():
+    """Print exploratory summaries; see audit_engines.py for backend-aware data."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("roots", nargs="+")
     args = parser.parse_args()

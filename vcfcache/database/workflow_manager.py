@@ -287,7 +287,7 @@ class WorkflowManager(WorkflowBase):
             temp: Temporary directory for intermediate files
             preserve_unannotated: Whether to preserve variants without annotation in output
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
-            engine: Cached workflow engine (legacy, fused or resident native)
+            engine: Legacy (default), adaptive (fused alias), availability auto or native
             engine_workers: Lookup-worker override; zero selects automatically
             engine_lookup: Lookup selection: auto, regions or contigs
             engine_memory_mb: Native retained-record buffer budget in MiB
@@ -325,6 +325,10 @@ class WorkflowManager(WorkflowBase):
             elif db_mode == "annotate":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for annotate mode")
+                from vcfcache.database.engine_runtime import select_engine
+
+                requested_engine = engine
+                engine, selection_reason = select_engine(engine)
                 if engine == "native":
                     from vcfcache.database.native import run_native
 
@@ -337,7 +341,7 @@ class WorkflowManager(WorkflowBase):
                         engine_lookup,
                         engine_memory_mb,
                     )
-                elif engine == "fused":
+                elif engine in {"adaptive", "fused"}:
                     from vcfcache.database.fused import run_fused
 
                     result = run_fused(
@@ -355,7 +359,17 @@ class WorkflowManager(WorkflowBase):
                         skip_split_multiallelic=skip_split_multiallelic,
                     )
                 else:
-                    raise ValueError("engine must be legacy, fused or native")
+                    raise ValueError(
+                        "engine must be legacy, adaptive, fused, auto or native"
+                    )
+                self.last_run_stats = getattr(self, "last_run_stats", {}) or {}
+                self.last_run_stats["requested_engine"] = requested_engine
+                actual_engine = self.last_run_stats.get("engine", "legacy")
+                self.last_run_stats["effective_engine"] = (
+                    "adaptive" if actual_engine == "fused" else actual_engine
+                )
+                if selection_reason:
+                    self.last_run_stats["selection_reason"] = selection_reason
             elif db_mode == "annotate-nocache":
                 result = self._run_annotate_nocache(
                     skip_split_multiallelic=skip_split_multiallelic

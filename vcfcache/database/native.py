@@ -3,22 +3,23 @@
 
 import json
 import os
-import re
 import shlex
 import shutil
-import signal
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 
-from vcfcache.database.fused import (
+from vcfcache.database.engine_runtime import (
     Pipelines,
+    cpu_affinity,
+    helper_version,
     native_binary,
-    run_fused,
+    staged_output,
+    terminate_process,
     validate_info_headers,
 )
+from vcfcache.database.fused import run_fused
 
 
 def run_native(
@@ -36,10 +37,7 @@ def run_native(
     cpus = int(manager.params_file_content.get("threads", 1))
     if cpus < 1:
         raise ValueError("threads must be positive")
-    previous = os.sched_getaffinity(0)
-    selected = set(sorted(previous)[:cpus])
-    try:
-        os.sched_setaffinity(0, selected)
+    with cpu_affinity(cpus) as selected:
         return _run(
             manager,
             cache,
@@ -50,19 +48,12 @@ def run_native(
             memory_mb,
             len(selected),
         )
-    finally:
-        os.sched_setaffinity(0, previous)
 
 
 def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus):
     start = time.perf_counter()
     binary = native_binary()
-    version = subprocess.check_output([binary, "--version"], text=True).strip()
-    match = re.search(r"vcfcache-engine (\d+)\.(\d+)\.(\d+)", version)
-    if not match or tuple(map(int, match.groups())) < (0, 3, 0):
-        raise RuntimeError(
-            "--engine native requires vcfcache-engine >=0.3.0; rebuild the helper"
-        )
+    version = helper_version(binary, (0, 3, 0))
     if workers > cpus:
         raise ValueError("native workers exceed configured CPU budget")
     workers = workers or min(8, max(1, cpus // 2))
@@ -103,10 +94,8 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     target = root / "stdout.bcf" if output == "-" else Path(output)
     target.parent.mkdir(parents=True, exist_ok=True)
     try:
-        with tempfile.TemporaryDirectory(
-            prefix=".vcfcache-native-", dir=target.parent
-        ) as staging:
-            staged = Path(staging) / "output.bcf"
+        with staged_output(target, ".vcfcache-native-") as stage:
+            staged = stage.path
             spec = dict(
                 input=str(fifo),
                 cache=str(cache),
@@ -155,12 +144,11 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
 
             state = receive()
             if state["event"] == "fallback":
+                stage.aborted = True
                 process.wait()
                 # A budget fallback can stop reading the FIFO early (SIGPIPE).
                 # Stop only our normalization group; never replay an annotator.
-                if normalizer.poll() is None:
-                    os.killpg(normalizer.pid, signal.SIGTERM)
-                normalizer.wait()
+                terminate_process(normalizer)
                 result = run_fused(manager, cache, preserve, skip_split, 0, lookup)
                 manager.last_run_stats.update(
                     requested_engine="native", fallback_reason=state["reason"]
@@ -225,8 +213,6 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                 state = receive()
             if state["event"] != "complete" or process.wait():
                 raise RuntimeError(f"native completion failed: {state}")
-            os.replace(str(staged) + ".csi", str(target) + ".csi")
-            os.replace(staged, target)
         stats = json.loads((root / "stats.json").read_text())
         stats.update(
             engine="native",
@@ -253,14 +239,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     finally:
         pipelines.stop()
         for child in (process, normalizer):
-            if child is not None:
-                if child.poll() is None:
-                    os.killpg(child.pid, signal.SIGTERM)
-                try:
-                    child.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    os.killpg(child.pid, signal.SIGKILL)
-                    child.wait()
+            terminate_process(child)
         if process is not None:
             process.stdin.close()
             process.stdout.close()

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, feature/fused-routing, feature/adaptive-cache-routing, feature/native-bcf-routing]
+    branches: [main, feature/fused-routing, feature/adaptive-cache-routing, feature/native-bcf-routing, feature/adaptive-integration]
     tags: ["v*"]
   pull_request:
     branches: [main]
@@ -166,6 +166,7 @@ jobs:
           cargo clippy --locked --manifest-path native/Cargo.toml -- -D warnings
           cargo test --locked --manifest-path native/Cargo.toml
           cargo build --release --locked --manifest-path native/Cargo.toml
+          cargo check --locked --features experimental-store --manifest-path native/Cargo.toml
 
       - name: Run tests
         env:

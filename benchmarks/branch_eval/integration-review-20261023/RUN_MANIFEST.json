@@ -1,0 +1,18 @@
+{
+  "purpose": "Backend review, focused confirmations and clinical input-context diagnosis; no broad rerun",
+  "deployments": {"head": "63757a07", "main": "136bafa9"},
+  "jobs": [
+    {"id": 1325, "node": "sl-w4", "status": "complete", "purpose": "22-record metadata/thread clinical probes"},
+    {"id": 1326, "node": "sl-w4", "status": "complete", "purpose": "Source-cache payload confirmation and 0/1kb contexts"},
+    {"id": 1327, "node": "sl-w2", "status": "complete", "purpose": "Two alternating native/adaptive fastVEP WES pairs; four full-record audits passed"},
+    {"id": 1328, "node": "sl-w2", "status": "running at snapshot", "purpose": "One reversed-order VEP WGS legacy@head/main pair against archived direct reference"},
+    {"id": 1329, "node": "sl-w4", "status": "complete", "purpose": "100kb and full-chr1 context reproduce all 22 clinical WES discrepancies"},
+    {"id": 1330, "node": "sl-w4", "status": "failed before annotation", "purpose": "First minimizer attempt; FileExistsError at directory creation; empty folder retained; superseded by 1331"},
+    {"id": 1331, "node": "sl-w4", "status": "complete", "purpose": "25-probe delta reduction to three variants, minimal under single-record deletion"},
+    {"id": 1332, "node": "sl-w4", "status": "complete", "purpose": "16 three-record confirmation cells: plugin selection x threads x subsets; no VCFcache involved"}
+  ],
+  "submission_corrections": ["First sbatch attempt used the worker /results script path on the controller; rejected before job allocation. Corrected to /mnt/data/slurm-results."],
+  "resource_identity": "Tool SHA and ClinVar data/index SHA agree with original build; transcript tree not independently rehashed in these probes",
+  "external_communication": "No upstream issue, PR or message posted",
+  "publication": "Clinical speedups remain provisional; semantic audits unchanged; original figures and raw results untouched"
+}

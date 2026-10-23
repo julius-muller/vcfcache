@@ -13,6 +13,7 @@ use std::path::{Path, PathBuf};
 
 mod adaptive;
 mod resident;
+#[cfg(feature = "experimental-store")]
 mod store;
 
 #[derive(Parser)]
@@ -30,6 +31,7 @@ enum Command {
         job: PathBuf,
     },
     /// EXPERIMENT: explicitly build an immutable mmap lookup sidecar.
+    #[cfg(feature = "experimental-store")]
     StoreBuild {
         #[arg(long)]
         cache: PathBuf,
@@ -37,6 +39,7 @@ enum Command {
         output: PathBuf,
     },
     /// EXPERIMENT: emit candidate annotation BCF, retaining bcftools matching.
+    #[cfg(feature = "experimental-store")]
     StoreQuery {
         #[arg(long)]
         store: PathBuf,
@@ -308,7 +311,9 @@ struct OutputOptions<'a> {
 fn main() -> Result<()> {
     match Cli::parse().command {
         Command::Resident { job } => resident::run(&job),
+        #[cfg(feature = "experimental-store")]
         Command::StoreBuild { cache, output } => store::build(&cache, &output),
+        #[cfg(feature = "experimental-store")]
         Command::StoreQuery { store, input } => store::query(&store, &input),
         Command::Prepare {
             output,

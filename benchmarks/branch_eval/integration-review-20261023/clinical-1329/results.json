@@ -1,0 +1,98 @@
+[
+  {
+    "condition": "sample_original",
+    "threads": 16,
+    "seconds": 0.9343891004100442,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "sample_repeat",
+    "threads": 16,
+    "seconds": 0.9506293861195445,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "sample_single_thread",
+    "threads": 1,
+    "seconds": 0.9169256454333663,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "blueprint_original",
+    "threads": 16,
+    "seconds": 0.9848930910229683,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "sample_sites_only",
+    "threads": 16,
+    "seconds": 0.9927973570302129,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "sample_no_info",
+    "threads": 16,
+    "seconds": 1.0370993381366134,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "sample_no_id",
+    "threads": 16,
+    "seconds": 0.9679801352322102,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "sample_no_samples_or_info",
+    "threads": 16,
+    "seconds": 0.9745666915550828,
+    "records": 22,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "blueprint_context_0",
+    "threads": 16,
+    "seconds": 0.9701559171080589,
+    "records": 23,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "blueprint_context_1000",
+    "threads": 16,
+    "seconds": 1.0208971044048667,
+    "records": 170,
+    "matches_direct": 22,
+    "matches_cached": 0
+  },
+  {
+    "condition": "blueprint_context_100000",
+    "threads": 16,
+    "seconds": 1.1373218540102243,
+    "records": 3110,
+    "matches_direct": 0,
+    "matches_cached": 22
+  },
+  {
+    "condition": "blueprint_full_contigs",
+    "threads": 16,
+    "seconds": 70.23306782823056,
+    "records": 1435577,
+    "matches_direct": 0,
+    "matches_cached": 22
+  }
+]

@@ -859,7 +859,7 @@ class VCFAnnotator(VCFDatabase):
             preserve_unannotated: Whether to preserve variants without annotation in output
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
             md5_all: Compute full MD5 of all variants (no header) and store in stats
-            engine: Cached workflow engine, legacy (default), fused or native
+            engine: Legacy (default), adaptive (fused alias), availability auto or native
             engine_workers: Native contig workers; zero selects automatically
             engine_lookup: Fused lookup selection: auto, regions or contigs
             engine_memory_mb: Native retained-record buffer budget in MiB
@@ -870,8 +870,8 @@ class VCFAnnotator(VCFDatabase):
              annotation_db="~/tmp/test/test_out/cache/testor", output_file="~/tmp/test/aout.bcf", stats_dir="~/tmp/test/aout_stats", force=True)
 
         """
-        if engine not in {"legacy", "fused", "native"}:
-            raise ValueError("engine must be legacy, fused or native")
+        if engine not in {"legacy", "adaptive", "fused", "auto", "native"}:
+            raise ValueError("engine must be legacy, adaptive, fused, auto or native")
         if engine_memory_mb < 1:
             raise ValueError("engine_memory_mb must be positive")
         if engine_memory_mb != 512 and engine != "native":
@@ -879,11 +879,11 @@ class VCFAnnotator(VCFDatabase):
         if engine_workers < 0:
             raise ValueError("engine_workers must be non-negative")
         if engine_workers and engine == "legacy":
-            raise ValueError("engine_workers requires engine='fused' or 'native'")
+            raise ValueError("engine_workers requires fused, adaptive, auto or native")
         if engine_lookup not in {"auto", "regions", "contigs"}:
             raise ValueError("engine_lookup must be auto, regions or contigs")
         if engine_lookup != "auto" and engine == "legacy":
-            raise ValueError("engine_lookup requires engine='fused' or 'native'")
+            raise ValueError("engine_lookup requires fused, adaptive, auto or native")
         if uncached and engine != "legacy":
             raise ValueError("native/fused engines cannot be used with uncached=True")
         if md5_all and getattr(self, "statistics", "full") != "full":
@@ -1035,6 +1035,8 @@ class VCFAnnotator(VCFDatabase):
         stats["engine"] = last_stats.get("engine", "legacy")
         for key in (
             "requested_engine",
+            "effective_engine",
+            "selection_reason",
             "native_version",
             "workers",
             "cpu_budget",

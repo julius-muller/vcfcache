@@ -1,0 +1,59 @@
+{
+  "target": [
+    "chr1",
+    235782202,
+    [
+      "A",
+      "G"
+    ]
+  ],
+  "other_keys": [
+    [
+      "chr1",
+      235699670,
+      [
+        "G",
+        "T"
+      ]
+    ],
+    [
+      "chr1",
+      235700300,
+      [
+        "T",
+        "C"
+      ]
+    ]
+  ],
+  "isolated_csq": [
+    "G|downstream_gene_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000492844|retained_intron|||||||||||4868|-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided",
+    "G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000489585|nonsense_mediated_decay||14/22||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided",
+    "G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000697178|nonsense_mediated_decay||13/51||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided",
+    "G|intron_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000389793|protein_coding||14/52||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided"
+  ],
+  "contextual_csq": [
+    "G|downstream_gene_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000492844|retained_intron|||||||||||4868|-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||",
+    "G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000489585|nonsense_mediated_decay||14/22||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||",
+    "G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000697178|nonsense_mediated_decay||13/51||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||",
+    "G|intron_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000389793|protein_coding||14/52||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||"
+  ],
+  "tool_sha256": "655c5e9204731ce2bd8a72d4d5ff4e2c4a4ab687c060b79ef37542c12ae339a5",
+  "recipe": {
+    "annotation_cmd": "${params.bcftools_cmd} view ${INPUT_BCF} -Ov | ${params.annotation_tool_cmd} --assembly GRCh38 --json_cache ${params.transcript_cache} --fork ${params.threads} --vcf --no_stats --input_file STDIN --output_file STDOUT --plugin gnomADc,/results/veprs/data/gnomad_joint_gw_GRCh38.vcf.gz --plugin dbNSFP,/results/native-bcf/veprs-caches-20261023b/clinvar.tsv.gz,CV_CLNSIG,CV_REVSTAT,CV_CLNDN | ${params.bcftools_cmd} view -Ob -W --threads ${params.threads} -o ${OUTPUT_BCF}",
+    "must_contain_info_tag": "CSQ",
+    "genome_build": "GRCh38",
+    "required_tool_version": "116.2"
+  },
+  "params": {
+    "genome_build": "GRCh38",
+    "bcftools_cmd": "bcftools",
+    "annotation_tool_cmd": "/results/veprs/dist/vep",
+    "tool_version_command": "/results/veprs/dist/vep --version",
+    "threads": 16,
+    "temp_dir": "/mnt/data/tmp",
+    "transcript_cache": "/results/veprs/json_cache/GRCh38_native_20261023",
+    "optional_checks": {}
+  },
+  "input_sha256": "4ec73e526e78be6799baf8b2062ea15f4133f3dfa59d1e951de97c9cc22d6e36",
+  "note": "Diagnostic CSQ-only reduction, not a relaxed benchmark comparator; minimal with respect to single-record deletion."
+}

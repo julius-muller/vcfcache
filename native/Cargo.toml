@@ -1,9 +1,13 @@
 [package]
 name = "vcfcache-engine"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 license = "GPL-3.0-only"
-description = "Experimental fused BCF router for VCFcache"
+description = "Optional adaptive and resident BCF routing helper for VCFcache"
+
+[features]
+default = []
+experimental-store = ["dep:memmap2"]
 
 [dependencies]
 anyhow = "1"
@@ -11,7 +15,7 @@ clap = { version = "4", features = ["derive"] }
 rust-htslib = { version = "1.0.1", default-features = false, features = ["libdeflate"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-memmap2 = "0.9"
+memmap2 = { version = "0.9", optional = true }
 
 [profile.release]
 lto = "thin"

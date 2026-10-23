@@ -1,0 +1,204 @@
+{
+  "discrepancies": 22,
+  "keys": [
+    [
+      "chr1",
+      235782202,
+      [
+        "A",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      235977874,
+      [
+        "T",
+        "C"
+      ]
+    ],
+    [
+      "chr1",
+      235978953,
+      [
+        "T",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      235981651,
+      [
+        "A",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      235981845,
+      [
+        "T",
+        "C"
+      ]
+    ],
+    [
+      "chr1",
+      235991065,
+      [
+        "G",
+        "T"
+      ]
+    ],
+    [
+      "chr1",
+      235993977,
+      [
+        "T",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      236011853,
+      [
+        "T",
+        "C"
+      ]
+    ],
+    [
+      "chr1",
+      236012027,
+      [
+        "C",
+        "A"
+      ]
+    ],
+    [
+      "chr1",
+      236012039,
+      [
+        "T",
+        "C"
+      ]
+    ],
+    [
+      "chr1",
+      236017280,
+      [
+        "C",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      236024065,
+      [
+        "T",
+        "C"
+      ]
+    ],
+    [
+      "chr1",
+      236029845,
+      [
+        "G",
+        "C"
+      ]
+    ],
+    [
+      "chr1",
+      236038309,
+      [
+        "T",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      236041790,
+      [
+        "C",
+        "T"
+      ]
+    ],
+    [
+      "chr1",
+      236041821,
+      [
+        "T",
+        "C"
+      ]
+    ],
+    [
+      "chr1",
+      236042404,
+      [
+        "C",
+        "T"
+      ]
+    ],
+    [
+      "chr1",
+      236045388,
+      [
+        "A",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      236045389,
+      [
+        "T",
+        "A"
+      ]
+    ],
+    [
+      "chr1",
+      236045473,
+      [
+        "C",
+        "T"
+      ]
+    ],
+    [
+      "chr1",
+      236045724,
+      [
+        "C",
+        "G"
+      ]
+    ],
+    [
+      "chr1",
+      236045781,
+      [
+        "G",
+        "A"
+      ]
+    ]
+  ],
+  "recipe": {
+    "annotation_cmd": "${params.bcftools_cmd} view ${INPUT_BCF} -Ov | ${params.annotation_tool_cmd} --assembly GRCh38 --json_cache ${params.transcript_cache} --fork ${params.threads} --vcf --no_stats --input_file STDIN --output_file STDOUT --plugin gnomADc,/results/veprs/data/gnomad_joint_gw_GRCh38.vcf.gz --plugin dbNSFP,/results/native-bcf/veprs-caches-20261023b/clinvar.tsv.gz,CV_CLNSIG,CV_REVSTAT,CV_CLNDN | ${params.bcftools_cmd} view -Ob -W --threads ${params.threads} -o ${OUTPUT_BCF}",
+    "must_contain_info_tag": "CSQ",
+    "genome_build": "GRCh38",
+    "required_tool_version": "116.2"
+  },
+  "params": {
+    "genome_build": "GRCh38",
+    "bcftools_cmd": "bcftools",
+    "annotation_tool_cmd": "/results/veprs/dist/vep",
+    "tool_version_command": "/results/veprs/dist/vep --version",
+    "threads": 16,
+    "temp_dir": "/mnt/data/tmp",
+    "transcript_cache": "/results/veprs/json_cache/GRCh38_native_20261023",
+    "optional_checks": {}
+  },
+  "tool_sha256": "655c5e9204731ce2bd8a72d4d5ff4e2c4a4ab687c060b79ef37542c12ae339a5",
+  "note": "CSQ-only diagnosis; this does not replace or relax full-record benchmark audits.",
+  "cache_payload_check": {
+    "records": 22,
+    "matches_cached": 22,
+    "matches_direct": 0
+  }
+}

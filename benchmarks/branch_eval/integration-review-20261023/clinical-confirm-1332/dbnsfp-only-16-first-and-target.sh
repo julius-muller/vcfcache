@@ -1,0 +1,2 @@
+set -euo pipefail
+bcftools view /results/branch-integration/clinical-confirm-1332/dbnsfp-only-16-first-and-target.bcf -Ov | /results/veprs/dist/vep --assembly GRCh38 --json_cache /results/veprs/json_cache/GRCh38_native_20261023 --fork 16 --vcf --no_stats --input_file STDIN --output_file STDOUT --plugin dbNSFP,/results/native-bcf/veprs-caches-20261023b/clinvar.tsv.gz,CV_CLNSIG,CV_REVSTAT,CV_CLNDN | bcftools view -Ob -W --threads 16 -o /results/branch-integration/clinical-confirm-1332/dbnsfp-only-16-first-and-target-output.bcf

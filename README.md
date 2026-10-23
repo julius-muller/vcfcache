@@ -290,11 +290,13 @@ See [WIKI.md - Section 8 (Configuration reference)](WIKI.md#8-configuration-refe
 ## Links
 
 Experimental development: an opt-in [Rust/HTSlib fused-routing engine](native/README.md)
-is available on the feature branch through `vcfcache annotate --engine fused`.
+is available on the feature branch through `vcfcache annotate --engine adaptive`
+(`fused` remains a compatibility alias).
 It preserves existing caches and recipes, routes adaptive genomic regions in
 parallel, and annotates misses once. See the [engineering validation and
 limitations](benchmarks/adaptive_routing/RESULTS.md). The default remains the
-legacy engine.
+legacy engine. Explicit `--engine auto` selects adaptive when the optional
+helper/platform is available, otherwise legacy; native always remains opt-in.
 
 The experimental `--engine native` resident WES path (helper >=0.3.0) removes
 normal-path hit spools and shard assembly while retaining BCF/CSI and arbitrary

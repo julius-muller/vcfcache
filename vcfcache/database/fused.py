@@ -10,14 +10,10 @@ on the concatenated misses, irrespective of the number of routing workers.
 import concurrent.futures
 import json
 import os
-import re
 import shlex
 import shutil
-import signal
 import subprocess
 import sys
-import tempfile
-import threading
 import time
 from pathlib import Path
 
@@ -29,117 +25,14 @@ from vcfcache.database.adaptive import (
     select_workers,
     write_regions,
 )
-
-
-def native_binary() -> str:
-    """Resolve the opt-in executable; never compile during annotation."""
-    override = os.environ.get("VCFCACHE_ENGINE")
-    if override:
-        candidate = Path(override).expanduser().resolve()
-        if not candidate.is_file() or not os.access(candidate, os.X_OK):
-            raise FileNotFoundError(f"VCFCACHE_ENGINE is not executable: {candidate}")
-        return str(candidate)
-    installed = shutil.which("vcfcache-engine")
-    if installed:
-        return installed
-    candidate = (
-        Path(__file__).resolve().parents[2] / "native/target/release/vcfcache-engine"
-    )
-    if candidate.is_file():
-        return str(candidate)
-    raise FileNotFoundError(
-        "--engine fused requires vcfcache-engine. Build with "
-        "cargo build --release --locked --manifest-path native/Cargo.toml, "
-        "or set VCFCACHE_ENGINE to the installed executable."
-    )
-
-
-def validate_info_headers(target, annotations):
-    """Reject conflicting typed INFO definitions before an overlay can coerce data."""
-    # Header-only reads do not need CSI indexes. Opening file objects avoids
-    # HTSlib's misleading missing-index diagnostic on deliberately plain spools.
-    with (
-        Path(target).open("rb") as target_stream,
-        Path(annotations).open("rb") as annotation_stream,
-        pysam.VariantFile(target_stream) as original,
-        pysam.VariantFile(annotation_stream) as incoming,
-    ):
-        for name in original.header.info:
-            if name in incoming.header.info:
-                left, right = original.header.info[name], incoming.header.info[name]
-                if (left.type, left.number) != (right.type, right.number):
-                    raise ValueError(
-                        f"Incompatible INFO header for {name}: "
-                        f"{left.type}/{left.number} versus {right.type}/{right.number}"
-                    )
-
-
-class Pipelines:
-    """Track process groups and stop siblings on failure or interruption."""
-
-    def __init__(self, logger):
-        self.logger = logger
-        self.lock = threading.Lock()
-        self.active = set()
-        self.cancelled = False
-        self.timings = []
-
-    def stop(self):
-        with self.lock:
-            self.cancelled = True
-            for process in self.active:
-                try:
-                    os.killpg(process.pid, signal.SIGTERM)
-                except ProcessLookupError:
-                    pass
-
-    def run(self, command, directory, label):
-        start = time.perf_counter()
-        directory.mkdir(parents=True, exist_ok=True)
-        (directory / f"{label}.sh").write_text(
-            "#!/bin/bash\nset -euo pipefail\n" + command + "\n"
-        )
-        # Binary record streams remain inside the shell pipeline. Log files are
-        # direct file descriptors, not pipes that can fill or capture a WGS.
-        with (
-            (directory / f"{label}.stdout").open("wb") as out,
-            (directory / f"{label}.stderr").open("wb") as err,
-        ):
-            with self.lock:
-                if self.cancelled:
-                    raise RuntimeError("fused pipeline cancelled")
-                process = subprocess.Popen(
-                    ["/bin/bash", "-euo", "pipefail", "-c", command],
-                    stdout=out,
-                    stderr=err,
-                    cwd=directory,
-                    start_new_session=True,
-                )
-                self.active.add(process)
-            try:
-                code = process.wait()
-                if code:
-                    self.stop()
-                    detail = (directory / f"{label}.stderr").read_text(
-                        errors="replace"
-                    )[-4000:]
-                    raise RuntimeError(f"fused {label} failed ({code}): {detail}")
-            finally:
-                if process.poll() is None:
-                    self.stop()
-                    try:
-                        process.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        os.killpg(process.pid, signal.SIGKILL)
-                        process.wait()
-                with self.lock:
-                    self.active.discard(process)
-        duration = time.perf_counter() - start
-        with self.lock:
-            self.timings.append(
-                {"stage": label, "task": directory.name, "wall_seconds": duration}
-            )
-        self.logger.info(f"Fused {label} completed in {duration:.3f}s")
+from vcfcache.database.engine_runtime import (
+    Pipelines,
+    cpu_affinity,
+    helper_version,
+    native_binary,
+    staged_output,
+    validate_info_headers,
+)
 
 
 def run_fused(
@@ -157,12 +50,7 @@ def run_fused(
     This avoids unsafe preexec_fn hooks in a multithreaded Python orchestrator.
     """
     threads = int(manager.params_file_content.get("threads", 1))
-    if threads < 1:
-        raise ValueError("threads must be positive")
-    previous = os.sched_getaffinity(0)
-    selected = set(sorted(previous)[:threads])
-    try:
-        os.sched_setaffinity(0, selected)
+    with cpu_affinity(threads):
         return _run_fused(
             manager,
             cache,
@@ -171,8 +59,6 @@ def run_fused(
             workers,
             lookup,
         )
-    finally:
-        os.sched_setaffinity(0, previous)
 
 
 def _run_fused(
@@ -228,14 +114,7 @@ def _run_fused(
     root = manager.work_dir / "fused"
     root.mkdir(parents=True, exist_ok=True)
     pipelines = Pipelines(manager.logger)
-    version = subprocess.run(
-        [binary, "--version"], capture_output=True, text=True, check=True
-    ).stdout.strip()
-    match = re.fullmatch(r"vcfcache-engine (\d+)\.(\d+)\.(\d+)(?:[-+].*)?", version)
-    if not match or tuple(map(int, match.groups())) < (0, 2, 0):
-        raise RuntimeError(
-            "Adaptive fused routing requires vcfcache-engine >=0.2.0; rebuild native/Cargo.toml or set VCFCACHE_ENGINE to the matching executable"
-        )
+    version = helper_version(binary, (0, 2, 0))
     manager.logger.info(
         f"Fused engine: {version}; preparation workers={workers}; CPU budget={cpu_budget}"
     )
@@ -435,10 +314,8 @@ def _run_fused(
     target = root / "final.bcf" if output == "-" else Path(output)
     # Stage beside the destination so publication uses same-filesystem rename.
     target.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(
-        prefix=".vcfcache-fused-", dir=target.parent
-    ) as staging:
-        staged = Path(staging) / "output.bcf"
+    with staged_output(target, ".vcfcache-fused-") as stage:
+        staged = stage.path
         files = " ".join(quote(str(shard / "output.bcf")) for shard in shards)
         # Naive concat checks header dictionary compatibility and copies BGZF
         # blocks without decompressing/recompressing the complete WGS again.
@@ -453,8 +330,6 @@ def _run_fused(
             root,
             "index",
         )
-        os.replace(str(staged) + ".csi", str(target) + ".csi")
-        os.replace(staged, target)
     if output == "-":
         with target.open("rb") as stream:
             shutil.copyfileobj(stream, sys.stdout.buffer)

@@ -92,6 +92,9 @@ line-length = 88
 exclude = [
     # Immutable raw experiment snapshots are provenance, not maintained source.
     "benchmarks/results/raw",
+    # Immutable benchmark snapshots include the exact historical runner code.
+    "benchmarks/branch_eval/results-*",
+    "benchmarks/branch_eval/integration-review-*/submitted-scripts",
     ".git",
     ".mypy_cache",
     ".ruff_cache",

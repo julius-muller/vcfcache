@@ -691,9 +691,9 @@ def main() -> None:
     statistics_group = vcf_parser.add_mutually_exclusive_group()
     vcf_parser.add_argument(
         "--engine",
-        choices=("legacy", "fused", "native"),
+        choices=("legacy", "adaptive", "fused", "auto", "native"),
         default="legacy",
-        help="Annotation workflow engine (default: legacy). Fused/native require vcfcache-engine.",
+        help="Workflow engine (default: legacy). Adaptive/fused/native require the optional helper; auto selects adaptive when available, otherwise legacy.",
     )
     vcf_parser.add_argument(
         "--engine-lookup",
@@ -971,12 +971,16 @@ def main() -> None:
             parser.error("--engine-memory-mb requires --engine native")
         if args.engine_workers < 0 or (args.engine_workers and args.engine == "legacy"):
             parser.error(
-                "--engine-workers must be non-negative and requires --engine fused or native"
+                "--engine-workers must be non-negative and requires --engine fused, adaptive, auto or native"
             )
         if args.uncached and args.engine != "legacy":
-            parser.error("--engine fused/native cannot be combined with --uncached")
+            parser.error(
+                "--engine adaptive/fused/auto/native cannot be combined with --uncached"
+            )
         if args.engine_lookup != "auto" and args.engine == "legacy":
-            parser.error("--engine-lookup requires --engine fused or native")
+            parser.error(
+                "--engine-lookup requires --engine fused, adaptive, auto or native"
+            )
 
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)

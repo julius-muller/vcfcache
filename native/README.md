@@ -1,12 +1,31 @@
 # Experimental native engines
 
 The Python CLI remains the public interface. `vcfcache-engine` is an optional
-Rust/HTSlib subprocess used by `vcfcache annotate --engine fused`. Legacy remains
+Rust/HTSlib subprocess used by `vcfcache annotate --engine adaptive`. Legacy remains
 the default. Existing Zenodo caches and immutable recipes are unchanged.
+
+## Integration candidate and engine selection
+
+`--engine adaptive` names the current adaptive BCF path; `--engine fused` remains
+its compatibility alias, **not** the original full-cache-scanning prototype.
+`--engine auto` explicitly opts into availability-based selection: adaptive on
+Linux with helper >=0.2.0, otherwise legacy if the helper/platform is absent.
+An invalid explicit `VCFCACHE_ENGINE`, an outdated/broken executable, and runtime
+annotation errors fail rather than silently falling back. Auto never selects
+resident native. Python installs and the lean Docker target need no Rust helper.
+
+Adaptive and native share helper resolution/version checks, process handling,
+CPU-affinity restoration, header checks and destination-local output staging.
+The public default is deliberately unchanged pending release/platform checks.
+Stats retain the historical `engine: fused` value for compatibility and add
+`effective_engine: adaptive`, the original `requested_engine` and selection or
+fallback reasons. Use the effective backend when interpreting benchmarks:
+[the branch evaluation audit](../benchmarks/branch_eval/integration-review-20261023/BACKEND_AUDIT.md)
+shows that all native WGS requests **and VEP WES** fell back to adaptive.
 
 ## Resident WES prototype (`--engine native`)
 
-Requires helper **0.3.0**. This opt-in engine reads standard BCF/CSI directly;
+Requires helper **>=0.3.0** (current integration helper: **0.4.0**). This opt-in engine reads standard BCF/CSI directly;
 there is no new storage format, service or annotator-specific integration.
 
 ```sh
@@ -159,6 +178,12 @@ destination-local staging directory before rename; the two renames are not a
 filesystem transaction, so consumers must wait for successful completion.
 
 ## Derived-store experiment (not a production backend)
+
+The experiment is excluded from default builds, including the optional native
+Docker images. It did not justify another production backend. To reproduce the
+archived experiment explicitly, build with
+`cargo build --release --locked --features experimental-store --manifest-path native/Cargo.toml`.
+No new format is used by annotation or by the integration candidate.
 
 `vcfcache-engine store-build --cache CACHE.bcf --output NEW_DIRECTORY` explicitly
 builds a read-only mmap prototype containing plain BCF payloads, full variant
