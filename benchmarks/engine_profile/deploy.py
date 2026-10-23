@@ -62,7 +62,7 @@ def main():
             local = directory / name
             local.mkdir()
             archive = directory / f"{name}.tar"
-            paths = ["vcfcache", "resources", "pyproject.toml", "public_caches.yaml"]
+            paths = ["vcfcache", "resources", "pyproject.toml"]
             if name == "profile":
                 paths += [
                     "benchmarks/__init__.py",
