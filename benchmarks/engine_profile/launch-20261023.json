@@ -1,5 +1,8 @@
 {
   "launcher_job_id": "1334",
+  "group_job_ids": ["1335", "1336", "1337", "1338", "1339", "1340"],
+  "collector_job_id": "1341",
+  "collector_scheduler_adjustment": "scontrol update JobId=1341 ExcNodeList=sl-w5",
   "launcher_dependency": "afterok:1333",
   "launcher_log": "/results/deployment/engine-profile-20261023T190736Z-97545d739-launch-1334.out",
   "controller": "ubuntu@10.133.241.128",

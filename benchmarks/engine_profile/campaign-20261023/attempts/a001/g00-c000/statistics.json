@@ -1,0 +1,31 @@
+{
+  "annotation_yaml_md5": "33a5f93e383eb9ead67f9454b04b0e61",
+  "cache_name": "fastvep_clinical_grch38_af001",
+  "cache_path": "/mnt/data/tmp/engine-profile-g00-mw6ivdsq/bundle/cache/fastvep_clinical_grch38_af001",
+  "command": "annotate",
+  "engine": "legacy",
+  "genome_build_annotation": "GRCh38",
+  "genome_build_params": "GRCh38",
+  "input_file": "/mnt/data/tmp/engine-profile-g00-mw6ivdsq/inputs/wes.bcf",
+  "input_name": "wes.bcf",
+  "mode": "uncached",
+  "output_file": "/mnt/data/tmp/engine-profile-g00-mw6ivdsq/g00-c000/output.bcf",
+  "run_timestamp": "2026-10-23T21:19:50",
+  "statistics_level": "light",
+  "threads": 16,
+  "variant_counts": {
+    "annotated_output": 82714,
+    "dropped_variants": 0,
+    "input_variants": 82714,
+    "missing_annotated": null,
+    "missing_variants": null,
+    "tool_annotated": 82714,
+    "total_output": 82714
+  },
+  "variant_md5": {
+    "all": null,
+    "bottom10": null,
+    "top10": null
+  },
+  "vcfcache_version": "0.5.5"
+}

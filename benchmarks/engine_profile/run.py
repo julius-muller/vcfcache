@@ -378,6 +378,7 @@ def submit(args):
                     "--ntasks=1",
                     "--cpus-per-task=1",
                     "--mem=4000M",
+                    "--exclude=sl-w5",
                     "--time=01:00:00",
                     f"--dependency={dependency}",
                     f"--output={worker_root}/logs/collect-a{attempt}-%j.out",

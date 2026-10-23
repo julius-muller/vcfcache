@@ -1,0 +1,31 @@
+{
+  "annotation_yaml_md5": "46745032f587cf84caae3a50be8f0d21",
+  "cache_name": "veprs_core",
+  "cache_path": "/mnt/data/tmp/engine-profile-g04-3v_6_ev4/bundle/cache/veprs_core",
+  "command": "annotate",
+  "engine": "legacy",
+  "genome_build_annotation": "GRCh38",
+  "genome_build_params": "GRCh38",
+  "input_file": "/mnt/data/tmp/engine-profile-g04-3v_6_ev4/inputs/wes.bcf",
+  "input_name": "wes.bcf",
+  "mode": "uncached",
+  "output_file": "/mnt/data/tmp/engine-profile-g04-3v_6_ev4/g04-c000/output.bcf",
+  "run_timestamp": "2026-10-23T21:19:22",
+  "statistics_level": "light",
+  "threads": 16,
+  "variant_counts": {
+    "annotated_output": 108539,
+    "dropped_variants": 0,
+    "input_variants": 108539,
+    "missing_annotated": null,
+    "missing_variants": null,
+    "tool_annotated": 108539,
+    "total_output": 108539
+  },
+  "variant_md5": {
+    "all": null,
+    "bottom10": null,
+    "top10": null
+  },
+  "vcfcache_version": "0.5.5"
+}

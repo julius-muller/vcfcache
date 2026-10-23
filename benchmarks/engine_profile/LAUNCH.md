@@ -17,6 +17,44 @@ Launcher job: **1334**, dependency `afterok:1333`, with invalid dependencies
 cancelled. It submits the six groups and their automatic `afterany` collector
 only after successful preparation, without requiring this session to survive.
 
+Preparation and launcher completed successfully. Slurm accepted these jobs at
+21:18 CEST; all six groups have a six-hour allocation limit:
+
+| Job | Group | Sample | Recipe | Node |
+| --- | --- | --- | --- | --- |
+| 1335 | g00 | LP6005519-DNA_A06 | fastVEP clinical | sl-w2 |
+| 1336 | g01 | LP6005519-DNA_A06 | vep-rs core | sl-w4 |
+| 1337 | g02 | LP6005519-DNA_A06 | VEP everything | sl-w1 |
+| 1338 | g03 | LP6005592-DNA_C05 | fastVEP clinical | sl-w3 |
+| 1339 | g04 | LP6005592-DNA_C05 | vep-rs core | sl-w6 |
+| 1340 | g05 | LP6005592-DNA_C05 | VEP everything | sl-w2 |
+
+Collector **1341** depends on all six with `afterany`. After submission its
+`ExcNodeList` was explicitly set to `sl-w5`, matching the worker exclusion in the
+design. This scheduler-only correction does not change the frozen executable
+snapshot; later source includes the same exclusion when submitting collectors.
+At initial acceptance five groups were running and g05 was waiting for sl-w2.
+
+Frozen fixture counts: A06 **82,714 WES / 4,858,092 WGS** records; C05
+**108,539 WES / 6,169,350 WGS** records. All four are verified biallelic.
+The [manifest and accepted submissions](campaign-20261023/) are archived locally;
+the manifest SHA in `READY` protects the source/resource fingerprints.
+
+## Initial progress snapshot (not final results)
+
+The final pre-handoff collection recorded **12 complete, 5 running, 69 not yet
+started**, with no failed cells. Four instrumented vep-rs core WES cells
+(`g01-c002`, `g01-c003`, `g04-c002`, `g04-c003`) passed both strict direct and
+uninstrumented-cache comparisons. Their Python/Rust spans and independent Slurm
+cgroup counters were verified. No duplicate cgroup paths or trace parse errors
+were reported. The latest archived report is
+[6ce7d5758814fcfc](campaign-20261023/reports/6ce7d5758814fcfc/REPORT.md).
+
+The local campaign directory is an explicitly partial metadata snapshot: live
+jobs continue remotely. Large inputs, output BCFs and perf binaries are excluded
+from git; reference/failed outputs remain in the shared campaign directory.
+Recollect remotely for current progress or the final optimization assessment.
+
 ## Check status or collect later
 
 On the controller:

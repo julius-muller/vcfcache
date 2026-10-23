@@ -1,0 +1,87 @@
+cell	group	sample	recipe	assay	purpose	role	cpus	workers	memory_mb	profile	requested_engine	effective_engine	state	reason	direct_pass	instrumentation_equivalent	wall_seconds	cpu_seconds	peak_bytes	cgroup	attempts	aggregate_cpu_seconds	rbytes	wbytes	average_cpus	covered_phase_seconds	unattributed_seconds	profile_errors
+g00-c000	g00	LP6005519-DNA_A06	fastvep	wes	reference	direct	16	0	512	False	legacy	legacy	complete		True		47.267056976001186	86.220663	2757042176	/system.slice/sl-w2_slurmstepd.scope/job_1335/step_0/user/task_0	1	86.380284	0	0	1.8241174406897527	0.0	47.267056976001186	
+g00-c001	g00	LP6005519-DNA_A06	fastvep	wes	reference	cached	16	0	512	False	adaptive		running								1					0.0		
+g00-c002	g00	LP6005519-DNA_A06	fastvep	wes	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g00-c003	g00	LP6005519-DNA_A06	fastvep	wes	primary	measure	16	0	512	True	native		missing								0					0.0		
+g00-c004	g00	LP6005519-DNA_A06	fastvep	wgs	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g00-c005	g00	LP6005519-DNA_A06	fastvep	wgs	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g00-c006	g00	LP6005519-DNA_A06	fastvep	wgs	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g00-c007	g00	LP6005519-DNA_A06	fastvep	wgs	primary	measure	16	0	512	True	native		missing								0					0.0		
+g00-c008	g00	LP6005519-DNA_A06	fastvep	wes	cpu-scaling	measure	1	0	512	True	adaptive		missing								0					0.0		
+g00-c009	g00	LP6005519-DNA_A06	fastvep	wes	cpu-scaling	measure	1	0	512	True	native		missing								0					0.0		
+g00-c010	g00	LP6005519-DNA_A06	fastvep	wes	cpu-scaling	measure	8	0	512	True	adaptive		missing								0					0.0		
+g00-c011	g00	LP6005519-DNA_A06	fastvep	wes	cpu-scaling	measure	8	0	512	True	native		missing								0					0.0		
+g00-c012	g00	LP6005519-DNA_A06	fastvep	wes	worker-scaling	measure	16	2	512	True	adaptive		missing								0					0.0		
+g00-c013	g00	LP6005519-DNA_A06	fastvep	wes	worker-scaling	measure	16	2	512	True	native		missing								0					0.0		
+g00-c014	g00	LP6005519-DNA_A06	fastvep	wes	worker-scaling	measure	16	4	512	True	adaptive		missing								0					0.0		
+g00-c015	g00	LP6005519-DNA_A06	fastvep	wes	worker-scaling	measure	16	4	512	True	native		missing								0					0.0		
+g00-c016	g00	LP6005519-DNA_A06	fastvep	wes	worker-scaling	measure	16	8	512	True	adaptive		missing								0					0.0		
+g00-c017	g00	LP6005519-DNA_A06	fastvep	wes	worker-scaling	measure	16	8	512	True	native		missing								0					0.0		
+g00-c018	g00	LP6005519-DNA_A06	fastvep	wes	input-format	measure	16	0	512	True	adaptive		missing								0					0.0		
+g00-c019	g00	LP6005519-DNA_A06	fastvep	wes	input-preparation	measure	16	0	512	True	adaptive		missing								0					0.0		
+g00-c020	g00	LP6005519-DNA_A06	fastvep	wes	input-format	measure	16	0	512	True	native		missing								0					0.0		
+g00-c021	g00	LP6005519-DNA_A06	fastvep	wes	input-preparation	measure	16	0	512	True	native		missing								0					0.0		
+g00-c022	g00	LP6005519-DNA_A06	fastvep	wes	first-use-after-copy	measure	16	0	512	True	native		missing								0					0.0		
+g00-c023	g00	LP6005519-DNA_A06	fastvep	wes	repeated-access	measure	16	0	512	True	native		missing								0					0.0		
+g00-c024	g00	LP6005519-DNA_A06	fastvep	wes	instrumentation-pair-1	measure	16	0	512	True	native		missing								0					0.0		
+g00-c025	g00	LP6005519-DNA_A06	fastvep	wes	instrumentation-pair-1	measure	16	0	512	False	native		missing								0					0.0		
+g00-c026	g00	LP6005519-DNA_A06	fastvep	wes	instrumentation-pair-2	measure	16	0	512	False	native		missing								0					0.0		
+g00-c027	g00	LP6005519-DNA_A06	fastvep	wes	instrumentation-pair-2	measure	16	0	512	True	native		missing								0					0.0		
+g00-c028	g00	LP6005519-DNA_A06	fastvep	wes	instrumentation-pair-3	measure	16	0	512	True	native		missing								0					0.0		
+g00-c029	g00	LP6005519-DNA_A06	fastvep	wes	instrumentation-pair-3	measure	16	0	512	False	native		missing								0					0.0		
+g00-c030	g00	LP6005519-DNA_A06	fastvep	wes	stack-sampling	measure	16	0	512	True	adaptive		missing								0					0.0		
+g00-c031	g00	LP6005519-DNA_A06	fastvep	wes	stack-sampling	measure	16	0	512	True	native		missing								0					0.0		
+g01-c000	g01	LP6005519-DNA_A06	veprs-core	wes	reference	direct	16	0	512	False	legacy	legacy	complete		True		10.845603309999206	54.447207	4244983808	/system.slice/sl-w4_slurmstepd.scope/job_1336/step_0/user/task_0	1	54.481078	0	0	5.020210074418072	0.0	10.845603309999206	
+g01-c001	g01	LP6005519-DNA_A06	veprs-core	wes	reference	cached	16	0	512	False	adaptive	adaptive	complete		True		17.004322628999944	110.92396799999999	4405948416	/system.slice/sl-w4_slurmstepd.scope/job_1336/step_1/user/task_0	1	110.980328	0	0	6.523280604593165	0.0	17.004322628999944	
+g01-c002	g01	LP6005519-DNA_A06	veprs-core	wes	primary	measure	16	0	512	True	adaptive		running				18.687064933999864	113.854884	4407898112	/system.slice/sl-w4_slurmstepd.scope/job_1336/step_2/user/task_0	1	113.913982	0	0	6.092710888634451	16.294196299	2.3928686349998642	
+g01-c003	g01	LP6005519-DNA_A06	veprs-core	wes	primary	measure	16	0	512	True	native		missing								0					0.0		
+g01-c004	g01	LP6005519-DNA_A06	veprs-core	wgs	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g01-c005	g01	LP6005519-DNA_A06	veprs-core	wgs	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g01-c006	g01	LP6005519-DNA_A06	veprs-core	wgs	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g01-c007	g01	LP6005519-DNA_A06	veprs-core	wgs	primary	measure	16	0	512	True	native		missing								0					0.0		
+g01-c008	g01	LP6005519-DNA_A06	veprs-core	wgs	cpu-scaling	measure	1	0	512	True	adaptive		missing								0					0.0		
+g01-c009	g01	LP6005519-DNA_A06	veprs-core	wgs	cpu-scaling	measure	1	0	512	True	native		missing								0					0.0		
+g01-c010	g01	LP6005519-DNA_A06	veprs-core	wgs	cpu-scaling	measure	8	0	512	True	adaptive		missing								0					0.0		
+g01-c011	g01	LP6005519-DNA_A06	veprs-core	wgs	cpu-scaling	measure	8	0	512	True	native		missing								0					0.0		
+g01-c012	g01	LP6005519-DNA_A06	veprs-core	wgs	worker-scaling	measure	16	2	512	True	adaptive		missing								0					0.0		
+g01-c013	g01	LP6005519-DNA_A06	veprs-core	wgs	worker-scaling	measure	16	2	512	True	native		missing								0					0.0		
+g01-c014	g01	LP6005519-DNA_A06	veprs-core	wgs	worker-scaling	measure	16	4	512	True	adaptive		missing								0					0.0		
+g01-c015	g01	LP6005519-DNA_A06	veprs-core	wgs	worker-scaling	measure	16	4	512	True	native		missing								0					0.0		
+g01-c016	g01	LP6005519-DNA_A06	veprs-core	wgs	worker-scaling	measure	16	8	512	True	adaptive		missing								0					0.0		
+g01-c017	g01	LP6005519-DNA_A06	veprs-core	wgs	worker-scaling	measure	16	8	512	True	native		missing								0					0.0		
+g01-c018	g01	LP6005519-DNA_A06	veprs-core	wgs	memory	measure	16	0	2048	True	native		missing								0					0.0		
+g01-c019	g01	LP6005519-DNA_A06	veprs-core	wgs	memory	measure	16	0	8192	True	native		missing								0					0.0		
+g02-c000	g02	LP6005519-DNA_A06	vep	wes	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g02-c001	g02	LP6005519-DNA_A06	vep	wes	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g02-c002	g02	LP6005519-DNA_A06	vep	wes	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g02-c003	g02	LP6005519-DNA_A06	vep	wes	primary	measure	16	0	512	True	native		missing								0					0.0		
+g02-c004	g02	LP6005519-DNA_A06	vep	wgs	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g02-c005	g02	LP6005519-DNA_A06	vep	wgs	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g02-c006	g02	LP6005519-DNA_A06	vep	wgs	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g02-c007	g02	LP6005519-DNA_A06	vep	wgs	primary	measure	16	0	512	True	native		missing								0					0.0		
+g02-c008	g02	LP6005519-DNA_A06	vep	wes	memory	measure	16	0	2048	True	native		missing								0					0.0		
+g02-c009	g02	LP6005519-DNA_A06	vep	wes	memory	measure	16	0	8192	True	native		missing								0					0.0		
+g03-c000	g03	LP6005592-DNA_C05	fastvep	wes	reference	direct	16	0	512	False	legacy		running				62.32813113700104	116.66985	2752856064	/system.slice/sl-w3_slurmstepd.scope/job_1338/step_0/user/task_0	1	116.897912	0	0	1.8718650450717438	0.0	62.32813113700104	
+g03-c001	g03	LP6005592-DNA_C05	fastvep	wes	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g03-c002	g03	LP6005592-DNA_C05	fastvep	wes	primary	measure	16	0	512	True	native		missing								0					0.0		
+g03-c003	g03	LP6005592-DNA_C05	fastvep	wes	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g03-c004	g03	LP6005592-DNA_C05	fastvep	wgs	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g03-c005	g03	LP6005592-DNA_C05	fastvep	wgs	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g03-c006	g03	LP6005592-DNA_C05	fastvep	wgs	primary	measure	16	0	512	True	native		missing								0					0.0		
+g03-c007	g03	LP6005592-DNA_C05	fastvep	wgs	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g04-c000	g04	LP6005592-DNA_C05	veprs-core	wes	reference	direct	16	0	512	False	legacy	legacy	complete		True		9.290242941000542	54.470507000000005	4332691456	/system.slice/sl-w6_slurmstepd.scope/job_1339/step_0/user/task_0	1	54.503952	0	0	5.863195111895926	0.0	9.290242941000542	
+g04-c001	g04	LP6005592-DNA_C05	veprs-core	wes	reference	cached	16	0	512	False	adaptive	adaptive	complete		True		19.069257731000107	120.801502	4495196160	/system.slice/sl-w6_slurmstepd.scope/job_1339/step_1/user/task_0	1	121.221542	0	0	6.334882233177749	0.0	19.069257731000107	
+g04-c002	g04	LP6005592-DNA_C05	veprs-core	wes	primary	measure	16	0	512	True	native		running				17.90655426199919	78.277343	4774137856	/system.slice/sl-w6_slurmstepd.scope/job_1339/step_2/user/task_0	1	78.375766	0	0	4.371435277535114	13.709739814	4.19681444799919	
+g04-c003	g04	LP6005592-DNA_C05	veprs-core	wes	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g04-c004	g04	LP6005592-DNA_C05	veprs-core	wgs	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g04-c005	g04	LP6005592-DNA_C05	veprs-core	wgs	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g04-c006	g04	LP6005592-DNA_C05	veprs-core	wgs	primary	measure	16	0	512	True	native		missing								0					0.0		
+g04-c007	g04	LP6005592-DNA_C05	veprs-core	wgs	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g05-c000	g05	LP6005592-DNA_C05	vep	wes	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g05-c001	g05	LP6005592-DNA_C05	vep	wes	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g05-c002	g05	LP6005592-DNA_C05	vep	wes	primary	measure	16	0	512	True	native		missing								0					0.0		
+g05-c003	g05	LP6005592-DNA_C05	vep	wes	primary	measure	16	0	512	True	adaptive		missing								0					0.0		
+g05-c004	g05	LP6005592-DNA_C05	vep	wgs	reference	direct	16	0	512	False	legacy		missing								0					0.0		
+g05-c005	g05	LP6005592-DNA_C05	vep	wgs	reference	cached	16	0	512	False	adaptive		missing								0					0.0		
+g05-c006	g05	LP6005592-DNA_C05	vep	wgs	primary	measure	16	0	512	True	native		missing								0					0.0		
+g05-c007	g05	LP6005592-DNA_C05	vep	wgs	primary	measure	16	0	512	True	adaptive		missing								0					0.0		

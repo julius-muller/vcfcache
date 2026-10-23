@@ -1,0 +1,23 @@
+{
+  "cell": {
+    "assay": "wes",
+    "build": "baseline",
+    "cpus": 16,
+    "engine": "legacy",
+    "form": "bcf",
+    "id": "g02-c000",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": false,
+    "purpose": "reference",
+    "recipe": "vep",
+    "role": "direct",
+    "sample": "LP6005519-DNA_A06",
+    "skip_split": false,
+    "workers": 0
+  },
+  "job_id": "1337",
+  "node": "sl-w1",
+  "started_unix": 1792783275.8788307,
+  "state": "running"
+}
