@@ -20,8 +20,10 @@ from vcfcache.database.engine_runtime import (
     validate_info_headers,
 )
 from vcfcache.database.fused import run_fused
+from vcfcache.database.profiling import phase, profiled
 
 
+@profiled("native.attempt")
 def run_native(
     manager,
     cache,
@@ -59,11 +61,12 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     workers = workers or min(8, max(1, cpus // 2))
     validate_info_headers(manager.input_file, cache)
     bcftools = manager.params_file_content["bcftools_cmd"]
-    count = subprocess.run(
-        [bcftools, "index", "-n", str(manager.input_file)],
-        capture_output=True,
-        text=True,
-    )
+    with phase("native.index_preflight"):
+        count = subprocess.run(
+            [bcftools, "index", "-n", str(manager.input_file)],
+            capture_output=True,
+            text=True,
+        )
     if count.returncode == 0 and int(count.stdout) * 1024 > memory_mb * 1024 * 1024:
         # Even the minimum retained-record allowance cannot fit. Avoid reading
         # part of a WGS only to discover a predictable buffer-budget fallback.
@@ -142,7 +145,8 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                     raise RuntimeError(f"native engine stopped ({code}): {detail}")
                 return json.loads(line)
 
-            state = receive()
+            with phase("native.await_misses", child_pid=process.pid):
+                state = receive()
             if state["event"] == "fallback":
                 stage.aborted = True
                 process.wait()
@@ -180,9 +184,11 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                     )
                 if not Path(spec["annotated"]).exists():
                     raise RuntimeError("annotation recipe did not produce OUTPUT_BCF")
-                check = subprocess.run(
-                    [bcftools, "index", "-f", spec["annotated"]], capture_output=True
-                )
+                with phase("annotation.indexability_check"):
+                    check = subprocess.run(
+                        [bcftools, "index", "-f", spec["annotated"]],
+                        capture_output=True,
+                    )
                 if check.returncode:
                     pipelines.run(
                         f"{bcftools} sort {quote(spec['annotated'])} -Ob -o sorted.bcf && {bcftools} index sorted.bcf",

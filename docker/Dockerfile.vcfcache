@@ -33,6 +33,7 @@ COPY tests ./tests
 COPY benchmarks/*.py ./benchmarks/
 COPY benchmarks/fastvep_pilot/*.py ./benchmarks/fastvep_pilot/
 COPY benchmarks/branch_eval/*.py ./benchmarks/branch_eval/
+COPY benchmarks/engine_profile/*.py ./benchmarks/engine_profile/
 # Several tests assert that tracked manifests stay in step with the runner
 # allow-lists, so those small tables are needed too.
 COPY benchmarks/manifests ./benchmarks/manifests

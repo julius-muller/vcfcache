@@ -15,7 +15,10 @@ from pathlib import Path
 
 import pysam
 
+from vcfcache.database.profiling import phase, profiled
 
+
+@profiled("helper.resolve")
 def native_binary() -> str:
     """Resolve the opt-in executable; never compile during annotation."""
     override = os.environ.get("VCFCACHE_ENGINE")
@@ -39,6 +42,7 @@ def native_binary() -> str:
     )
 
 
+@profiled("headers.validate")
 def validate_info_headers(target, annotations):
     """Reject conflicting typed INFO definitions before an overlay can coerce data."""
     # Header-only reads do not need CSI indexes. Opening file objects avoids
@@ -102,7 +106,10 @@ class Pipelines:
                 )
                 self.active.add(process)
             try:
-                code = process.wait()
+                with phase(
+                    "pipeline." + label, task=directory.name, child_pid=process.pid
+                ):
+                    code = process.wait()
                 if code:
                     self.stop()
                     detail = (directory / f"{label}.stderr").read_text(
@@ -147,6 +154,7 @@ def cpu_affinity(threads):
         os.sched_setaffinity(0, previous)
 
 
+@profiled("helper.version")
 def helper_version(binary, minimum):
     """Validate an explicitly resolved helper before starting any annotation."""
     version = subprocess.check_output([binary, "--version"], text=True).strip()
@@ -191,8 +199,9 @@ def staged_output(target, prefix):
         staged = stage.path
         if not staged.is_file() or not Path(str(staged) + ".csi").is_file():
             raise RuntimeError("routing did not produce both BCF and CSI")
-        os.replace(str(staged) + ".csi", str(target) + ".csi")
-        os.replace(staged, target)
+        with phase("output.publish"):
+            os.replace(str(staged) + ".csi", str(target) + ".csi")
+            os.replace(staged, target)
 
 
 @dataclass

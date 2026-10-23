@@ -33,8 +33,10 @@ from vcfcache.database.engine_runtime import (
     staged_output,
     validate_info_headers,
 )
+from vcfcache.database.profiling import profiled
 
 
+@profiled("adaptive.attempt")
 def run_fused(
     manager,
     cache,

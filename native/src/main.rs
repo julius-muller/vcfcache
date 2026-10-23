@@ -12,6 +12,7 @@ use std::io::{BufReader, BufWriter, Read as IoRead, Write};
 use std::path::{Path, PathBuf};
 
 mod adaptive;
+mod profiling;
 mod resident;
 #[cfg(feature = "experimental-store")]
 mod store;
@@ -137,6 +138,7 @@ mod tests {
 }
 
 fn route(hits: &Path, misses: &Path, order: &Path, stats: &Path, tag: &str) -> Result<()> {
+    let _span = profiling::Span::new("adaptive.route_split_spool");
     let mut reader = bcf::Reader::from_stdin()?;
     let header = bcf::Header::from_template(reader.header());
     let mut hit_writer = bcf::Writer::from_path(hits, &header, true, bcf::Format::Bcf)?;
@@ -224,6 +226,7 @@ fn assemble(
     output: OutputOptions<'_>,
 ) -> Result<()> {
     let mut hits = bcf::Reader::from_path(hits)?;
+    let _span = profiling::Span::new("adaptive.assemble_encode");
     let mut misses = if misses == Path::new("-") {
         bcf::Reader::from_stdin()?
     } else {

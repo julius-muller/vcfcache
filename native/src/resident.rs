@@ -328,6 +328,9 @@ fn lookup(
     mode: &str,
     pool: Option<&CodecPool>,
 ) -> Result<(u64, u64)> {
+    let mut worker_span = super::profiling::Span::new("native.lookup.worker");
+    worker_span.details(serde_json::json!({"input_records":entries.len(), "mode":mode}));
+    let setup_span = super::profiling::Span::new("native.lookup.setup");
     let mut reader = CacheReader::open(cache)?;
     if let Some(pool) = pool {
         let mut setting = htslib::htsThreadPool {
@@ -375,6 +378,8 @@ fn lookup(
         }
     }
     let mut seen = HashSet::new();
+    drop(setup_span);
+    let mut query_span = super::profiling::Span::new("native.lookup.query_decode_overlay");
     let mut candidates = 0;
     for &(rid, start, end) in &windows {
         candidates += reader.query(rid, start, end, |source| {
@@ -422,10 +427,13 @@ fn lookup(
             Ok(())
         })?;
     }
+    query_span.details(serde_json::json!({"candidates":candidates, "queries":windows.len(), "buffer_bytes":memory.load(Ordering::Relaxed)}));
     Ok((candidates, windows.len() as u64))
 }
 
 fn execute(job: &Job) -> Result<()> {
+    let _attempt = super::profiling::Span::new("native.execute");
+    let prepare_span = super::profiling::Span::new("native.prepare_decode_split_stream");
     let mut stats = Stats::default();
     let start = Instant::now();
     let mut input = bcf::Reader::from_path(&job.input)?;
@@ -481,8 +489,10 @@ fn execute(job: &Job) -> Result<()> {
         });
     }
     stats.input_variants = entries.len() as u64;
+    drop(prepare_span);
     timed(&mut stats, "prepare", start);
     let start = Instant::now();
+    let lookup_span = super::profiling::Span::new("native.lookup");
     let workers = job.workers.max(1).min(entries.len().max(1));
     let size = entries.len().max(1).div_ceil(workers);
     let codec_threads = job.cpus.saturating_sub(workers);
@@ -536,14 +546,18 @@ fn execute(job: &Job) -> Result<()> {
         Ok(())
     })?;
     drop(pool);
+    drop(lookup_span);
     timed(&mut stats, "lookup", start);
     stats.buffer_bytes = memory.load(Ordering::Relaxed);
+    let classify_span = super::profiling::Span::new("native.classify_misses");
     let mut buffer = bcf::record::Buffer::new();
     for entry in &mut entries {
         entry.missing = !super::annotated(&entry.record, job.tag.as_bytes(), &mut buffer)?;
         stats.missing_variants += u64::from(entry.missing);
     }
+    drop(classify_span);
     if stats.missing_variants > 0 {
+        let _span = super::profiling::Span::new("native.spool_misses");
         let writer = super::adaptive::Spool::new(&job.misses, &header)?;
         for entry in entries.iter().filter(|e| e.missing) {
             writer.write(&header, &entry.record)?;
@@ -553,6 +567,7 @@ fn execute(job: &Job) -> Result<()> {
     event(
         serde_json::json!({"event":"misses-ready","input_variants":stats.input_variants,"missing_variants":stats.missing_variants,"buffer_bytes":stats.buffer_bytes}),
     )?;
+    let wait_span = super::profiling::Span::new("native.await_annotation");
     let mut line = String::new();
     ensure!(
         std::io::stdin().lock().read_line(&mut line)? > 0,
@@ -560,6 +575,8 @@ fn execute(job: &Job) -> Result<()> {
     );
     let response: serde_json::Value = serde_json::from_str(&line)?;
     ensure!(response["action"] == "resume", "controller aborted");
+    drop(wait_span);
+    let preflight_span = super::profiling::Span::new("native.merge_preflight");
     let start = Instant::now();
     let mut recipe_reader = None;
     let mut recipe_fields = Vec::new();
@@ -660,7 +677,9 @@ fn execute(job: &Job) -> Result<()> {
         recipe_reader = Some(annotations);
     }
     timed(&mut stats, "merge-preflight", start);
+    drop(preflight_span);
     let start = Instant::now();
+    let write_span = super::profiling::Span::new("native.construct_encode_output");
     let writer =
         super::adaptive::Spool::new_compressed(&job.output, &header, job.cpus.saturating_sub(1))?;
     let mut first_output = None;
@@ -711,8 +730,12 @@ fn execute(job: &Job) -> Result<()> {
             stats.output_variants += 1;
         }
     }
+    drop(write_span);
+    let finish_span = super::profiling::Span::new("native.finalize_output");
     writer.finish()?;
+    drop(finish_span);
     if let Some((rid, pos)) = first_output {
+        let _span = super::profiling::Span::new("native.verify_output_index");
         let mut verify = CacheReader::open(&job.output)?;
         ensure!(
             verify.query(rid, pos, pos + 1, |_| Ok(()))? > 0,

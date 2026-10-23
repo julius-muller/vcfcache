@@ -186,10 +186,13 @@ impl Spool {
     }
 
     pub(super) fn finish(mut self) -> Result<()> {
+        let index_span = super::profiling::Span::new("bcf.index_save_flush");
         ensure!(
             unsafe { htslib::bcf_idx_save(self.file) } == 0,
             "cannot save normalized CSI"
         );
+        drop(index_span);
+        let _close_span = super::profiling::Span::new("bcf.close_drain_codecs");
         let file = std::mem::replace(&mut self.file, ptr::null_mut());
         ensure!(
             unsafe { htslib::hts_close(file) } == 0,
@@ -208,6 +211,7 @@ impl Drop for Spool {
 }
 
 pub fn prepare(output: &Path, metadata: &Path, cache: &Path) -> Result<()> {
+    let _span = super::profiling::Span::new("adaptive.prepare_decode_index_spool");
     let mut reader = bcf::Reader::from_stdin()?;
     let spool = Spool::new(output, reader.header())?;
     let index = CacheIndex::open(cache)?;

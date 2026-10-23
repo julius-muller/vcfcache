@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Union
 
 import yaml
 
+from vcfcache.database.profiling import profiled
 from vcfcache.database.workflow_base import WorkflowBase
 from vcfcache.utils.logging import setup_logging
 
@@ -125,6 +126,7 @@ class WorkflowManager(WorkflowBase):
     while maintaining identical functionality and output.
     """
 
+    @profiled("workflow.config_and_setup")
     def __init__(
         self,
         input_file: Path,
