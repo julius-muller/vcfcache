@@ -353,7 +353,9 @@ def collect(root, write=True):
     if shutil.which("Rscript"):
         with (destination / "plot.log").open("w") as log:
             result = subprocess.run(
-                ["Rscript", str(script), str(destination)], stdout=log, stderr=log
+                ["Rscript", "--vanilla", str(script), str(destination)],
+                stdout=log,
+                stderr=log,
             )
         (destination / "plot-status.txt").write_text(
             f"Rscript exit {result.returncode}\n"
