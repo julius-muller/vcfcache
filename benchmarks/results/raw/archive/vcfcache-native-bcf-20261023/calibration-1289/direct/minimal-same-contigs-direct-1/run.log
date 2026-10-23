@@ -1,0 +1,14 @@
+[10:51:33] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[10:51:33] Genome build (params.yaml): GRCh38
+[10:51:33] Genome build (annotation.yaml): GRCh38
+[10:51:33] Initializing annotation of minimal-same-contigs.bcf
+[10:51:33] Running workflow in mode: annotate-nocache
+[10:51:33] Annotating sample directly (no cache)
+[10:51:33] Splitting multiallelic variants and removing spanning deletions
+[10:51:33] Command completed in 0.105s: bcftools norm
+[10:51:39] Command completed in 5.774s: bcftools view
+[10:51:39] Direct annotation complete: /mnt/data/tmp/native-calibration-1289/runs/minimal-same-contigs-direct-1/output.bcf
+[10:51:39] Workflow completed successfully in 6.0s
+Computing MD5 for /mnt/data/tmp/native-calibration-1289/runs/minimal-same-contigs-direct-1/minimal-same-contigs_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating minimal-same-contigs.bcf (uncached mode)...
+Annotation completed in 6.0s

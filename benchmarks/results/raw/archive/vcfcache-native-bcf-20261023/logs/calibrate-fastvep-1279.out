@@ -1,0 +1,13 @@
+[E::idx_find_and_load] Could not retrieve index file for '-'
+Failed to read from standard input: could not load index
+Failed to read from standard input: unknown file type
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/results/deployment/vcfcache-native-pilot-20261023c/benchmarks/native_bcf/calibrate.py", line 85, in <module>
+    main()
+  File "/results/deployment/vcfcache-native-pilot-20261023c/benchmarks/native_bcf/calibrate.py", line 33, in main
+    subprocess.run(["bash", "-euo", "pipefail", "-c", command], check=True)
+  File "/home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['bash', '-euo', 'pipefail', '-c', 'bcftools norm -m- /mnt/data/tmp/native-fastvep-1273/inputs/LP6005519-DNA_A06.wes.bcf -Ou | bcftools annotate -a /mnt/data/tmp/native-fastvep-1273/full/cache/fastvep_clinical_grch38_af001/vcfcache_annotated.bcf -c INFO -Ou | bcftools view -i \'INFO/CSQ==""\' -Ob -W -o /mnt/data/tmp/native-calibration-1279/misses.bcf']' returned non-zero exit status 255.

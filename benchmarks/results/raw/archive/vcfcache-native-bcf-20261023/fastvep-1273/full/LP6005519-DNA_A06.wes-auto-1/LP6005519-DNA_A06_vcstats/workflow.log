@@ -1,0 +1,49 @@
+[2026-10-23 10:16:27] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/native-fastvep-1273/full-runs/LP6005519-DNA_A06.wes-auto-1/LP6005519-DNA_A06_vcstats/workflow.log
+[2026-10-23 10:16:27] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 10:16:27] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/native-fastvep-1273/full-runs/LP6005519-DNA_A06.wes-auto-1/LP6005519-DNA_A06_vcstats
+[2026-10-23 10:16:27] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/native-fastvep-1273/full-runs/LP6005519-DNA_A06.wes-auto-1/LP6005519-DNA_A06_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 10:16:27] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/tmp/native-fastvep-1273/full/cache/fastvep_clinical_grch38_af001/annotation.yaml
+[2026-10-23 10:16:27] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-23 10:16:27] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-23 10:16:27] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 10:16:27] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-fastvep-1273/inputs/LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:16:27] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 10:16:27] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:16:27] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/native-fastvep-1273/full/cache/fastvep_clinical_grch38_af001/vcfcache_annotated.bcf
+[2026-10-23 10:16:27] DEBUG [vcfcache.annotator.py.annotate:891] Starting VCF annotation
+[2026-10-23 10:16:27] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-fastvep-1273/full/cache/fastvep_clinical_grch38_af001/vcfcache_annotated.bcf
+[2026-10-23 10:16:27] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-fastvep-1273/inputs/LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:16:27] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=22 overlap=22
+[2026-10-23 10:16:27] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-23 10:16:27] DEBUG [vcfcache.workflow_manager.py._create_work_dir:997] Created work directory: /mnt/data/tmp/native-fastvep-1273/full-runs/LP6005519-DNA_A06.wes-auto-1/LP6005519-DNA_A06_vcstats/work
+[2026-10-23 10:16:27] INFO [vcfcache.workflow_manager.py.run:310] Running workflow in mode: annotate
+[2026-10-23 10:16:27] INFO [vcfcache.fused.py._run_fused:239] Fused engine: vcfcache-engine 0.3.0; preparation workers=4; CPU budget=16
+[2026-10-23 10:16:28] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.387s
+[2026-10-23 10:16:28] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.384s
+[2026-10-23 10:16:28] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.422s
+[2026-10-23 10:16:28] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.479s
+[2026-10-23 10:16:28] INFO [vcfcache.fused.py._run_fused:299] Adaptive lookup: workers=4; codec threads=2; tasks=8; mode=auto
+[2026-10-23 10:16:29] INFO [vcfcache.fused.py.run:142] Fused route completed in 0.998s
+[2026-10-23 10:16:30] INFO [vcfcache.fused.py.run:142] Fused route completed in 1.879s
+[2026-10-23 10:16:34] INFO [vcfcache.fused.py.run:142] Fused route completed in 4.634s
+[2026-10-23 10:16:34] INFO [vcfcache.fused.py.run:142] Fused route completed in 3.783s
+[2026-10-23 10:16:34] INFO [vcfcache.fused.py.run:142] Fused route completed in 6.198s
+[2026-10-23 10:16:35] INFO [vcfcache.fused.py.run:142] Fused route completed in 7.250s
+[2026-10-23 10:16:37] INFO [vcfcache.fused.py.run:142] Fused route completed in 3.337s
+[2026-10-23 10:16:38] INFO [vcfcache.fused.py.run:142] Fused route completed in 4.269s
+[2026-10-23 10:16:38] INFO [vcfcache.fused.py.run:142] Fused collect-misses completed in 0.214s
+[2026-10-23 10:17:14] INFO [vcfcache.fused.py.run:142] Fused annotate-misses completed in 36.239s
+[2026-10-23 10:17:15] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.289s
+[2026-10-23 10:17:15] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.588s
+[2026-10-23 10:17:15] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.889s
+[2026-10-23 10:17:15] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.940s
+[2026-10-23 10:17:15] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.723s
+[2026-10-23 10:17:16] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.780s
+[2026-10-23 10:17:16] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.671s
+[2026-10-23 10:17:16] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.761s
+[2026-10-23 10:17:16] INFO [vcfcache.fused.py.run:142] Fused gather completed in 0.266s
+[2026-10-23 10:17:17] INFO [vcfcache.fused.py.run:142] Fused index completed in 0.374s
+[2026-10-23 10:17:17] DEBUG [vcfcache.workflow_manager.py._write_trace_file:983] Trace file written to: /mnt/data/tmp/native-fastvep-1273/full-runs/LP6005519-DNA_A06.wes-auto-1/LP6005519-DNA_A06_vcstats/fastvep_clinical_grch38_af001_trace.txt
+[2026-10-23 10:17:17] INFO [vcfcache.workflow_manager.py.run:374] Workflow completed successfully in 49.7s
+[2026-10-23 10:17:17] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1009] Cleaning up work directory
+[2026-10-23 10:17:17] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1012] Removing work directory: /mnt/data/tmp/native-fastvep-1273/full-runs/LP6005519-DNA_A06.wes-auto-1/LP6005519-DNA_A06_vcstats/work

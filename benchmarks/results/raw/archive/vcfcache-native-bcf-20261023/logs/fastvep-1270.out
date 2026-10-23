@@ -1,0 +1,13 @@
+{"input": "/mnt/data/tmp/native-fastvep-1270/inputs/LP6005519-DNA_A06.wes.bcf", "arm": "auto", "rep": 1, "wall_seconds": 49.45784425083548, "orchestration_wall_seconds": 49.68563585728407, "semantic_pass": true}
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/results/deployment/vcfcache-native-pilot-20261023a/benchmarks/adaptive_routing.py", line 333, in <module>
+    main()
+  File "/results/deployment/vcfcache-native-pilot-20261023a/benchmarks/adaptive_routing.py", line 300, in main
+    comparison = strict_semantic_compare(result, reference)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/results/deployment/vcfcache-native-pilot-20261023a/benchmarks/run_pilot.py", line 937, in strict_semantic_compare
+    raise RuntimeError(
+RuntimeError: bcftools view failed: cached=9 Error: BCF read error
+; uncached=0 

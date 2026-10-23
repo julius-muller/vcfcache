@@ -296,6 +296,10 @@ parallel, and annotates misses once. See the [engineering validation and
 limitations](benchmarks/adaptive_routing/RESULTS.md). The default remains the
 legacy engine.
 
+The experimental `--engine native` resident WES path (helper >=0.3.0) removes
+normal-path hit spools and shard assembly while retaining BCF/CSI and arbitrary
+recipes. See [its measured results and limitations](benchmarks/native_bcf/RESULTS.md).
+
 - **Full Documentation**: [WIKI.md](WIKI.md)
 - **Performance Model**: [WIKI.md - Section 11](WIKI.md#11-performance-model-runtime-efficiency)
 - **CLI Reference**: [WIKI.md - Section 10](WIKI.md#10-cli-reference-all-commands--flags)

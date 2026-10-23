@@ -1,0 +1,37 @@
+[10:54:39] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[10:54:39] Genome build (params.yaml): GRCh38
+[10:54:39] Genome build (annotation.yaml): GRCh38
+[10:54:39] Initializing annotation of LP6005519-DNA_A06.GRCh38.small_variants.vcf.gz
+[10:54:39] Contig overlap: cache=24 input=22 overlap=22
+[10:54:39] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[10:54:39] Running workflow in mode: annotate
+[10:54:40] Fused engine: vcfcache-engine 0.3.0; preparation workers=4; CPU budget=16
+[10:54:43] Fused preprocess completed in 2.826s
+[10:54:45] Fused preprocess completed in 4.535s
+[10:54:45] Fused preprocess completed in 4.707s
+[10:54:45] Fused preprocess completed in 4.918s
+[10:54:45] Adaptive lookup: workers=4; codec threads=2; tasks=8; mode=auto
+[10:54:52] Fused route completed in 6.419s
+[10:54:56] Fused route completed in 10.050s
+[10:54:56] Fused route completed in 10.274s
+[10:54:57] Fused route completed in 11.422s
+[10:54:59] Fused route completed in 1.803s
+[10:55:02] Fused route completed in 10.002s
+[10:55:03] Fused route completed in 7.718s
+[10:55:04] Fused route completed in 8.306s
+[10:55:05] Fused collect-misses completed in 1.027s
+[10:56:05] Fused annotate-misses completed in 59.717s
+[10:56:13] Fused assemble completed in 5.690s
+[10:56:15] Fused assemble completed in 8.341s
+[10:56:16] Fused assemble completed in 8.992s
+[10:56:17] Fused assemble completed in 9.785s
+[10:56:18] Fused assemble completed in 1.322s
+[10:56:21] Fused assemble completed in 8.212s
+[10:56:22] Fused assemble completed in 6.915s
+[10:56:23] Fused assemble completed in 6.954s
+[10:56:24] Fused gather completed in 1.451s
+[10:56:28] Fused index completed in 3.820s
+[10:56:28] Workflow completed successfully in 108.8s
+Computing MD5 for /mnt/data/tmp/native-controls-1287/wgs-runs/LP6005519-DNA_A06.GRCh38.small_variants.vcf-auto-1/LP6005519-DNA_A06_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating LP6005519-DNA_A06.GRCh38.small_variants.vcf.gz (cached mode)...
+Annotation completed in 109.2s

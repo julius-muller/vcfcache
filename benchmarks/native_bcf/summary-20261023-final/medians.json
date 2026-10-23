@@ -1,0 +1,353 @@
+[
+  {
+    "experiment": "calibration-1288/direct",
+    "sample": "minimal-same-contigs",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 12.112489382736385,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "calibration-1288/direct",
+    "sample": "misses",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 39.00242143403739,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "calibration-1289/direct",
+    "sample": "minimal-same-contigs",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 6.612743134610355,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "calibration-1289/direct",
+    "sample": "misses",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 7.368486560881138,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "calibration-1290/direct",
+    "sample": "minimal-same-contigs",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 7.58265246450901,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "calibration-1290/direct",
+    "sample": "misses",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 13.983880030922592,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "controls-1287/benchmark",
+    "sample": "all-hit-control",
+    "arm": "auto",
+    "runs": 3,
+    "cli_seconds": 12.793330459855497,
+    "cache_side_seconds": 12.793330459855497,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "controls-1287/benchmark",
+    "sample": "all-hit-control",
+    "arm": "native",
+    "runs": 3,
+    "cli_seconds": 6.032147374935448,
+    "cache_side_seconds": 6.032147374935448,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "controls-1287/wgs",
+    "sample": "LP6005519-DNA_A06.GRCh38.small_variants.vcf",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 112.05402681604028,
+    "cache_side_seconds": 52.336550395935774,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1270/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 49.45784425083548,
+    "cache_side_seconds": 14.913924891501665,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 51.140690544620156,
+    "cache_side_seconds": 14.901268647052348,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 53.054686467163265,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 41.09466581698507,
+    "cache_side_seconds": 8.144739002920687,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/full",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 54.605187960900366,
+    "cache_side_seconds": 15.433687187731266,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/full",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 55.247174066491425,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/full",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 46.25745846237987,
+    "cache_side_seconds": 10.670790886506438,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/projected",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 41.99880619626492,
+    "cache_side_seconds": 5.5060496078804135,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/projected",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 50.414422042667866,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/projected",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 39.22945175692439,
+    "cache_side_seconds": 6.201544497162104,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/projected",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 44.43795140553266,
+    "cache_side_seconds": 6.555085989646614,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/projected",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 53.44783044047654,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "fastvep-1273/projected",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 50.00537984073162,
+    "cache_side_seconds": 9.51247077435255,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "final-1285",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 42.90539048332721,
+    "cache_side_seconds": 8.094922687858343,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "final-1286",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 13.45919802132994,
+    "cache_side_seconds": 6.789405381307006,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-clinical-1277/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 35.437185942195356,
+    "cache_side_seconds": 12.274134658277035,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-clinical-1277/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 67.49822166468948,
+    "cache_side_seconds": null,
+    "semantic_pass": false
+  },
+  {
+    "experiment": "veprs-clinical-1277/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 18.852198470383883,
+    "cache_side_seconds": 7.384256008081138,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 23.71488536335528,
+    "cache_side_seconds": 10.05784208420664,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 9.422419973649085,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/full",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 12.943458089604974,
+    "cache_side_seconds": 6.680257827974856,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/full",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 17.82279786001891,
+    "cache_side_seconds": 10.647263863123953,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/full",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 9.32474590651691,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/full",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 15.35422517452389,
+    "cache_side_seconds": 7.612967881374061,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/projected",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 11.618191002868116,
+    "cache_side_seconds": 4.56846812646836,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/projected",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 9.245902466587722,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/projected",
+    "sample": "LP6005519-DNA_A06.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 11.058417364954948,
+    "cache_side_seconds": 5.029888762161136,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/projected",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 12.779092207551003,
+    "cache_side_seconds": 5.381170350126922,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/projected",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "direct",
+    "runs": 1,
+    "cli_seconds": 8.997624859213829,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "experiment": "veprs-core-1276/projected",
+    "sample": "LP6005592-DNA_C05.wes",
+    "arm": "native",
+    "runs": 1,
+    "cli_seconds": 13.077779475599527,
+    "cache_side_seconds": 6.337844575755298,
+    "semantic_pass": true
+  }
+]

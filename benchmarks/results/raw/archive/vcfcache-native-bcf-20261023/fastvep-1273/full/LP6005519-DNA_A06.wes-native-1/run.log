@@ -1,0 +1,12 @@
+[10:17:27] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[10:17:27] Genome build (params.yaml): GRCh38
+[10:17:27] Genome build (annotation.yaml): GRCh38
+[10:17:27] Initializing annotation of LP6005519-DNA_A06.wes.bcf
+[10:17:28] Contig overlap: cache=24 input=22 overlap=22
+[10:17:28] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[10:17:28] Running workflow in mode: annotate
+[10:18:05] Fused annotate-misses completed in 32.950s
+[10:18:08] Workflow completed successfully in 40.2s
+Computing MD5 for /mnt/data/tmp/native-fastvep-1273/full-runs/LP6005519-DNA_A06.wes-native-1/LP6005519-DNA_A06_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating LP6005519-DNA_A06.wes.bcf (cached mode)...
+Annotation completed in 40.4s

@@ -1,0 +1,73 @@
+[2026-10-23 10:27:18] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/workflow.log
+[2026-10-23 10:27:18] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 10:27:18] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats
+[2026-10-23 10:27:18] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 10:27:18] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/tmp/native-veprs-1276/projected/cache/veprs_core/annotation.yaml
+[2026-10-23 10:27:18] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-23 10:27:18] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-23 10:27:18] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 10:27:18] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-veprs-1276/inputs/LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:27:18] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 10:27:18] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:27:18] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/native-veprs-1276/projected/cache/veprs_core/vcfcache_annotated.bcf
+[2026-10-23 10:27:18] DEBUG [vcfcache.annotator.py.annotate:891] Starting VCF annotation
+[2026-10-23 10:27:18] DEBUG [vcfcache.workflow_manager.py._create_work_dir:997] Created work directory: /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/work
+[2026-10-23 10:27:18] INFO [vcfcache.workflow_manager.py.run:310] Running workflow in mode: annotate-nocache
+[2026-10-23 10:27:18] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:800] Annotating sample directly (no cache)
+[2026-10-23 10:27:18] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:830] Splitting multiallelic variants and removing spanning deletions
+[2026-10-23 10:27:18] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/work/annotate-nocache
+[2026-10-23 10:27:18] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools norm -m- /mnt/data/tmp/native-veprs-1276/inputs/LP6005519-DNA_A06.wes.bcf -Ob | bcftools view -e 'ALT="*"' -o /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/work/annotate-nocache/LP6005519-DNA_A06.wes_normalized.bcf -Ob -W --threads 16
+[2026-10-23 10:27:19] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 0.925s: bcftools norm
+[2026-10-23 10:27:19] DEBUG [vcfcache.workflow_manager.py.run:107] STDERR: Lines   total/split/joined/realigned/removed/skipped:	82714/0/0/0/0/0
+
+[2026-10-23 10:27:19] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/work/annotate-nocache
+[2026-10-23 10:27:19] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools view /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/work/annotate-nocache/LP6005519-DNA_A06.wes_normalized.bcf -Ov | /results/veprs/dist/vep --assembly GRCh38 --json_cache /results/veprs/json_cache/GRCh38_native_20261023 --fork 16 --vcf --no_stats --input_file STDIN --output_file STDOUT  | bcftools view -Ob -W --threads 16 -o /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/output.bcf
+[2026-10-23 10:27:27] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 7.548s: bcftools view
+[2026-10-23 10:27:27] DEBUG [vcfcache.workflow_manager.py.run:107] STDERR: -------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-23T08:27:19.594917Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: STDIN
+[2m2026-10-23T08:27:19.594948Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: STDOUT
+[2m2026-10-23T08:27:19.594955Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vcf
+[2m2026-10-23T08:27:19.597315Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 16 threads for annotation
+[2m2026-10-23T08:27:19.597340Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_native_20261023 (lazy per-chromosome, index impl=bin)
+[2m2026-10-23T08:27:20.080960Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr1: 47849 transcripts
+[2m2026-10-23T08:27:20.467907Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr2: 38171 transcripts
+
+Processed 10000 variants...[2m2026-10-23T08:27:20.795893Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr3: 31093 transcripts
+[2m2026-10-23T08:27:21.051734Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr4: 21381 transcripts
+
+Processed 20000 variants...[2m2026-10-23T08:27:21.337800Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr5: 23976 transcripts
+[2m2026-10-23T08:27:21.618391Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr6: 25540 transcripts
+
+Processed 30000 variants...[2m2026-10-23T08:27:21.913136Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr7: 26815 transcripts
+[2m2026-10-23T08:27:22.177267Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr8: 20864 transcripts
+[2m2026-10-23T08:27:22.400975Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr9: 21283 transcripts
+
+Processed 40000 variants...[2m2026-10-23T08:27:22.679298Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr10: 20847 transcripts
+[2m2026-10-23T08:27:23.000586Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr11: 27423 transcripts
+
+Processed 50000 variants...[2m2026-10-23T08:27:23.268292Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr12: 25891 transcripts
+[2m2026-10-23T08:27:23.372999Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr13: 9990 transcripts
+[2m2026-10-23T08:27:23.542966Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr14: 16985 transcripts
+[2m2026-10-23T08:27:23.701629Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr15: 17823 transcripts
+
+Processed 60000 variants...[2m2026-10-23T08:27:23.906522Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr16: 20499 transcripts
+[2m2026-10-23T08:27:24.172219Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr17: 25870 transcripts
+
+Processed 70000 variants...[2m2026-10-23T08:27:24.281426Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr18: 9463 transcripts
+[2m2026-10-23T08:27:24.490405Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr19: 25140 transcripts
+[2m2026-10-23T08:27:24.618388Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr20: 12611 transcripts
+[2m2026-10-23T08:27:24.680420Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr21: 6752 transcripts
+
+Processed 80000 variants...[2m2026-10-23T08:27:24.835313Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+
+Processed 82714 variants...
+Processed 82714 variants (1448441 consequences) in 5.3s using 16 threads
+
+[2026-10-23 10:27:27] DEBUG [vcfcache.workflow_manager.py._validate_info_tag:965] Validated INFO tag 'CSQ' present in /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/output.bcf
+[2026-10-23 10:27:27] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:872] Direct annotation complete: /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/output.bcf
+[2026-10-23 10:27:27] DEBUG [vcfcache.workflow_manager.py._write_trace_file:983] Trace file written to: /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/veprs_core_trace.txt
+[2026-10-23 10:27:27] INFO [vcfcache.workflow_manager.py.run:374] Workflow completed successfully in 8.6s
+[2026-10-23 10:27:27] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1009] Cleaning up work directory
+[2026-10-23 10:27:27] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1012] Removing work directory: /mnt/data/tmp/native-veprs-1276/projected-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/work

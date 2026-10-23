@@ -1,0 +1,18 @@
+## Docker Cache Build Configuration
+## Minimal params for building cache from pre-generated gnomAD BCF
+
+## * REQUIRED RESOURCES *
+annotation_tool_cmd: "vep"  # Not used during cache init
+tool_version_command: "vep | awk '/ensembl-vep/ {print $NF}'"
+# Bundled bcftools works with Python 3.14/Trixie (GLIBC 2.41)
+bcftools_cmd: "bcftools"
+temp_dir: "/tmp"
+
+## * OPTIONAL RESOURCES *
+vep_buffer: 500000
+vep_forks: 8
+vep_cache: "/opt/vep_cache"  # Placeholder
+
+## * OPTIONAL CHECKS *
+optional_checks:
+  genome_build: "GRCh38"

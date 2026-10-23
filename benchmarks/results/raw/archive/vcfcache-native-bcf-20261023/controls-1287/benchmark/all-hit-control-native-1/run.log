@@ -1,0 +1,11 @@
+[10:53:03] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[10:53:03] Genome build (params.yaml): GRCh38
+[10:53:03] Genome build (annotation.yaml): GRCh38
+[10:53:03] Initializing annotation of all-hit-control.bcf
+[10:53:03] Contig overlap: cache=24 input=22 overlap=22
+[10:53:03] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[10:53:03] Running workflow in mode: annotate
+[10:53:08] Workflow completed successfully in 5.1s
+Computing MD5 for /mnt/data/tmp/native-controls-1287/runs/all-hit-control-native-1/all-hit-control_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating all-hit-control.bcf (cached mode)...
+Annotation completed in 5.3s

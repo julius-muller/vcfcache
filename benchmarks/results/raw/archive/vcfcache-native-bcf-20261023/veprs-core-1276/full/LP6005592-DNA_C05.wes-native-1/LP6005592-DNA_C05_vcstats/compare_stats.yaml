@@ -1,0 +1,67 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T10:25:21'
+output_file: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005592-DNA_C05.wes-native-1/output.bcf
+input_file: /mnt/data/tmp/native-veprs-1276/inputs/LP6005592-DNA_C05.wes.bcf
+input_name: LP6005592-DNA_C05.wes.bcf
+cache_name: veprs_core
+cache_path: /mnt/data/tmp/native-veprs-1276/full/cache/veprs_core
+annotation_yaml_md5: 46745032f587cf84caae3a50be8f0d21
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 108539
+  annotated_output: 108539
+  tool_annotated: 31351
+  input_variants: 108539
+  dropped_variants: 0
+  missing_variants: 31351
+  missing_annotated: 31351
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: native
+requested_engine: native
+native_version: vcfcache-engine 0.3.0
+workers: 8
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings:
+- stage: annotate-misses
+  task: native
+  wall_seconds: 7.741257293149829
+engine_lookup: auto
+phase_timings:
+- phase: prepare
+  wall_seconds: 0.456837256
+- phase: lookup
+  wall_seconds: 2.753590315
+- phase: merge
+  wall_seconds: 1.285448302
+- phase: write
+  wall_seconds: 1.221524788
+engine_wall_seconds: 14.465058851987123
+engine_memory_mb: 512
+buffer_bytes: 315267650
+candidate_records: 3462130
+lookup_queries: 15278

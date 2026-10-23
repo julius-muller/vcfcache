@@ -1,8 +1,51 @@
-# Experimental fused engine
+# Experimental native engines
 
 The Python CLI remains the public interface. `vcfcache-engine` is an optional
 Rust/HTSlib subprocess used by `vcfcache annotate --engine fused`. Legacy remains
 the default. Existing Zenodo caches and immutable recipes are unchanged.
+
+## Resident WES prototype (`--engine native`)
+
+Requires helper **0.3.0**. This opt-in engine reads standard BCF/CSI directly;
+there is no new storage format, service or annotator-specific integration.
+
+```sh
+vcfcache annotate -a /path/to/cache -i sample.bcf -o result.bcf \
+  --engine native --engine-memory-mb 512
+```
+
+bcftools retains multiallelic splitting. Its normalized stream enters one
+resident helper through a FIFO rather than an indexed sample spool. Independent
+cache readers batch occupied 16-KiB windows, skip unpacking unrelated candidates,
+and share a bounded BGZF decoder pool. Default lookup workers are
+`min(8, max(1, available_cpus/2))`; remaining slots decode. Explicit worker counts
+cannot exceed the CPU budget. Output compression uses the released budget.
+`auto`/`regions` select occupied windows; `contigs` is a diagnostic whole-contig
+override. These native policies differ from the older fused planner.
+
+Original records and cached INFO payloads stay in memory. One indexed miss BCF
+is passed to the **unchanged external recipe once**. Recipe annotations are
+merged while consuming original records into one compressed, indexed output;
+there are no normal-path hit spools, shard assembly or final recompression.
+INFO is overlaid; original sample FORMAT/GT and other record fields remain.
+
+The memory option bounds conservatively estimated retained-record buffers, not
+whole-process RSS or the external annotator. Reader/header/codec allocations and
+one recipe-output locus are additional. An indexed record-count lower bound can
+reject WGS immediately; actual buffered growth is also checked before annotation.
+Overflow, ambiguous duplicate keys, unsplit multiallelic records and potentially
+compatible padded REF matches replay fused before invoking the recipe. No input
+or annotation format is silently changed to force a faster path.
+
+If recipe output needs non-exact pairing, duplicate resolution or contig-order
+translation, a compatibility INFO overlay reuses its completed output; the
+recipe is not rerun. Parse/subprocess errors are failures, not silent fallbacks.
+Output is staged before publication; its CSI is checked against the first
+written locus. Diagnostics, buffer estimates, candidates, queries and phase
+timings are recorded in statistics. `merge-and-write` includes the streaming
+recipe overlay and output encoding, not just compression.
+
+See [pilot results and limitations](../benchmarks/native_bcf/RESULTS.md).
 
 ## Build and use
 

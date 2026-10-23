@@ -1,0 +1,12 @@
+{
+  "conditions": 43,
+  "failed_semantic_conditions": [
+    {
+      "experiment": "veprs-clinical-1277/full",
+      "sample": "LP6005519-DNA_A06.wes",
+      "arm": "direct",
+      "semantic_pass": false
+    }
+  ],
+  "note": "Clinical mismatch is retained, not excluded or converted into a speedup claim. Distinct snapshots/hardware/input scopes are not pooled."
+}

@@ -74,7 +74,7 @@ CMD ["--help"]
 
 FROM test AS native-test
 COPY --from=native-build /native/target/release/vcfcache-engine /usr/local/bin/
-CMD ["/opt/venv/bin/python", "-m", "pytest", "tests/test_fused_engine.py", "-q"]
+CMD ["/opt/venv/bin/python", "-m", "pytest", "tests/test_fused_engine.py", "tests/test_native_engine.py", "-q"]
 
 ########## Final minimal image (still the default final stage) ##########
 FROM base AS final

@@ -1,0 +1,34 @@
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-23T08:25:28.826919Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: STDIN
+[2m2026-10-23T08:25:28.826943Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: STDOUT
+[2m2026-10-23T08:25:28.826947Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vcf
+[2m2026-10-23T08:25:28.828453Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 16 threads for annotation
+[2m2026-10-23T08:25:28.869706Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"gnomADc"
+[2m2026-10-23T08:25:28.884486Z[0m [32m INFO[0m [2mvep_builtins::registry[0m[2m:[0m loaded builtin plugin [3mname[0m[2m=[0m"dbNSFP"
+[2m2026-10-23T08:25:28.884510Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Loaded 2 built-in plugin(s)
+[2m2026-10-23T08:25:28.884515Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_native_20261023 (lazy per-chromosome, index impl=bin)
+[2m2026-10-23T08:25:29.289273Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr1: 47849 transcripts
+[2m2026-10-23T08:25:29.587119Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr2: 38171 transcripts
+[2m2026-10-23T08:25:29.818216Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr3: 31093 transcripts
+[2m2026-10-23T08:25:29.980853Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr4: 21381 transcripts
+[2m2026-10-23T08:25:30.140051Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr5: 23976 transcripts
+[2m2026-10-23T08:25:30.332712Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr6: 25540 transcripts
+[2m2026-10-23T08:25:30.524779Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr7: 26815 transcripts
+[2m2026-10-23T08:25:30.714872Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr8: 20864 transcripts
+[2m2026-10-23T08:25:30.911817Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr9: 21283 transcripts
+[2m2026-10-23T08:25:31.081676Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr10: 20847 transcripts
+[2m2026-10-23T08:25:31.284808Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr11: 27423 transcripts
+[2m2026-10-23T08:25:31.488348Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr12: 25891 transcripts
+[2m2026-10-23T08:25:31.567356Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr13: 9990 transcripts
+[2m2026-10-23T08:25:31.735966Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr14: 16985 transcripts
+[2m2026-10-23T08:25:31.894616Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr15: 17823 transcripts
+[2m2026-10-23T08:25:32.079971Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr16: 20499 transcripts
+[2m2026-10-23T08:25:32.293031Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr17: 25870 transcripts
+[2m2026-10-23T08:25:32.369269Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr18: 9463 transcripts
+[2m2026-10-23T08:25:32.595774Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr19: 25140 transcripts
+[2m2026-10-23T08:25:36.798782Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr20: 12611 transcripts
+[2m2026-10-23T08:25:36.896570Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr21: 6752 transcripts
+[2m2026-10-23T08:25:37.081472Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 5432 variants (96986 consequences) in 9.1s using 16 threads

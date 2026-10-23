@@ -272,6 +272,7 @@ class WorkflowManager(WorkflowBase):
         engine: str = "legacy",
         engine_workers: int = 0,
         engine_lookup: str = "auto",
+        engine_memory_mb: int = 512,
     ) -> subprocess.CompletedProcess:
         """Execute the workflow using pure Python.
 
@@ -286,9 +287,10 @@ class WorkflowManager(WorkflowBase):
             temp: Temporary directory for intermediate files
             preserve_unannotated: Whether to preserve variants without annotation in output
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
-            engine: Cached workflow engine (legacy or optional fused)
-            engine_workers: Fused contig-worker override; zero selects automatically
-            engine_lookup: Fused lookup selection: auto, regions or contigs
+            engine: Cached workflow engine (legacy, fused or resident native)
+            engine_workers: Lookup-worker override; zero selects automatically
+            engine_lookup: Lookup selection: auto, regions or contigs
+            engine_memory_mb: Native retained-record buffer budget in MiB
 
         Returns:
             subprocess.CompletedProcess with execution results
@@ -323,7 +325,19 @@ class WorkflowManager(WorkflowBase):
             elif db_mode == "annotate":
                 if not db_bcf:
                     raise ValueError("db_bcf is required for annotate mode")
-                if engine == "fused":
+                if engine == "native":
+                    from vcfcache.database.native import run_native
+
+                    result = run_native(
+                        self,
+                        db_bcf,
+                        preserve_unannotated,
+                        skip_split_multiallelic,
+                        engine_workers,
+                        engine_lookup,
+                        engine_memory_mb,
+                    )
+                elif engine == "fused":
                     from vcfcache.database.fused import run_fused
 
                     result = run_fused(
@@ -341,7 +355,7 @@ class WorkflowManager(WorkflowBase):
                         skip_split_multiallelic=skip_split_multiallelic,
                     )
                 else:
-                    raise ValueError("engine must be legacy or fused")
+                    raise ValueError("engine must be legacy, fused or native")
             elif db_mode == "annotate-nocache":
                 result = self._run_annotate_nocache(
                     skip_split_multiallelic=skip_split_multiallelic

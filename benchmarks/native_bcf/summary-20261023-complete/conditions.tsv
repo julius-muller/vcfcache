@@ -1,0 +1,45 @@
+experiment	sample	cpus	arm	rep	cli_seconds	recipe_seconds	cache_side_seconds	cpu_seconds	peak_step_memory_bytes	input_records	cache_hit_rate	semantic_pass	source	role
+calibration-1288/direct	misses	16	direct	1	39.00242143403739			80.21221800000001	3662979072	5432		True	calibration-1288/direct/measurements.json	calibration
+calibration-1288/direct	minimal-same-contigs	16	direct	1	12.112489382736385			12.130524999999999	2365689856	22		True	calibration-1288/direct/measurements.json	calibration
+calibration-1289/direct	misses	16	direct	1	7.368486560881138			39.980029	4191076352	5432		True	calibration-1289/direct/measurements.json	calibration
+calibration-1289/direct	minimal-same-contigs	16	direct	1	6.612743134610355			36.520008	3950264320	22		True	calibration-1289/direct/measurements.json	calibration
+calibration-1290/direct	misses	16	direct	1	13.983880030922592			48.859724	4264226816	5432		True	calibration-1290/direct/measurements.json	calibration
+calibration-1290/direct	minimal-same-contigs	16	direct	1	7.58265246450901			40.701681	3921211392	22		True	calibration-1290/direct/measurements.json	calibration
+controls-1287/benchmark	all-hit-control	16	auto	1	13.401176563464105	0	13.401176563464105	93.25650599999999	477110272	77282	1.0	True	controls-1287/benchmark/measurements.json	control
+controls-1287/benchmark	all-hit-control	16	native	1	6.032147374935448	0	6.032147374935448	40.495867000000004	719126528	77282	1.0	True	controls-1287/benchmark/measurements.json	control
+controls-1287/benchmark	all-hit-control	16	native	2	6.062751730903983	0	6.062751730903983	41.309533	711495680	77282	1.0	True	controls-1287/benchmark/measurements.json	control
+controls-1287/benchmark	all-hit-control	16	auto	2	12.467748994007707	0	12.467748994007707	92.808353	472875008	77282	1.0	True	controls-1287/benchmark/measurements.json	control
+controls-1287/benchmark	all-hit-control	16	auto	3	12.793330459855497	0	12.793330459855497	91.49566300000001	469938176	77282	1.0	True	controls-1287/benchmark/measurements.json	control
+controls-1287/benchmark	all-hit-control	16	native	3	6.017889887094498	0	6.017889887094498	40.608077	720896000	77282	1.0	True	controls-1287/benchmark/measurements.json	control
+controls-1287/wgs	LP6005519-DNA_A06.GRCh38.small_variants.vcf	16	auto	1	112.05402681604028	59.717476420104504	52.336550395935774	563.204169	12979060736	4858092	0.9268727311051335	True	controls-1287/wgs/measurements.json	control
+controls-1287/wgs	LP6005519-DNA_A06.GRCh38.small_variants.vcf	16	native	1	112.64319012500346	59.76068722642958	52.882502898573875	563.090683	12978970624	4858092	0.9268727311051335	True	controls-1287/wgs/measurements.json	control
+fastvep-1270/full	LP6005519-DNA_A06.wes	16	auto	1	49.45784425083548	34.54391935933381	14.913924891501665	177.20863	3978895360	82714	0.9343279251396378	True	fastvep-1270/full/measurements.json	diagnostic_failed_pilot
+fastvep-1273/full	LP6005519-DNA_A06.wes	16	auto	1	51.140690544620156	36.23942189756781	14.901268647052348	173.646557	4024180736	82714	0.9343279251396378	True	fastvep-1273/full/measurements.json	primary
+fastvep-1273/full	LP6005519-DNA_A06.wes	16	native	1	41.09466581698507	32.94992681406438	8.144739002920687	114.174435	4357185536	82714	0.9343279251396378	True	fastvep-1273/full/measurements.json	primary
+fastvep-1273/full	LP6005519-DNA_A06.wes	16	direct	1	53.054686467163265			96.710442	2739625984	82714		True	fastvep-1273/full/measurements.json	primary
+fastvep-1273/full	LP6005592-DNA_C05.wes	16	auto	1	54.605187960900366	39.1715007731691	15.433687187731266	179.592039	3619028992	108539	0.7111545158882981	True	fastvep-1273/full/measurements.json	primary
+fastvep-1273/full	LP6005592-DNA_C05.wes	16	native	1	46.25745846237987	35.586667575873435	10.670790886506438	111.238484	3996983296	108539	0.7111545158882981	True	fastvep-1273/full/measurements.json	primary
+fastvep-1273/full	LP6005592-DNA_C05.wes	16	direct	1	55.247174066491425			112.406529	2755506176	108539		True	fastvep-1273/full/measurements.json	primary
+fastvep-1273/projected	LP6005519-DNA_A06.wes	16	auto	1	41.99880619626492	36.49275658838451	5.5060496078804135	102.374374	4006752256	82714	0.9334211862562565	True	fastvep-1273/projected/measurements.json	primary
+fastvep-1273/projected	LP6005519-DNA_A06.wes	16	native	1	39.22945175692439	33.02790725976229	6.201544497162104	97.78242	4253245440	82714	0.9334211862562565	True	fastvep-1273/projected/measurements.json	primary
+fastvep-1273/projected	LP6005519-DNA_A06.wes	16	direct	1	50.414422042667866			91.096682	2741235712	82714		True	fastvep-1273/projected/measurements.json	primary
+fastvep-1273/projected	LP6005592-DNA_C05.wes	16	auto	1	44.43795140553266	37.882865415886045	6.555085989646614	97.580302	3564703744	108539	0.7104635200250602	True	fastvep-1273/projected/measurements.json	primary
+fastvep-1273/projected	LP6005592-DNA_C05.wes	16	native	1	50.00537984073162	40.49290906637907	9.51247077435255	98.326357	3876720640	108539	0.7104635200250602	True	fastvep-1273/projected/measurements.json	primary
+fastvep-1273/projected	LP6005592-DNA_C05.wes	16	direct	1	53.44783044047654			108.380683	2730270720	108539		True	fastvep-1273/projected/measurements.json	primary
+final-1285	LP6005519-DNA_A06.wes	16	native	1	42.90539048332721	34.81046779546887	8.094922687858343	116.108918	4307640320	82714	0.9343279251396378	True	final-1285/measurements.json	final_source_check
+final-1286	LP6005519-DNA_A06.wes	16	native	1	13.45919802132994	6.6697926400229335	6.789405381307006	69.81510899999999	4869357568	82714	0.9343279251396378	True	final-1286/measurements.json	final_source_check
+veprs-clinical-1277/full	LP6005519-DNA_A06.wes	16	auto	1	35.437185942195356	23.16305128391832	12.274134658277035	143.720752	7582064640	82714	0.9343279251396378	True	veprs-clinical-1277/full/measurements.json	primary
+veprs-clinical-1277/full	LP6005519-DNA_A06.wes	16	native	1	18.852198470383883	11.467942462302744	7.384256008081138	79.766261	4887449600	82714	0.9343279251396378	True	veprs-clinical-1277/full/measurements.json	primary
+veprs-clinical-1277/full	LP6005519-DNA_A06.wes	16	direct	1	67.49822166468948			138.823264	4811841536	82714		False	veprs-clinical-1277/full/measurements.json	primary
+veprs-core-1276/full	LP6005519-DNA_A06.wes	16	auto	1	23.71488536335528	13.657043279148638	10.05784208420664	115.935581	7144210432	82714	0.9343279251396378	True	veprs-core-1276/full/measurements.json	primary
+veprs-core-1276/full	LP6005519-DNA_A06.wes	16	native	1	12.943458089604974	6.263200261630118	6.680257827974856	69.326825	4723707904	82714	0.9343279251396378	True	veprs-core-1276/full/measurements.json	primary
+veprs-core-1276/full	LP6005519-DNA_A06.wes	16	direct	1	9.422419973649085			55.681698999999995	4487249920	82714		True	veprs-core-1276/full/measurements.json	primary
+veprs-core-1276/full	LP6005592-DNA_C05.wes	16	auto	1	17.82279786001891	7.175533996894956	10.647263863123953	116.20640900000001	4565278720	108539	0.7111545158882981	True	veprs-core-1276/full/measurements.json	primary
+veprs-core-1276/full	LP6005592-DNA_C05.wes	16	native	1	15.35422517452389	7.741257293149829	7.612967881374061	80.907192	4806615040	108539	0.7111545158882981	True	veprs-core-1276/full/measurements.json	primary
+veprs-core-1276/full	LP6005592-DNA_C05.wes	16	direct	1	9.32474590651691			54.257154	4315324416	108539		True	veprs-core-1276/full/measurements.json	primary
+veprs-core-1276/projected	LP6005519-DNA_A06.wes	16	auto	1	11.618191002868116	7.0497228763997555	4.56846812646836	60.422179	4424052736	82714	0.9334211862562565	True	veprs-core-1276/projected/measurements.json	primary
+veprs-core-1276/projected	LP6005519-DNA_A06.wes	16	native	1	11.058417364954948	6.028528602793813	5.029888762161136	56.774994	4608565248	82714	0.9334211862562565	True	veprs-core-1276/projected/measurements.json	primary
+veprs-core-1276/projected	LP6005519-DNA_A06.wes	16	direct	1	9.245902466587722			55.808361	4298878976	82714		True	veprs-core-1276/projected/measurements.json	primary
+veprs-core-1276/projected	LP6005592-DNA_C05.wes	16	auto	1	12.779092207551003	7.39792185742408	5.381170350126922	66.983677	4449230848	108539	0.7104635200250602	True	veprs-core-1276/projected/measurements.json	primary
+veprs-core-1276/projected	LP6005592-DNA_C05.wes	16	native	1	13.077779475599527	6.739934899844229	6.337844575755298	64.448154	4742348800	108539	0.7104635200250602	True	veprs-core-1276/projected/measurements.json	primary
+veprs-core-1276/projected	LP6005592-DNA_C05.wes	16	direct	1	8.997624859213829			52.669944	4369281024	108539		True	veprs-core-1276/projected/measurements.json	primary

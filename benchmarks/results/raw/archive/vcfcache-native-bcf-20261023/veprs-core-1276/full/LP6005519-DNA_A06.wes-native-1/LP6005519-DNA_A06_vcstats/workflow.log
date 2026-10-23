@@ -1,0 +1,24 @@
+[2026-10-23 10:24:06] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-native-1/LP6005519-DNA_A06_vcstats/workflow.log
+[2026-10-23 10:24:06] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 10:24:06] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-native-1/LP6005519-DNA_A06_vcstats
+[2026-10-23 10:24:06] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-native-1/LP6005519-DNA_A06_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 10:24:06] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/tmp/native-veprs-1276/full/cache/veprs_core/annotation.yaml
+[2026-10-23 10:24:06] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-23 10:24:06] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-23 10:24:06] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 10:24:06] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-veprs-1276/inputs/LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:24:06] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 10:24:06] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:24:06] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/native-veprs-1276/full/cache/veprs_core/vcfcache_annotated.bcf
+[2026-10-23 10:24:06] DEBUG [vcfcache.annotator.py.annotate:891] Starting VCF annotation
+[2026-10-23 10:24:06] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-veprs-1276/full/cache/veprs_core/vcfcache_annotated.bcf
+[2026-10-23 10:24:06] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-veprs-1276/inputs/LP6005519-DNA_A06.wes.bcf
+[2026-10-23 10:24:06] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=22 overlap=22
+[2026-10-23 10:24:06] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-23 10:24:06] DEBUG [vcfcache.workflow_manager.py._create_work_dir:997] Created work directory: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-native-1/LP6005519-DNA_A06_vcstats/work
+[2026-10-23 10:24:06] INFO [vcfcache.workflow_manager.py.run:310] Running workflow in mode: annotate
+[2026-10-23 10:24:16] INFO [vcfcache.fused.py.run:142] Fused annotate-misses completed in 6.263s
+[2026-10-23 10:24:18] DEBUG [vcfcache.workflow_manager.py._write_trace_file:983] Trace file written to: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-native-1/LP6005519-DNA_A06_vcstats/veprs_core_trace.txt
+[2026-10-23 10:24:18] INFO [vcfcache.workflow_manager.py.run:374] Workflow completed successfully in 12.0s
+[2026-10-23 10:24:18] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1009] Cleaning up work directory
+[2026-10-23 10:24:18] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1012] Removing work directory: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-native-1/LP6005519-DNA_A06_vcstats/work

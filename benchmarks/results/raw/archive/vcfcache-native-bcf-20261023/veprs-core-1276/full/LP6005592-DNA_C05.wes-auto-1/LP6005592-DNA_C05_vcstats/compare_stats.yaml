@@ -1,0 +1,249 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T10:24:58'
+output_file: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005592-DNA_C05.wes-auto-1/output.bcf
+input_file: /mnt/data/tmp/native-veprs-1276/inputs/LP6005592-DNA_C05.wes.bcf
+input_name: LP6005592-DNA_C05.wes.bcf
+cache_name: veprs_core
+cache_path: /mnt/data/tmp/native-veprs-1276/full/cache/veprs_core
+annotation_yaml_md5: 46745032f587cf84caae3a50be8f0d21
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 108539
+  annotated_output: 108539
+  tool_annotated: 31351
+  input_variants: 108539
+  dropped_variants: 0
+  missing_variants: 31351
+  missing_annotated: 31351
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.3.0
+workers: 4
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings:
+- stage: preprocess
+  task: prepare-0003
+  wall_seconds: 0.3427028162404895
+- stage: preprocess
+  task: prepare-0001
+  wall_seconds: 0.36397189274430275
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 0.40758359245955944
+- stage: preprocess
+  task: prepare-0002
+  wall_seconds: 0.44581078458577394
+- stage: route
+  task: shard-0001
+  wall_seconds: 2.9894259655848145
+- stage: route
+  task: shard-0003
+  wall_seconds: 3.340361970476806
+- stage: route
+  task: shard-0002
+  wall_seconds: 3.4050304954871535
+- stage: route
+  task: shard-0000
+  wall_seconds: 3.618553390726447
+- stage: route
+  task: shard-0005
+  wall_seconds: 2.0484099173918366
+- stage: route
+  task: shard-0006
+  wall_seconds: 2.1563266096636653
+- stage: route
+  task: shard-0004
+  wall_seconds: 3.4900531359016895
+- stage: collect-misses
+  task: fused
+  wall_seconds: 0.3592401538044214
+- stage: annotate-misses
+  task: fused
+  wall_seconds: 7.175533996894956
+- stage: assemble
+  task: shard-0001
+  wall_seconds: 0.5483217649161816
+- stage: assemble
+  task: shard-0003
+  wall_seconds: 0.6071887202560902
+- stage: assemble
+  task: shard-0002
+  wall_seconds: 0.6748026926070452
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 0.7060636365786195
+- stage: assemble
+  task: shard-0004
+  wall_seconds: 0.5768807241693139
+- stage: assemble
+  task: shard-0005
+  wall_seconds: 0.5549207450821996
+- stage: assemble
+  task: shard-0006
+  wall_seconds: 0.6389076318591833
+- stage: gather
+  task: fused
+  wall_seconds: 0.1311577782034874
+- stage: index
+  task: fused
+  wall_seconds: 0.22772424947470427
+codec_threads_per_worker: 2
+assembly_decode_threads: 0
+assembly_encode_threads: 2
+engine_lookup: auto
+lookup_strategies:
+- cache_records: 1435577
+  estimated_cache_bytes: 67733568
+  name: chr1
+  requested_cache_bytes: 53098702
+  strategy: contigs
+- cache_records: 1490699
+  estimated_cache_bytes: 66482176
+  name: chr2
+  requested_cache_bytes: 46777071
+  strategy: contigs
+- cache_records: 1247559
+  estimated_cache_bytes: 64941996
+  name: chr3
+  requested_cache_bytes: 40041611
+  strategy: contigs
+- cache_records: 1271726
+  estimated_cache_bytes: 47129339
+  name: chr4
+  requested_cache_bytes: 29908372
+  strategy: contigs
+- cache_records: 1118422
+  estimated_cache_bytes: 40635959
+  name: chr5
+  requested_cache_bytes: 28440001
+  strategy: contigs
+- cache_records: 1152753
+  estimated_cache_bytes: 49424691
+  name: chr6
+  requested_cache_bytes: 33330274
+  strategy: contigs
+- cache_records: 1074641
+  estimated_cache_bytes: 46449800
+  name: chr7
+  requested_cache_bytes: 34679226
+  strategy: contigs
+- cache_records: 970901
+  estimated_cache_bytes: 45646796
+  name: chr8
+  requested_cache_bytes: 27184099
+  strategy: contigs
+- cache_records: 830834
+  estimated_cache_bytes: 36687634
+  name: chr9
+  requested_cache_bytes: 25214814
+  strategy: contigs
+- cache_records: 924515
+  estimated_cache_bytes: 41577754
+  name: chr10
+  requested_cache_bytes: 30713248
+  strategy: contigs
+- cache_records: 862831
+  estimated_cache_bytes: 38877224
+  name: chr11
+  requested_cache_bytes: 31009171
+  strategy: contigs
+- cache_records: 865133
+  estimated_cache_bytes: 39085781
+  name: chr12
+  requested_cache_bytes: 30221807
+  strategy: contigs
+- cache_records: 637579
+  estimated_cache_bytes: 19821076
+  name: chr13
+  requested_cache_bytes: 13837336
+  strategy: contigs
+- cache_records: 591558
+  estimated_cache_bytes: 27986667
+  name: chr14
+  requested_cache_bytes: 20050408
+  strategy: contigs
+- cache_records: 558135
+  estimated_cache_bytes: 28458203
+  name: chr15
+  requested_cache_bytes: 20545365
+  strategy: contigs
+- cache_records: 585392
+  estimated_cache_bytes: 28188333
+  name: chr16
+  requested_cache_bytes: 22643722
+  strategy: contigs
+- cache_records: 548630
+  estimated_cache_bytes: 31901252
+  name: chr17
+  requested_cache_bytes: 28253207
+  strategy: contigs
+- cache_records: 499973
+  estimated_cache_bytes: 19921995
+  name: chr18
+  requested_cache_bytes: 12700127
+  strategy: contigs
+- cache_records: 456595
+  estimated_cache_bytes: 29618510
+  name: chr19
+  requested_cache_bytes: 27362836
+  strategy: contigs
+- cache_records: 419415
+  estimated_cache_bytes: 18219387
+  name: chr20
+  requested_cache_bytes: 13867727
+  strategy: contigs
+- cache_records: 303065
+  estimated_cache_bytes: 14742294
+  name: chr21
+  requested_cache_bytes: 6993156
+  strategy: regions
+- cache_records: 314314
+  estimated_cache_bytes: 18890465
+  name: chr22
+  requested_cache_bytes: 13733035
+  strategy: contigs
+lookup_tasks: 7
+lookup_regions: 185
+task_estimated_work:
+- 135401600.0
+- 112738535.0
+- 137621554.0
+- 124781880.0
+- 126898556.0
+- 89468108.0
+- 116762525.0
+estimate_note: CSI candidate byte estimates, not observed cache I/O
+phase_timings:
+- phase: preprocess
+  wall_seconds: 0.49316413793712854
+- phase: route
+  wall_seconds: 6.482968746684492
+- phase: assemble
+  wall_seconds: 1.3185522286221385
+engine_wall_seconds: 16.965952188707888

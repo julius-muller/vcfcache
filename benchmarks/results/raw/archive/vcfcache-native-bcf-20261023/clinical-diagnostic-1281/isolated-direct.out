@@ -1,0 +1,14 @@
+[10:34:46] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[10:34:46] Genome build (params.yaml): GRCh38
+[10:34:46] Genome build (annotation.yaml): GRCh38
+[10:34:46] Initializing annotation of input.bcf
+[10:34:46] Running workflow in mode: annotate-nocache
+[10:34:46] Annotating sample directly (no cache)
+[10:34:46] Splitting multiallelic variants and removing spanning deletions
+[10:34:47] Command completed in 0.131s: bcftools norm
+[10:34:48] Command completed in 1.116s: bcftools view
+[10:34:48] Direct annotation complete: /mnt/data/tmp/native-clinvar-diagnostic-1281/isolated-direct.bcf
+[10:34:48] Workflow completed successfully in 1.3s
+Computing MD5 for /mnt/data/tmp/native-clinvar-diagnostic-1281/stats/input_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating input.bcf (uncached mode)...
+Annotation completed in 1.3s

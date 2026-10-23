@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/results/deployment/vcfcache-native-pilot-20261023b/benchmarks/adaptive_routing.py", line 333, in <module>
+    main()
+  File "/results/deployment/vcfcache-native-pilot-20261023b/benchmarks/adaptive_routing.py", line 288, in main
+    subprocess.run(
+  File "/home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['srun', '--exclusive', '--exact', '--cpu-bind=cores', '-n1', '-c16', '/results/deployment/vcfcache-native-pilot-20261023b/.venv/bin/python', '/results/deployment/vcfcache-native-pilot-20261023b/benchmarks/adaptive_cell.py', '--metrics', '/mnt/data/tmp/native-veprs-1274/full-runs/LP6005519-DNA_A06.wes-auto-1/resources.json', '--', '/results/deployment/vcfcache-native-pilot-20261023b/.venv/bin/python', '-c', 'from vcfcache.cli import main; main()', 'annotate', '-a', '/mnt/data/tmp/native-veprs-1274/full/cache/veprs_core', '-i', '/mnt/data/tmp/native-veprs-1274/inputs/LP6005519-DNA_A06.wes.bcf', '-o', '/mnt/data/tmp/native-veprs-1274/full-runs/LP6005519-DNA_A06.wes-auto-1/output.bcf', '-y', '/results/native-bcf/veprs-core-1274/full/params.yaml', '--stats-dir', '/mnt/data/tmp/native-veprs-1274/full-runs/LP6005519-DNA_A06.wes-auto-1', '--statistics', 'light', '--engine', 'fused', '--engine-lookup', 'auto']' returned non-zero exit status 1.

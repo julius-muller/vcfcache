@@ -138,7 +138,7 @@ def run_case(
         "annotate",
         db_bcf=cache,
         engine=engine,
-        engine_workers=workers if engine == "fused" else 0,
+        engine_workers=workers if engine in {"fused", "native"} else 0,
         engine_lookup=lookup,
         preserve_unannotated=preserve,
         skip_split_multiallelic=skip_split,

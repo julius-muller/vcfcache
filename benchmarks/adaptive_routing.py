@@ -115,6 +115,11 @@ def main():
     parser.add_argument("--cpus", type=int, default=8)
     parser.add_argument("--repeats", type=int, default=1)
     parser.add_argument("--warmup", action="store_true")
+    parser.add_argument(
+        "--paired-order",
+        action="store_true",
+        help="Alternate arm order within repetitions for one diagnostic control",
+    )
     parser.add_argument("--generate-controls", action="store_true")
     parser.add_argument("--control-names", nargs="+")
     parser.add_argument(
@@ -128,10 +133,16 @@ def main():
             "contigs",
             "store",
             "direct",
+            "native",
         ],
         default=["legacy", "auto"],
     )
     parser.add_argument("--original-root", type=Path)
+    parser.add_argument(
+        "--reference-root",
+        type=Path,
+        help="Reuse earlier direct outputs for untimed audits without rerunning that baseline",
+    )
     parser.add_argument("--store", type=Path)
     parser.add_argument("--slurm-steps", action="store_true")
     args = parser.parse_args()
@@ -175,6 +186,7 @@ def main():
         cpus=args.cpus,
         repeats=args.repeats,
         warmup=args.warmup,
+        paired_order=args.paired_order,
         inputs=[str(path) for path in inputs],
         arms=args.arms,
         cache=str(args.cache),
@@ -185,6 +197,8 @@ def main():
                 root / "vcfcache/database/adaptive.py",
                 root / "native/src/main.rs",
                 root / "native/src/adaptive.rs",
+                root / "native/src/resident.rs",
+                root / "vcfcache/database/native.py",
             )
         },
         native_sha256=digest(root / "native/target/release/vcfcache-engine"),
@@ -199,9 +213,27 @@ def main():
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     measurements = []
     for source in inputs:
-        reference = None
-        for arm in args.arms:
-            for rep in range(0 if args.warmup else 1, args.repeats + 1):
+        reference = (
+            args.reference_root / f"{source.stem}-direct-1/output.bcf"
+            if args.reference_root
+            else None
+        )
+        if reference is not None and not reference.is_file():
+            raise FileNotFoundError(reference)
+        repetitions = range(0 if args.warmup else 1, args.repeats + 1)
+        groups = (
+            [
+                [
+                    (arm, rep)
+                    for arm in (args.arms if rep % 2 else list(reversed(args.arms)))
+                ]
+                for rep in repetitions
+            ]
+            if args.paired_order
+            else [[(arm, rep) for rep in repetitions] for arm in args.arms]
+        )
+        for group in groups:
+            for arm, rep in group:
                 directory = work / f"{source.stem}-{arm}-{rep}"
                 directory.mkdir()
                 result = directory / "output.bcf"
@@ -223,12 +255,19 @@ def main():
                     "--statistics",
                     "light",
                     "--engine",
-                    "legacy" if arm in {"legacy", "direct"} else "fused",
+                    (
+                        "legacy"
+                        if arm in {"legacy", "direct"}
+                        else "native" if arm == "native" else "fused"
+                    ),
                 ]
                 if arm == "direct":
                     command += ["--uncached"]
                 if arm not in {"legacy", "original-fused", "direct"}:
-                    command += ["--engine-lookup", "auto" if arm == "store" else arm]
+                    command += [
+                        "--engine-lookup",
+                        "auto" if arm in {"store", "native"} else arm,
+                    ]
                 environment = dict(os.environ)
                 deployment = args.original_root if arm == "original-fused" else root
                 environment["PYTHONPATH"] = str(deployment)

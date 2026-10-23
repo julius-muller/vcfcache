@@ -691,21 +691,27 @@ def main() -> None:
     statistics_group = vcf_parser.add_mutually_exclusive_group()
     vcf_parser.add_argument(
         "--engine",
-        choices=("legacy", "fused"),
+        choices=("legacy", "fused", "native"),
         default="legacy",
-        help="Annotation workflow engine (default: legacy). Fused requires vcfcache-engine.",
+        help="Annotation workflow engine (default: legacy). Fused/native require vcfcache-engine.",
     )
     vcf_parser.add_argument(
         "--engine-lookup",
         choices=("auto", "regions", "contigs"),
         default="auto",
-        help="Fused cache access: adaptive CSI-estimated regions or contiguous streaming (default: auto).",
+        help="Native/fused cache access: occupied regions or contiguous streaming (default: auto).",
+    )
+    vcf_parser.add_argument(
+        "--engine-memory-mb",
+        type=int,
+        default=512,
+        help="Native retained-record buffer budget in MiB (default: 512); overflow replays fused before annotation.",
     )
     vcf_parser.add_argument(
         "--engine-workers",
         type=int,
         default=0,
-        help="Fused routing workers; 0 selects automatically within the params.yaml threads budget.",
+        help="Native/fused lookup workers; 0 selects automatically within the params.yaml threads budget.",
     )
     statistics_group.add_argument(
         "--statistics",
@@ -959,14 +965,18 @@ def main() -> None:
             parser.error("--statistics none/--no-stats cannot be used with --stats-dir")
         if args.md5_all and args.statistics != "full":
             parser.error("--md5-all requires --statistics full")
-        if args.engine_workers < 0 or (args.engine_workers and args.engine != "fused"):
+        if args.engine_memory_mb < 1:
+            parser.error("--engine-memory-mb must be positive")
+        if args.engine_memory_mb != 512 and args.engine != "native":
+            parser.error("--engine-memory-mb requires --engine native")
+        if args.engine_workers < 0 or (args.engine_workers and args.engine == "legacy"):
             parser.error(
-                "--engine-workers must be non-negative and requires --engine fused"
+                "--engine-workers must be non-negative and requires --engine fused or native"
             )
-        if args.uncached and args.engine == "fused":
-            parser.error("--engine fused cannot be combined with --uncached")
-        if args.engine_lookup != "auto" and args.engine != "fused":
-            parser.error("--engine-lookup requires --engine fused")
+        if args.uncached and args.engine != "legacy":
+            parser.error("--engine fused/native cannot be combined with --uncached")
+        if args.engine_lookup != "auto" and args.engine == "legacy":
+            parser.error("--engine-lookup requires --engine fused or native")
 
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)
@@ -1273,6 +1283,11 @@ def main() -> None:
                         "engine": args.engine,
                         "engine_workers": args.engine_workers,
                         "engine_lookup": args.engine_lookup,
+                        **(
+                            {"engine_memory_mb": args.engine_memory_mb}
+                            if args.engine == "native"
+                            else {}
+                        ),
                     }
                     if args.engine != "legacy"
                     else {}

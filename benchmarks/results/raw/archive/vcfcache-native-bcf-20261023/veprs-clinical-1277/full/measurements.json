@@ -1,0 +1,26 @@
+[
+  {
+    "input": "/mnt/data/tmp/native-veprs-1277/inputs/LP6005519-DNA_A06.wes.bcf",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 35.437185942195356,
+    "orchestration_wall_seconds": 35.618667690083385,
+    "semantic_pass": true
+  },
+  {
+    "input": "/mnt/data/tmp/native-veprs-1277/inputs/LP6005519-DNA_A06.wes.bcf",
+    "arm": "native",
+    "rep": 1,
+    "wall_seconds": 18.852198470383883,
+    "orchestration_wall_seconds": 18.986615643836558,
+    "semantic_pass": true
+  },
+  {
+    "input": "/mnt/data/tmp/native-veprs-1277/inputs/LP6005519-DNA_A06.wes.bcf",
+    "arm": "direct",
+    "rep": 1,
+    "wall_seconds": 67.49822166468948,
+    "orchestration_wall_seconds": 67.68867752887309,
+    "semantic_pass": false
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "kind": "locally_built_veprs_from_bundled_blueprint",
+  "original_kind": "bundled_zenodo_blueprint",
+  "blueprint": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints/gnomad_v4.1_GRCh38_joint_af001/blueprint/vcfcache.bcf",
+  "blueprint_sha256": "2828116ca9a996fbd5259ea7cb477ec4499a2c01c77c6662d2c345610695057b",
+  "tool_sha256": "655c5e9204731ce2bd8a72d4d5ff4e2c4a4ab687c060b79ef37542c12ae339a5",
+  "tool_version": "vep 0.4.0",
+  "transcript_root": "/results/veprs/json_cache/GRCh38_native_20261023",
+  "transcript_conversion_source_hashes": "aad41cfa88980f51487b1bf55f08060a1bb9086aa7e62252e8b3741c0999474f  /mnt/data/apps/ensembl-vep/115/cachedir/homo_sapiens/115_GRCh38/info.txt\n73cfc5a6a0f261cdd60368eeaef04ad67332a7fb86e3ed427f5e86bd0033559a  /results/veprs/dist/storable_to_json.pl\n655c5e9204731ce2bd8a72d4d5ff4e2c4a4ab687c060b79ef37542c12ae339a5  /results/veprs/dist/vep\n",
+  "resources": {
+    "/results/veprs/data/gnomad_joint_gw_GRCh38.vcf.gz": "5b973f369a2e46adc841a828ac2bde4eb511a7ee7ec9bcd7eafa893820ce5cec",
+    "/results/veprs/data/gnomad_joint_gw_GRCh38.vcf.gz.tbi": "bf0d242e57693f634160276b803dc358548e9ce8a28c3e212de0f52f8c42ec15",
+    "/results/clinical_sources/clinvar_GRCh38.vcf.gz": "379c4060acfd5feef1244c107202dfb2d743619f1a569b9fa545817dd7a26b05",
+    "/results/clinical_sources/clinvar_GRCh38.vcf.gz.tbi": "6fd9762f1414c6bb8952ec8c09af693e37e8d15b7eaf612cc8f6aa4084f2f757",
+    "/results/native-bcf/veprs-caches-20261023b/clinvar.tsv.gz": "a6b3ae7e8a4112f1e79b40b70d225a8cf28eec0e9ac5a7a913cf3e729fdff480",
+    "/results/native-bcf/veprs-caches-20261023b/clinvar.tsv.gz.tbi": "30568366f8b531b415539d6145ef429e5a39a358f0c4f7b5d385278d64469a0e"
+  },
+  "bcftools": "bcftools 1.21\nUsing htslib 1.21\nCopyright (C) 2024 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+  "transcript_tree_sha256": "8b9c271deaf5b48a50e1ce6466c92a7d8680ff80b56b22ed2b08bffe9379a6be",
+  "transcript_files": 3103,
+  "build_seconds": 778.4715904155746,
+  "recipe_sha256": "d19435e59c52e1c05932c3319534dd5a39653a97ba4732a087f241ed63d090e8",
+  "cache_sha256": "46c485199088a9dc0a175b0c13675cd55ace05ffdc0bf6212caeb2259466ea37",
+  "cache_bytes": 1381932073,
+  "input_records": 18869857,
+  "output_records": 18869857,
+  "original_recipe_sha256": "c3551b9508fc8602da91fade951e265bd970fbf083b7f2ffccd69a1df7ea443e",
+  "metadata_repair": "Removed redundant params-only tool_version_command; annotation_cmd and true build_seconds unchanged"
+}

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, feature/fused-routing, feature/adaptive-cache-routing]
+    branches: [main, feature/fused-routing, feature/adaptive-cache-routing, feature/native-bcf-routing]
     tags: ["v*"]
   pull_request:
     branches: [main]

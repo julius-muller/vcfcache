@@ -1,0 +1,63 @@
+[2026-10-23 10:51:24] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/workflow.log
+[2026-10-23 10:51:24] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 10:51:24] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats
+[2026-10-23 10:51:24] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 10:51:24] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/tmp/native-veprs-1276/full/cache/veprs_core/annotation.yaml
+[2026-10-23 10:51:24] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-23 10:51:24] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-23 10:51:24] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 10:51:24] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-calibration-1289/misses.bcf
+[2026-10-23 10:51:24] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 10:51:24] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of misses.bcf
+[2026-10-23 10:51:24] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/native-veprs-1276/full/cache/veprs_core/vcfcache_annotated.bcf
+[2026-10-23 10:51:24] DEBUG [vcfcache.annotator.py.annotate:893] Starting VCF annotation
+[2026-10-23 10:51:24] DEBUG [vcfcache.workflow_manager.py._create_work_dir:997] Created work directory: /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/work
+[2026-10-23 10:51:24] INFO [vcfcache.workflow_manager.py.run:310] Running workflow in mode: annotate-nocache
+[2026-10-23 10:51:24] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:800] Annotating sample directly (no cache)
+[2026-10-23 10:51:24] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:830] Splitting multiallelic variants and removing spanning deletions
+[2026-10-23 10:51:24] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/work/annotate-nocache
+[2026-10-23 10:51:24] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools norm -m- /mnt/data/tmp/native-calibration-1289/misses.bcf -Ob | bcftools view -e 'ALT="*"' -o /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/work/annotate-nocache/misses_normalized.bcf -Ob -W --threads 16
+[2026-10-23 10:51:25] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 0.168s: bcftools norm
+[2026-10-23 10:51:25] DEBUG [vcfcache.workflow_manager.py.run:107] STDERR: Lines   total/split/joined/realigned/removed/skipped:	5432/0/0/0/0/0
+
+[2026-10-23 10:51:25] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/work/annotate-nocache
+[2026-10-23 10:51:25] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools view /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/work/annotate-nocache/misses_normalized.bcf -Ov | /results/veprs/dist/vep --assembly GRCh38 --json_cache /results/veprs/json_cache/GRCh38_native_20261023 --fork 16 --vcf --no_stats --input_file STDIN --output_file STDOUT  | bcftools view -Ob -W --threads 16 -o /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/output.bcf
+[2026-10-23 10:51:31] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 6.396s: bcftools view
+[2026-10-23 10:51:31] DEBUG [vcfcache.workflow_manager.py.run:107] STDERR: -------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-23T08:51:25.092126Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: STDIN
+[2m2026-10-23T08:51:25.092204Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: STDOUT
+[2m2026-10-23T08:51:25.092216Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vcf
+[2m2026-10-23T08:51:25.094781Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Using 16 threads for annotation
+[2m2026-10-23T08:51:25.094828Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_native_20261023 (lazy per-chromosome, index impl=bin)
+[2m2026-10-23T08:51:25.572241Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr1: 47849 transcripts
+[2m2026-10-23T08:51:25.936107Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr2: 38171 transcripts
+[2m2026-10-23T08:51:26.234462Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr3: 31093 transcripts
+[2m2026-10-23T08:51:26.408091Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr4: 21381 transcripts
+[2m2026-10-23T08:51:26.581053Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr5: 23976 transcripts
+[2m2026-10-23T08:51:26.784836Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr6: 25540 transcripts
+[2m2026-10-23T08:51:26.994090Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr7: 26815 transcripts
+[2m2026-10-23T08:51:27.216454Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr8: 20864 transcripts
+[2m2026-10-23T08:51:27.407493Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr9: 21283 transcripts
+[2m2026-10-23T08:51:27.589518Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr10: 20847 transcripts
+[2m2026-10-23T08:51:27.801021Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr11: 27423 transcripts
+[2m2026-10-23T08:51:28.001501Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr12: 25891 transcripts
+[2m2026-10-23T08:51:28.077447Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr13: 9990 transcripts
+[2m2026-10-23T08:51:28.244663Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr14: 16985 transcripts
+[2m2026-10-23T08:51:28.384506Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr15: 17823 transcripts
+[2m2026-10-23T08:51:28.573562Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr16: 20499 transcripts
+[2m2026-10-23T08:51:28.781913Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr17: 25870 transcripts
+[2m2026-10-23T08:51:28.853500Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr18: 9463 transcripts
+[2m2026-10-23T08:51:29.052560Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr19: 25140 transcripts
+[2m2026-10-23T08:51:29.238415Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr20: 12611 transcripts
+[2m2026-10-23T08:51:29.309998Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr21: 6752 transcripts
+[2m2026-10-23T08:51:29.438846Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 5432 variants (96986 consequences) in 4.4s using 16 threads
+
+[2026-10-23 10:51:31] DEBUG [vcfcache.workflow_manager.py._validate_info_tag:965] Validated INFO tag 'CSQ' present in /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/output.bcf
+[2026-10-23 10:51:31] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:872] Direct annotation complete: /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/output.bcf
+[2026-10-23 10:51:31] DEBUG [vcfcache.workflow_manager.py._write_trace_file:983] Trace file written to: /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/veprs_core_trace.txt
+[2026-10-23 10:51:31] INFO [vcfcache.workflow_manager.py.run:374] Workflow completed successfully in 6.6s
+[2026-10-23 10:51:31] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1009] Cleaning up work directory
+[2026-10-23 10:51:31] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1012] Removing work directory: /mnt/data/tmp/native-calibration-1289/runs/misses-direct-1/misses_vcstats/work

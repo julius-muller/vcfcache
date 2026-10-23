@@ -12,6 +12,7 @@ use std::io::{BufReader, BufWriter, Read as IoRead, Write};
 use std::path::{Path, PathBuf};
 
 mod adaptive;
+mod resident;
 mod store;
 
 #[derive(Parser)]
@@ -23,6 +24,11 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Retain a small input in memory, perform native BCF lookup, await recipe.
+    Resident {
+        #[arg(long)]
+        job: PathBuf,
+    },
     /// EXPERIMENT: explicitly build an immutable mmap lookup sidecar.
     StoreBuild {
         #[arg(long)]
@@ -301,6 +307,7 @@ struct OutputOptions<'a> {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
+        Command::Resident { job } => resident::run(&job),
         Command::StoreBuild { cache, output } => store::build(&cache, &output),
         Command::StoreQuery { store, input } => store::query(&store, &input),
         Command::Prepare {

@@ -1,0 +1,14 @@
+[10:52:47] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[10:52:47] Genome build (params.yaml): GRCh38
+[10:52:47] Genome build (annotation.yaml): GRCh38
+[10:52:47] Initializing annotation of misses.bcf
+[10:52:47] Running workflow in mode: annotate-nocache
+[10:52:47] Annotating sample directly (no cache)
+[10:52:47] Splitting multiallelic variants and removing spanning deletions
+[10:52:47] Command completed in 0.178s: bcftools norm
+[10:53:25] Command completed in 38.045s: bcftools view
+[10:53:25] Direct annotation complete: /mnt/data/tmp/native-calibration-1288/runs/misses-direct-1/output.bcf
+[10:53:25] Workflow completed successfully in 38.3s
+Computing MD5 for /mnt/data/tmp/native-calibration-1288/runs/misses-direct-1/misses_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating misses.bcf (uncached mode)...
+Annotation completed in 38.3s

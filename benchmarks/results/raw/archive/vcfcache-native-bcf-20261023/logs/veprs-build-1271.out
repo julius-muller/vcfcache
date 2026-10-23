@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/results/veprs/scripts/prepare_veprs.py", line 91, in <module>
+    main()
+  File "/results/veprs/scripts/prepare_veprs.py", line 28, in main
+    args.output.mkdir(parents=True, exist_ok=False)
+  File "/home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+FileExistsError: [Errno 17] File exists: '/results/native-bcf/veprs-caches-20261023a'

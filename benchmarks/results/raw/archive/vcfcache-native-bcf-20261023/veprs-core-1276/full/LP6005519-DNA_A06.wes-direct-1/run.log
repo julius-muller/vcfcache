@@ -1,0 +1,14 @@
+[10:24:25] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[10:24:25] Genome build (params.yaml): GRCh38
+[10:24:25] Genome build (annotation.yaml): GRCh38
+[10:24:25] Initializing annotation of LP6005519-DNA_A06.wes.bcf
+[10:24:25] Running workflow in mode: annotate-nocache
+[10:24:25] Annotating sample directly (no cache)
+[10:24:25] Splitting multiallelic variants and removing spanning deletions
+[10:24:26] Command completed in 0.971s: bcftools norm
+[10:24:34] Command completed in 7.666s: bcftools view
+[10:24:34] Direct annotation complete: /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-direct-1/output.bcf
+[10:24:34] Workflow completed successfully in 8.7s
+Computing MD5 for /mnt/data/tmp/native-veprs-1276/full-runs/LP6005519-DNA_A06.wes-direct-1/LP6005519-DNA_A06_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating LP6005519-DNA_A06.wes.bcf (uncached mode)...
+Annotation completed in 8.7s

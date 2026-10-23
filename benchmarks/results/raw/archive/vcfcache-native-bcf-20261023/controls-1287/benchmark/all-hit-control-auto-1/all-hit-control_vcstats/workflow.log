@@ -1,0 +1,47 @@
+[2026-10-23 10:52:42] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/native-controls-1287/runs/all-hit-control-auto-1/all-hit-control_vcstats/workflow.log
+[2026-10-23 10:52:42] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 10:52:42] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/native-controls-1287/runs/all-hit-control-auto-1/all-hit-control_vcstats
+[2026-10-23 10:52:42] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/native-controls-1287/runs/all-hit-control-auto-1/all-hit-control_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 10:52:42] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/tmp/native-controls-1287/base/cache/fastvep_clinical_grch38_af001/annotation.yaml
+[2026-10-23 10:52:42] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-23 10:52:42] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-23 10:52:42] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 10:52:42] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-controls-1287/inputs/all-hit-control.bcf
+[2026-10-23 10:52:42] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 10:52:42] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of all-hit-control.bcf
+[2026-10-23 10:52:42] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/native-controls-1287/base/cache/fastvep_clinical_grch38_af001/vcfcache_annotated.bcf
+[2026-10-23 10:52:42] DEBUG [vcfcache.annotator.py.annotate:893] Starting VCF annotation
+[2026-10-23 10:52:42] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-controls-1287/base/cache/fastvep_clinical_grch38_af001/vcfcache_annotated.bcf
+[2026-10-23 10:52:42] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/native-controls-1287/inputs/all-hit-control.bcf
+[2026-10-23 10:52:42] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=22 overlap=22
+[2026-10-23 10:52:42] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-23 10:52:42] DEBUG [vcfcache.workflow_manager.py._create_work_dir:997] Created work directory: /mnt/data/tmp/native-controls-1287/runs/all-hit-control-auto-1/all-hit-control_vcstats/work
+[2026-10-23 10:52:42] INFO [vcfcache.workflow_manager.py.run:310] Running workflow in mode: annotate
+[2026-10-23 10:52:43] INFO [vcfcache.fused.py._run_fused:239] Fused engine: vcfcache-engine 0.3.0; preparation workers=4; CPU budget=16
+[2026-10-23 10:52:43] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.345s
+[2026-10-23 10:52:43] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.375s
+[2026-10-23 10:52:43] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.413s
+[2026-10-23 10:52:43] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.415s
+[2026-10-23 10:52:43] INFO [vcfcache.fused.py._run_fused:299] Adaptive lookup: workers=4; codec threads=2; tasks=8; mode=auto
+[2026-10-23 10:52:44] INFO [vcfcache.fused.py.run:142] Fused route completed in 1.062s
+[2026-10-23 10:52:45] INFO [vcfcache.fused.py.run:142] Fused route completed in 2.210s
+[2026-10-23 10:52:49] INFO [vcfcache.fused.py.run:142] Fused route completed in 4.485s
+[2026-10-23 10:52:49] INFO [vcfcache.fused.py.run:142] Fused route completed in 5.830s
+[2026-10-23 10:52:49] INFO [vcfcache.fused.py.run:142] Fused route completed in 5.855s
+[2026-10-23 10:52:49] INFO [vcfcache.fused.py.run:142] Fused route completed in 3.804s
+[2026-10-23 10:52:52] INFO [vcfcache.fused.py.run:142] Fused route completed in 3.021s
+[2026-10-23 10:52:53] INFO [vcfcache.fused.py.run:142] Fused route completed in 4.187s
+[2026-10-23 10:52:53] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.165s
+[2026-10-23 10:52:53] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.278s
+[2026-10-23 10:52:53] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.423s
+[2026-10-23 10:52:53] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.577s
+[2026-10-23 10:52:54] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.457s
+[2026-10-23 10:52:54] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.431s
+[2026-10-23 10:52:54] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.482s
+[2026-10-23 10:52:54] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.401s
+[2026-10-23 10:52:54] INFO [vcfcache.fused.py.run:142] Fused gather completed in 0.248s
+[2026-10-23 10:52:54] INFO [vcfcache.fused.py.run:142] Fused index completed in 0.321s
+[2026-10-23 10:52:54] DEBUG [vcfcache.workflow_manager.py._write_trace_file:983] Trace file written to: /mnt/data/tmp/native-controls-1287/runs/all-hit-control-auto-1/all-hit-control_vcstats/fastvep_clinical_grch38_af001_trace.txt
+[2026-10-23 10:52:54] INFO [vcfcache.workflow_manager.py.run:374] Workflow completed successfully in 12.2s
+[2026-10-23 10:52:55] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1009] Cleaning up work directory
+[2026-10-23 10:52:55] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1012] Removing work directory: /mnt/data/tmp/native-controls-1287/runs/all-hit-control-auto-1/all-hit-control_vcstats/work

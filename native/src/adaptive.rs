@@ -114,24 +114,54 @@ fn union_bytes(ranges: &mut [(u64, u64)]) -> u64 {
 
 /// Minimal safe ownership wrapper for public HTSlib indexed wb0 output.
 /// rust-htslib's Writer does not expose BGZF level-zero or index-on-write.
-struct Spool {
+pub(super) struct Spool {
     file: *mut htslib::htsFile,
     index_name: CString,
 }
 
 impl Spool {
-    fn new(path: &Path, header: &bcf::header::HeaderView) -> Result<Self> {
+    pub(super) fn new(path: &Path, header: &bcf::header::HeaderView) -> Result<Self> {
+        Self::open(path, header, c"wb0", 0)
+    }
+
+    pub(super) fn new_compressed(
+        path: &Path,
+        header: &bcf::header::HeaderView,
+        threads: usize,
+    ) -> Result<Self> {
+        Self::open(path, header, c"wb", threads)
+    }
+
+    fn open(
+        path: &Path,
+        header: &bcf::header::HeaderView,
+        mode: &std::ffi::CStr,
+        threads: usize,
+    ) -> Result<Self> {
         let name = CString::new(path.to_str().context("non-UTF8 output path")?)?;
-        let file = unsafe { htslib::hts_open(name.as_ptr(), c"wb0".as_ptr()) };
+        let file = unsafe { htslib::hts_open(name.as_ptr(), mode.as_ptr()) };
         ensure!(!file.is_null(), "cannot create normalized spool");
         let spool = Self {
             file,
             index_name: CString::new(format!("{}.csi", path.display()))?,
         };
         unsafe {
+            if threads > 0 {
+                ensure!(
+                    htslib::hts_set_threads(file, threads as i32) == 0,
+                    "cannot set writer threads"
+                );
+            }
             ensure!(
                 htslib::bcf_hdr_write(file, header.as_ptr()) == 0,
                 "cannot write spool header"
+            );
+            // The header may already have dispatched BGZF blocks to the
+            // encoder pool. Stabilize its virtual offset before idx_init;
+            // otherwise large headers can produce a bad first CSI chunk.
+            ensure!(
+                htslib::bgzf_flush(htslib::hts_get_bgzfp(file)) == 0,
+                "cannot flush BCF header before indexing"
             );
             ensure!(
                 htslib::bcf_idx_init(file, header.as_ptr(), 14, spool.index_name.as_ptr()) == 0,
@@ -141,7 +171,11 @@ impl Spool {
         Ok(spool)
     }
 
-    fn write(&self, header: &bcf::header::HeaderView, record: &bcf::Record) -> Result<()> {
+    pub(super) fn write(
+        &self,
+        header: &bcf::header::HeaderView,
+        record: &bcf::Record,
+    ) -> Result<()> {
         unsafe {
             ensure!(
                 htslib::bcf_write(self.file, header.as_ptr(), record.inner) == 0,
@@ -151,7 +185,7 @@ impl Spool {
         Ok(())
     }
 
-    fn finish(mut self) -> Result<()> {
+    pub(super) fn finish(mut self) -> Result<()> {
         ensure!(
             unsafe { htslib::bcf_idx_save(self.file) } == 0,
             "cannot save normalized CSI"

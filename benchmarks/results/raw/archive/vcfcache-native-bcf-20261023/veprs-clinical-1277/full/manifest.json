@@ -1,0 +1,41 @@
+{
+  "platform": "Linux-7.0.0-14-generic-x86_64-with-glibc2.43",
+  "python": "3.12.3 (main, Apr 15 2024, 18:25:56) [Clang 17.0.6 ]",
+  "cpus": 16,
+  "repeats": 1,
+  "warmup": false,
+  "inputs": [
+    "/mnt/data/tmp/native-veprs-1277/inputs/LP6005519-DNA_A06.wes.bcf",
+    "/mnt/data/tmp/native-veprs-1277/inputs/LP6005592-DNA_C05.wes.bcf"
+  ],
+  "arms": [
+    "auto",
+    "native",
+    "direct"
+  ],
+  "cache": "/mnt/data/tmp/native-veprs-1277/full/cache/veprs_clinical",
+  "source_sha256": {
+    "vcfcache/database/fused.py": "6f9e292ca7bb30b900d2b156b320bfb7b7a4a949783e3fe512c50dc677ee01a3",
+    "vcfcache/database/adaptive.py": "8f060365e9bfeaee54623f192cd675ebd70f47f46083672d4fd9619a34d59d46",
+    "native/src/main.rs": "1971c0862c8db25cdc0b70b803c29bd060b977355bbee6830bd8c339a5cc77f6",
+    "native/src/adaptive.rs": "ec25ad793d1aabbc7295dc1190b31ad066d3cf2c1cfdd9b58adfa70aa238ed3a",
+    "native/src/resident.rs": "adad55856b1f46a48fc7e633c09faf100ac80c04611b82c777c6b69f186346ea",
+    "vcfcache/database/native.py": "4fdbf85467af7d09feb1302e174f8d0d6d1cf9f317c57c80dfdcc10252868eb2"
+  },
+  "native_sha256": "b2015a74c9fdd65e22751823602880d78e8f9e08a45f9d7545794c49be8400a0",
+  "resource_fingerprints": {
+    "/results/veprs/dist/vep": {
+      "sha256": "655c5e9204731ce2bd8a72d4d5ff4e2c4a4ab687c060b79ef37542c12ae339a5",
+      "bytes": 3297968
+    }
+  },
+  "input_sha256": {
+    "/mnt/data/tmp/native-veprs-1277/inputs/LP6005519-DNA_A06.wes.bcf": "09cbc7964fdbc9c1be4eecaf7e43942d67085434efd412fa6593c5df49cfed4a",
+    "/mnt/data/tmp/native-veprs-1277/inputs/LP6005592-DNA_C05.wes.bcf": "b7cff00ace54752b0270c19ecdb86e2b2f72da8324cdaa491abb6b9f73bf4832"
+  },
+  "bcftools": "bcftools 1.21\nUsing htslib 1.21\nCopyright (C) 2024 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+  "original_root": "None",
+  "slurm_steps": true,
+  "note": "cache-derived controls are engineering inputs, not cohort coverage results",
+  "work_directory": "/mnt/data/tmp/native-veprs-1277/full-runs"
+}
