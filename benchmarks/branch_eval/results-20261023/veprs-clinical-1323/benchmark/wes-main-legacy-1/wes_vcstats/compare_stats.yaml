@@ -1,0 +1,26 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T12:50:22'
+output_file: /mnt/data/tmp/branch-eval-veprs-clinical-1323/runs/wes-main-legacy-1/output.bcf
+input_file: /results/branch-eval/inputs/wes.bcf
+input_name: wes.bcf
+cache_name: veprs_clinical
+cache_path: /mnt/data/tmp/branch-eval-veprs-clinical-1323/cache/veprs_clinical
+annotation_yaml_md5: cd60bf5c4331057b2c64be16cebc99f3
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 82714
+  annotated_output: 82714
+  tool_annotated: 5432
+  input_variants: 82714
+  dropped_variants: 0
+  missing_variants: 5432
+  missing_annotated: 5432
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null

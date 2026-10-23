@@ -1,0 +1,55 @@
+{
+  "campaign": "branch-eval-20261023",
+  "question": "Where does each VCFcache engine generation stand against each annotator's own uncached run, at panel/WES/WGS, with fixed cost and per-variant cost separated?",
+  "sample": "LP6005519-DNA_A06 (SGDP, GRCh38) for the annotator matrix; KPGP-00319 for the heavy VEP rungs",
+  "harness": "benchmarks/adaptive_routing.py, one Slurm step per cell, complete-record audit outside timing",
+  "arms": {
+    "direct": "uncached annotation, the reference every cached arm is audited against",
+    "main-legacy": "main at 136bafa9, deployment vcfcache-eval-main-136bafa9 (no --engine option)",
+    "legacy": "legacy engine as it stands on feature/native-bcf-routing 63757a07",
+    "original-fused": "feature/fused-routing c878d86c",
+    "auto": "adaptive engine, 8830bf7b3 lineage, labelled 'adaptive' in the summary",
+    "native": "resident native engine, 63757a07"
+  },
+  "jobs": [
+    {"id": 1296, "what": "input staging", "status": "complete"},
+    {"id": 1299, "what": "vep-rs core, single/minimal/panel/wes, 6 arms, 16 cpus", "status": "complete", "cells": 24},
+    {"id": 1300, "what": "fastVEP clinical, single/minimal/panel/wes, 6 arms, 16 cpus", "status": "complete", "cells": 24},
+    {"id": 1301, "what": "VEP everything, assay scales", "status": "ABORTED: driver stopped at the first audit failure; superseded by 1315", "cells": 20},
+    {"id": 1302, "what": "vep-rs core WGS, 6 arms", "status": "complete", "cells": 6},
+    {"id": 1303, "what": "fastVEP WGS", "status": "FAILED: srun step launch on sl-w5 returned 167, 'Job credential expired'; node excluded thereafter; superseded by 1316", "cells": 0},
+    {"id": 1304, "what": "VEP WGS", "status": "CANCELLED before its cached arms so the audit-tolerant driver could be used; superseded by 1317", "cells": 0},
+    {"id": 1315, "what": "VEP everything, assay scales, 6 arms, 16 cpus", "status": "complete", "cells": 24},
+    {"id": 1316, "what": "fastVEP clinical WGS, 6 arms", "status": "complete", "cells": 6},
+    {"id": 1317, "what": "VEP everything WGS, 5 arms", "status": "complete", "cells": 5},
+    {"id": 1318, "what": "heavy VEP 500us rung", "status": "FAILED: passed arm name 'adaptive'; the driver calls it 'auto'; failed at argument parsing, no cluster time used; superseded by 1320", "cells": 0},
+    {"id": 1319, "what": "heavy VEP 10ms rung", "status": "FAILED: same arm-name error; superseded by 1321", "cells": 0},
+    {"id": 1320, "what": "heavy VEP everything+500us/consequence, KPGP-00319 WGS, main/adaptive/native, 8 cpus", "status": "complete", "cells": 3},
+    {"id": 1321, "what": "heavy VEP everything+10ms/consequence", "status": "CANCELLED by request after 2h19m with no cells: each arm costs ~2.25h and the result was already bounded to <=1.018x by the cache-side budget", "cells": 0},
+    {"id": 1323, "what": "vep-rs clinical, single/minimal/panel/wes, 6 arms, 16 cpus", "status": "complete", "cells": 24},
+    {"id": 1324, "what": "vep-rs clinical WGS, 6 arms", "status": "complete", "cells": 6}
+  ],
+  "reused_without_rerun": {
+    "source": "benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-af001-cd87186-kpgp00319",
+    "cells": {
+      "everything_delay_00500us uncached": 15140.383463538019,
+      "everything_delay_00500us main cached": 1805.3746748859994,
+      "everything_delay_10000us uncached": 81740.53165800101,
+      "everything_delay_10000us main cached": 8103.32968029601
+    },
+    "why": "the 500us and 10ms uncached arms cost 4.2 h and 22.7 h; the 500us rung was re-anchored with a fresh main cell measured in the same job at the campaign's 8 cpus / 8 vep_forks",
+    "anchor_agreement": "fresh main 1796.21 s vs archived 1805.37 s, 0.5%"
+  },
+  "known_output_discrepancies": {
+    "vep": "HGNC_ID differs at 2/82714 (WES) and 28/4858092 (WGS) records; Ensembl/ensembl-vep#1959: merge_features back-fills HGNC IDs by gene symbol from other features in the same annotation buffer, so the value depends on buffer composition and any subset annotation can differ from a full-input run; identical in all five cached arms",
+    "veprs-clinical": "ClinVar-derived CSQ differs at 22/82714 (WES) and 40/4858092 (WGS) records; cause not established; identical in all five cached arms",
+    "engine_independence": "every cached arm reported byte-identical mismatch counts and loci, so routing is not implicated in either case"
+  },
+  "limitations": [
+    "one run per cell; observed run-to-run spread was 1-3% (VEP WES uncached 273.98 s in job 1301 vs 282.33 s in 1315)",
+    "differences of a few percent between engine arms are not evidence of an ordering",
+    "no cross-annotator comparison is valid: the annotators do different work and vep-rs in particular differs in behaviour",
+    "the heavy rungs use a different sample and a different CPU count (8) than the annotator matrix (16)",
+    "main at 136bafa9 lacks the --engine option, so its arm omits that flag; all other arms pass it"
+  ]
+}

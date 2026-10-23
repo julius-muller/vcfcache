@@ -1,0 +1,45 @@
+{
+  "platform": "Linux-7.0.0-14-generic-x86_64-with-glibc2.43",
+  "python": "3.12.3 (main, Apr 15 2024, 18:25:56) [Clang 17.0.6 ]",
+  "cpus": 16,
+  "repeats": 1,
+  "warmup": false,
+  "paired_order": false,
+  "inputs": [
+    "/results/branch-eval/inputs/single.bcf",
+    "/results/branch-eval/inputs/minimal.bcf",
+    "/results/branch-eval/inputs/panel.bcf",
+    "/results/branch-eval/inputs/wes.bcf"
+  ],
+  "arms": [
+    "direct",
+    "main-legacy",
+    "legacy",
+    "original-fused",
+    "auto",
+    "native"
+  ],
+  "cache": "/mnt/data/tmp/branch-eval-vep-1315/cache/vep115.2_everything",
+  "source_sha256": {
+    "vcfcache/database/fused.py": "6f9e292ca7bb30b900d2b156b320bfb7b7a4a949783e3fe512c50dc677ee01a3",
+    "vcfcache/database/adaptive.py": "8f060365e9bfeaee54623f192cd675ebd70f47f46083672d4fd9619a34d59d46",
+    "native/src/main.rs": "1971c0862c8db25cdc0b70b803c29bd060b977355bbee6830bd8c339a5cc77f6",
+    "native/src/adaptive.rs": "ec25ad793d1aabbc7295dc1190b31ad066d3cf2c1cfdd9b58adfa70aa238ed3a",
+    "native/src/resident.rs": "b35f7cae919d1a4b84b15c9c7a44c0facb957fe569e71d1e4f777819e7272bc4",
+    "vcfcache/database/native.py": "2bdfcf2c1e917df9ee83ee285cc938c9e2620a44df55aecb11abc166c1d1447b"
+  },
+  "native_sha256": "e26eb71162a8a9f9e0670a7624ccd4826171e2b8c434ba2870320de6bae3cad8",
+  "resource_fingerprints": {},
+  "input_sha256": {
+    "/results/branch-eval/inputs/single.bcf": "7fdcb90c0f0dc3991f966aad38b8795b887f64777a15ccb531ab43d292d6bc49",
+    "/results/branch-eval/inputs/minimal.bcf": "67c29ea699f74b3b78571e499352543d3a8d5b5ebc77bb09e85382005b7ae427",
+    "/results/branch-eval/inputs/panel.bcf": "c57e997c541626c15e4517fea79fb8ec5479d1dec5675ae388d46296e4c18ed9",
+    "/results/branch-eval/inputs/wes.bcf": "910d0854dad8f526c4ac121672527966cfdb2ef2e37a962ad8cfaf09690e644e"
+  },
+  "bcftools": "bcftools 1.21\nUsing htslib 1.21\nCopyright (C) 2024 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+  "original_root": "/results/deployment/vcfcache-fused-c878d86c",
+  "legacy_root": "/results/deployment/vcfcache-eval-main-136bafa9",
+  "slurm_steps": true,
+  "note": "cache-derived controls are engineering inputs, not cohort coverage results",
+  "work_directory": "/mnt/data/tmp/branch-eval-vep-1315/runs"
+}

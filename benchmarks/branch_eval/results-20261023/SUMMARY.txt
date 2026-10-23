@@ -1,0 +1,93 @@
+# timed cells: 119   semantic audits failed: 19
+#   FAILED vep wes main-legacy
+#   FAILED vep wes legacy
+#   FAILED vep wes original-fused
+#   FAILED vep wes auto
+#   FAILED vep wes native
+#   FAILED vep wgs main-legacy
+#   FAILED vep wgs legacy
+#   FAILED vep wgs auto
+#   FAILED vep wgs native
+#   FAILED veprs-clinical wes main-legacy
+#   FAILED veprs-clinical wes legacy
+#   FAILED veprs-clinical wes original-fused
+#   FAILED veprs-clinical wes auto
+#   FAILED veprs-clinical wes native
+#   FAILED veprs-clinical wgs main-legacy
+#   FAILED veprs-clinical wgs legacy
+#   FAILED veprs-clinical wgs original-fused
+#   FAILED veprs-clinical wgs auto
+#   FAILED veprs-clinical wgs native
+
+## Wall seconds per cell
+annotator	scale	records	uncached	main	legacy@head	fused	adaptive	native
+fastvep	single	1	10.89	15.41	15.72	61.25	1.88	1.31
+fastvep	minimal	22	11.54	24.68	24.61	25.43	12.66	11.14
+fastvep	panel	281	13.86	25.51	25.97	25.87	12.91	11.19
+fastvep	wes	82714	48.92	52.82	52.48	47.29	44.97	38.55
+fastvep	wgs	4858092	458.34	184.39	187.79	120.17	117.86	111.15
+vep	single	1	5.23	25.96	22.26	109.35	1.94	1.35
+vep	minimal	22	9.77	28.38	25.52	33.98	5.44	4.71
+vep	panel	281	33.27	33.77	32.23	36.95	10.31	11.56
+vep	wes	82714	282.33	149.58	154.32	148.72	137.38	140.68
+vep	wgs	4858092	6004.04	718.10	793.89	-	701.54	695.43
+veprs	single	1	2.89	12.02	12.02	35.51	1.97	1.34
+veprs	minimal	22	15.15	13.13	13.02	11.81	2.83	2.15
+veprs	panel	281	7.53	15.69	16.20	14.18	6.56	5.96
+veprs	wes	82714	9.14	24.70	23.79	17.15	16.45	12.73
+veprs	wgs	4858092	68.16	103.96	105.29	49.86	44.98	45.79
+veprs-clinical	single	1	1.93	14.12	13.07	44.57	1.89	1.22
+veprs-clinical	minimal	22	8.13	14.13	14.28	13.66	2.87	2.28
+veprs-clinical	panel	281	7.91	18.69	17.32	16.82	6.56	6.20
+veprs-clinical	wes	82714	69.64	29.14	28.28	25.79	24.52	20.36
+veprs-clinical	wgs	4858092	976.77	303.00	308.60	255.83	260.52	268.74
+
+## Fixed floor (one variant) and per-variant cost
+annotator	arm	floor_1var_s	slope_panel_wes_us	slope_wes_wgs_us	lsq_slope_us	lsq_intercept_s
+fastvep	uncached	10.89	425.3	85.7	88.7	27.59
+fastvep	main	15.41	331.3	27.6	30.2	37.80
+fastvep	legacy@head	15.72	321.7	28.3	30.9	37.84
+fastvep	fused	61.25	259.8	15.3	17.4	35.77
+fastvep	adaptive	1.88	389.0	15.3	18.5	28.04
+fastvep	native	1.31	331.9	15.2	18.0	24.01
+vep	uncached	5.23	3021.3	1198.2	1214.2	106.78
+vep	main	25.96	1404.9	119.1	130.3	85.81
+vep	legacy@head	22.26	1481.1	133.9	145.8	86.76
+vep	fused	109.35	1355.9	nan	1355.9	36.57
+vep	adaptive	1.94	1541.5	118.1	130.6	67.92
+vep	native	1.35	1566.3	116.2	128.9	70.26
+veprs	uncached	2.89	19.6	12.4	12.4	7.82
+veprs	main	12.02	109.3	16.6	17.4	19.44
+veprs	legacy@head	12.02	92.1	17.1	17.7	19.23
+veprs	fused	35.51	36.0	6.8	7.1	15.36
+veprs	adaptive	1.97	119.9	6.0	7.0	11.18
+veprs	native	1.34	82.2	6.9	7.6	9.01
+veprs-clinical	uncached	1.93	748.9	190.0	194.9	30.49
+veprs-clinical	main	14.12	126.7	57.3	58.0	21.49
+veprs-clinical	legacy@head	13.07	132.9	58.7	59.4	20.31
+veprs-clinical	fused	44.57	108.9	48.2	48.7	19.26
+veprs-clinical	adaptive	1.89	217.8	49.4	50.9	13.37
+veprs-clinical	native	1.22	171.8	52.0	53.1	11.03
+
+## Speedup over uncached annotation
+annotator	scale	main	legacy@head	fused	adaptive	native
+fastvep	single	0.71x	0.69x	0.18x	5.78x	8.29x
+fastvep	minimal	0.47x	0.47x	0.45x	0.91x	1.04x
+fastvep	panel	0.54x	0.53x	0.54x	1.07x	1.24x
+fastvep	wes	0.93x	0.93x	1.03x	1.09x	1.27x
+fastvep	wgs	2.49x	2.44x	3.81x	3.89x	4.12x
+vep	single	0.20x	0.24x	0.05x	2.70x	3.89x
+vep	minimal	0.34x	0.38x	0.29x	1.79x	2.07x
+vep	panel	0.99x	1.03x	0.90x	3.23x	2.88x
+vep	wes	1.89x	1.83x	1.90x	2.06x	2.01x
+vep	wgs	8.36x	7.56x	-	8.56x	8.63x
+veprs	single	0.24x	0.24x	0.08x	1.47x	2.15x
+veprs	minimal	1.15x	1.16x	1.28x	5.35x	7.04x
+veprs	panel	0.48x	0.46x	0.53x	1.15x	1.26x
+veprs	wes	0.37x	0.38x	0.53x	0.56x	0.72x
+veprs	wgs	0.66x	0.65x	1.37x	1.52x	1.49x
+veprs-clinical	single	0.14x	0.15x	0.04x	1.02x	1.58x
+veprs-clinical	minimal	0.58x	0.57x	0.60x	2.83x	3.57x
+veprs-clinical	panel	0.42x	0.46x	0.47x	1.21x	1.28x
+veprs-clinical	wes	2.39x	2.46x	2.70x	2.84x	3.42x
+veprs-clinical	wgs	3.22x	3.17x	3.82x	3.75x	3.63x

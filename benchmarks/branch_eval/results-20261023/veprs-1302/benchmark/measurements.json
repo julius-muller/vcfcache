@@ -1,0 +1,50 @@
+[
+  {
+    "input": "/results/branch-eval/inputs/wgs.bcf",
+    "arm": "direct",
+    "rep": 1,
+    "wall_seconds": 68.16390750836581,
+    "orchestration_wall_seconds": 68.36638535559177,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/wgs.bcf",
+    "arm": "main-legacy",
+    "rep": 1,
+    "wall_seconds": 103.95947088301182,
+    "orchestration_wall_seconds": 104.158930785954,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/wgs.bcf",
+    "arm": "legacy",
+    "rep": 1,
+    "wall_seconds": 105.28763547539711,
+    "orchestration_wall_seconds": 105.49538899026811,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/wgs.bcf",
+    "arm": "original-fused",
+    "rep": 1,
+    "wall_seconds": 49.856228364631534,
+    "orchestration_wall_seconds": 50.065648501738906,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/wgs.bcf",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 44.98239374253899,
+    "orchestration_wall_seconds": 45.16451141424477,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/wgs.bcf",
+    "arm": "native",
+    "rep": 1,
+    "wall_seconds": 45.78609514795244,
+    "orchestration_wall_seconds": 45.992255283519626,
+    "semantic_pass": true
+  }
+]

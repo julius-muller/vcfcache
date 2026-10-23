@@ -1,0 +1,64 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T11:35:38'
+output_file: /mnt/data/tmp/branch-eval-fastvep-1300/runs/single-native-1/output.bcf
+input_file: /results/branch-eval/inputs/single.bcf
+input_name: single.bcf
+cache_name: fastvep_clinical_grch38_af001
+cache_path: /mnt/data/tmp/branch-eval-fastvep-1300/cache/fastvep_clinical_grch38_af001
+annotation_yaml_md5: 33a5f93e383eb9ead67f9454b04b0e61
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 1
+  annotated_output: 1
+  tool_annotated: 0
+  input_variants: 1
+  dropped_variants: 0
+  missing_variants: 0
+  missing_annotated: 0
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: native
+requested_engine: native
+native_version: vcfcache-engine 0.3.0
+workers: 8
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings: []
+engine_lookup: auto
+phase_timings:
+- phase: prepare
+  wall_seconds: 0.119025893
+- phase: lookup
+  wall_seconds: 0.171053476
+- phase: merge-preflight
+  wall_seconds: 1.517e-06
+- phase: merge-and-write
+  wall_seconds: 0.071126287
+engine_wall_seconds: 0.4342318829149008
+engine_memory_mb: 512
+buffer_bytes: 1483
+candidate_records: 201
+lookup_queries: 1

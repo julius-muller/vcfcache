@@ -1,0 +1,70 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T12:00:40'
+output_file: /mnt/data/tmp/branch-eval-vep-1315/runs/panel-original-fused-1/output.bcf
+input_file: /results/branch-eval/inputs/panel.bcf
+input_name: panel.bcf
+cache_name: vep115.2_everything
+cache_path: /mnt/data/tmp/branch-eval-vep-1315/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 281
+  annotated_output: 281
+  tool_annotated: 19
+  input_variants: 281
+  dropped_variants: 0
+  missing_variants: 19
+  missing_annotated: 19
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 8
+cpu_budget: 16
+stage_timings:
+- stage: preprocess
+  wall_seconds: 0.0798907270655036
+- stage: preprocess
+  wall_seconds: 0.07705298904329538
+- stage: preprocess
+  wall_seconds: 0.07974130846560001
+- stage: preprocess
+  wall_seconds: 0.07778099831193686
+- stage: preprocess
+  wall_seconds: 0.08720968849956989
+- stage: route
+  wall_seconds: 4.088809372857213
+- stage: route
+  wall_seconds: 17.333580572158098
+- stage: route
+  wall_seconds: 17.9957009665668
+- stage: route
+  wall_seconds: 23.08157604560256
+- stage: route
+  wall_seconds: 26.103797026909888
+- stage: collect-misses
+  wall_seconds: 0.1157870776951313
+- stage: annotate-misses
+  wall_seconds: 8.902016064152122
+- stage: assemble
+  wall_seconds: 0.18845057301223278
+- stage: assemble
+  wall_seconds: 0.19237943273037672
+- stage: assemble
+  wall_seconds: 0.20050853863358498
+- stage: assemble
+  wall_seconds: 0.2326007829979062
+- stage: assemble
+  wall_seconds: 0.2943436112254858
+- stage: gather
+  wall_seconds: 0.12766456976532936
+- stage: index
+  wall_seconds: 0.04857164714485407

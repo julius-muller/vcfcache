@@ -1,0 +1,70 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T11:39:05'
+output_file: /mnt/data/tmp/branch-eval-fastvep-1300/runs/panel-original-fused-1/output.bcf
+input_file: /results/branch-eval/inputs/panel.bcf
+input_name: panel.bcf
+cache_name: fastvep_clinical_grch38_af001
+cache_path: /mnt/data/tmp/branch-eval-fastvep-1300/cache/fastvep_clinical_grch38_af001
+annotation_yaml_md5: 33a5f93e383eb9ead67f9454b04b0e61
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 281
+  annotated_output: 281
+  tool_annotated: 19
+  input_variants: 281
+  dropped_variants: 0
+  missing_variants: 19
+  missing_annotated: 19
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 8
+cpu_budget: 16
+stage_timings:
+- stage: preprocess
+  wall_seconds: 0.07517990097403526
+- stage: preprocess
+  wall_seconds: 0.07504625804722309
+- stage: preprocess
+  wall_seconds: 0.07736592832952738
+- stage: preprocess
+  wall_seconds: 0.11331709008663893
+- stage: preprocess
+  wall_seconds: 0.11281903274357319
+- stage: route
+  wall_seconds: 2.5279326485469937
+- stage: route
+  wall_seconds: 10.342027210630476
+- stage: route
+  wall_seconds: 11.158121089451015
+- stage: route
+  wall_seconds: 12.59699738305062
+- stage: route
+  wall_seconds: 14.517878586426377
+- stage: collect-misses
+  wall_seconds: 0.18362105637788773
+- stage: annotate-misses
+  wall_seconds: 9.495411216281354
+- stage: assemble
+  wall_seconds: 0.14758399687707424
+- stage: assemble
+  wall_seconds: 0.1887411382049322
+- stage: assemble
+  wall_seconds: 0.20202665589749813
+- stage: assemble
+  wall_seconds: 0.21627397555857897
+- stage: assemble
+  wall_seconds: 0.2325671473518014
+- stage: gather
+  wall_seconds: 0.12511876318603754
+- stage: index
+  wall_seconds: 0.0458823349326849

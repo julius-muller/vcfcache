@@ -1,0 +1,42 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T11:36:42'
+output_file: /mnt/data/tmp/branch-eval-vep-1301/runs/single-original-fused-1/output.bcf
+input_file: /results/branch-eval/inputs/single.bcf
+input_name: single.bcf
+cache_name: vep115.2_everything
+cache_path: /mnt/data/tmp/branch-eval-vep-1301/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 1
+  annotated_output: 1
+  tool_annotated: 0
+  input_variants: 1
+  dropped_variants: 0
+  missing_variants: 0
+  missing_annotated: 0
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 1
+cpu_budget: 16
+stage_timings:
+- stage: preprocess
+  wall_seconds: 0.09715210366994143
+- stage: route
+  wall_seconds: 106.48084559291601
+- stage: assemble
+  wall_seconds: 0.060560048557817936
+- stage: gather
+  wall_seconds: 0.05458613391965628
+- stage: index
+  wall_seconds: 0.037661466747522354

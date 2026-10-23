@@ -1,0 +1,87 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T11:56:29'
+output_file: /mnt/data/tmp/branch-eval-vep-1315/runs/single-auto-1/output.bcf
+input_file: /results/branch-eval/inputs/single.bcf
+input_name: single.bcf
+cache_name: vep115.2_everything
+cache_path: /mnt/data/tmp/branch-eval-vep-1315/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 1
+  annotated_output: 1
+  tool_annotated: 0
+  input_variants: 1
+  dropped_variants: 0
+  missing_variants: 0
+  missing_annotated: 0
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.3.0
+workers: 1
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings:
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 0.24552667886018753
+- stage: route
+  task: shard-0000
+  wall_seconds: 0.26944700349122286
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 0.10203376319259405
+- stage: gather
+  task: fused
+  wall_seconds: 0.04909576755017042
+- stage: index
+  task: fused
+  wall_seconds: 0.04223908297717571
+codec_threads_per_worker: 14
+assembly_decode_threads: 0
+assembly_encode_threads: 15
+engine_lookup: auto
+lookup_strategies:
+- cache_records: 1435577
+  estimated_cache_bytes: 311998208
+  name: chr1
+  requested_cache_bytes: 81057
+  strategy: regions
+lookup_tasks: 1
+lookup_regions: 1
+task_estimated_work:
+- 81121
+estimate_note: CSI candidate byte estimates, not observed cache I/O
+phase_timings:
+- phase: preprocess
+  wall_seconds: 0.24895723443478346
+- phase: route
+  wall_seconds: 0.271453196182847
+- phase: assemble
+  wall_seconds: 0.10452761128544807
+engine_wall_seconds: 0.9515237174928188

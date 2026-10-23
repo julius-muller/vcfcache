@@ -1,0 +1,7 @@
+pipeline=everything_delay_10000us
+arms=main-legacy auto native
+cpus=8
+input=/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz
+node=sl-w3
+job=1321
+archived_uncached_campaign=wgs-pipeline-spectrum-af001-cd87186-kpgp00319

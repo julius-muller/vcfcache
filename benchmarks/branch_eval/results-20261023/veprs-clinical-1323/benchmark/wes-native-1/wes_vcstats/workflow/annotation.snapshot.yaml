@@ -1,0 +1,8 @@
+annotation_cmd: ${params.bcftools_cmd} view ${INPUT_BCF} -Ov | ${params.annotation_tool_cmd}
+  --assembly GRCh38 --json_cache ${params.transcript_cache} --fork ${params.threads}
+  --vcf --no_stats --input_file STDIN --output_file STDOUT --plugin gnomADc,/results/veprs/data/gnomad_joint_gw_GRCh38.vcf.gz
+  --plugin dbNSFP,/results/native-bcf/veprs-caches-20261023b/clinvar.tsv.gz,CV_CLNSIG,CV_REVSTAT,CV_CLNDN
+  | ${params.bcftools_cmd} view -Ob -W --threads ${params.threads} -o ${OUTPUT_BCF}
+must_contain_info_tag: CSQ
+genome_build: GRCh38
+required_tool_version: '116.2'

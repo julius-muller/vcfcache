@@ -1,0 +1,64 @@
+{
+  "platform": "Linux-7.0.0-14-generic-x86_64-with-glibc2.43",
+  "python": "3.12.3 (main, Apr 15 2024, 18:25:56) [Clang 17.0.6 ]",
+  "cpus": 16,
+  "repeats": 1,
+  "warmup": false,
+  "paired_order": false,
+  "inputs": [
+    "/results/branch-eval/inputs/wgs.bcf"
+  ],
+  "arms": [
+    "direct",
+    "main-legacy",
+    "legacy",
+    "original-fused",
+    "auto",
+    "native"
+  ],
+  "cache": "/mnt/data/tmp/branch-eval-fastvep-1303/cache/fastvep_clinical_grch38_af001",
+  "source_sha256": {
+    "vcfcache/database/fused.py": "6f9e292ca7bb30b900d2b156b320bfb7b7a4a949783e3fe512c50dc677ee01a3",
+    "vcfcache/database/adaptive.py": "8f060365e9bfeaee54623f192cd675ebd70f47f46083672d4fd9619a34d59d46",
+    "native/src/main.rs": "1971c0862c8db25cdc0b70b803c29bd060b977355bbee6830bd8c339a5cc77f6",
+    "native/src/adaptive.rs": "ec25ad793d1aabbc7295dc1190b31ad066d3cf2c1cfdd9b58adfa70aa238ed3a",
+    "native/src/resident.rs": "b35f7cae919d1a4b84b15c9c7a44c0facb957fe569e71d1e4f777819e7272bc4",
+    "vcfcache/database/native.py": "2bdfcf2c1e917df9ee83ee285cc938c9e2620a44df55aecb11abc166c1d1447b"
+  },
+  "native_sha256": "e26eb71162a8a9f9e0670a7624ccd4826171e2b8c434ba2870320de6bae3cad8",
+  "resource_fingerprints": {
+    "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep": {
+      "sha256": "82a128b03aa80470c0bbcc73a08d7ea4f43a6cabf1f602a1d40792e8e79e8226",
+      "bytes": 6206000
+    },
+    "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa": {
+      "sha256": "3de3ef4d804e8df197ca66683056d30995756fe60c351449a1629b31d67bb436",
+      "bytes": 3346495805
+    },
+    "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa.fai": {
+      "sha256": "f3434563a0fd92a4a65cfeabaf78291e05c2ac6eaccb5e1ade45ea5131dc80de",
+      "bytes": 26844
+    },
+    "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache": {
+      "sha256": "819bf9a22dc2ca327d2568b2f9fd273b2c9ab5e2a6ec005bb2668a6d4b88d6d5",
+      "bytes": 216406410
+    },
+    "/results/richness/sa/clinical_GRCh38/clinvar.osa2": {
+      "sha256": "a6b1f801fa4c3d7e4c3bc04a5e6836dc26c0cca85d4d1c37d7bc0c1836390522",
+      "bytes": 41018598
+    },
+    "/results/richness/sa/clinical_GRCh38/gnomad.osa2": {
+      "sha256": "c683bc27a4e67134c87f1fb35282dc2cc5565a6257f62898e0e3cc8bfcbdfbe2",
+      "bytes": 831288754
+    }
+  },
+  "input_sha256": {
+    "/results/branch-eval/inputs/wgs.bcf": "28fad407f179636376751ef35e05aeb206426a8d2279a61ac992656f9c938cee"
+  },
+  "bcftools": "bcftools 1.21\nUsing htslib 1.21\nCopyright (C) 2024 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+  "original_root": "/results/deployment/vcfcache-fused-c878d86c",
+  "legacy_root": "/results/deployment/vcfcache-eval-main-136bafa9",
+  "slurm_steps": true,
+  "note": "cache-derived controls are engineering inputs, not cohort coverage results",
+  "work_directory": "/mnt/data/tmp/branch-eval-fastvep-1303/runs"
+}

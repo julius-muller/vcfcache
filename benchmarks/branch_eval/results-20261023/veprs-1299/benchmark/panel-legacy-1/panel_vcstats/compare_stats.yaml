@@ -1,0 +1,27 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T11:36:02'
+output_file: /mnt/data/tmp/branch-eval-veprs-1299/runs/panel-legacy-1/output.bcf
+input_file: /results/branch-eval/inputs/panel.bcf
+input_name: panel.bcf
+cache_name: veprs_core
+cache_path: /mnt/data/tmp/branch-eval-veprs-1299/cache/veprs_core
+annotation_yaml_md5: 46745032f587cf84caae3a50be8f0d21
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 281
+  annotated_output: 281
+  tool_annotated: 19
+  input_variants: 281
+  dropped_variants: 0
+  missing_variants: 19
+  missing_annotated: 19
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: legacy

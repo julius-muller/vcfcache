@@ -1,0 +1,23 @@
+{
+  "comparator": "fastvep_complete_record_and_header_v3",
+  "semantic_pass": true,
+  "records_compared": 82714,
+  "record_mismatches": 0,
+  "locus_mismatches": 0,
+  "record_order_only_loci": 30,
+  "raw_annotation_mismatches": 0,
+  "ignored_annotation_mismatches": 0,
+  "relevant_headers_equal": true,
+  "cached_header_sha256": "be5ba3eee49d0ea95ddf527f06cfe29c7127307e3279520d5c8edda87ae4b9b0",
+  "uncached_header_sha256": "be5ba3eee49d0ea95ddf527f06cfe29c7127307e3279520d5c8edda87ae4b9b0",
+  "cached_semantic_sha256": "e40a5852dc0c57fc6d62dc9db7878717377a467010fc6743e21f68f6211c5994",
+  "uncached_semantic_sha256": "e40a5852dc0c57fc6d62dc9db7878717377a467010fc6743e21f68f6211c5994",
+  "canonicalization": [
+    "INFO tag order",
+    "CSQ entry order",
+    "complete-record order within identical CHROM/POS loci",
+    "indexed contig traversal order by contig name"
+  ],
+  "ignored_fields": [],
+  "examples": []
+}

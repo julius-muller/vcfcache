@@ -1,0 +1,88 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T12:47:12'
+output_file: /mnt/data/tmp/branch-eval-veprs-clinical-1323/runs/minimal-original-fused-1/output.bcf
+input_file: /results/branch-eval/inputs/minimal.bcf
+input_name: minimal.bcf
+cache_name: veprs_clinical
+cache_path: /mnt/data/tmp/branch-eval-veprs-clinical-1323/cache/veprs_clinical
+annotation_yaml_md5: cd60bf5c4331057b2c64be16cebc99f3
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 22
+  annotated_output: 22
+  tool_annotated: 2
+  input_variants: 22
+  dropped_variants: 0
+  missing_variants: 2
+  missing_annotated: 2
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 8
+cpu_budget: 16
+stage_timings:
+- stage: preprocess
+  wall_seconds: 0.07695564348250628
+- stage: preprocess
+  wall_seconds: 0.07871820777654648
+- stage: preprocess
+  wall_seconds: 0.07719914987683296
+- stage: preprocess
+  wall_seconds: 0.08413012512028217
+- stage: preprocess
+  wall_seconds: 0.07972044311463833
+- stage: preprocess
+  wall_seconds: 0.07687662076205015
+- stage: preprocess
+  wall_seconds: 0.08183930721133947
+- stage: preprocess
+  wall_seconds: 0.08461812138557434
+- stage: route
+  wall_seconds: 1.5860486393794417
+- stage: route
+  wall_seconds: 3.8592241276055574
+- stage: route
+  wall_seconds: 4.71487632766366
+- stage: route
+  wall_seconds: 4.832288364879787
+- stage: route
+  wall_seconds: 6.85560551751405
+- stage: route
+  wall_seconds: 7.352946464903653
+- stage: route
+  wall_seconds: 7.998224382288754
+- stage: route
+  wall_seconds: 10.842900983057916
+- stage: collect-misses
+  wall_seconds: 0.24758669454604387
+- stage: annotate-misses
+  wall_seconds: 0.7719442807137966
+- stage: assemble
+  wall_seconds: 0.1768747391179204
+- stage: assemble
+  wall_seconds: 0.18366414867341518
+- stage: assemble
+  wall_seconds: 0.1837705234065652
+- stage: assemble
+  wall_seconds: 0.18243629857897758
+- stage: assemble
+  wall_seconds: 0.1975626079365611
+- stage: assemble
+  wall_seconds: 0.1976921884343028
+- stage: assemble
+  wall_seconds: 0.23229428101330996
+- stage: assemble
+  wall_seconds: 0.23748094774782658
+- stage: gather
+  wall_seconds: 0.15920262970030308
+- stage: index
+  wall_seconds: 0.03768262546509504

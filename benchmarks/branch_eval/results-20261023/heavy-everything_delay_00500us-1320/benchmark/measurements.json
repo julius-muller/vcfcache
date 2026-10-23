@@ -1,0 +1,26 @@
+[
+  {
+    "input": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+    "arm": "main-legacy",
+    "rep": 1,
+    "wall_seconds": 1796.2134186550975,
+    "orchestration_wall_seconds": 1796.426358424127,
+    "semantic_pass": true
+  },
+  {
+    "input": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 1687.212813589722,
+    "orchestration_wall_seconds": 1687.5298481322825,
+    "semantic_pass": true
+  },
+  {
+    "input": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz",
+    "arm": "native",
+    "rep": 1,
+    "wall_seconds": 1673.57459028624,
+    "orchestration_wall_seconds": 1673.8894170224667,
+    "semantic_pass": true
+  }
+]

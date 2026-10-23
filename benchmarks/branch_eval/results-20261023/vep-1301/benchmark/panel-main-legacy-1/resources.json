@@ -1,0 +1,33 @@
+{
+  "wall_seconds": 32.787234019488096,
+  "cpu_seconds": 189.76763400000002,
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "largest_child_rss_kib": 152088,
+  "cgroup_before": {
+    "cpu.stat": "usage_usec 146805\nuser_usec 111572\nsystem_usec 35233\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.peak": "7811072"
+  },
+  "cgroup_after": {
+    "cpu.stat": "usage_usec 189920045\nuser_usec 167101160\nsystem_usec 22818884\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.peak": "266477568"
+  },
+  "exit_code": 0,
+  "store_preparation_seconds": 0
+}

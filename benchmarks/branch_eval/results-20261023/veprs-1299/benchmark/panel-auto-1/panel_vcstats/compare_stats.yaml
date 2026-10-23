@@ -1,0 +1,173 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T11:36:24'
+output_file: /mnt/data/tmp/branch-eval-veprs-1299/runs/panel-auto-1/output.bcf
+input_file: /results/branch-eval/inputs/panel.bcf
+input_name: panel.bcf
+cache_name: veprs_core
+cache_path: /mnt/data/tmp/branch-eval-veprs-1299/cache/veprs_core
+annotation_yaml_md5: 46745032f587cf84caae3a50be8f0d21
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 281
+  annotated_output: 281
+  tool_annotated: 19
+  input_variants: 281
+  dropped_variants: 0
+  missing_variants: 19
+  missing_annotated: 19
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.3.0
+workers: 1
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings:
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 0.2586509734392166
+- stage: route
+  task: shard-0000
+  wall_seconds: 0.3719684621319175
+- stage: collect-misses
+  task: fused
+  wall_seconds: 0.09705297742038965
+- stage: annotate-misses
+  task: fused
+  wall_seconds: 4.375675861723721
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 0.19954368565231562
+- stage: gather
+  task: fused
+  wall_seconds: 0.04722911398857832
+- stage: index
+  task: fused
+  wall_seconds: 0.04354244004935026
+codec_threads_per_worker: 14
+assembly_decode_threads: 0
+assembly_encode_threads: 14
+engine_lookup: auto
+lookup_strategies:
+- cache_records: 1435577
+  estimated_cache_bytes: 67733568
+  name: chr1
+  requested_cache_bytes: 648688
+  strategy: regions
+- cache_records: 1490699
+  estimated_cache_bytes: 66482176
+  name: chr2
+  requested_cache_bytes: 672391
+  strategy: regions
+- cache_records: 1247559
+  estimated_cache_bytes: 64941996
+  name: chr3
+  requested_cache_bytes: 335124
+  strategy: regions
+- cache_records: 1118422
+  estimated_cache_bytes: 40635959
+  name: chr5
+  requested_cache_bytes: 77375
+  strategy: regions
+- cache_records: 1152753
+  estimated_cache_bytes: 49424691
+  name: chr6
+  requested_cache_bytes: 287417
+  strategy: regions
+- cache_records: 1074641
+  estimated_cache_bytes: 46449800
+  name: chr7
+  requested_cache_bytes: 370131
+  strategy: regions
+- cache_records: 830834
+  estimated_cache_bytes: 36687634
+  name: chr9
+  requested_cache_bytes: 175621
+  strategy: regions
+- cache_records: 924515
+  estimated_cache_bytes: 41577754
+  name: chr10
+  requested_cache_bytes: 479148
+  strategy: regions
+- cache_records: 862831
+  estimated_cache_bytes: 38877224
+  name: chr11
+  requested_cache_bytes: 399336
+  strategy: regions
+- cache_records: 865133
+  estimated_cache_bytes: 39085781
+  name: chr12
+  requested_cache_bytes: 265938
+  strategy: regions
+- cache_records: 637579
+  estimated_cache_bytes: 19821076
+  name: chr13
+  requested_cache_bytes: 238950
+  strategy: regions
+- cache_records: 591558
+  estimated_cache_bytes: 27986667
+  name: chr14
+  requested_cache_bytes: 77258
+  strategy: regions
+- cache_records: 558135
+  estimated_cache_bytes: 28458203
+  name: chr15
+  requested_cache_bytes: 369106
+  strategy: regions
+- cache_records: 585392
+  estimated_cache_bytes: 28188333
+  name: chr16
+  requested_cache_bytes: 118451
+  strategy: regions
+- cache_records: 548630
+  estimated_cache_bytes: 31901252
+  name: chr17
+  requested_cache_bytes: 258669
+  strategy: regions
+- cache_records: 499973
+  estimated_cache_bytes: 19921995
+  name: chr18
+  requested_cache_bytes: 158231
+  strategy: regions
+- cache_records: 456595
+  estimated_cache_bytes: 29618510
+  name: chr19
+  requested_cache_bytes: 159177
+  strategy: regions
+lookup_tasks: 1
+lookup_regions: 77
+task_estimated_work:
+- 8867710
+estimate_note: CSI candidate byte estimates, not observed cache I/O
+phase_timings:
+- phase: preprocess
+  wall_seconds: 0.2620161697268486
+- phase: route
+  wall_seconds: 0.37378023471683264
+- phase: assemble
+  wall_seconds: 0.20113547332584858
+engine_wall_seconds: 5.65189930703491

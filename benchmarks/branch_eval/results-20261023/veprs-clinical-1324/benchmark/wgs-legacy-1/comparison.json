@@ -1,0 +1,244 @@
+{
+  "comparator": "fastvep_complete_record_and_header_v3",
+  "semantic_pass": false,
+  "records_compared": 4858092,
+  "record_mismatches": 40,
+  "locus_mismatches": 0,
+  "record_order_only_loci": 4231,
+  "raw_annotation_mismatches": 40,
+  "ignored_annotation_mismatches": 0,
+  "relevant_headers_equal": true,
+  "cached_header_sha256": "2446d8351eb681d58381fc90ede52fca974647df263f460210d2df543c70949c",
+  "uncached_header_sha256": "2446d8351eb681d58381fc90ede52fca974647df263f460210d2df543c70949c",
+  "cached_semantic_sha256": "740323a9ba8f85d6ddd39dc144c90f25a550289035d3ae29890c9a9dced7f346",
+  "uncached_semantic_sha256": "dd6db8c9e76164465c710bef0caa0bf8755e1149348c5a63b0beae4acc36a3c5",
+  "canonicalization": [
+    "INFO tag order",
+    "CSQ entry order",
+    "complete-record order within identical CHROM/POS loci",
+    "indexed contig traversal order by contig name"
+  ],
+  "ignored_fields": [],
+  "examples": [
+    {
+      "group": 358749,
+      "locus": [
+        "chr1",
+        "235743683"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235743683\t.\tT\tC\t1354.06\t.\tCSQ=C|downstream_gene_variant|MODIFIER|LDHAP2|ENSG00000235674|Transcript|ENST00000437325|processed_pseudogene|||||||||||4694|1||HGNC|HGNC:6537||T|C||PASS|AF=0.302973%3BAC=46058|||,C|downstream_gene_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000487530|protein_coding|||||||||||2785|-1|cds_start_NF&cds_end_NF|HGNC|HGNC:1968||T|C||PASS|AF=0.302973%3BAC=46058|||,C|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000461526|nonsense_mediated_decay||14/27||||||||||-1|cds_start_NF|HGNC|HGNC:1968||T|C||PASS|AF=0.302973%3BAC=46058|||,C|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000697178|nonsense_mediated_decay||29/51||||||||||-1||HGNC|HGNC:1968||T|C||PASS|AF=0.302973%3BAC=46058|||,C|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000697236|nonsense_mediated_decay||8/29||||||||||-1|cds_start_NF|HGNC|HGNC:1968||T|C||PASS|AF=0.302973%3BAC=4605",
+      "uncached": "chr1\t235743683\t.\tT\tC\t1354.06\t.\tCSQ=C|downstream_gene_variant|MODIFIER|LDHAP2|ENSG00000235674|Transcript|ENST00000437325|processed_pseudogene|||||||||||4694|1||HGNC|HGNC:6537||T|C||PASS|AF=0.302973%3BAC=46058|Benign|criteria_provided&_single_submitter|not_provided,C|downstream_gene_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000487530|protein_coding|||||||||||2785|-1|cds_start_NF&cds_end_NF|HGNC|HGNC:1968||T|C||PASS|AF=0.302973%3BAC=46058|Benign|criteria_provided&_single_submitter|not_provided,C|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000461526|nonsense_mediated_decay||14/27||||||||||-1|cds_start_NF|HGNC|HGNC:1968||T|C||PASS|AF=0.302973%3BAC=46058|Benign|criteria_provided&_single_submitter|not_provided,C|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000697178|nonsense_mediated_decay||29/51||||||||||-1||HGNC|HGNC:1968||T|C||PASS|AF=0.302973%3BAC=46058|Benign|criteria_provided&_single_submitter|"
+    },
+    {
+      "group": 358762,
+      "locus": [
+        "chr1",
+        "235782202"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235782202\t.\tA\tG\t792.06\t.\tCSQ=G|downstream_gene_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000492844|retained_intron|||||||||||4868|-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||,G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000489585|nonsense_mediated_decay||14/22||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||,G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000697178|nonsense_mediated_decay||13/51||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||,G|intron_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000389793|protein_coding||14/52||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|||;DP=24;ExcessHet=3.0103;MLEAC=2;MLEAF=1;RAW_MQandDP=82400,24\tGT\t1|1\n",
+      "uncached": "chr1\t235782202\t.\tA\tG\t792.06\t.\tCSQ=G|downstream_gene_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000492844|retained_intron|||||||||||4868|-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000489585|nonsense_mediated_decay||14/22||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant&NMD_transcript_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000697178|nonsense_mediated_decay||13/51||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|LYST|ENSG00000143669|Transcript|ENST00000389793|protein_coding||14/52||||||||||-1||HGNC|HGNC:1968||A|G||PASS|AF=0.769484%3BAC=692685|Benign|criteria_provided&_single_submitter|not_provided;DP=24;ExcessHet=3.0103;MLEAC=2;ML"
+    },
+    {
+      "group": 359007,
+      "locus": [
+        "chr1",
+        "235977874"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235977874\t.\tT\tC\t307.64\t.\tBaseQRankSum=-2.966;CSQ=C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding|20/20||||3748|3737|1246|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|||,C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding|17/17||||3368|3338|1113|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|||,C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding|18/18||||3580|3464|1155|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|||,C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding|19/19||||3709|3614|1205|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|||,C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding|19/19||||3563|3509|1170|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|||,C|missense_varia",
+      "uncached": "chr1\t235977874\t.\tT\tC\t307.64\t.\tBaseQRankSum=-2.966;CSQ=C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding|20/20||||3748|3737|1246|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding|17/17||||3368|3338|1113|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding|18/18||||3580|3464|1155|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=336104|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding|19/19||||3709|3614|1205|Q/R|cAg/cGg|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208309%3BAC=33"
+    },
+    {
+      "group": 359008,
+      "locus": [
+        "chr1",
+        "235978953"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235978953\t.\tT\tG\t758.64\t.\tBaseQRankSum=-0.473;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||19/19||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||16/16||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||17/17||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||18/18||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||18/18||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||19/19||||||||||-1||HGNC|HGNC:7821||T|G||PASS|A",
+      "uncached": "chr1\t235978953\t.\tT\tG\t758.64\t.\tBaseQRankSum=-0.473;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||19/19||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||16/16||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||17/17||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||18/18||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.211559%3BAC=292428|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|M"
+    },
+    {
+      "group": 359009,
+      "locus": [
+        "chr1",
+        "235979265"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235979265\t.\tT\tC\t1159.64\t.\tBaseQRankSum=-1.366;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||18/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||15/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||16/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||17/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||17/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||18/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|",
+      "uncached": "chr1\t235979265\t.\tT\tC\t1159.64\t.\tBaseQRankSum=-1.366;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||18/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||15/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||16/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||17/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.813139%3BAC=123550|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|"
+    },
+    {
+      "group": 359010,
+      "locus": [
+        "chr1",
+        "235979270"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235979270\t.\tC\tG\t1156.64\t.\tBaseQRankSum=0.73;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||18/19||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||15/16||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||16/17||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||17/18||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||17/18||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||18/19||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.20",
+      "uncached": "chr1\t235979270\t.\tC\tG\t1156.64\t.\tBaseQRankSum=0.73;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||18/19||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||15/16||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||16/17||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||17/18||||||||||-1||HGNC|HGNC:7821||C|G||PASS|AF=0.201911%3BAC=30684|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFI"
+    },
+    {
+      "group": 359012,
+      "locus": [
+        "chr1",
+        "235980961"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235980961\t.\tT\tC\t634.64\t.\tBaseQRankSum=-1.291;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||16/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||13/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||14/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||15/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||15/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||16/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%",
+      "uncached": "chr1\t235980961\t.\tT\tC\t634.64\t.\tBaseQRankSum=-1.291;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||16/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|Benign|criteria_provided&_single_submitter|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||13/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|Benign|criteria_provided&_single_submitter|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||14/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|Benign|criteria_provided&_single_submitter|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||15/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.24003%3BAC=36498|Benign|criteria_provided&_single_submitter|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||15/1"
+    },
+    {
+      "group": 359013,
+      "locus": [
+        "chr1",
+        "235981454"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235981454\t.\tC\tA\t593.64\t.\tBaseQRankSum=3.57;CSQ=A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||16/19||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|||,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||13/16||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|||,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||14/17||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|||,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||15/18||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|||,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||15/18||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|||,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||16/19||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211",
+      "uncached": "chr1\t235981454\t.\tC\tA\t593.64\t.\tBaseQRankSum=3.57;CSQ=A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||16/19||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||13/16||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||14/17||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||15/18||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.211896%3BAC=32245|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,A|intron_variant|MODIFIE"
+    },
+    {
+      "group": 359014,
+      "locus": [
+        "chr1",
+        "235981651"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235981651\t.\tA\tG\t801.64\t.\tBaseQRankSum=-4.178;CSQ=G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding|16/20||||3198|3187|1063|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|||,G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding|13/17||||2818|2788|930|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|||,G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding|14/18||||3030|2914|972|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|||,G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding|15/19||||3159|3064|1022|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|||,G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding|15/19||||3013|2959|987|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|||,G|synonymous_variant|LOW|NID1|ENSG0000011696",
+      "uncached": "chr1\t235981651\t.\tA\tG\t801.64\t.\tBaseQRankSum=-4.178;CSQ=G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding|16/20||||3198|3187|1063|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding|13/17||||2818|2788|930|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding|14/18||||3030|2914|972|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding|15/19||||3159|3064|1022|L|Ttg/Ctg|||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.205831%3BAC=332171|Benign|criteria_p"
+    },
+    {
+      "group": 359015,
+      "locus": [
+        "chr1",
+        "235981845"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235981845\t.\tT\tC\t441.64\t.\tBaseQRankSum=-2.8;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||15/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||12/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||13/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||14/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||14/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||15/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=",
+      "uncached": "chr1\t235981845\t.\tT\tC\t441.64\t.\tBaseQRankSum=-2.8;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||15/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||12/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||13/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||14/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.208915%3BAC=301528|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MOD"
+    },
+    {
+      "group": 359016,
+      "locus": [
+        "chr1",
+        "235981989"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235981989\t.\tA\tG\t347.64\t.\tBaseQRankSum=-2.129;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||15/19||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||12/16||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||13/17||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||14/18||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||14/18||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||15/19||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.2",
+      "uncached": "chr1\t235981989\t.\tA\tG\t347.64\t.\tBaseQRankSum=-2.129;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||15/19||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||12/16||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||13/17||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||14/18||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.239356%3BAC=36418|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||"
+    },
+    {
+      "group": 359041,
+      "locus": [
+        "chr1",
+        "235991065"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235991065\t.\tG\tT\t571.64\t.\tBaseQRankSum=1.041;CSQ=T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||13/19||||||||||-1||HGNC|HGNC:7821||G|T||PASS|AF=0.209221%3BAC=328149|||,T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||10/16||||||||||-1||HGNC|HGNC:7821||G|T||PASS|AF=0.209221%3BAC=328149|||,T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||11/17||||||||||-1||HGNC|HGNC:7821||G|T||PASS|AF=0.209221%3BAC=328149|||,T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||12/18||||||||||-1||HGNC|HGNC:7821||G|T||PASS|AF=0.209221%3BAC=328149|||,T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENS",
+      "uncached": "chr1\t235991065\t.\tG\tT\t571.64\t.\tBaseQRankSum=1.041;CSQ=T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||13/19||||||||||-1||HGNC|HGNC:7821||G|T||PASS|AF=0.209221%3BAC=328149|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||10/16||||||||||-1||HGNC|HGNC:7821||G|T||PASS|AF=0.209221%3BAC=328149|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||11/17||||||||||-1||HGNC|HGNC:7821||G|T||PASS|AF=0.209221%3BAC=328149|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,T|splice_region_variant&splice_polypyrimidine_tract_variant&intron_variant|LOW|NID1|ENSG0000"
+    },
+    {
+      "group": 359051,
+      "locus": [
+        "chr1",
+        "235993977"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235993977\t.\tT\tG\t305.64\t.\tBaseQRankSum=-3.47;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||12/18||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=",
+      "uncached": "chr1\t235993977\t.\tT\tG\t305.64\t.\tBaseQRankSum=-3.47;CSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||T|G||PASS|AF=0.201769%3BAC=186250|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,G|intron_variant|MOD"
+    },
+    {
+      "group": 359052,
+      "locus": [
+        "chr1",
+        "235994133"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t235994133\t.\tA\tT\t784.64\t.\tBaseQRankSum=1.123;CSQ=T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||12/18||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3B",
+      "uncached": "chr1\t235994133\t.\tA\tT\t784.64\t.\tBaseQRankSum=1.123;CSQ=T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||A|T||PASS|AF=0.19719%3BAC=30025|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||12/18|"
+    },
+    {
+      "group": 359096,
+      "locus": [
+        "chr1",
+        "236011853"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t236011853\t.\tT\tC\t464.64\t.\tBaseQRankSum=-2.187;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||12/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF",
+      "uncached": "chr1\t236011853\t.\tT\tC\t464.64\t.\tBaseQRankSum=-2.187;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||12/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.162931%3BAC=171815|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MO"
+    },
+    {
+      "group": 359097,
+      "locus": [
+        "chr1",
+        "236012027"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t236012027\t.\tC\tA\t472.64\t.\tBaseQRankSum=0.852;CSQ=A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|||,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|||,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|||,A|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding|12/20||||2432|2421|807|Q/H|caG/caT|||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|||,A|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding|12/19||||2475|2421|807|Q/H|caG/caT|||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|||,A|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding|1",
+      "uncached": "chr1\t236012027\t.\tC\tA\t472.64\t.\tBaseQRankSum=0.852;CSQ=A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,A|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,A|missense_variant|MODERATE|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding|12/20||||2432|2421|807|Q/H|caG/caT|||-1||HGNC|HGNC:7821||C|A||PASS|AF=0.119594%3BAC=192946|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provid"
+    },
+    {
+      "group": 359098,
+      "locus": [
+        "chr1",
+        "236012039"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t236012039\t.\tT\tC\t1359.06\t.\tCSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|||,C|splice_acceptor_variant|HIGH|NID1|ENSG00000116962|Transcript|ENST00000955836|protein_coding||11/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|||,C|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding|12/20||||2420|2409|803|V|gtA/gtG|||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|||,C|synonymous_variant|LOW|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding|12/19||||2463|2409|803|V|gtA/gtG|||-1||HGNC|H",
+      "uncached": "chr1\t236012039\t.\tT\tC\t1359.06\t.\tCSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|splice_acceptor_variant|HIGH|NID1|ENSG00000116962|Transcript|ENST00000955836|protein_coding||11/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.532296%3BAC=858278|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|synonymous_variant|LOW|NID1|ENS"
+    },
+    {
+      "group": 359099,
+      "locus": [
+        "chr1",
+        "236012285"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t236012285\t.\tC\tT\t630.64\t.\tBaseQRankSum=3.552;CSQ=T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||11/19||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|||,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||11/19||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3B",
+      "uncached": "chr1\t236012285\t.\tC\tT\t630.64\t.\tBaseQRankSum=3.552;CSQ=T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||11/19||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||11/18||||||||||-1||HGNC|HGNC:7821||C|T||PASS|AF=0.32551%3BAC=49484|Benign|criteria_provided&_single_submitter|not_provided,T|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||11/18|"
+    },
+    {
+      "group": 359105,
+      "locus": [
+        "chr1",
+        "236013690"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t236013690\t.\tT\tC\t358.64\t.\tBaseQRankSum=-2.512;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||10/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||10/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||10/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|||,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||10/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34",
+      "uncached": "chr1\t236013690\t.\tT\tC\t358.64\t.\tBaseQRankSum=-2.512;CSQ=C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||10/19||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||10/18||||||||||-1||HGNC|HGNC:7821||T|C||PASS|AF=0.34892%3BAC=344018|Benign|criteria_provided&_multiple_submitters&_no_conflicts|not_provided,C|intron_variant|MODIFI"
+    },
+    {
+      "group": 359106,
+      "locus": [
+        "chr1",
+        "236013882"
+      ],
+      "occurrence": 1,
+      "kind": "complete_record",
+      "cached": "chr1\t236013882\t.\tA\tG\t1285.06\t.\tCSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||10/19||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||10/18||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||10/18||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|||,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856588|protein_coding||10/19||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|||,",
+      "uncached": "chr1\t236013882\t.\tA\tG\t1285.06\t.\tCSQ=G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000264187|protein_coding||10/19||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000366595|protein_coding||9/16||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856585|protein_coding||10/17||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856586|protein_coding||10/18||||||||||-1||HGNC|HGNC:7821||A|G||PASS|AF=0.596911%3BAC=90703|Benign|criteria_provided&_single_submitter|not_provided,G|intron_variant|MODIFIER|NID1|ENSG00000116962|Transcript|ENST00000856587|protein_coding||10/18||||||||||-1||H"
+    }
+  ]
+}

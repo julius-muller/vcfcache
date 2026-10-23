@@ -127,6 +127,7 @@ def main():
         nargs="+",
         choices=[
             "legacy",
+            "main-legacy",
             "original-fused",
             "auto",
             "regions",
@@ -139,6 +140,11 @@ def main():
     )
     parser.add_argument("--original-root", type=Path)
     parser.add_argument(
+        "--legacy-root",
+        type=Path,
+        help="Deployment of the released main branch, which has no --engine option",
+    )
+    parser.add_argument(
         "--reference-root",
         type=Path,
         help="Reuse earlier direct outputs for untimed audits without rerunning that baseline",
@@ -150,6 +156,8 @@ def main():
         parser.error("CPUs and repetitions must be positive")
     if "original-fused" in args.arms and not args.original_root:
         parser.error("original-fused needs --original-root")
+    if "main-legacy" in args.arms and not args.legacy_root:
+        parser.error("main-legacy needs --legacy-root")
     if "store" in args.arms and not args.store:
         parser.error("store arm needs an explicitly built --store")
     output = args.output.resolve()
@@ -206,12 +214,14 @@ def main():
         input_sha256={str(path): digest(path) for path in inputs},
         bcftools=subprocess.check_output(["bcftools", "--version"], text=True),
         original_root=str(args.original_root),
+        legacy_root=str(args.legacy_root),
         slurm_steps=args.slurm_steps,
         note="cache-derived controls are engineering inputs, not cohort coverage results",
         work_directory=str(work),
     )
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     measurements = []
+    audit_failures = []
     for source in inputs:
         reference = (
             args.reference_root / f"{source.stem}-direct-1/output.bcf"
@@ -254,22 +264,29 @@ def main():
                     str(directory),
                     "--statistics",
                     "light",
-                    "--engine",
-                    (
-                        "legacy"
-                        if arm in {"legacy", "direct"}
-                        else "native" if arm == "native" else "fused"
-                    ),
                 ]
+                if arm != "main-legacy":
+                    command += [
+                        "--engine",
+                        (
+                            "legacy"
+                            if arm in {"legacy", "direct"}
+                            else "native" if arm == "native" else "fused"
+                        ),
+                    ]
                 if arm == "direct":
                     command += ["--uncached"]
-                if arm not in {"legacy", "original-fused", "direct"}:
+                if arm not in {"legacy", "main-legacy", "original-fused", "direct"}:
                     command += [
                         "--engine-lookup",
                         "auto" if arm in {"store", "native"} else arm,
                     ]
                 environment = dict(os.environ)
-                deployment = args.original_root if arm == "original-fused" else root
+                deployment = (
+                    args.original_root
+                    if arm == "original-fused"
+                    else args.legacy_root if arm == "main-legacy" else root
+                )
                 environment["PYTHONPATH"] = str(deployment)
                 environment["VCFCACHE_ENGINE"] = str(
                     deployment / "native/target/release/vcfcache-engine"
@@ -353,9 +370,21 @@ def main():
                 )
                 print(json.dumps(row), flush=True)
                 if not row["semantic_pass"]:
-                    raise RuntimeError(
-                        f"complete-record comparison failed: {directory}"
-                    )
+                    # Record the failure and keep measuring. Aborting here
+                    # discards every later cell, which hides whether the
+                    # discrepancy is specific to one arm or shared by all of
+                    # them; that distinction is the whole diagnostic value.
+                    audit_failures.append(str(directory))
+    report(audit_failures)
+
+
+def report(audit_failures):
+    """Fail the job only after every cell has been measured and recorded."""
+    if audit_failures:
+        raise RuntimeError(
+            "complete-record comparison failed in "
+            f"{len(audit_failures)} cells: " + ", ".join(audit_failures)
+        )
 
 
 if __name__ == "__main__":

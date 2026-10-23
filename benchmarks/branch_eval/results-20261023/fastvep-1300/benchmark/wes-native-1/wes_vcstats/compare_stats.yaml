@@ -1,0 +1,67 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T11:45:02'
+output_file: /mnt/data/tmp/branch-eval-fastvep-1300/runs/wes-native-1/output.bcf
+input_file: /results/branch-eval/inputs/wes.bcf
+input_name: wes.bcf
+cache_name: fastvep_clinical_grch38_af001
+cache_path: /mnt/data/tmp/branch-eval-fastvep-1300/cache/fastvep_clinical_grch38_af001
+annotation_yaml_md5: 33a5f93e383eb9ead67f9454b04b0e61
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 82714
+  annotated_output: 82714
+  tool_annotated: 5432
+  input_variants: 82714
+  dropped_variants: 0
+  missing_variants: 5432
+  missing_annotated: 5432
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: native
+requested_engine: native
+native_version: vcfcache-engine 0.3.0
+workers: 8
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings:
+- stage: annotate-misses
+  task: native
+  wall_seconds: 30.81762315891683
+engine_lookup: auto
+phase_timings:
+- phase: prepare
+  wall_seconds: 0.378102581
+- phase: lookup
+  wall_seconds: 3.445709486
+- phase: merge-preflight
+  wall_seconds: 0.475666857
+- phase: merge-and-write
+  wall_seconds: 1.5087306329999999
+engine_wall_seconds: 37.65225028526038
+engine_memory_mb: 512
+buffer_bytes: 412096761
+candidate_records: 2969970
+lookup_queries: 14147

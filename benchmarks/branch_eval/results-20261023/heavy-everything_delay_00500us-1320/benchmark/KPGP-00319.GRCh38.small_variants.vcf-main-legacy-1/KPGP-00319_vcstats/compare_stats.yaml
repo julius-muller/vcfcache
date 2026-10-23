@@ -1,0 +1,26 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T12:53:54'
+output_file: /mnt/data/tmp/branch-eval-heavy-everything_delay_00500us-1320/runs/KPGP-00319.GRCh38.small_variants.vcf-main-legacy-1/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00319.GRCh38.small_variants.vcf.gz
+input_name: KPGP-00319.GRCh38.small_variants.vcf.gz
+cache_name: everything_delay_00500us
+cache_path: /mnt/data/tmp/branch-eval-heavy-everything_delay_00500us-1320/cache/everything_delay_00500us
+annotation_yaml_md5: 98281bd8727272134ef97f279d5506ea
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 8
+statistics_level: light
+variant_counts:
+  total_output: 4795706
+  annotated_output: 4795706
+  tool_annotated: 467131
+  input_variants: 4795706
+  dropped_variants: 0
+  missing_variants: 467131
+  missing_annotated: 467131
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null

@@ -1,0 +1,64 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T12:46:20'
+output_file: /mnt/data/tmp/branch-eval-veprs-clinical-1323/runs/single-native-1/output.bcf
+input_file: /results/branch-eval/inputs/single.bcf
+input_name: single.bcf
+cache_name: veprs_clinical
+cache_path: /mnt/data/tmp/branch-eval-veprs-clinical-1323/cache/veprs_clinical
+annotation_yaml_md5: cd60bf5c4331057b2c64be16cebc99f3
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 1
+  annotated_output: 1
+  tool_annotated: 0
+  input_variants: 1
+  dropped_variants: 0
+  missing_variants: 0
+  missing_annotated: 0
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: native
+requested_engine: native
+native_version: vcfcache-engine 0.3.0
+workers: 8
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings: []
+engine_lookup: auto
+phase_timings:
+- phase: prepare
+  wall_seconds: 0.11334158
+- phase: lookup
+  wall_seconds: 0.140923383
+- phase: merge-preflight
+  wall_seconds: 1.483e-06
+- phase: merge-and-write
+  wall_seconds: 0.069211355
+engine_wall_seconds: 0.39715951681137085
+engine_memory_mb: 512
+buffer_bytes: 1331
+candidate_records: 201
+lookup_queries: 1

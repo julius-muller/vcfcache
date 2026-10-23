@@ -1,0 +1,194 @@
+[
+  {
+    "input": "/results/branch-eval/inputs/single.bcf",
+    "arm": "direct",
+    "rep": 1,
+    "wall_seconds": 5.233518064022064,
+    "orchestration_wall_seconds": 5.460081460885704,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/single.bcf",
+    "arm": "main-legacy",
+    "rep": 1,
+    "wall_seconds": 25.96161866746843,
+    "orchestration_wall_seconds": 26.16610988229513,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/single.bcf",
+    "arm": "legacy",
+    "rep": 1,
+    "wall_seconds": 22.260924259200692,
+    "orchestration_wall_seconds": 22.39948014076799,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/single.bcf",
+    "arm": "original-fused",
+    "rep": 1,
+    "wall_seconds": 109.35449616611004,
+    "orchestration_wall_seconds": 109.55207096785307,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/single.bcf",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 1.9410969400778413,
+    "orchestration_wall_seconds": 2.1552997874096036,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/single.bcf",
+    "arm": "native",
+    "rep": 1,
+    "wall_seconds": 1.34672075137496,
+    "orchestration_wall_seconds": 1.5562873631715775,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/minimal.bcf",
+    "arm": "direct",
+    "rep": 1,
+    "wall_seconds": 9.766937788575888,
+    "orchestration_wall_seconds": 9.973731775768101,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/minimal.bcf",
+    "arm": "main-legacy",
+    "rep": 1,
+    "wall_seconds": 28.3780119959265,
+    "orchestration_wall_seconds": 28.611325746402144,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/minimal.bcf",
+    "arm": "legacy",
+    "rep": 1,
+    "wall_seconds": 25.51859058160335,
+    "orchestration_wall_seconds": 25.722740720957518,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/minimal.bcf",
+    "arm": "original-fused",
+    "rep": 1,
+    "wall_seconds": 33.978168250992894,
+    "orchestration_wall_seconds": 34.18186566326767,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/minimal.bcf",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 5.442725399509072,
+    "orchestration_wall_seconds": 5.65207033790648,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/minimal.bcf",
+    "arm": "native",
+    "rep": 1,
+    "wall_seconds": 4.710964273661375,
+    "orchestration_wall_seconds": 4.927962709218264,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/panel.bcf",
+    "arm": "direct",
+    "rep": 1,
+    "wall_seconds": 33.27040569856763,
+    "orchestration_wall_seconds": 33.50055312179029,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/panel.bcf",
+    "arm": "main-legacy",
+    "rep": 1,
+    "wall_seconds": 33.76743368431926,
+    "orchestration_wall_seconds": 33.97921797260642,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/panel.bcf",
+    "arm": "legacy",
+    "rep": 1,
+    "wall_seconds": 32.2292253440246,
+    "orchestration_wall_seconds": 32.446227960288525,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/panel.bcf",
+    "arm": "original-fused",
+    "rep": 1,
+    "wall_seconds": 36.95402013603598,
+    "orchestration_wall_seconds": 37.17525496613234,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/panel.bcf",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 10.307572538033128,
+    "orchestration_wall_seconds": 10.518826903775334,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/panel.bcf",
+    "arm": "native",
+    "rep": 1,
+    "wall_seconds": 11.561455251649022,
+    "orchestration_wall_seconds": 11.789613724686205,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/wes.bcf",
+    "arm": "direct",
+    "rep": 1,
+    "wall_seconds": 282.3264022823423,
+    "orchestration_wall_seconds": 282.5540126208216,
+    "semantic_pass": true
+  },
+  {
+    "input": "/results/branch-eval/inputs/wes.bcf",
+    "arm": "main-legacy",
+    "rep": 1,
+    "wall_seconds": 149.5756574301049,
+    "orchestration_wall_seconds": 149.8053062260151,
+    "semantic_pass": false
+  },
+  {
+    "input": "/results/branch-eval/inputs/wes.bcf",
+    "arm": "legacy",
+    "rep": 1,
+    "wall_seconds": 154.32467568013817,
+    "orchestration_wall_seconds": 154.5233908854425,
+    "semantic_pass": false
+  },
+  {
+    "input": "/results/branch-eval/inputs/wes.bcf",
+    "arm": "original-fused",
+    "rep": 1,
+    "wall_seconds": 148.72421322762966,
+    "orchestration_wall_seconds": 148.88181937672198,
+    "semantic_pass": false
+  },
+  {
+    "input": "/results/branch-eval/inputs/wes.bcf",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 137.3754816232249,
+    "orchestration_wall_seconds": 137.59635651204735,
+    "semantic_pass": false
+  },
+  {
+    "input": "/results/branch-eval/inputs/wes.bcf",
+    "arm": "native",
+    "rep": 1,
+    "wall_seconds": 140.67713530547917,
+    "orchestration_wall_seconds": 140.9027476226911,
+    "semantic_pass": false
+  }
+]
