@@ -291,8 +291,10 @@ See [WIKI.md - Section 8 (Configuration reference)](WIKI.md#8-configuration-refe
 
 Experimental development: an opt-in [Rust/HTSlib fused-routing engine](native/README.md)
 is available on the feature branch through `vcfcache annotate --engine fused`.
-It preserves existing caches and recipes, routes contig groups in parallel,
-and annotates misses once. The default remains the legacy engine.
+It preserves existing caches and recipes, routes adaptive genomic regions in
+parallel, and annotates misses once. See the [engineering validation and
+limitations](benchmarks/adaptive_routing/RESULTS.md). The default remains the
+legacy engine.
 
 - **Full Documentation**: [WIKI.md](WIKI.md)
 - **Performance Model**: [WIKI.md - Section 11](WIKI.md#11-performance-model-runtime-efficiency)

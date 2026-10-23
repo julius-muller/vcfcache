@@ -1,0 +1,27 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T07:23:40'
+output_file: /mnt/data/tmp/adaptive-assays-1268/runs/wes-legacy-1/output.bcf
+input_file: /mnt/data/tmp/adaptive-assays-1268/inputs/wes.bcf
+input_name: wes.bcf
+cache_name: fastvep_clinical_grch38_af001
+cache_path: /mnt/data/tmp/adaptive-assays-1268/base/cache/fastvep_clinical_grch38_af001
+annotation_yaml_md5: 33a5f93e383eb9ead67f9454b04b0e61
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 82714
+  annotated_output: 82714
+  tool_annotated: 5432
+  input_variants: 82714
+  dropped_variants: 0
+  missing_variants: 5432
+  missing_annotated: 5432
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: legacy

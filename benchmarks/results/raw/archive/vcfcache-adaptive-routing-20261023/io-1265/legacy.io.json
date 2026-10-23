@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/results/deployment/vcfcache-adaptive-pilot-20261023c/.venv/bin/python",
+    "-m",
+    "vcfcache.cli",
+    "annotate",
+    "-a",
+    "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything",
+    "-i",
+    "/results/adaptive-routing/controls-1258-cpu16/inputs/size-250.bcf",
+    "-o",
+    "/results/adaptive-routing/io-1265/legacy/output.bcf",
+    "-y",
+    "/results/adaptive-routing/controls-1257-cpu8/params.yaml",
+    "--stats-dir",
+    "/results/adaptive-routing/io-1265/legacy",
+    "--statistics",
+    "light",
+    "--engine",
+    "legacy",
+    "--debug"
+  ],
+  "cache": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf",
+  "exit_code": 0,
+  "cache_read_calls": 1026089,
+  "cache_read_bytes": 3953638522,
+  "cache_seek_calls": 26,
+  "unresolved_reads": 0,
+  "note": "strace diagnostic, not a timed benchmark; file-read bytes include page-cache hits and repeated reads, not decoded bytes or physical disk traffic"
+}

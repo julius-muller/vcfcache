@@ -1,0 +1,14 @@
+[07:22:30] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[07:22:30] Genome build (params.yaml): GRCh38
+[07:22:30] Genome build (annotation.yaml): GRCh38
+[07:22:30] Initializing annotation of panel.bcf
+[07:22:30] Running workflow in mode: annotate-nocache
+[07:22:30] Annotating sample directly (no cache)
+[07:22:30] Splitting multiallelic variants and removing spanning deletions
+[07:22:31] Command completed in 0.111s: bcftools norm
+[07:22:41] Command completed in 10.879s: bcftools view
+[07:22:42] Direct annotation complete: /mnt/data/tmp/adaptive-assays-1268/runs/panel-direct-1/output.bcf
+[07:22:42] Workflow completed successfully in 11.1s
+Computing MD5 for /mnt/data/tmp/adaptive-assays-1268/runs/panel-direct-1/panel_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating panel.bcf (uncached mode)...
+Annotation completed in 11.1s

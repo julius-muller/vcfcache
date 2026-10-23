@@ -1,0 +1,98 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T06:09:36'
+output_file: /results/adaptive-routing/controls-1258-cpu16/size-75000-contigs-1/output.bcf
+input_file: /results/adaptive-routing/controls-1258-cpu16/inputs/size-75000.bcf
+input_name: size-75000.bcf
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 75000
+  annotated_output: 75000
+  tool_annotated: 0
+  input_variants: 75000
+  dropped_variants: 0
+  missing_variants: 0
+  missing_annotated: 0
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 4
+cpu_budget: 16
+stage_timings:
+- stage: preprocess
+  task: prepare-0003
+  wall_seconds: 0.3306667348369956
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 0.3444894179701805
+- stage: preprocess
+  task: prepare-0002
+  wall_seconds: 0.45614719204604626
+- stage: preprocess
+  task: prepare-0001
+  wall_seconds: 0.4722511200234294
+- stage: route
+  task: shard-0002
+  wall_seconds: 6.7433576649054885
+- stage: route
+  task: shard-0001
+  wall_seconds: 8.38345402199775
+- stage: route
+  task: shard-0003
+  wall_seconds: 9.788119429722428
+- stage: route
+  task: shard-0000
+  wall_seconds: 10.022013829089701
+- stage: route
+  task: shard-0006
+  wall_seconds: 4.12225719448179
+- stage: route
+  task: shard-0007
+  wall_seconds: 5.4904356729239225
+- stage: route
+  task: shard-0004
+  wall_seconds: 8.830214815214276
+- stage: route
+  task: shard-0005
+  wall_seconds: 7.550402936525643
+- stage: assemble
+  task: shard-0002
+  wall_seconds: 0.23835335206240416
+- stage: assemble
+  task: shard-0001
+  wall_seconds: 0.24338933546096087
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 0.38435763865709305
+- stage: assemble
+  task: shard-0003
+  wall_seconds: 0.5057870512828231
+- stage: assemble
+  task: shard-0004
+  wall_seconds: 0.37988305650651455
+- stage: assemble
+  task: shard-0005
+  wall_seconds: 0.4935905169695616
+- stage: assemble
+  task: shard-0006
+  wall_seconds: 0.3756505539640784
+- stage: assemble
+  task: shard-0007
+  wall_seconds: 0.6085720965638757
+- stage: gather
+  task: fused
+  wall_seconds: 0.2693115156143904
+- stage: index
+  task: fused
+  wall_seconds: 0.17354313004761934

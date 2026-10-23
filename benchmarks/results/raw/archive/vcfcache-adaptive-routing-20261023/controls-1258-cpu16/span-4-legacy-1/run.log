@@ -1,0 +1,24 @@
+[06:10:48] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[06:10:48] Genome build (params.yaml): GRCh38
+[06:10:48] Genome build (annotation.yaml): GRCh38
+[06:10:48] Initializing annotation of span-4.bcf
+[06:10:48] Contig overlap: cache=24 input=4 overlap=4
+[06:10:48] Overlapping contigs (first 10): chr1, chr2, chr3, chr4
+[06:10:48] Running workflow in mode: annotate
+[06:10:48] Annotating sample using cache (4-step process)
+[06:10:48] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[06:10:48] Command completed in 0.236s: bcftools norm
+[06:10:48] Step 1/4: Adding cache annotations
+[06:11:11] Command completed in 22.464s: bcftools annotate
+[06:11:11] Step 2/4: Identifying variants missing from cache
+[06:11:11] Command completed in 0.054s: bcftools filter
+[06:11:11] Found 0 variants not in cache
+[06:11:11] Step 3/4: Skipped (all variants found in cache)
+[06:11:11] Step 4/4: Merging cache and newly annotated variants
+[06:11:11] Command completed in 0.022s: unknown
+[06:11:11] Command completed in 0.084s: bcftools view
+[06:11:11] Annotation complete: /results/adaptive-routing/controls-1258-cpu16/span-4-legacy-1/output.bcf
+[06:11:11] Workflow completed successfully in 23.0s
+Computing MD5 for /results/adaptive-routing/controls-1258-cpu16/span-4-legacy-1/span-4_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating span-4.bcf (cached mode)...
+Annotation completed in 23.2s

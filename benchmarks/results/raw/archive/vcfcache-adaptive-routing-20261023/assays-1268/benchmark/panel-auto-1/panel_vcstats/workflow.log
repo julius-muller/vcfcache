@@ -1,0 +1,32 @@
+[2026-10-23 07:22:17] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/adaptive-assays-1268/runs/panel-auto-1/panel_vcstats/workflow.log
+[2026-10-23 07:22:17] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 07:22:17] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/adaptive-assays-1268/runs/panel-auto-1/panel_vcstats
+[2026-10-23 07:22:17] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/adaptive-assays-1268/runs/panel-auto-1/panel_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 07:22:17] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/tmp/adaptive-assays-1268/base/cache/fastvep_clinical_grch38_af001/annotation.yaml
+[2026-10-23 07:22:17] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-23 07:22:17] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-23 07:22:17] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 07:22:17] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/adaptive-assays-1268/inputs/panel.bcf
+[2026-10-23 07:22:17] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 07:22:17] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of panel.bcf
+[2026-10-23 07:22:17] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/adaptive-assays-1268/base/cache/fastvep_clinical_grch38_af001/vcfcache_annotated.bcf
+[2026-10-23 07:22:17] DEBUG [vcfcache.annotator.py.annotate:888] Starting VCF annotation
+[2026-10-23 07:22:17] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/adaptive-assays-1268/base/cache/fastvep_clinical_grch38_af001/vcfcache_annotated.bcf
+[2026-10-23 07:22:17] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/adaptive-assays-1268/inputs/panel.bcf
+[2026-10-23 07:22:17] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=17 overlap=17
+[2026-10-23 07:22:17] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-23 07:22:17] DEBUG [vcfcache.workflow_manager.py._create_work_dir:984] Created work directory: /mnt/data/tmp/adaptive-assays-1268/runs/panel-auto-1/panel_vcstats/work
+[2026-10-23 07:22:17] INFO [vcfcache.workflow_manager.py.run:309] Running workflow in mode: annotate
+[2026-10-23 07:22:17] INFO [vcfcache.fused.py._run_fused:239] Fused engine: vcfcache-engine 0.2.0; preparation workers=4; CPU budget=16
+[2026-10-23 07:22:18] INFO [vcfcache.fused.py.run:142] Fused preprocess completed in 0.265s
+[2026-10-23 07:22:18] INFO [vcfcache.fused.py._run_fused:299] Adaptive lookup: workers=1; codec threads=14; tasks=1; mode=auto
+[2026-10-23 07:22:18] INFO [vcfcache.fused.py.run:142] Fused route completed in 0.392s
+[2026-10-23 07:22:18] INFO [vcfcache.fused.py.run:142] Fused collect-misses completed in 0.098s
+[2026-10-23 07:22:29] INFO [vcfcache.fused.py.run:142] Fused annotate-misses completed in 10.801s
+[2026-10-23 07:22:29] INFO [vcfcache.fused.py.run:142] Fused assemble completed in 0.202s
+[2026-10-23 07:22:29] INFO [vcfcache.fused.py.run:142] Fused gather completed in 0.052s
+[2026-10-23 07:22:29] INFO [vcfcache.fused.py.run:142] Fused index completed in 0.047s
+[2026-10-23 07:22:29] DEBUG [vcfcache.workflow_manager.py._write_trace_file:970] Trace file written to: /mnt/data/tmp/adaptive-assays-1268/runs/panel-auto-1/panel_vcstats/fastvep_clinical_grch38_af001_trace.txt
+[2026-10-23 07:22:29] INFO [vcfcache.workflow_manager.py.run:361] Workflow completed successfully in 12.2s
+[2026-10-23 07:22:29] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:996] Cleaning up work directory
+[2026-10-23 07:22:29] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:999] Removing work directory: /mnt/data/tmp/adaptive-assays-1268/runs/panel-auto-1/panel_vcstats/work

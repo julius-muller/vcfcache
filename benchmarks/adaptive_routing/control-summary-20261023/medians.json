@@ -1,0 +1,569 @@
+[
+  {
+    "sample": "size-1",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 1.8164034290239215,
+    "cache_side_seconds": 1.8164034290239215,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-1",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 150.81683743745089,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-1",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 3.047589701600373,
+    "cache_side_seconds": 3.047589701600373,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-1",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 3.0000382820144296,
+    "cache_side_seconds": 3.0000382820144296,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-1",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 28.042336851358414,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-1",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 2.7357702516019344,
+    "cache_side_seconds": 2.7357702516019344,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-2000",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 3.509293384850025,
+    "cache_side_seconds": 3.509293384850025,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-2000",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 141.1121536763385,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-2000",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.569865034893155,
+    "cache_side_seconds": 2.569865034893155,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-2000",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 20.398147798143327,
+    "cache_side_seconds": 20.398147798143327,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-2000",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 23.932644456624985,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-2000",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 2.596040513366461,
+    "cache_side_seconds": 2.596040513366461,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.148674319498241,
+    "cache_side_seconds": 2.148674319498241,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 139.48627634719014,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 8,
+    "arm": "auto",
+    "runs": 3,
+    "cli_seconds": 2.372361005283892,
+    "cache_side_seconds": 2.372361005283892,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 8,
+    "arm": "contigs",
+    "runs": 3,
+    "cli_seconds": 34.025629504583776,
+    "cache_side_seconds": 34.025629504583776,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 8,
+    "arm": "legacy",
+    "runs": 3,
+    "cli_seconds": 32.05001419875771,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 8,
+    "arm": "original-fused",
+    "runs": 3,
+    "cli_seconds": 45.32300240173936,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 8,
+    "arm": "regions",
+    "runs": 3,
+    "cli_seconds": 2.5035010054707527,
+    "cache_side_seconds": 2.5035010054707527,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.5271623050794005,
+    "cache_side_seconds": 2.5271623050794005,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 19.199974179267883,
+    "cache_side_seconds": 19.199974179267883,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 24.838977835141122,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-250",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 2.4862628150731325,
+    "cache_side_seconds": 2.4862628150731325,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 12.684744223952293,
+    "cache_side_seconds": 12.684744223952293,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 150.799272807315,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 8,
+    "arm": "auto",
+    "runs": 3,
+    "cli_seconds": 10.206794924102724,
+    "cache_side_seconds": 10.206794924102724,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 8,
+    "arm": "contigs",
+    "runs": 3,
+    "cli_seconds": 38.16920923348516,
+    "cache_side_seconds": 38.16920923348516,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 8,
+    "arm": "legacy",
+    "runs": 3,
+    "cli_seconds": 34.48861843813211,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 8,
+    "arm": "original-fused",
+    "runs": 3,
+    "cli_seconds": 49.48663528915495,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 8,
+    "arm": "regions",
+    "runs": 3,
+    "cli_seconds": 10.062670311890543,
+    "cache_side_seconds": 10.062670311890543,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 10.001460541039705,
+    "cache_side_seconds": 10.001460541039705,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 19.335229409858584,
+    "cache_side_seconds": 19.335229409858584,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 26.61118908599019,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "size-75000",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 9.223796170204878,
+    "cache_side_seconds": 9.223796170204878,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 1.8132868772372603,
+    "cache_side_seconds": 1.8132868772372603,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 135.59104705508798,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 8,
+    "arm": "auto",
+    "runs": 3,
+    "cli_seconds": 2.2643567165359855,
+    "cache_side_seconds": 2.2643567165359855,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 8,
+    "arm": "contigs",
+    "runs": 3,
+    "cli_seconds": 3.0440770592540503,
+    "cache_side_seconds": 3.0440770592540503,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 8,
+    "arm": "legacy",
+    "runs": 3,
+    "cli_seconds": 31.257328717969358,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 8,
+    "arm": "original-fused",
+    "runs": 3,
+    "cli_seconds": 110.64476766530424,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 8,
+    "arm": "regions",
+    "runs": 3,
+    "cli_seconds": 2.2976144636049867,
+    "cache_side_seconds": 2.2976144636049867,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.203863352537155,
+    "cache_side_seconds": 2.203863352537155,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 2.6208624774590135,
+    "cache_side_seconds": 2.6208624774590135,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 24.212261426262558,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-1",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 2.2066534711048007,
+    "cache_side_seconds": 2.2066534711048007,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-2",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.044223682023585,
+    "cache_side_seconds": 2.044223682023585,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-2",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 141.937354888767,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-2",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.018103933893144,
+    "cache_side_seconds": 2.018103933893144,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-2",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 3.4436282264068723,
+    "cache_side_seconds": 3.4436282264068723,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-2",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 22.769043711945415,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-2",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 2.3525117533281446,
+    "cache_side_seconds": 2.3525117533281446,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-4",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 1.7726632049307227,
+    "cache_side_seconds": 1.7726632049307227,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-4",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 139.3556203339249,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-4",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 1.9912934405729175,
+    "cache_side_seconds": 1.9912934405729175,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-4",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 3.790382550098002,
+    "cache_side_seconds": 3.790382550098002,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-4",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 23.922084283083677,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-4",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 2.193646772764623,
+    "cache_side_seconds": 2.193646772764623,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-8",
+    "cpus": 1,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.1695371940732002,
+    "cache_side_seconds": 2.1695371940732002,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-8",
+    "cpus": 1,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 136.44854383450001,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-8",
+    "cpus": 16,
+    "arm": "auto",
+    "runs": 1,
+    "cli_seconds": 2.4856062782928348,
+    "cache_side_seconds": 2.4856062782928348,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-8",
+    "cpus": 16,
+    "arm": "contigs",
+    "runs": 1,
+    "cli_seconds": 8.837594028562307,
+    "cache_side_seconds": 8.837594028562307,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-8",
+    "cpus": 16,
+    "arm": "legacy",
+    "runs": 1,
+    "cli_seconds": 23.84761234279722,
+    "cache_side_seconds": null,
+    "semantic_pass": true
+  },
+  {
+    "sample": "span-8",
+    "cpus": 16,
+    "arm": "regions",
+    "runs": 1,
+    "cli_seconds": 2.340541820973158,
+    "cache_side_seconds": 2.340541820973158,
+    "semantic_pass": true
+  }
+]

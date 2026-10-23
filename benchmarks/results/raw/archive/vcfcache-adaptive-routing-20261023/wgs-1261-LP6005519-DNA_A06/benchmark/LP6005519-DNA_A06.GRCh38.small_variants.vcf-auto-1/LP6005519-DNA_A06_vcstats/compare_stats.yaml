@@ -1,0 +1,104 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T06:33:07'
+output_file: /mnt/data/tmp/adaptive-real-1261/runs/LP6005519-DNA_A06.GRCh38.small_variants.vcf-auto-1/output.bcf
+input_file: /mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005519-DNA_A06.GRCh38.small_variants.vcf.gz
+input_name: LP6005519-DNA_A06.GRCh38.small_variants.vcf.gz
+cache_name: fastvep_clinical_grch38_af001
+cache_path: /mnt/data/tmp/adaptive-real-1261/base/cache/fastvep_clinical_grch38_af001
+annotation_yaml_md5: 33a5f93e383eb9ead67f9454b04b0e61
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 4858092
+  annotated_output: 4858092
+  tool_annotated: 355259
+  input_variants: 4858092
+  dropped_variants: 0
+  missing_variants: 355259
+  missing_annotated: 355259
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 4
+cpu_budget: 16
+stage_timings:
+- stage: preprocess
+  task: prepare-0003
+  wall_seconds: 3.3648150144144893
+- stage: preprocess
+  task: prepare-0002
+  wall_seconds: 4.9564396953210235
+- stage: preprocess
+  task: prepare-0001
+  wall_seconds: 5.144454415887594
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 5.334657640196383
+- stage: route
+  task: shard-0003
+  wall_seconds: 14.15739454422146
+- stage: route
+  task: shard-0001
+  wall_seconds: 17.429975736886263
+- stage: route
+  task: shard-0000
+  wall_seconds: 18.29148523043841
+- stage: route
+  task: shard-0002
+  wall_seconds: 19.19989068992436
+- stage: route
+  task: shard-0007
+  wall_seconds: 2.178313664160669
+- stage: route
+  task: shard-0004
+  wall_seconds: 13.121659710071981
+- stage: route
+  task: shard-0005
+  wall_seconds: 10.51618617400527
+- stage: route
+  task: shard-0006
+  wall_seconds: 10.201704532839358
+- stage: collect-misses
+  task: fused
+  wall_seconds: 0.707089995034039
+- stage: annotate-misses
+  task: fused
+  wall_seconds: 81.6040286552161
+- stage: assemble
+  task: shard-0003
+  wall_seconds: 7.047926343046129
+- stage: assemble
+  task: shard-0001
+  wall_seconds: 9.091779626905918
+- stage: assemble
+  task: shard-0002
+  wall_seconds: 9.829844834282994
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 10.095714413560927
+- stage: assemble
+  task: shard-0007
+  wall_seconds: 1.663560377433896
+- stage: assemble
+  task: shard-0004
+  wall_seconds: 8.133296572603285
+- stage: assemble
+  task: shard-0005
+  wall_seconds: 6.438070942647755
+- stage: assemble
+  task: shard-0006
+  wall_seconds: 7.804217159748077
+- stage: gather
+  task: fused
+  wall_seconds: 2.0343907168135047
+- stage: index
+  task: fused
+  wall_seconds: 4.089569033123553

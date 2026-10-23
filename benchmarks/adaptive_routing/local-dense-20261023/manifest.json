@@ -1,0 +1,47 @@
+{
+  "created_at": "2026-10-23T04:24:32.124691+00:00",
+  "synthetic": true,
+  "records": 1000000,
+  "payloads": [
+    1024
+  ],
+  "hit_rates": [
+    0.9
+  ],
+  "cpu_limits": [
+    1,
+    8,
+    14
+  ],
+  "available_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "work_directory": "/tmp/vcfcache-fused-bench-q8ab9psq",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.14.2 (main, Jan 14 2026, 19:38:07) [Clang 21.1.4 ]",
+  "bcftools": "bcftools 1.22\nUsing htslib 1.22.1\nCopyright (C) 2025 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.",
+  "native_version": "vcfcache-engine 0.1.0",
+  "native_sha256": "959b639fb9e31e514aeeff675b202f9ecf35abf3c306cdd14e969bc68af0d6c7",
+  "commit": "68ce69c183b6ba488650c5feb84371262af3ad0f",
+  "tracked_diff_sha256": "2a62d70cd7b2856d743a9fb12eaea9e0a2c949e97764b797501c41e657e2f9dc",
+  "source_sha256": {
+    "/home/j380r/projects/vcfcache/benchmarks/fused_engine.py": "34ea4dcafb15485c8c2c466b9bac0d6cc6677499dfce88e876881731d8fbf392",
+    "vcfcache/database/fused.py": "b886426a4b53861683ec39c31d620597b0e80ef261c54cda390662b1bdaf41a7",
+    "native/src/main.rs": "ce822b6e31d3277f785797080f0cdcdb1f17c84dd01faa0a5e7bef1a01047be1",
+    "native/Cargo.lock": "46a2afaf3673aa7dfadeaf342fa92e7a0f45d2444cb02e043740b7572bc78b49"
+  },
+  "measurement": "one run per condition; no technical repeats; generation and complete-record comparisons untimed"
+}

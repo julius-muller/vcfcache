@@ -271,6 +271,7 @@ class WorkflowManager(WorkflowBase):
         skip_split_multiallelic: bool = False,
         engine: str = "legacy",
         engine_workers: int = 0,
+        engine_lookup: str = "auto",
     ) -> subprocess.CompletedProcess:
         """Execute the workflow using pure Python.
 
@@ -287,6 +288,7 @@ class WorkflowManager(WorkflowBase):
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
             engine: Cached workflow engine (legacy or optional fused)
             engine_workers: Fused contig-worker override; zero selects automatically
+            engine_lookup: Fused lookup selection: auto, regions or contigs
 
         Returns:
             subprocess.CompletedProcess with execution results
@@ -330,6 +332,7 @@ class WorkflowManager(WorkflowBase):
                         preserve_unannotated,
                         skip_split_multiallelic,
                         engine_workers,
+                        engine_lookup,
                     )
                 elif engine == "legacy":
                     result = self._run_annotate(

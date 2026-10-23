@@ -1,0 +1,28 @@
+{
+  "engine": "legacy",
+  "configured_cpus": 8,
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "wall_seconds": 11.489419653997174,
+  "cpu_seconds": 42.43365,
+  "max_child_process_rss_kib": 33532,
+  "memory_note": "largest child-process RSS, NOT simultaneous aggregate peak",
+  "artifact_bytes": 297290202,
+  "stats": {
+    "input_variants": 1000000,
+    "output_variants": 1000000,
+    "missing_variants": 100000,
+    "missing_annotated": 100000,
+    "dropped_variants": 0
+  },
+  "payload_bytes": 1024,
+  "cache_hit_rate": 0.9
+}

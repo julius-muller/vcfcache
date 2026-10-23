@@ -90,6 +90,8 @@ include = ["vcfcache/recipes/**", "vcfcache/demo_data/**"]
 line-length = 88
 # Exclude a variety of commonly ignored directories.
 exclude = [
+    # Immutable raw experiment snapshots are provenance, not maintained source.
+    "benchmarks/results/raw",
     ".git",
     ".mypy_cache",
     ".ruff_cache",

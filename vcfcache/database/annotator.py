@@ -848,6 +848,7 @@ class VCFAnnotator(VCFDatabase):
         md5_all: bool = False,
         engine: str = "legacy",
         engine_workers: int = 0,
+        engine_lookup: str = "auto",
     ) -> None:
         """Run annotation workflow on input VCF file.
 
@@ -859,6 +860,7 @@ class VCFAnnotator(VCFDatabase):
             md5_all: Compute full MD5 of all variants (no header) and store in stats
             engine: Cached workflow engine, legacy (default) or fused
             engine_workers: Native contig workers; zero selects automatically
+            engine_lookup: Fused lookup selection: auto, regions or contigs
 
         Returns:
             Path to output file (BCF or Parquet)
@@ -872,6 +874,10 @@ class VCFAnnotator(VCFDatabase):
             raise ValueError("engine_workers must be non-negative")
         if engine_workers and engine != "fused":
             raise ValueError("engine_workers requires engine='fused'")
+        if engine_lookup not in {"auto", "regions", "contigs"}:
+            raise ValueError("engine_lookup must be auto, regions or contigs")
+        if engine_lookup != "auto" and engine != "fused":
+            raise ValueError("engine_lookup requires engine='fused'")
         if uncached and engine != "legacy":
             raise ValueError("engine='fused' cannot be used with uncached=True")
         if md5_all and getattr(self, "statistics", "full") != "full":
@@ -895,7 +901,11 @@ class VCFAnnotator(VCFDatabase):
                 preserve_unannotated=preserve_unannotated,
                 skip_split_multiallelic=skip_split_multiallelic,
                 **(
-                    {"engine": engine, "engine_workers": engine_workers}
+                    {
+                        "engine": engine,
+                        "engine_workers": engine_workers,
+                        "engine_lookup": engine_lookup,
+                    }
                     if engine != "legacy"
                     else {}
                 ),
@@ -1017,7 +1027,19 @@ class VCFAnnotator(VCFDatabase):
             "native_version",
             "workers",
             "cpu_budget",
+            "cpu_affinity",
             "stage_timings",
+            "codec_threads_per_worker",
+            "assembly_decode_threads",
+            "assembly_encode_threads",
+            "engine_lookup",
+            "lookup_strategies",
+            "lookup_tasks",
+            "lookup_regions",
+            "task_estimated_work",
+            "estimate_note",
+            "phase_timings",
+            "engine_wall_seconds",
             "fallback_reason",
         ):
             if key in last_stats:

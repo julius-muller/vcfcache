@@ -11,6 +11,9 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter, Read as IoRead, Write};
 use std::path::{Path, PathBuf};
 
+mod adaptive;
+mod store;
+
 #[derive(Parser)]
 #[command(version, about)]
 struct Cli {
@@ -20,6 +23,29 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// EXPERIMENT: explicitly build an immutable mmap lookup sidecar.
+    StoreBuild {
+        #[arg(long)]
+        cache: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+    },
+    /// EXPERIMENT: emit candidate annotation BCF, retaining bcftools matching.
+    StoreQuery {
+        #[arg(long)]
+        store: PathBuf,
+        #[arg(long)]
+        input: PathBuf,
+    },
+    /// Spool normalized records and collect sparse lookup metadata in one pass.
+    Prepare {
+        #[arg(long)]
+        output: PathBuf,
+        #[arg(long)]
+        metadata: PathBuf,
+        #[arg(long)]
+        cache: PathBuf,
+    },
     /// Split a cache-annotated uncompressed BCF stream, recording original order.
     Route {
         #[arg(long)]
@@ -275,6 +301,13 @@ struct OutputOptions<'a> {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
+        Command::StoreBuild { cache, output } => store::build(&cache, &output),
+        Command::StoreQuery { store, input } => store::query(&store, &input),
+        Command::Prepare {
+            output,
+            metadata,
+            cache,
+        } => adaptive::prepare(&output, &metadata, &cache),
         Command::Route {
             hits,
             misses,

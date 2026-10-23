@@ -1,0 +1,122 @@
+# pyproject.toml
+[build-system]
+requires = ["hatchling>=1.26", "editables>=0.3"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vcfcache"
+version = "0.5.5"
+include-package-data = true
+license = { text = "GPL-3.0-only" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Operating System :: POSIX :: Linux",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+description = "Cache-based VCF annotation accelerator"
+requires-python = ">=3.11"
+readme = "README.md"
+authors = [
+    {name = "Julius Müller", email = "julius.mueller@dkfz-heidelberg.de"}
+]
+dependencies = [
+    "click>=8.0.0",
+    "pyyaml>=6.0.0",
+    "pysam>=0.22.0",
+    "requests>=2.20.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/julius-muller/vcfcache"
+"Source" = "https://github.com/julius-muller/vcfcache"
+"Issues" = "https://github.com/julius-muller/vcfcache/issues"
+
+[project.optional-dependencies]
+parquet = [
+    "pandas>=2.2.0",
+    "pyarrow>=20.0.0"
+]
+dev = [
+    "pandas>=2.2.0", # for output of parquet
+    "pyarrow>=20.0.0", # for output of parquet
+    "pytest>=9.0.2", # python -m pytest -xvs
+    "pytest-cov>=6.0.0", # coverage reports for CI
+    "ruff>=0.14.8", # ruff check --fix vcfcache
+    "black>=25.12.0", # black vcfcache
+    "mypy>=1.19.0", # mypy vcfcache
+    "twine>=4.0.0", # twine upload dist/*
+]
+gnomad = [
+   "hail>=0.2.127" # for pulling from gnomAD via scripts/export_gnomad_hail.py; >=0.2.127 fixes GHSA OIDC email-claim verification - HUGE number of deps, increases docker by 1GB!
+]
+
+[project.scripts]
+vcfcache = "vcfcache.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]
+testpaths = [
+  "tests"
+]
+markers = [
+  "vanilla: marks tests for vanilla package (no cache, no external tools)",
+  "requires_cache: marks tests that need blueprint cache but no annotation",
+  "requires_annotation: marks tests that need full annotation pipeline with VEP",
+  "integration: marks tests as integration tests (legacy marker)",
+  "unit: marks tests as unit tests (legacy marker)",
+  "blueprint: marks tests for blueprint image (legacy marker)",
+  "benchmark_network: live official-source smoke tests for publication data preparation",
+]
+
+[tool.coverage.run]
+source = ["vcfcache"]
+omit = ["vcfcache/demo.py"]
+
+[tool.hatch.build.targets.sdist]
+include = ["vcfcache/**", "tests/**", "native/Cargo.toml", "native/Cargo.lock", "native/src/**", "native/README.md", "README.md", "LICENSE"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["vcfcache"]
+include = ["vcfcache/recipes/**", "vcfcache/demo_data/**"]
+
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    # Immutable raw experiment snapshots are provenance, not maintained source.
+    "benchmarks/results/raw",
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pypackages__",
+    "dist",
+    "build",
+]
+
+[tool.ruff.lint]
+# Enable flake8-bugbear (`B`) rules.
+select = ["E", "F", "B", "I", "D"]
+# Exclude E501 (line too long)
+ignore = ["E501", "D205", "D100", "D200", "D102", "D107", "D415", "D417"]
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]  # Ignore docstring rules in tests
+
+[tool.ruff.lint.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

@@ -2,6 +2,7 @@
 
 import json
 import subprocess
+from pathlib import Path
 
 import pysam
 import pytest
@@ -119,7 +120,9 @@ def dataset(directory, *, hit_every=2, records=20, payload=20, kind="normal"):
     return sample, cache, params, recipe
 
 
-def run_case(root, files, engine, *, workers=1, preserve=False, skip_split=False):
+def run_case(
+    root, files, engine, *, workers=1, preserve=False, skip_split=False, lookup="auto"
+):
     sample, cache, params, recipe = files
     output = root / engine / "output.bcf"
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -136,6 +139,7 @@ def run_case(root, files, engine, *, workers=1, preserve=False, skip_split=False
         db_bcf=cache,
         engine=engine,
         engine_workers=workers if engine == "fused" else 0,
+        engine_lookup=lookup,
         preserve_unannotated=preserve,
         skip_split_multiallelic=skip_split,
     )
@@ -179,6 +183,271 @@ def test_empty(native, tmp_path):
     fused, manager = run_case(tmp_path, files, "fused")
     assert strict_semantic_compare(fused, legacy)["semantic_pass"]
     assert manager.last_run_stats["output_variants"] == 0
+
+
+@pytest.mark.parametrize("lookup", ["auto", "regions", "contigs"])
+@pytest.mark.parametrize("workers", [1, 2])
+def test_lookup_modes_and_boundaries(native, tmp_path, lookup, workers):
+    files = dataset(tmp_path / "data")
+    # Same-coordinate groups and long deletions crossing window/task boundaries
+    # must not be duplicated by record-overlap selection.
+    positions = [100, 100, 16383, 16384, 16384, 32767, 32768, 40000, 49999, 50000]
+    for path in (files[0], files[1], tmp_path / "data/truth.bcf"):
+        replacement = path.with_name("replacement.bcf")
+        with (
+            pysam.VariantFile(str(path)) as inp,
+            pysam.VariantFile(str(replacement), "wb", header=inp.header) as out,
+        ):
+            for record in inp:
+                i = int(record.id.removeprefix("id-")) % 10
+                record.start = positions[i]
+                record.alleles = (
+                    ("A" * 20000, "A") if i == 2 else ("A", "G" if i in {1, 4} else "C")
+                )
+                out.write(record)
+        replacement.replace(path)
+        checked("bcftools", "index", "-f", path)
+    legacy, _ = run_case(tmp_path, files, "legacy", preserve=True)
+    fused, manager = run_case(
+        tmp_path, files, "fused", workers=workers, preserve=True, lookup=lookup
+    )
+    assert strict_semantic_compare(fused, legacy)["semantic_pass"]
+    # bcftools' overlays may reorder different alleles within one coordinate.
+    # The strict comparator checks complete records, duplicates and all fields;
+    # byte-identical order within a coordinate is not the sorted-output contract.
+    assert manager.last_run_stats["engine_lookup"] == lookup
+    # Every overlay, even with a single worker, retains explicit selection.
+    for command in (manager.work_dir / "fused").glob("shard-*/route.sh"):
+        assert "-R regions.bed --regions-overlap 0" in command.read_text()
+        assert "--threads " in command.read_text()
+
+
+@pytest.mark.parametrize("lookup", ["regions", "contigs"])
+def test_missing_cache_contig(native, tmp_path, lookup):
+    files = dataset(tmp_path / "data")
+    replacement = tmp_path / "short-cache.bcf"
+    with (pysam.VariantFile(str(files[1])) as inp,):
+        header = pysam.VariantHeader()
+        for declaration in inp.header.records:
+            if declaration.type == "CONTIG" and declaration["ID"] == "1":
+                continue
+            header.add_line(str(declaration))
+        for name in inp.header.samples:
+            header.add_sample(name)
+        with pysam.VariantFile(str(replacement), "wb", header=header) as out:
+            for record in inp:
+                if record.contig == "2":
+                    record.translate(header)
+                    out.write(record)
+    replacement.replace(files[1])
+    checked("bcftools", "index", "-f", files[1])
+    legacy, _ = run_case(tmp_path, files, "legacy")
+    fused, _ = run_case(tmp_path, files, "fused", lookup=lookup)
+    assert strict_semantic_compare(fused, legacy)["semantic_pass"]
+
+
+def test_cache_work_planner_splits_single_contig():
+    from vcfcache.database.adaptive import plan_tasks
+
+    windows = [
+        dict(
+            contig="chr1",
+            start=i * 16384,
+            end=(i + 1) * 16384,
+            records=10,
+            estimated_cache_bytes=2**20,
+        )
+        for i in range(32)
+    ]
+    metadata = {
+        "windows": windows,
+        "contigs": [
+            dict(name="chr1", estimated_cache_bytes=2**25, requested_cache_bytes=2**25)
+        ],
+    }
+    tasks, strategies = plan_tasks(
+        [(Path("normalized.bcf"), metadata)], {"chr1": 32 * 16384}, 4, "auto"
+    )
+    assert len(tasks) >= 4
+    assert strategies[0]["strategy"] == "contigs"
+    regions = [region for task in tasks for region in task["regions"]]
+    assert regions[0][1] == 0 and regions[-1][2] == 32 * 16384
+    assert all(
+        left[2] == right[1] for left, right in zip(regions, regions[1:], strict=False)
+    )
+
+
+def test_sparse_planner_uses_cache_bytes_not_sample_counts():
+    from vcfcache.database.adaptive import plan_tasks
+
+    metadata = {
+        "windows": [
+            dict(
+                contig="chr1",
+                start=0,
+                end=16384,
+                records=250,
+                estimated_cache_bytes=2**20,
+            )
+        ],
+        "contigs": [
+            dict(name="chr1", estimated_cache_bytes=2**30, requested_cache_bytes=2**20)
+        ],
+    }
+    tasks, strategies = plan_tasks(
+        [(Path("normalized.bcf"), metadata)], {"chr1": 10**8}, 1, "auto"
+    )
+    assert strategies[0]["strategy"] == "regions"
+    assert tasks[0]["regions"] == [("chr1", 0, 16384)]
+
+
+@pytest.mark.parametrize(
+    "input_records,cache_records,expected",
+    [(10000, 9000, 8), (10000, 100000, 4), (250, 9000, 1)],
+)
+def test_worker_policy_reserves_codecs_only_when_useful(
+    input_records, cache_records, expected
+):
+    from vcfcache.database.adaptive import select_workers
+
+    metadata = {
+        "windows": [{"records": input_records}],
+        "contigs": [
+            dict(
+                estimated_cache_bytes=100,
+                requested_cache_bytes=100,
+                cache_records=cache_records,
+            )
+        ],
+    }
+    assert select_workers([(None, metadata)], 16, "auto") == expected
+
+
+@pytest.mark.parametrize("fails", [False, True])
+def test_cpu_budget_restores_callers_affinity(monkeypatch, fails):
+    import os
+    from types import SimpleNamespace
+
+    import vcfcache.database.fused as module
+
+    original = os.sched_getaffinity(0)
+
+    def workflow(*args):
+        assert os.sched_getaffinity(0) == {min(original)}
+        if fails:
+            raise RuntimeError("test failure")
+        return "ok"
+
+    monkeypatch.setattr(module, "_run_fused", workflow)
+    manager = SimpleNamespace(params_file_content={"threads": 1})
+    if fails:
+        with pytest.raises(RuntimeError, match="test failure"):
+            module.run_fused(manager, None)
+    else:
+        assert module.run_fused(manager, None) == "ok"
+    assert os.sched_getaffinity(0) == original
+
+
+def test_benchmark_claim_preserves_prior_output(tmp_path):
+    from benchmarks.adaptive_routing import claim_directory
+
+    destination = tmp_path / "pre-created"
+    destination.mkdir()
+    claim_directory(destination)
+    marker = (destination / ".benchmark_owner").read_text()
+    with pytest.raises(FileExistsError):
+        claim_directory(destination)
+    assert (destination / ".benchmark_owner").read_text() == marker
+
+
+def test_single_contig_multiple_tasks_annotates_once(native, tmp_path, monkeypatch):
+    import vcfcache.database.fused as module
+
+    files = dataset(tmp_path / "data")
+    for path in (files[0], files[1], tmp_path / "data/truth.bcf"):
+        replacement = path.with_name("replacement.bcf")
+        with (
+            pysam.VariantFile(str(path)) as inp,
+            pysam.VariantFile(str(replacement), "wb", header=inp.header) as out,
+        ):
+            for record in inp:
+                record.contig = "2"
+                record.start = int(record.id.removeprefix("id-")) * 4_000_000
+                out.write(record)
+        replacement.replace(path)
+        checked("bcftools", "index", "-f", path)
+    planner = module.plan_tasks
+
+    def expensive_cache(prepared, lengths, workers, lookup):
+        # Inflate ONLY work estimates to exercise real task splitting on a tiny
+        # fixture. The records, cache lookup and annotation recipe remain real.
+        for _, metadata in prepared:
+            for contig in metadata["contigs"]:
+                contig["estimated_cache_bytes"] = 2**30
+                contig["requested_cache_bytes"] = 2**30
+        return planner(prepared, lengths, workers, lookup)
+
+    monkeypatch.setattr(module, "plan_tasks", expensive_cache)
+    legacy, _ = run_case(tmp_path, files, "legacy")
+    fused, manager = run_case(tmp_path, files, "fused", workers=2)
+    assert strict_semantic_compare(fused, legacy)["semantic_pass"]
+    assert manager.last_run_stats["lookup_tasks"] >= 4
+    assert (
+        sum(
+            row["stage"] == "annotate-misses"
+            for row in manager.last_run_stats["stage_timings"]
+        )
+        == 1
+    )
+
+
+@pytest.mark.parametrize("hits", [0, 1, 2])
+def test_experimental_store_candidates(native, tmp_path, hits):
+    files = dataset(tmp_path / "data", hit_every=hits)
+    store = tmp_path / "store"
+    checked(native, "store-build", "--cache", files[1], "--output", store)
+    selected = tmp_path / "selected.bcf"
+    with selected.open("wb") as stream:
+        subprocess.run(
+            [native, "store-query", "--store", str(store), "--input", str(files[0])],
+            stdout=stream,
+            check=True,
+        )
+    indexed = tmp_path / "selected-indexed.bcf"
+    checked("bcftools", "view", selected, "-Ob", "-W", "-o", indexed)
+    assert strict_semantic_compare(indexed, files[1])["semantic_pass"]
+    # Candidate extraction never substitutes target GT or other sample fields.
+    assert json.loads((store / "manifest.json").read_text())["experimental"]
+    again = subprocess.run(
+        [native, "store-build", "--cache", str(files[1]), "--output", str(store)],
+        capture_output=True,
+    )
+    assert again.returncode != 0  # never overwrite an existing store
+
+
+def test_cli_rejects_lookup_for_legacy(tmp_path):
+    import sys
+
+    response = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "vcfcache.cli",
+            "annotate",
+            "-a",
+            "cache",
+            "-i",
+            "x.bcf",
+            "-o",
+            "y.bcf",
+            "--engine-lookup",
+            "regions",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert response.returncode == 2
+    assert "requires --engine fused" in response.stderr
 
 
 def test_multiallelic_replay(native, tmp_path):
@@ -473,6 +742,11 @@ def test_native_stdout_is_valid_bcf(native, tmp_path, statistics):
         )
         assert stats["engine"] == "fused"
         assert stats["variant_counts"]["total_output"] == 20
+        assert stats["engine_lookup"] == "auto"
+        assert stats["lookup_regions"] >= 1
+        assert sum(item["cache_records"] for item in stats["lookup_strategies"]) == 10
+        assert len(stats["phase_timings"]) == 3
+        assert stats["engine_wall_seconds"] > 0
 
 
 def test_pipeline_failure_does_not_deadlock(tmp_path):

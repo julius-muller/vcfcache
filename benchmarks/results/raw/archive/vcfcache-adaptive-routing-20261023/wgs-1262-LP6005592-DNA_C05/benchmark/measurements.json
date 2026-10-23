@@ -1,0 +1,26 @@
+[
+  {
+    "input": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005592-DNA_C05.GRCh38.small_variants.vcf.gz",
+    "arm": "legacy",
+    "rep": 1,
+    "wall_seconds": 319.3550558919087,
+    "orchestration_wall_seconds": 319.6150509044528,
+    "semantic_pass": true
+  },
+  {
+    "input": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005592-DNA_C05.GRCh38.small_variants.vcf.gz",
+    "arm": "auto",
+    "rep": 1,
+    "wall_seconds": 240.49304218031466,
+    "orchestration_wall_seconds": 240.65398671664298,
+    "semantic_pass": true
+  },
+  {
+    "input": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005592-DNA_C05.GRCh38.small_variants.vcf.gz",
+    "arm": "store",
+    "rep": 1,
+    "wall_seconds": 334.9165426278487,
+    "orchestration_wall_seconds": 335.1809965716675,
+    "semantic_pass": true
+  }
+]

@@ -1,0 +1,266 @@
+{
+  "engine": "fused",
+  "configured_cpus": 8,
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "wall_seconds": 7.812880754994694,
+  "cpu_seconds": 34.031197,
+  "max_child_process_rss_kib": 36236,
+  "memory_note": "largest child-process RSS, NOT simultaneous aggregate peak",
+  "artifact_bytes": 1397472632,
+  "stats": {
+    "engine": "fused",
+    "requested_engine": "fused",
+    "native_version": "vcfcache-engine 0.1.0",
+    "workers": 2,
+    "cpu_budget": 8,
+    "codec_threads_per_worker": 2,
+    "engine_lookup": "auto",
+    "lookup_strategies": [
+      {
+        "estimated_cache_bytes": 4191539,
+        "name": "2",
+        "requested_cache_bytes": 4191539,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194162,
+        "name": "1",
+        "requested_cache_bytes": 4194162,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4184250,
+        "name": "3",
+        "requested_cache_bytes": 4184250,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194921,
+        "name": "4",
+        "requested_cache_bytes": 4194921,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4190052,
+        "name": "5",
+        "requested_cache_bytes": 4190052,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194034,
+        "name": "6",
+        "requested_cache_bytes": 4194034,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4184416,
+        "name": "7",
+        "requested_cache_bytes": 4184416,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194352,
+        "name": "8",
+        "requested_cache_bytes": 4194352,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4190018,
+        "name": "9",
+        "requested_cache_bytes": 4190018,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4192305,
+        "name": "10",
+        "requested_cache_bytes": 4192305,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4184059,
+        "name": "11",
+        "requested_cache_bytes": 4184059,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4200755,
+        "name": "12",
+        "requested_cache_bytes": 4200755,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194819,
+        "name": "13",
+        "requested_cache_bytes": 4194819,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4185132,
+        "name": "14",
+        "requested_cache_bytes": 4185132,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4193888,
+        "name": "15",
+        "requested_cache_bytes": 4193888,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4191532,
+        "name": "16",
+        "requested_cache_bytes": 4191532,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194494,
+        "name": "17",
+        "requested_cache_bytes": 4194494,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4183744,
+        "name": "18",
+        "requested_cache_bytes": 4183744,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4195269,
+        "name": "19",
+        "requested_cache_bytes": 4195269,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4190565,
+        "name": "20",
+        "requested_cache_bytes": 4190565,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4195670,
+        "name": "21",
+        "requested_cache_bytes": 4195670,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4121439,
+        "name": "22",
+        "requested_cache_bytes": 4121439,
+        "strategy": "contigs"
+      }
+    ],
+    "lookup_tasks": 4,
+    "lookup_regions": 22,
+    "task_estimated_work": [
+      42603550.0,
+      35490558.0,
+      42615212.0,
+      35432095.0
+    ],
+    "estimate_note": "CSI candidate byte estimates, not observed cache I/O",
+    "phase_timings": [
+      {
+        "phase": "preprocess",
+        "wall_seconds": 1.1115791870106477
+      },
+      {
+        "phase": "route",
+        "wall_seconds": 2.554006545993616
+      },
+      {
+        "phase": "assemble",
+        "wall_seconds": 2.3162886860081926
+      }
+    ],
+    "engine_wall_seconds": 7.812291186011862,
+    "stage_timings": [
+      {
+        "stage": "preprocess",
+        "task": "prepare-0001",
+        "wall_seconds": 1.1025128359906375
+      },
+      {
+        "stage": "preprocess",
+        "task": "prepare-0000",
+        "wall_seconds": 1.1082065689988667
+      },
+      {
+        "stage": "route",
+        "task": "shard-0001",
+        "wall_seconds": 1.056489237002097
+      },
+      {
+        "stage": "route",
+        "task": "shard-0000",
+        "wall_seconds": 1.2372353889950318
+      },
+      {
+        "stage": "route",
+        "task": "shard-0003",
+        "wall_seconds": 1.2529118959937477
+      },
+      {
+        "stage": "route",
+        "task": "shard-0002",
+        "wall_seconds": 1.4960615900054108
+      },
+      {
+        "stage": "collect-misses",
+        "task": "fused",
+        "wall_seconds": 0.06706619200122077
+      },
+      {
+        "stage": "annotate-misses",
+        "task": "fused",
+        "wall_seconds": 1.134334778005723
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0001",
+        "wall_seconds": 1.0245228029962163
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0000",
+        "wall_seconds": 1.2698218599980464
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0002",
+        "wall_seconds": 1.2872745610075071
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0003",
+        "wall_seconds": 1.045108345002518
+      },
+      {
+        "stage": "gather",
+        "task": "fused",
+        "wall_seconds": 0.09055884000554215
+      },
+      {
+        "stage": "index",
+        "task": "fused",
+        "wall_seconds": 0.4106207959994208
+      }
+    ],
+    "input_variants": 1000000,
+    "missing_variants": 100000,
+    "output_variants": 1000000,
+    "annotated_output": 1000000,
+    "missing_annotated": 100000,
+    "dropped_variants": 0
+  },
+  "payload_bytes": 1024,
+  "cache_hit_rate": 0.9
+}

@@ -1,0 +1,20 @@
+[07:22:17] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[07:22:17] Genome build (params.yaml): GRCh38
+[07:22:17] Genome build (annotation.yaml): GRCh38
+[07:22:17] Initializing annotation of panel.bcf
+[07:22:17] Contig overlap: cache=24 input=17 overlap=17
+[07:22:17] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[07:22:17] Running workflow in mode: annotate
+[07:22:17] Fused engine: vcfcache-engine 0.2.0; preparation workers=4; CPU budget=16
+[07:22:18] Fused preprocess completed in 0.265s
+[07:22:18] Adaptive lookup: workers=1; codec threads=14; tasks=1; mode=auto
+[07:22:18] Fused route completed in 0.392s
+[07:22:18] Fused collect-misses completed in 0.098s
+[07:22:29] Fused annotate-misses completed in 10.801s
+[07:22:29] Fused assemble completed in 0.202s
+[07:22:29] Fused gather completed in 0.052s
+[07:22:29] Fused index completed in 0.047s
+[07:22:29] Workflow completed successfully in 12.2s
+Computing MD5 for /mnt/data/tmp/adaptive-assays-1268/runs/panel-auto-1/panel_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating panel.bcf (cached mode)...
+Annotation completed in 12.4s

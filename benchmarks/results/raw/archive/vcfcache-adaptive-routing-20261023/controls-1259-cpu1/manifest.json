@@ -1,0 +1,33 @@
+{
+  "platform": "Linux-7.0.0-14-generic-x86_64-with-glibc2.43",
+  "python": "3.12.3 (main, Apr 15 2024, 18:25:56) [Clang 17.0.6 ]",
+  "cpus": 1,
+  "repeats": 1,
+  "warmup": false,
+  "inputs": [
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/size-1.bcf",
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/size-250.bcf",
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/size-2000.bcf",
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/size-75000.bcf",
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/span-1.bcf",
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/span-2.bcf",
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/span-4.bcf",
+    "/results/adaptive-routing/controls-1259-cpu1/inputs/span-8.bcf"
+  ],
+  "arms": [
+    "legacy",
+    "auto"
+  ],
+  "cache": "/mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything",
+  "source_sha256": {
+    "vcfcache/database/fused.py": "4fa0dac5629fb64ae51df36a9225adc4a72fdff7e3edbc2c7e78098f8a1f79cd",
+    "vcfcache/database/adaptive.py": "4e0e21ecf367da25389cbbc9bbfa19eeadc2b89e6cbc1fef8f97217e8482f705",
+    "native/src/main.rs": "76d9114c88c6045b0eba3e1cae83cf7962e6d00370b1405a497a611208ca0ef9",
+    "native/src/adaptive.rs": "356a514e016207b43d5f46294782f477af3e73c08dbb43a679a69e233970bef8"
+  },
+  "native_sha256": "82e6b5a23c469beeccae825b27c4994b60d39e184b14e24790cf1966dc7e65cd",
+  "bcftools": "bcftools 1.21\nUsing htslib 1.21\nCopyright (C) 2024 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+  "original_root": "None",
+  "slurm_steps": true,
+  "note": "cache-derived controls are engineering inputs, not cohort coverage results"
+}

@@ -1,0 +1,47 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T06:11:16'
+output_file: /results/adaptive-routing/controls-1258-cpu16/span-4-regions-1/output.bcf
+input_file: /results/adaptive-routing/controls-1258-cpu16/inputs/span-4.bcf
+input_name: span-4.bcf
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 250
+  annotated_output: 250
+  tool_annotated: 0
+  input_variants: 250
+  dropped_variants: 0
+  missing_variants: 0
+  missing_annotated: 0
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 1
+cpu_budget: 16
+stage_timings:
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 0.27308539021760225
+- stage: route
+  task: shard-0000
+  wall_seconds: 0.39088095631450415
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 0.14231589529663324
+- stage: gather
+  task: fused
+  wall_seconds: 0.07281678542494774
+- stage: index
+  task: fused
+  wall_seconds: 0.06198049709200859

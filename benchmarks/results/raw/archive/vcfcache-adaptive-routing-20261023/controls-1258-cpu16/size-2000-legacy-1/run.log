@@ -1,0 +1,24 @@
+[06:07:23] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[06:07:24] Genome build (params.yaml): GRCh38
+[06:07:24] Genome build (annotation.yaml): GRCh38
+[06:07:24] Initializing annotation of size-2000.bcf
+[06:07:24] Contig overlap: cache=24 input=22 overlap=22
+[06:07:24] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[06:07:24] Running workflow in mode: annotate
+[06:07:24] Annotating sample using cache (4-step process)
+[06:07:24] Step 0/4: Splitting multiallelic variants and removing spanning deletions
+[06:07:24] Command completed in 0.132s: bcftools norm
+[06:07:24] Step 1/4: Adding cache annotations
+[06:07:46] Command completed in 22.520s: bcftools annotate
+[06:07:46] Step 2/4: Identifying variants missing from cache
+[06:07:47] Command completed in 0.103s: bcftools filter
+[06:07:47] Found 0 variants not in cache
+[06:07:47] Step 3/4: Skipped (all variants found in cache)
+[06:07:47] Step 4/4: Merging cache and newly annotated variants
+[06:07:47] Command completed in 0.030s: unknown
+[06:07:47] Command completed in 0.073s: bcftools view
+[06:07:47] Annotation complete: /results/adaptive-routing/controls-1258-cpu16/size-2000-legacy-1/output.bcf
+[06:07:47] Workflow completed successfully in 23.0s
+Computing MD5 for /results/adaptive-routing/controls-1258-cpu16/size-2000-legacy-1/size-2000_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating size-2000.bcf (cached mode)...
+Annotation completed in 23.2s

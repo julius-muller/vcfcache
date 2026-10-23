@@ -1,0 +1,299 @@
+{
+  "engine": "fused",
+  "configured_cpus": 14,
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "wall_seconds": 6.858910041992203,
+  "cpu_seconds": 38.907088,
+  "max_child_process_rss_kib": 36256,
+  "memory_note": "largest child-process RSS, NOT simultaneous aggregate peak",
+  "artifact_bytes": 1397496176,
+  "stats": {
+    "engine": "fused",
+    "requested_engine": "fused",
+    "native_version": "vcfcache-engine 0.1.0",
+    "workers": 3,
+    "cpu_budget": 14,
+    "codec_threads_per_worker": 2,
+    "engine_lookup": "auto",
+    "lookup_strategies": [
+      {
+        "estimated_cache_bytes": 4191539,
+        "name": "2",
+        "requested_cache_bytes": 4191539,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194162,
+        "name": "1",
+        "requested_cache_bytes": 4194162,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4184250,
+        "name": "3",
+        "requested_cache_bytes": 4184250,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194921,
+        "name": "4",
+        "requested_cache_bytes": 4194921,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4190052,
+        "name": "5",
+        "requested_cache_bytes": 4190052,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194034,
+        "name": "6",
+        "requested_cache_bytes": 4194034,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4184416,
+        "name": "7",
+        "requested_cache_bytes": 4184416,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194352,
+        "name": "8",
+        "requested_cache_bytes": 4194352,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4190018,
+        "name": "9",
+        "requested_cache_bytes": 4190018,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4192305,
+        "name": "10",
+        "requested_cache_bytes": 4192305,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4184059,
+        "name": "11",
+        "requested_cache_bytes": 4184059,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4200755,
+        "name": "12",
+        "requested_cache_bytes": 4200755,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194819,
+        "name": "13",
+        "requested_cache_bytes": 4194819,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4185132,
+        "name": "14",
+        "requested_cache_bytes": 4185132,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4193888,
+        "name": "15",
+        "requested_cache_bytes": 4193888,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4191532,
+        "name": "16",
+        "requested_cache_bytes": 4191532,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4194494,
+        "name": "17",
+        "requested_cache_bytes": 4194494,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4183744,
+        "name": "18",
+        "requested_cache_bytes": 4183744,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4195269,
+        "name": "19",
+        "requested_cache_bytes": 4195269,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4190565,
+        "name": "20",
+        "requested_cache_bytes": 4190565,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4195670,
+        "name": "21",
+        "requested_cache_bytes": 4195670,
+        "strategy": "contigs"
+      },
+      {
+        "estimated_cache_bytes": 4121439,
+        "name": "22",
+        "requested_cache_bytes": 4121439,
+        "strategy": "contigs"
+      }
+    ],
+    "lookup_tasks": 6,
+    "lookup_regions": 22,
+    "task_estimated_work": [
+      28401288.0,
+      28399206.0,
+      28403489.0,
+      28401723.0,
+      28400424.0,
+      14135285.0
+    ],
+    "estimate_note": "CSI candidate byte estimates, not observed cache I/O",
+    "phase_timings": [
+      {
+        "phase": "preprocess",
+        "wall_seconds": 0.9223297779972199
+      },
+      {
+        "phase": "route",
+        "wall_seconds": 2.128956868997193
+      },
+      {
+        "phase": "assemble",
+        "wall_seconds": 2.0936535890068626
+      }
+    ],
+    "engine_wall_seconds": 6.858029859999078,
+    "stage_timings": [
+      {
+        "stage": "preprocess",
+        "task": "prepare-0002",
+        "wall_seconds": 0.6730782829981763
+      },
+      {
+        "stage": "preprocess",
+        "task": "prepare-0000",
+        "wall_seconds": 0.8729247919982299
+      },
+      {
+        "stage": "preprocess",
+        "task": "prepare-0001",
+        "wall_seconds": 0.9187865979911294
+      },
+      {
+        "stage": "route",
+        "task": "shard-0000",
+        "wall_seconds": 1.002062603001832
+      },
+      {
+        "stage": "route",
+        "task": "shard-0002",
+        "wall_seconds": 1.0055325559951598
+      },
+      {
+        "stage": "route",
+        "task": "shard-0001",
+        "wall_seconds": 1.0153144549985882
+      },
+      {
+        "stage": "route",
+        "task": "shard-0005",
+        "wall_seconds": 0.5724543850083137
+      },
+      {
+        "stage": "route",
+        "task": "shard-0003",
+        "wall_seconds": 1.089852223987691
+      },
+      {
+        "stage": "route",
+        "task": "shard-0004",
+        "wall_seconds": 1.1216369360045064
+      },
+      {
+        "stage": "collect-misses",
+        "task": "fused",
+        "wall_seconds": 0.06498073700640816
+      },
+      {
+        "stage": "annotate-misses",
+        "task": "fused",
+        "wall_seconds": 1.0644864049972966
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0002",
+        "wall_seconds": 1.0347898870095378
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0001",
+        "wall_seconds": 1.0370443479914684
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0000",
+        "wall_seconds": 1.0546697739919182
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0005",
+        "wall_seconds": 0.5699586099945009
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0003",
+        "wall_seconds": 1.0403609399945708
+      },
+      {
+        "stage": "assemble",
+        "task": "shard-0004",
+        "wall_seconds": 1.0550011269951938
+      },
+      {
+        "stage": "gather",
+        "task": "fused",
+        "wall_seconds": 0.09083244499925058
+      },
+      {
+        "stage": "index",
+        "task": "fused",
+        "wall_seconds": 0.3745671430078801
+      }
+    ],
+    "input_variants": 1000000,
+    "missing_variants": 100000,
+    "output_variants": 1000000,
+    "annotated_output": 1000000,
+    "missing_annotated": 100000,
+    "dropped_variants": 0
+  },
+  "payload_bytes": 1024,
+  "cache_hit_rate": 0.9
+}

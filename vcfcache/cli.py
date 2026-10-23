@@ -696,10 +696,16 @@ def main() -> None:
         help="Annotation workflow engine (default: legacy). Fused requires vcfcache-engine.",
     )
     vcf_parser.add_argument(
+        "--engine-lookup",
+        choices=("auto", "regions", "contigs"),
+        default="auto",
+        help="Fused cache access: adaptive CSI-estimated regions or contiguous streaming (default: auto).",
+    )
+    vcf_parser.add_argument(
         "--engine-workers",
         type=int,
         default=0,
-        help="Fused contig workers; 0 selects automatically within the params.yaml threads budget.",
+        help="Fused routing workers; 0 selects automatically within the params.yaml threads budget.",
     )
     statistics_group.add_argument(
         "--statistics",
@@ -959,6 +965,8 @@ def main() -> None:
             )
         if args.uncached and args.engine == "fused":
             parser.error("--engine fused cannot be combined with --uncached")
+        if args.engine_lookup != "auto" and args.engine != "fused":
+            parser.error("--engine-lookup requires --engine fused")
 
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)
@@ -1261,7 +1269,11 @@ def main() -> None:
                 skip_split_multiallelic=skip_split_multiallelic,
                 md5_all=args.md5_all,
                 **(
-                    {"engine": args.engine, "engine_workers": args.engine_workers}
+                    {
+                        "engine": args.engine,
+                        "engine_workers": args.engine_workers,
+                        "engine_lookup": args.engine_lookup,
+                    }
                     if args.engine != "legacy"
                     else {}
                 ),

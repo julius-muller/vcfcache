@@ -1,0 +1,128 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T06:21:19'
+output_file: /results/adaptive-routing/controls-1257-cpu8/size-75000-regions-2/output.bcf
+input_file: /results/adaptive-routing/controls-1257-cpu8/inputs/size-75000.bcf
+input_name: size-75000.bcf
+cache_name: vep115.2_everything
+cache_path: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything
+annotation_yaml_md5: 79ecfde8de61f086b7d11c8d3bfcec49
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 8
+statistics_level: light
+variant_counts:
+  total_output: 75000
+  annotated_output: 75000
+  tool_annotated: 0
+  input_variants: 75000
+  dropped_variants: 0
+  missing_variants: 0
+  missing_annotated: 0
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: fused
+native_version: vcfcache-engine 0.1.0
+workers: 2
+cpu_budget: 8
+stage_timings:
+- stage: preprocess
+  task: prepare-0001
+  wall_seconds: 0.44289836660027504
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 0.46058211848139763
+- stage: route
+  task: shard-0001
+  wall_seconds: 0.5708140041679144
+- stage: route
+  task: shard-0000
+  wall_seconds: 0.6816330458968878
+- stage: route
+  task: shard-0002
+  wall_seconds: 0.5273455763235688
+- stage: route
+  task: shard-0003
+  wall_seconds: 0.8185243597254157
+- stage: route
+  task: shard-0004
+  wall_seconds: 0.5355845307931304
+- stage: route
+  task: shard-0006
+  wall_seconds: 0.3786818254739046
+- stage: route
+  task: shard-0005
+  wall_seconds: 0.5500943241640925
+- stage: route
+  task: shard-0007
+  wall_seconds: 0.49593759793788195
+- stage: route
+  task: shard-0008
+  wall_seconds: 0.6059949453920126
+- stage: route
+  task: shard-0009
+  wall_seconds: 0.7422288851812482
+- stage: route
+  task: shard-0010
+  wall_seconds: 0.6082262517884374
+- stage: route
+  task: shard-0012
+  wall_seconds: 0.676711181178689
+- stage: route
+  task: shard-0011
+  wall_seconds: 0.8420899426564574
+- stage: route
+  task: shard-0013
+  wall_seconds: 0.5695265522226691
+- stage: assemble
+  task: shard-0001
+  wall_seconds: 0.3658010186627507
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 0.4615826681256294
+- stage: assemble
+  task: shard-0002
+  wall_seconds: 0.28373680263757706
+- stage: assemble
+  task: shard-0004
+  wall_seconds: 0.25650584138929844
+- stage: assemble
+  task: shard-0003
+  wall_seconds: 0.5726387146860361
+- stage: assemble
+  task: shard-0006
+  wall_seconds: 0.13739008642733097
+- stage: assemble
+  task: shard-0005
+  wall_seconds: 0.3587840301916003
+- stage: assemble
+  task: shard-0007
+  wall_seconds: 0.26098612044006586
+- stage: assemble
+  task: shard-0008
+  wall_seconds: 0.3488653218373656
+- stage: assemble
+  task: shard-0009
+  wall_seconds: 0.4559779353439808
+- stage: assemble
+  task: shard-0010
+  wall_seconds: 0.3625420732423663
+- stage: assemble
+  task: shard-0012
+  wall_seconds: 0.31208857148885727
+- stage: assemble
+  task: shard-0011
+  wall_seconds: 0.4573962176218629
+- stage: assemble
+  task: shard-0013
+  wall_seconds: 0.2998000029474497
+- stage: gather
+  task: fused
+  wall_seconds: 0.4063240634277463
+- stage: index
+  task: fused
+  wall_seconds: 0.24176144041121006

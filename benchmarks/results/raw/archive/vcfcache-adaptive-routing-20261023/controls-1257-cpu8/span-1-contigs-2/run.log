@@ -1,0 +1,17 @@
+[06:34:27] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[06:34:27] Genome build (params.yaml): GRCh38
+[06:34:27] Genome build (annotation.yaml): GRCh38
+[06:34:27] Initializing annotation of span-1.bcf
+[06:34:27] Contig overlap: cache=24 input=1 overlap=1
+[06:34:27] Overlapping contigs (first 10): chr1
+[06:34:27] Running workflow in mode: annotate
+[06:34:27] Fused engine: vcfcache-engine 0.1.0; workers=2; CPU budget=8
+[06:34:28] Fused preprocess completed in 0.286s
+[06:34:29] Fused route completed in 1.246s
+[06:34:29] Fused assemble completed in 0.104s
+[06:34:29] Fused gather completed in 0.050s
+[06:34:29] Fused index completed in 0.048s
+[06:34:29] Workflow completed successfully in 2.0s
+Computing MD5 for /results/adaptive-routing/controls-1257-cpu8/span-1-contigs-2/span-1_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating span-1.bcf (cached mode)...
+Annotation completed in 2.2s

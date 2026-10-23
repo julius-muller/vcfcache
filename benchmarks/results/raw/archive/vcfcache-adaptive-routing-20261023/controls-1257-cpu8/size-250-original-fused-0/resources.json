@@ -1,0 +1,14 @@
+{
+  "wall_seconds": 44.80689769797027,
+  "cpu_seconds": 107.841247,
+  "largest_child_rss_kib": 48152,
+  "cgroup_before": {
+    "cpu.stat": "usage_usec 113966\nuser_usec 86251\nsystem_usec 27715\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.peak": "7815168"
+  },
+  "cgroup_after": {
+    "cpu.stat": "usage_usec 107958523\nuser_usec 105610031\nsystem_usec 2348492\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.peak": "216473600"
+  },
+  "exit_code": 0
+}

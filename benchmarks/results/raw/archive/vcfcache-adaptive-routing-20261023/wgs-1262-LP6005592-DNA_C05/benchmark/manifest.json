@@ -1,0 +1,28 @@
+{
+  "platform": "Linux-7.0.0-14-generic-x86_64-with-glibc2.43",
+  "python": "3.12.3 (main, Apr 15 2024, 18:25:56) [Clang 17.0.6 ]",
+  "cpus": 16,
+  "repeats": 1,
+  "warmup": false,
+  "inputs": [
+    "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/sgdp/LP6005592-DNA_C05.GRCh38.small_variants.vcf.gz"
+  ],
+  "arms": [
+    "legacy",
+    "auto",
+    "store"
+  ],
+  "cache": "/mnt/data/tmp/adaptive-real-1262/base/cache/fastvep_clinical_grch38_af001",
+  "source_sha256": {
+    "vcfcache/database/fused.py": "b886426a4b53861683ec39c31d620597b0e80ef261c54cda390662b1bdaf41a7",
+    "vcfcache/database/adaptive.py": "4e0e21ecf367da25389cbbc9bbfa19eeadc2b89e6cbc1fef8f97217e8482f705",
+    "native/src/main.rs": "ce822b6e31d3277f785797080f0cdcdb1f17c84dd01faa0a5e7bef1a01047be1",
+    "native/src/adaptive.rs": "356a514e016207b43d5f46294782f477af3e73c08dbb43a679a69e233970bef8"
+  },
+  "native_sha256": "959b639fb9e31e514aeeff675b202f9ecf35abf3c306cdd14e969bc68af0d6c7",
+  "bcftools": "bcftools 1.21\nUsing htslib 1.21\nCopyright (C) 2024 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+  "original_root": "None",
+  "slurm_steps": true,
+  "note": "cache-derived controls are engineering inputs, not cohort coverage results",
+  "work_directory": "/mnt/data/tmp/adaptive-real-1262/runs"
+}

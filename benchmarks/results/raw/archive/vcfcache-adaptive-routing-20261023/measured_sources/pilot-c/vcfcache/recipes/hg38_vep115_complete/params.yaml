@@ -1,0 +1,15 @@
+## * REQUIRED RESOURCES *
+annotation_tool_cmd: "docker run --rm -v /data:/data ensemblorg/ensembl-vep:release_115.2 vep"
+tool_version_command: "docker run --rm ensemblorg/ensembl-vep:release_115.2 vep | awk '/ensembl-vep/ {print $NF}'"
+bcftools_cmd: "bcftools"
+temp_dir: "/tmp"
+
+## * OPTIONAL RESOURCES *
+vep_buffer: 500000
+vep_forks: 8
+vep_cache: "/data/vep_cache/115"
+
+## * OPTIONAL CHECKS *
+optional_checks:
+  vep_cache_version: "115"
+  genome_build: "GRCh38"

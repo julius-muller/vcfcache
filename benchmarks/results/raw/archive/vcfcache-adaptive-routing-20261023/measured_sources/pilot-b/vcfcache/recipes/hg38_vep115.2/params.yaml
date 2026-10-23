@@ -1,0 +1,15 @@
+## * REQUIRED RESOURCES *
+genome_build: "GRCh38"
+annotation_tool_cmd: "vep"
+tool_version_command: "vep | awk '/ensembl-vep/ {print $NF}'"
+bcftools_cmd: "bcftools"
+temp_dir: "/tmp"
+
+## * OPTIONAL RESOURCES *
+vep_buffer: 500000
+vep_forks: 8
+vep_cache: "/vep_data/115.2"
+
+## * OPTIONAL CHECKS *
+optional_checks:
+  vep_cache_version: "115.2"

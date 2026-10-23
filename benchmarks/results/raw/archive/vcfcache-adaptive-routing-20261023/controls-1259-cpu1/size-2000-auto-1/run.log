@@ -1,0 +1,21 @@
+[06:13:23] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[06:13:23] Genome build (params.yaml): GRCh38
+[06:13:23] Genome build (annotation.yaml): GRCh38
+[06:13:23] Initializing annotation of size-2000.bcf
+[06:13:23] Contig overlap: cache=24 input=22 overlap=22
+[06:13:23] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[06:13:23] Running workflow in mode: annotate
+[06:13:23] Fused engine: vcfcache-engine 0.1.0; workers=1; CPU budget=1
+[06:13:23] Fused preprocess completed in 0.362s
+[06:13:24] Fused route completed in 0.503s
+[06:13:24] Fused route completed in 0.284s
+[06:13:25] Fused route completed in 0.318s
+[06:13:25] Fused assemble completed in 0.177s
+[06:13:25] Fused assemble completed in 0.135s
+[06:13:25] Fused assemble completed in 0.109s
+[06:13:25] Fused gather completed in 0.073s
+[06:13:25] Fused index completed in 0.049s
+[06:13:25] Workflow completed successfully in 2.3s
+Computing MD5 for /results/adaptive-routing/controls-1259-cpu1/size-2000-auto-1/size-2000_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating size-2000.bcf (cached mode)...
+Annotation completed in 2.4s

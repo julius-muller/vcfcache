@@ -1,0 +1,21 @@
+## Annotated Docker Image Configuration
+## Full VEP pipeline with pre-annotated gnomAD cache
+
+## * REQUIRED RESOURCES *
+annotation_tool_cmd: "vep"
+# Parse the version line from VEP stdout (same pattern as tests/config/example_params.yaml)
+tool_version_command: "vep | awk '/ensembl-vep/ {print $NF}'"
+# Use bcftools 1.22 from /opt/bcftools (VEP image has 1.13 which lacks --write-index)
+bcftools_cmd: "/opt/bcftools/bin/bcftools"
+reference: "/tmp/dummy.fa"  # Placeholder - not used during cache init from BCF
+temp_dir: "/tmp"
+
+## * VEP CONFIGURATION *
+vep_buffer: 500000
+vep_forks: 12
+vep_cache: "/opt/vep/.vep"  # VEP cache location in container
+
+## * OPTIONAL CHECKS *
+optional_checks:
+  genome_build: "GRCh38"
+  vep_cache_version: "115"

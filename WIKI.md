@@ -709,6 +709,7 @@ Annotate a sample VCF/BCF using a cache.
 - `-o/--output`: output BCF file (use `-`/`stdout` to stream).
 - `--engine {legacy,fused}`: workflow engine (default `legacy`). The experimental `fused` engine requires the optional `vcfcache-engine` executable; see [native build, parallelism and compatibility notes](native/README.md).
 - `--engine-workers N`: fused contig workers; `0` automatically selects within the configured `params.yaml` thread budget and process affinity. Annotation still runs once on all misses. Cannot be combined with the legacy engine or `--uncached`.
+- `--engine-lookup {auto,regions,contigs}`: fused cache-access strategy. `auto` compares conservative CSI byte estimates for 16-KiB sample windows with the contig footprint; `regions` forces sparse access and `contigs` forces contiguous access. Explicit non-default selection requires `--engine fused`. One worker never disables restriction. Large contigs can be divided into coordinate-disjoint tasks without splitting a shared position.
 - `--stats-dir`: optional directory for logs/workflow/auxiliary. If provided, stats are written under `<stats_dir>/<input_basename>_vcstats`; if omitted, they default to `<cwd>/<input_basename>_vcstats`.
 - `--statistics {light,full,none}`: statistics detail. `light` (default) reuses workflow/index counters and does not rescan the output; `full` additionally recounts annotated records and computes top/bottom comparison hashes; `none` discards the stats/log directory.
 - `--no-stats`: deprecated alias for `--statistics none`.

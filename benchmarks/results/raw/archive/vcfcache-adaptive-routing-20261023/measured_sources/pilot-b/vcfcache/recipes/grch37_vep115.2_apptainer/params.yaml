@@ -1,0 +1,21 @@
+## Minimal GRCh37 VEP 115.2 (Apptainer) params
+##
+## This recipe is intended for environments where VEP is provided via Apptainer/Singularity.
+## Adjust paths to match your installation.
+
+genome_build: "GRCh38"
+annotation_tool_cmd: "apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/115/vep.sif vep"
+tool_version_command: "apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/115/vep.sif vep | awk '/ensembl-vep/ {print $NF}'"
+
+# Use system bcftools (or override with VCFCACHE_BCFTOOLS env var)
+bcftools_cmd: "bcftools"
+temp_dir: "/tmp"
+
+# Set this to your VEP cache base directory (must contain `homo_sapiens/` for GRCh37)
+# Example: /mnt/data/vep_cache/115
+vep_cache: "/mnt/data/apps/ensembl-vep/115/cachedir"
+
+# Optional performance knobs
+vep_buffer: 500000
+vep_forks: 8
+

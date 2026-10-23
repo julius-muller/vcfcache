@@ -1,0 +1,35 @@
+[2026-10-23 06:07:48] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /results/adaptive-routing/controls-1258-cpu16/size-2000-auto-1/size-2000_vcstats/workflow.log
+[2026-10-23 06:07:48] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 06:07:48] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /results/adaptive-routing/controls-1258-cpu16/size-2000-auto-1/size-2000_vcstats
+[2026-10-23 06:07:48] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /results/adaptive-routing/controls-1258-cpu16/size-2000-auto-1/size-2000_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 06:07:48] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/annotation.yaml
+[2026-10-23 06:07:48] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-23 06:07:48] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-23 06:07:48] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 06:07:48] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /results/adaptive-routing/controls-1258-cpu16/inputs/size-2000.bcf
+[2026-10-23 06:07:48] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 06:07:48] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of size-2000.bcf
+[2026-10-23 06:07:48] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-23 06:07:48] DEBUG [vcfcache.annotator.py.annotate:888] Starting VCF annotation
+[2026-10-23 06:07:48] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/vcfcache_benchmarks/bundled_zenodo_caches/gnomad_v4.1_GRCh38_joint_af001/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-23 06:07:48] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /results/adaptive-routing/controls-1258-cpu16/inputs/size-2000.bcf
+[2026-10-23 06:07:48] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=22 overlap=22
+[2026-10-23 06:07:48] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-23 06:07:48] DEBUG [vcfcache.workflow_manager.py._create_work_dir:984] Created work directory: /results/adaptive-routing/controls-1258-cpu16/size-2000-auto-1/size-2000_vcstats/work
+[2026-10-23 06:07:48] INFO [vcfcache.workflow_manager.py.run:309] Running workflow in mode: annotate
+[2026-10-23 06:07:48] INFO [vcfcache.fused.py.run_fused:197] Fused engine: vcfcache-engine 0.1.0; workers=4; CPU budget=16
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused preprocess completed in 0.296s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused route completed in 0.490s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused route completed in 0.589s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused route completed in 0.594s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused route completed in 0.596s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused assemble completed in 0.151s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused assemble completed in 0.164s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused assemble completed in 0.163s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused assemble completed in 0.168s
+[2026-10-23 06:07:49] INFO [vcfcache.fused.py.run:136] Fused gather completed in 0.135s
+[2026-10-23 06:07:50] INFO [vcfcache.fused.py.run:136] Fused index completed in 0.070s
+[2026-10-23 06:07:50] DEBUG [vcfcache.workflow_manager.py._write_trace_file:970] Trace file written to: /results/adaptive-routing/controls-1258-cpu16/size-2000-auto-1/size-2000_vcstats/vep115.2_everything_trace.txt
+[2026-10-23 06:07:50] INFO [vcfcache.workflow_manager.py.run:361] Workflow completed successfully in 1.5s
+[2026-10-23 06:07:50] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:996] Cleaning up work directory
+[2026-10-23 06:07:50] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:999] Removing work directory: /results/adaptive-routing/controls-1258-cpu16/size-2000-auto-1/size-2000_vcstats/work

@@ -1,0 +1,44 @@
+[06:19:56] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[06:19:56] Genome build (params.yaml): GRCh38
+[06:19:56] Genome build (annotation.yaml): GRCh38
+[06:19:56] Initializing annotation of size-75000.bcf
+[06:19:56] Contig overlap: cache=24 input=22 overlap=22
+[06:19:56] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[06:19:56] Running workflow in mode: annotate
+[06:19:56] Fused engine: vcfcache-engine 0.1.0; workers=2; CPU budget=8
+[06:19:57] Fused preprocess completed in 0.460s
+[06:19:57] Fused preprocess completed in 0.488s
+[06:19:58] Fused route completed in 0.643s
+[06:19:58] Fused route completed in 0.697s
+[06:19:58] Fused route completed in 0.512s
+[06:19:59] Fused route completed in 0.923s
+[06:19:59] Fused route completed in 0.598s
+[06:19:59] Fused route completed in 0.415s
+[06:19:59] Fused route completed in 0.587s
+[06:20:00] Fused route completed in 0.554s
+[06:20:00] Fused route completed in 0.566s
+[06:20:01] Fused route completed in 0.738s
+[06:20:01] Fused route completed in 0.680s
+[06:20:01] Fused route completed in 0.506s
+[06:20:01] Fused route completed in 0.761s
+[06:20:02] Fused route completed in 0.722s
+[06:20:02] Fused assemble completed in 0.357s
+[06:20:02] Fused assemble completed in 0.481s
+[06:20:02] Fused assemble completed in 0.285s
+[06:20:03] Fused assemble completed in 0.278s
+[06:20:03] Fused assemble completed in 0.547s
+[06:20:03] Fused assemble completed in 0.143s
+[06:20:03] Fused assemble completed in 0.367s
+[06:20:03] Fused assemble completed in 0.267s
+[06:20:03] Fused assemble completed in 0.324s
+[06:20:04] Fused assemble completed in 0.435s
+[06:20:04] Fused assemble completed in 0.352s
+[06:20:04] Fused assemble completed in 0.294s
+[06:20:04] Fused assemble completed in 0.455s
+[06:20:04] Fused assemble completed in 0.321s
+[06:20:05] Fused gather completed in 0.402s
+[06:20:05] Fused index completed in 0.234s
+[06:20:05] Workflow completed successfully in 8.7s
+Computing MD5 for /results/adaptive-routing/controls-1257-cpu8/size-75000-auto-1/size-75000_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating size-75000.bcf (cached mode)...
+Annotation completed in 8.9s
