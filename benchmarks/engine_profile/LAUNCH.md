@@ -62,13 +62,16 @@ On the controller:
 ```sh
 cd /tmp
 sudo -u appuser env \
-  PYTHONPATH=/mnt/data/slurm-results/deployment/engine-profile-20261023T190736Z-97545d739-profile \
+  PYTHONPATH=/mnt/data/slurm-results/deployment/engine-profile-recovery-20261025-183514646 \
   /mnt/data/slurm-results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python \
   -m benchmarks.engine_profile.run status \
   /mnt/data/slurm-results/engine-profile/20261023T190736Z-97545d739
 ```
 
 Replace `status` with `collect` to regenerate the content-addressed report.
+The review command above uses the corrected 25 October harness; the original
+engine deployments and manifest remain frozen. See [RECOVERY-20261025.md](RECOVERY-20261025.md)
+for the separately submitted VEP WGS memory recovery.
 `submissions.json` stores accepted jobs; `latest-review.json` points to the latest
 report. Every attempt keeps its commands, resource counters, raw comparisons,
 fallback details and traces. Inspect failures rather than treating an empty queue
