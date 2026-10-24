@@ -150,3 +150,93 @@ def test_manifest_drift_rejected(tmp_path):
     (tmp_path / "manifest.json").write_text("{}")
     with pytest.raises(RuntimeError, match="modified"):
         run.verify(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "marker,expected",
+    [(None, "unavailable"), ("", "GROUP_FINISHED"), ("-failure", "GROUP_FAILED")],
+)
+def test_expired_running_snapshot(tmp_path, marker, expected):
+    write_json_atomic(
+        tmp_path / "submissions.json",
+        [dict(attempt=1, jobs=[dict(job_id="7", group="g02", cells=[])])],
+    )
+    if marker is not None:
+        write_json_atomic(
+            tmp_path / f"group-g02-a1{marker}.json", dict(finished_unix=123)
+        )
+    result = review.resolve_scheduler(
+        tmp_path,
+        {"7": dict(group="g02", state="unavailable")},
+        {"7": dict(group="g02", state="RUNNING")},
+    )
+    assert result["7"]["state"] == expected
+    assert "exit_code" not in result["7"]
+    assert (
+        review.resolve_scheduler(
+            tmp_path, {"7": dict(group="g02", state="RUNNING")}, {}
+        )["7"]["state"]
+        == "RUNNING"
+    )
+
+
+def test_terminal_snapshot_retained(tmp_path):
+    write_json_atomic(
+        tmp_path / "submissions.json",
+        [dict(jobs=[dict(job_id="7", group="g02", cells=[])])],
+    )
+    assert (
+        review.resolve_scheduler(tmp_path, {}, {"7": dict(state="COMPLETED")})["7"][
+            "state"
+        ]
+        == "COMPLETED"
+    )
+
+
+def test_vep_recovery_controls():
+    manifest = dict(
+        recipes={"vep": dict(params={"vep_forks": 16, "vep_buffer": 500000})}
+    )
+    cell = dict(
+        recipe="vep",
+        cpus=16,
+        annotation_overrides={"vep_forks": 4, "vep_buffer": 50000},
+    )
+    assert run.cell_params(manifest, cell) == dict(
+        threads=16, vep_forks=4, vep_buffer=50000
+    )
+    cell["annotation_overrides"]["vep_forks"] = 17
+    with pytest.raises(ValueError):
+        run.cell_params(manifest, cell)
+
+
+def test_recovery_only_unsuccessful_wgs(tmp_path):
+    from benchmarks.engine_profile.recover_vep import create
+
+    parent = tmp_path / "parent"
+    parent.mkdir()
+    manifest = dict(groups=design(), root=str(parent))
+    write_json_atomic(parent / "manifest.json", manifest)
+    (parent / "READY").write_text(sha256sum(parent / "manifest.json"))
+    original = (parent / "manifest.json").read_bytes()
+    for group in manifest["groups"]:
+        for cell in group["cells"]:
+            if cell["recipe"] == "vep" and cell["assay"] == "wgs":
+                file = parent / "attempts/a001" / cell["id"] / "state.json"
+                file.parent.mkdir(parents=True)
+                write_json_atomic(
+                    file,
+                    dict(state="failed" if cell["role"] == "direct" else "skipped"),
+                )
+    harness = tmp_path / "harness"
+    script = harness / "benchmarks/engine_profile/job.sh"
+    script.parent.mkdir(parents=True)
+    script.write_text("test")
+    result = create(parent, tmp_path / "retry", str(harness), "test-commit")
+    assert [g["id"] for g in result["groups"]] == ["g02", "g05"]
+    assert sum(len(g["cells"]) for g in result["groups"]) == 8
+    assert (parent / "manifest.json").read_bytes() == original
+    file = parent / "attempts/a001/g02-c004/state.json"
+    write_json_atomic(file, dict(state="complete"))
+    with pytest.raises(ValueError, match="unsuccessful"):
+        create(parent, tmp_path / "invalid", str(harness), "test-commit")

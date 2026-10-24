@@ -68,6 +68,59 @@ def job_states(root):
     return result
 
 
+def resolve_scheduler(root, live, cached):
+    """Do not present expired nonterminal Slurm snapshots as current state."""
+    terminal = {
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
+        "TIMEOUT",
+        "OUT_OF_MEMORY",
+        "NODE_FAIL",
+        "PREEMPTED",
+        "BOOT_FAIL",
+        "DEADLINE",
+    }
+    batches = (
+        read(root / "submissions.json") if (root / "submissions.json").exists() else []
+    )
+    result = {}
+    for batch in batches:
+        for job in batch["jobs"]:
+            identifier = str(job["job_id"])
+            current = live.get(
+                identifier, dict(group=job["group"], state="unavailable")
+            )
+            previous = cached.get(identifier, {})
+            if current["state"] != "unavailable":
+                result[identifier] = current
+            elif previous.get("state") in terminal:
+                result[identifier] = dict(
+                    previous, evidence="retained terminal scheduler snapshot"
+                )
+            else:
+                stem = f"group-{job['group']}-a{batch.get('attempt', 1)}"
+                failed, finished = root / (stem + "-failure.json"), root / (
+                    stem + ".json"
+                )
+                marker = failed if failed.exists() else finished
+                if marker.exists():
+                    result[identifier] = dict(
+                        group=job["group"],
+                        state="GROUP_FAILED" if failed.exists() else "GROUP_FINISHED",
+                        evidence=marker.name,
+                        scheduler_state="unavailable",
+                        finished_unix=read(marker).get("finished_unix"),
+                    )
+                else:
+                    result[identifier] = dict(
+                        current,
+                        evidence="scheduler unavailable; no durable group completion marker",
+                        previous_state=previous.get("state"),
+                    )
+    return result
+
+
 def collect(root, write=True):
     """Collect all attempts and produce a content-addressed, immutable review."""
     manifest = verify(root)
@@ -195,9 +248,7 @@ def collect(root, write=True):
         if (root / "scheduler-status.json").exists()
         else {}
     )
-    for identifier, value in scheduler.items():
-        if value["state"] != "unavailable" or identifier not in cached:
-            cached[identifier] = value
+    cached = resolve_scheduler(root, scheduler, cached)
     batches = (
         read(root / "submissions.json") if (root / "submissions.json").exists() else []
     )
@@ -211,6 +262,8 @@ def collect(root, write=True):
         "PREEMPTED",
         "BOOT_FAIL",
         "DEADLINE",
+        "GROUP_FINISHED",
+        "GROUP_FAILED",
     }
     for row in rows:
         jobs = [

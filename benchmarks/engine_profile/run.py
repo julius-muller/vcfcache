@@ -326,7 +326,7 @@ def submit(args):
         history.append(batch)
         write_json_atomic(root / "submissions.json", history)
         worker_root = manifest["root"]
-        deployment = manifest["builds"]["profile"]["root"]
+        deployment = manifest.get("harness_root", manifest["builds"]["profile"]["root"])
         script = f"{deployment}/benchmarks/engine_profile/job.sh"
         try:
             for group in manifest["groups"]:
@@ -430,6 +430,25 @@ def resources_match(manifest, recipe):
             raise RuntimeError(f"annotation resource drift: {resource['path']}")
 
 
+def cell_params(manifest, cell):
+    """Keep engine CPU allocation separate from explicit VEP memory controls."""
+    params = dict(manifest["recipes"][cell["recipe"]]["params"], threads=cell["cpus"])
+    for name in ("vep_forks", "rayon_threads"):
+        if name in params:
+            params[name] = cell["cpus"]
+    overrides = cell.get("annotation_overrides", {})
+    if overrides and cell["recipe"] != "vep":
+        raise ValueError("annotation overrides are restricted to VEP recovery")
+    if set(overrides) - {"vep_forks", "vep_buffer"}:
+        raise ValueError("unsupported annotation override")
+    if any(type(value) is not int or value < 1 for value in overrides.values()):
+        raise ValueError("annotation overrides must be positive integers")
+    if overrides.get("vep_forks", 1) > cell["cpus"]:
+        raise ValueError("VEP forks exceed CPU allocation")
+    params.update(overrides)
+    return params
+
+
 def run_cell(manifest, cell, scratch, evidence, cache, refs):
     """Run one isolated Slurm step, audit outside timing, and durably finalize it."""
     state = dict(
@@ -464,13 +483,7 @@ def run_cell(manifest, cell, scratch, evidence, cache, refs):
         profile_root.mkdir()
         source = scratch.parent / "inputs" / f"{cell['assay']}.{cell['form']}"
         output = scratch / "output.bcf"
-        params = dict(
-            manifest["recipes"][cell["recipe"]]["params"], threads=cell["cpus"]
-        )
-        if "vep_forks" in params:
-            params["vep_forks"] = cell["cpus"]
-        if "rayon_threads" in params:
-            params["rayon_threads"] = cell["cpus"]
+        params = cell_params(manifest, cell)
         params["temp_dir"] = str(scratch / "tmp")
         Path(params["temp_dir"]).mkdir()
         params_file = scratch / "params.yaml"
@@ -576,6 +589,7 @@ def run_cell(manifest, cell, scratch, evidence, cache, refs):
                 input=source_info,
                 cache_files=manifest["recipes"][cell["recipe"]]["files"],
                 profiling=cell["profile"],
+                effective_parameters=params,
                 temperature=manifest["storage_temperature"],
             ),
         )
@@ -678,6 +692,9 @@ def group_run(args):
     group = next(g for g in manifest["groups"] if g["id"] == args.group)
     if socket.gethostname().split(".")[0] != group["node"]:
         raise RuntimeError("group placed on a different node than frozen design")
+    for relative, expected in manifest.get("harness_files", {}).items():
+        if sha256sum(Path(manifest["harness_root"]) / relative) != expected:
+            raise RuntimeError(f"recovery harness drift: {relative}")
     for build in manifest["builds"].values():
         for relative, expected in build["files"].items():
             if sha256sum(Path(build["root"]) / relative) != expected:
@@ -720,7 +737,7 @@ def group_run(args):
     attempt = root / "attempts" / f"a{args.attempt:03d}"
     attempt.mkdir(parents=True, exist_ok=True)
     refs = {}
-    for assay in ("wes", "wgs"):
+    for assay in sorted({cell["assay"] for cell in group["cells"]}):
         for role in ("direct", "cached"):
             refcell = next(
                 c for c in group["cells"] if c["assay"] == assay and c["role"] == role

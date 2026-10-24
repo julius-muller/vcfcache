@@ -106,3 +106,27 @@ waste, with acceptable complexity and strict equivalence. Phase elimination is
 an optimistic upper bound, not an implemented or promised speedup. Check the
 three on/off pairs before interpreting small timing differences. This campaign
 does not itself implement any optimization or select a production backend.
+
+## VEP WGS memory recovery
+
+`recover_vep.py` creates a **separate** campaign containing only the two failed
+direct VEP WGS references and their six skipped dependents. It refuses to select
+successful parent cells and preserves the parent manifest, inputs, caches,
+engine binaries and failed evidence. VEP uses four forks and a 50,000-record
+buffer in every recovery condition; routing/compression retain 16 CPUs. These
+timings describe a different resource configuration and must not be silently
+pooled with the original VEP measurements. The new harness has its own commit and
+file fingerprints, separate from the unchanged engine deployments.
+
+```sh
+PYTHONPATH=NEW_HARNESS PYTHON -m benchmarks.engine_profile.recover_vep \
+  PARENT_CAMPAIGN NEW_CAMPAIGN --harness WORKER_HARNESS_PATH --commit COMMIT
+PYTHONPATH=NEW_HARNESS PYTHON -m benchmarks.engine_profile.run submit NEW_CAMPAIGN
+```
+
+Run the updated harness's `status` or `collect` against the original campaign as
+well. When Slurm has expired a job, durable group markers produce `GROUP_FINISHED`
+or `GROUP_FAILED`, not an invented Slurm exit code. Without a marker or previously
+recorded terminal scheduler state, status is explicitly `unavailable`; an old
+`RUNNING`/`PENDING` snapshot is never reported as current. A finished group does
+not imply every cell passed: cell-level failures and audit differences remain.
