@@ -97,21 +97,26 @@ python -m benchmarks.performance_sprint.references audit NEW_AUDIT_DIRECTORY \
 Supplemental summaries report their subset size and the full request size; they
 do not pretend to independently re-audit all 540 historical conditions.
 
-## Cached-only manuscript runner
+## Manuscript runner details
 
-`manuscript.py` is implemented, but **the full matrix is not submitted or approved**.
+`manuscript.py` executes the approved, frozen matrix with explicit reuse bindings.
 Tasks require explicit input/cache/annotation-asset fingerprints, frozen runtime
 parameters, matched CPU count, historical cached duration and a baseline object.
 Baseline approval binds its audit evidence files and direct duration. Its kind is
-either `complete_records` (SHA-bound direct and historical cached BCFs) or
+`complete_records` binds SHA-bound direct and historical cached BCFs;
 `historical_annotation_digest` (the original direct/cached digest, query format
-and SHA-bound blocksort implementation). The latter never claims full-record
-direct equivalence. New cached-reference differences always fail; inherited
+and SHA-bound blocksort implementation) remains supported as limited evidence,
+but the final C2 campaign replaces it with `new_paired_reference`. The latter
+measures a fresh direct control and compares complete records and headers.
+Synthetic conditions use an explicitly labelled composed vanilla-VEP reference,
+not a claim that full per-delay historical BCFs were retained.
+New cached-reference differences always fail; inherited
 annotator differences must remain explicitly declared.
 
 The freeze document must bind the exact task-document SHA256, complete required
 ID list, approved/tested candidate and immutable build file hashes. No implicit
-direct measurements or automatic retries exist. After a reviewed deployment:
+direct measurements or automatic retries exist: new direct controls must be
+declared in the frozen task. After a reviewed deployment:
 
 ```sh
 python -m benchmarks.performance_sprint.manuscript prepare NEW_CAMPAIGN \
@@ -123,10 +128,12 @@ python -m benchmarks.performance_sprint.manuscript resume CAMPAIGN --cell EXPLIC
 
 Use worker-visible `/results` paths in documents, and mapped
 `/mnt/data/slurm-results` paths for controller invocation. All conditions receive
-individual exclusive jobs and an `srun` cgroup; historical cached duration sets a
-30-minute to 24-hour limit including audit allowance. Longest conditions submit
+individual exclusive jobs and separate `srun` cgroups per condition; historical
+duration, required new direct time and audits set a limit of at most 24 hours.
+Longest conditions submit
 first. Records, metrics, commands, comparisons and failure outputs persist;
-successful large BCFs are not duplicated to shared storage. Slurm jobs/collectors
+successful reused-reference BCFs are not duplicated to shared storage. New
+direct BCFs and timing-only discrepancy outputs are retained. Slurm jobs/collectors
 persist after disconnect, but candidate decisions and figure preparation are
 not an unattended background agent.
 

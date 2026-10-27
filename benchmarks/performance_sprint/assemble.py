@@ -70,19 +70,28 @@ class Files:
         path = str(path)
         if path not in self.known:
             actual = Path(path)
-            before = actual.stat()
-            # Reuse only a successful SHA audit predating no file modification.
-            if expected and checked_unix and before.st_mtime_ns <= checked_unix * 1e9:
-                digest = expected
-                mode = "successful_sha_audit_with_unchanged_metadata"
+            for attempt in range(3):
+                before = actual.stat()
+                # A new transport copy may expose delayed NFS copystat updates.
+                # Retry only with a fresh content hash; never waive the digest.
+                if (
+                    expected
+                    and checked_unix
+                    and not attempt
+                    and before.st_mtime_ns <= checked_unix * 1e9
+                ):
+                    digest = expected
+                    mode = "successful_sha_audit_with_unchanged_metadata"
+                else:
+                    digest = sha256sum(actual)
+                    mode = "fresh_sha256"
+                after = actual.stat()
+                if (before.st_size, before.st_mtime_ns) == (
+                    after.st_size,
+                    after.st_mtime_ns,
+                ):
+                    break
             else:
-                digest = sha256sum(actual)
-                mode = "fresh_sha256"
-            after = actual.stat()
-            if (before.st_size, before.st_mtime_ns) != (
-                after.st_size,
-                after.st_mtime_ns,
-            ):
                 raise RuntimeError(f"file changed during freezing: {path}")
             self.known[path] = dict(
                 path=path,
@@ -598,6 +607,7 @@ def main():
     parser.add_argument("--build", type=Path, required=True)
     parser.add_argument("--submit", action="store_true")
     parser.add_argument("--reuse-launch-checks", type=Path)
+    parser.add_argument("--reuse-cache-payloads", type=Path)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     files = Files()
@@ -657,7 +667,9 @@ def main():
     for task in tasks:
         key = task["cache"]["directory"]
         if key not in mirrors:
-            mirrors[key] = snapshot_cache(task["cache"], files, args.output)
+            mirrors[key] = snapshot_cache(
+                task["cache"], files, args.output, args.reuse_cache_payloads
+            )
         task["cache"] = mirrors[key]
         task["original_annotation_assets"] = task["annotation_assets"]
         task["annotation_assets"] = [

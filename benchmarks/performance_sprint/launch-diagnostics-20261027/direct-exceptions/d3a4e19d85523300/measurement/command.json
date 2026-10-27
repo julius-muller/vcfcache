@@ -1,0 +1,25 @@
+{
+  "command": [
+    "srun",
+    "--exclusive",
+    "--exact",
+    "--cpu-bind=cores",
+    "-n1",
+    "-c8",
+    "/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python",
+    "/results/deployment/manuscript-final-20261027T135803Z-b4b43512c/benchmarks/engine_profile/measure.py",
+    "--directory",
+    "/results/manuscript-final/20261027T135803Z-b4b43512c/direct-exceptions/d3a4e19d85523300/measurement",
+    "--",
+    "/results/richness/scripts/fastvep_run.sh",
+    "/mnt/data/tmp/direct-exception-6kg9b_ms/input.bcf",
+    "/results/manuscript-final/20261027T135803Z-b4b43512c/direct-exceptions/d3a4e19d85523300/direct.bcf",
+    "/results/manuscript-final/20261027T135803Z-b4b43512c/direct-exceptions/d3a4e19d85523300/direct-aux",
+    "/mnt/data/apps/fastvep/0.3.0-publication/bin/fastvep",
+    "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache",
+    "/mnt/data/apps/fastvep/0.3.0-publication/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa",
+    "/results/richness/sa/clinical_GRCh38"
+  ],
+  "contract": "original C2 bare wrapper; no cache/CLI in the timed direct path",
+  "reason": "Historical annotation/key digest was not reproduced; independent direct control required"
+}

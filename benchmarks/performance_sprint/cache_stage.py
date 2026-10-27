@@ -27,7 +27,7 @@ def snapshot_metadata(asset, files, output):
     return files.get(destination, asset["sha256"])
 
 
-def snapshot_cache(cache, files, output):
+def snapshot_cache(cache, files, output, previous_payloads=None):
     """Publish immutable canonical transport copies for node-local cache files."""
     source = Path(cache["directory"])
     if not str(source).startswith("/mnt/data/"):
@@ -52,12 +52,21 @@ def snapshot_cache(cache, files, output):
         if name in {"vcfcache_annotated.bcf", "vcfcache_annotated.bcf.csi"}:
             blob = blobs / digest
             if not blob.exists():
-                temporary = blobs / (digest + ".partial")
-                print(f"Staging canonical cache payload: {source / name}", flush=True)
-                shutil.copy2(source / name, temporary)
-                if sha256sum(temporary) != digest:
-                    raise RuntimeError("canonical cache transport SHA mismatch")
-                temporary.rename(blob)
+                previous = previous_payloads / digest if previous_payloads else None
+                if previous and previous.is_file() and sha256sum(previous) == digest:
+                    # Same shared filesystem: preserve and reuse verified bytes
+                    # rather than recopying GB payloads after a preparation stop.
+                    blob.hardlink_to(previous)
+                    print(f"Reusing verified canonical payload: {digest}", flush=True)
+                else:
+                    temporary = blobs / (digest + ".partial")
+                    print(
+                        f"Staging canonical cache payload: {source / name}", flush=True
+                    )
+                    shutil.copy2(source / name, temporary)
+                    if sha256sum(temporary) != digest:
+                        raise RuntimeError("canonical cache transport SHA mismatch")
+                    temporary.rename(blob)
             if not (destination / name).exists():
                 (destination / name).symlink_to(blob)
         else:

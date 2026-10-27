@@ -1,0 +1,26 @@
+{
+  "command": [
+    "srun",
+    "--exclusive",
+    "--exact",
+    "--cpu-bind=cores",
+    "-n1",
+    "-c8",
+    "/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python",
+    "/results/deployment/manuscript-final-20261027T135803Z-b4b43512c/benchmarks/engine_profile/measure.py",
+    "--directory",
+    "/results/manuscript-final/20261027T135803Z-b4b43512c/noid-encoding-control/3693ce45be7d4941/measurement",
+    "--",
+    "/results/snpeff/dist/snpeff_clinical_run.sh",
+    "/mnt/data/tmp/direct-exception-661k0bsf/input.bcf",
+    "/results/manuscript-final/20261027T135803Z-b4b43512c/noid-encoding-control/3693ce45be7d4941/direct.bcf",
+    "/results/manuscript-final/20261027T135803Z-b4b43512c/noid-encoding-control/3693ce45be7d4941/direct-aux",
+    "/results/deployment/performance-audit-20261027/snpeff_info_java.sh",
+    "/results/snpeff/dist/snpEff/snpEff.jar",
+    "/results/snpeff/dist/snpEff/snpEff.config",
+    "/results/snpeff/dist/snpEff/data",
+    "GRCh38.115"
+  ],
+  "contract": "original C2 bare wrapper; no cache/CLI in the timed direct path",
+  "reason": "Historical annotation/key digest was not reproduced; independent direct control required"
+}

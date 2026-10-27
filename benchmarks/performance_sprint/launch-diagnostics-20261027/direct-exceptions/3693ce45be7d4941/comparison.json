@@ -1,0 +1,247 @@
+{
+  "cached_header_sha256": "b12187a7c13995da829ba508adbf27bdfe4547d858f650c37a5917ba996a6be2",
+  "cached_semantic_sha256": "7fb03c3c7c3efeaf69204a5bc944e439951b27de775e0637c22008c3af4898c7",
+  "canonicalization": [
+    "INFO tag order",
+    "CSQ entry order",
+    "complete-record order within identical CHROM/POS loci",
+    "indexed contig traversal order by contig name"
+  ],
+  "comparator": "fastvep_complete_record_and_header_v3",
+  "direct_seconds": 101.85546264000004,
+  "examples": [
+    {
+      "cached": "chr1\t17054002\t.\tG\tT\t123.96\t.\tAC=1421196;AF=0.973791;AF_ESP=0.95147;AF_TGP=0.95707;ALLELEID=53808;AN=1459446;ANN=T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000375499.8|protein_coding|1/8|c.18C>A|p.Ala6Ala|31/1015|18/843|6/280||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000485515.6|protein_coding|1/8|c.18C>A|p.Ala6Ala|18/948|18/789|6/262||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000714034.1|protein_coding|1/9|c.18C>A|p.Ala6Ala|150/1179|18/888|6/295||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000714032.1|protein_coding|1/7|c.18C>A|p.Ala6Ala|28/841|18/672|6/223||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000925621.1|protein_coding|1/8|c.18C>A|p.Ala6Ala|150/1128|18/837|6/278||,T|5_prime_UTR_variant|MODIFIER|SDHB|ENSG00000117118|transcript|ENST00000714029.1|nonsense_mediated_decay|1/8|n.-154C>A|||||9213|,T|5_prime_UTR_variant|MODIFIER|SDHB|ENSG00000117118|transcript|ENST00000714031.1|pro",
+      "group": 1,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "17054002"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t17054002\t44641;rs2746462\tG\tT\t123.96\t.\tAC=1421196;AF=0.973791;AF_ESP=0.95147;AF_TGP=0.95707;ALLELEID=53808;AN=1459446;ANN=T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000375499.8|protein_coding|1/8|c.18C>A|p.Ala6Ala|31/1015|18/843|6/280||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000485515.6|protein_coding|1/8|c.18C>A|p.Ala6Ala|18/948|18/789|6/262||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000714034.1|protein_coding|1/9|c.18C>A|p.Ala6Ala|150/1179|18/888|6/295||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000714032.1|protein_coding|1/7|c.18C>A|p.Ala6Ala|28/841|18/672|6/223||,T|synonymous_variant|LOW|SDHB|ENSG00000117118|transcript|ENST00000925621.1|protein_coding|1/8|c.18C>A|p.Ala6Ala|150/1128|18/837|6/278||,T|5_prime_UTR_variant|MODIFIER|SDHB|ENSG00000117118|transcript|ENST00000714029.1|nonsense_mediated_decay|1/8|n.-154C>A|||||9213|,T|5_prime_UTR_variant|MODIFIER|SDHB|ENSG00000117118|transcript|ENST000"
+    },
+    {
+      "cached": "chr1\t45331833\t.\tC\tG\t330.64\t.\tAC=377531;AF=0.260121;AF_ESP=0.25411;AF_EXAC=0.29668;AF_TGP=0.3135;ALLELEID=50206;AN=1451368;ANN=G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000372104.5|protein_coding|13/17|c.930G>C|p.Gln310His|1123/1823|930/1566|310/521||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000448481.5|protein_coding|12/16|c.963G>C|p.Gln321His|1006/1706|963/1599|321/532||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000456914.7|protein_coding|12/16|c.930G>C|p.Gln310His|1008/1708|930/1566|310/521||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000354383.10|protein_coding|12/16|c.933G>C|p.Gln311His|1044/1744|933/1569|311/522||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000355498.6|protein_coding|12/16|c.930G>C|p.Gln310His|1076/1776|930/1566|310/521||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000372098.7|protein_coding|12/16|c.1005G>C|p.Gln335His|1",
+      "group": 2,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "45331833"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t45331833\t41767;rs3219489\tC\tG\t330.64\t.\tAC=377531;AF=0.260121;AF_ESP=0.25411;AF_EXAC=0.29668;AF_TGP=0.3135;ALLELEID=50206;AN=1451368;ANN=G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000372104.5|protein_coding|13/17|c.930G>C|p.Gln310His|1123/1823|930/1566|310/521||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000448481.5|protein_coding|12/16|c.963G>C|p.Gln321His|1006/1706|963/1599|321/532||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000456914.7|protein_coding|12/16|c.930G>C|p.Gln310His|1008/1708|930/1566|310/521||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000354383.10|protein_coding|12/16|c.933G>C|p.Gln311His|1044/1744|933/1569|311/522||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000355498.6|protein_coding|12/16|c.930G>C|p.Gln310His|1076/1776|930/1566|310/521||,G|missense_variant|MODERATE|MUTYH|ENSG00000132781|transcript|ENST00000372098.7|protein_coding|12/16|c.1005G>C"
+    },
+    {
+      "cached": "chr1\t45333402\t.\tC\tT\t200.64\t.\tAC=753;AF=0.000515111;AF_EXAC=0.00176;AF_TGP=0.00399;ALLELEID=142012;AN=1461822;ANN=T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000482094.5|retained_intron||n.-1319G>A|||||1319|,T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000478796.5|retained_intron||n.-78G>A|||||78|,T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000462388.5|retained_intron||n.-457G>A|||||457|,T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000466231.1|retained_intron||n.-1023G>A|||||1023|,T|downstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000534453.1|retained_intron||n.*698G>A|||||698|,T|downstream_gene_variant|MODIFIER|HPDL|ENSG00000186603|transcript|ENST00000334815.6|protein_coding||c.*5138C>T|||||4692|,T|intron_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000372104.5|protein_coding|4/16|c.264+11G>A||||||,T|intron_variant|MODIFIER|MUTYH|ENSG0000013278",
+      "group": 3,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "45333402"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t45333402\t138309;rs139977567\tC\tT\t200.64\t.\tAC=753;AF=0.000515111;AF_EXAC=0.00176;AF_TGP=0.00399;ALLELEID=142012;AN=1461822;ANN=T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000482094.5|retained_intron||n.-1319G>A|||||1319|,T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000478796.5|retained_intron||n.-78G>A|||||78|,T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000462388.5|retained_intron||n.-457G>A|||||457|,T|upstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000466231.1|retained_intron||n.-1023G>A|||||1023|,T|downstream_gene_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000534453.1|retained_intron||n.*698G>A|||||698|,T|downstream_gene_variant|MODIFIER|HPDL|ENSG00000186603|transcript|ENST00000334815.6|protein_coding||c.*5138C>T|||||4692|,T|intron_variant|MODIFIER|MUTYH|ENSG00000132781|transcript|ENST00000372104.5|protein_coding|4/16|c.264+11G>A||||||,T|intron_variant|MODIFIER|MUT"
+    },
+    {
+      "cached": "chr1\t55057360\t.\tA\tG\t1072.06\t.\tAC=1459285;AF=0.99834;AF_ESP=0.9797;AF_EXAC=0.99454;AF_TGP=0.98183;ALLELEID=249989;AN=1461712;ANN=G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|7/12|c.1026A>G|p.Gln342Gln|1316/3637|1026/2079|342/692||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|7/12|c.1383A>G|p.Gln461Gln|1408/3729|1383/2436|461/811||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|8/13|c.1149A>G|p.Gln383Gln|1519/3840|1149/2202|383/733||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|7/12|c.1029A>G|p.Gln343Gln|1329/3647|1029/2082|343/693||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|6/11|c.834A>G|p.Gln278Gln|1124/3445|834/1887|278/628||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|7/12|c.651A>G|p.Gln217Gln|928/3194|651/1704",
+      "group": 4,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "55057360"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t55057360\t262899;rs509504\tA\tG\t1072.06\t.\tAC=1459285;AF=0.99834;AF_ESP=0.9797;AF_EXAC=0.99454;AF_TGP=0.98183;ALLELEID=249989;AN=1461712;ANN=G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|7/12|c.1026A>G|p.Gln342Gln|1316/3637|1026/2079|342/692||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|7/12|c.1383A>G|p.Gln461Gln|1408/3729|1383/2436|461/811||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|8/13|c.1149A>G|p.Gln383Gln|1519/3840|1149/2202|383/733||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|7/12|c.1029A>G|p.Gln343Gln|1329/3647|1029/2082|343/693||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|6/11|c.834A>G|p.Gln278Gln|1124/3445|834/1887|278/628||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|7/12|c.651A>G|p.Gln217Gln|928"
+    },
+    {
+      "cached": "chr1\t55058524\t.\tA\tG\t790.06\t.\tAC=1216466;AF=0.833256;AF_ESP=0.81778;AF_EXAC=0.8544;AF_TGP=0.86921;ALLELEID=196755;AN=1459894;ANN=G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|9/12|c.1380A>G|p.Val460Val|1670/3637|1380/2079|460/692||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|9/12|c.1737A>G|p.Val579Val|1762/3729|1737/2436|579/811||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|10/13|c.1503A>G|p.Val501Val|1873/3840|1503/2202|501/733||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|9/12|c.1383A>G|p.Val461Val|1683/3647|1383/2082|461/693||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|8/11|c.1188A>G|p.Val396Val|1478/3445|1188/1887|396/628||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|9/12|c.1005A>G|p.Val335Val|1282/3194|100",
+      "group": 6,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "55058524"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t55058524\t201126;rs540796\tA\tG\t790.06\t.\tAC=1216466;AF=0.833256;AF_ESP=0.81778;AF_EXAC=0.8544;AF_TGP=0.86921;ALLELEID=196755;AN=1459894;ANN=G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|9/12|c.1380A>G|p.Val460Val|1670/3637|1380/2079|460/692||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|9/12|c.1737A>G|p.Val579Val|1762/3729|1737/2436|579/811||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|10/13|c.1503A>G|p.Val501Val|1873/3840|1503/2202|501/733||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|9/12|c.1383A>G|p.Val461Val|1683/3647|1383/2082|461/693||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|8/11|c.1188A>G|p.Val396Val|1478/3445|1188/1887|396/628||,G|synonymous_variant|LOW|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|9/12|c.1005A>G|p.Val335Val"
+    },
+    {
+      "cached": "chr1\t55058564\t.\tG\tA\t834.06\t.\tAC=1216353;AF=0.833227;AF_ESP=0.81778;AF_EXAC=0.85444;AF_TGP=0.86901;ALLELEID=196757;AN=1459810;ANN=A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|9/12|c.1420G>A|p.Val474Ile|1710/3637|1420/2079|474/692||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|9/12|c.1777G>A|p.Val593Ile|1802/3729|1777/2436|593/811||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|10/13|c.1543G>A|p.Val515Ile|1913/3840|1543/2202|515/733||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|9/12|c.1423G>A|p.Val475Ile|1723/3647|1423/2082|475/693||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|8/11|c.1228G>A|p.Val410Ile|1518/3445|1228/1887|410/628||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|9/12|c.1045G>A|p.Val3",
+      "group": 7,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "55058564"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t55058564\t201124;rs562556\tG\tA\t834.06\t.\tAC=1216353;AF=0.833227;AF_ESP=0.81778;AF_EXAC=0.85444;AF_TGP=0.86901;ALLELEID=196757;AN=1459810;ANN=A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|9/12|c.1420G>A|p.Val474Ile|1710/3637|1420/2079|474/692||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|9/12|c.1777G>A|p.Val593Ile|1802/3729|1777/2436|593/811||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|10/13|c.1543G>A|p.Val515Ile|1913/3840|1543/2202|515/733||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|9/12|c.1423G>A|p.Val475Ile|1723/3647|1423/2082|475/693||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|8/11|c.1228G>A|p.Val410Ile|1518/3445|1228/1887|410/628||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|9/12|c."
+    },
+    {
+      "cached": "chr1\t55063514\t.\tG\tA\t703.06\t.\tAC=1402225;AF=0.959319;AF_ESP=0.88944;AF_EXAC=0.94328;AF_TGP=0.89896;ALLELEID=45331;AN=1461688;ANN=A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|12/12|c.2009G>A|p.Gly670Glu|2299/3637|2009/2079|670/692||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|12/12|c.2366G>A|p.Gly789Glu|2391/3729|2366/2436|789/811||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|13/13|c.2132G>A|p.Gly711Glu|2502/3840|2132/2202|711/733||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|12/12|c.2012G>A|p.Gly671Glu|2312/3647|2012/2082|671/693||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|11/11|c.1817G>A|p.Gly606Glu|2107/3445|1817/1887|606/628||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|12/12|c.1634G>A|p.",
+      "group": 8,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "55063514"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t55063514\t36670;rs505151\tG\tA\t703.06\t.\tAC=1402225;AF=0.959319;AF_ESP=0.88944;AF_EXAC=0.94328;AF_TGP=0.89896;ALLELEID=45331;AN=1461688;ANN=A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000302118.5|protein_coding|12/12|c.2009G>A|p.Gly670Glu|2299/3637|2009/2079|670/692||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000710286.1|protein_coding|12/12|c.2366G>A|p.Gly789Glu|2391/3729|2366/2436|789/811||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000713786.1|protein_coding|13/13|c.2132G>A|p.Gly711Glu|2502/3840|2132/2202|711/733||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000923576.1|protein_coding|12/12|c.2012G>A|p.Gly671Glu|2312/3647|2012/2082|671/693||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000854983.1|protein_coding|11/11|c.1817G>A|p.Gly606Glu|2107/3445|1817/1887|606/628||,A|missense_variant|MODERATE|PCSK9|ENSG00000169174|transcript|ENST00000673903.1|protein_coding|12/12"
+    },
+    {
+      "cached": "chr1\t68431262\t.\tT\tG\t1420.06\t.\tAC=52941;AF=0.0362818;AF_ESP=0.01399;AF_EXAC=0.06372;AF_TGP=0.10982;ALLELEID=104731;AN=1459160;ANN=G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000262340.6|protein_coding|12/13|c.1338+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713936.1|nonsense_mediated_decay|13/14|n.*1243+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713937.1|nonsense_mediated_decay|11/12|n.*486+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713938.1|nonsense_mediated_decay|11/12|n.*602+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713939.1|nonsense_mediated_decay|11/12|n.*1058+20A>C||||||;CLNDISDB=MONDO:MONDO:0032873,MedGen:C5231465,OMIM:618697|MedGen:CN169374|MONDO:MONDO:0008765,MedGen:C1859844,OMIM:204100,Orphanet:65|MONDO:MONDO:0013425,MedGen:C3151086,OMIM:613794,Orphanet:791|MedGen:C3661900;CLNDN=Retinitis_pigmentosa_87_with_cho",
+      "group": 9,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "68431262"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t68431262\t98841;rs12564647\tT\tG\t1420.06\t.\tAC=52941;AF=0.0362818;AF_ESP=0.01399;AF_EXAC=0.06372;AF_TGP=0.10982;ALLELEID=104731;AN=1459160;ANN=G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000262340.6|protein_coding|12/13|c.1338+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713936.1|nonsense_mediated_decay|13/14|n.*1243+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713937.1|nonsense_mediated_decay|11/12|n.*486+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713938.1|nonsense_mediated_decay|11/12|n.*602+20A>C||||||,G|intron_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713939.1|nonsense_mediated_decay|11/12|n.*1058+20A>C||||||;CLNDISDB=MONDO:MONDO:0032873,MedGen:C5231465,OMIM:618697|MedGen:CN169374|MONDO:MONDO:0008765,MedGen:C1859844,OMIM:204100,Orphanet:65|MONDO:MONDO:0013425,MedGen:C3151086,OMIM:613794,Orphanet:791|MedGen:C3661900;CLNDN=Retinitis_pigment"
+    },
+    {
+      "cached": "chr1\t68438259\t.\tC\tT\t909.06\t.\tAC=192190;AF=0.131526;AF_ESP=0.156;AF_TGP=0.22384;ALLELEID=104710;AN=1461228;ANN=T|synonymous_variant|LOW|RPE65|ENSG00000116745|transcript|ENST00000262340.6|protein_coding|10/14|c.1056G>A|p.Glu352Glu|1105/2605|1056/1602|352/533||,T|3_prime_UTR_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713936.1|nonsense_mediated_decay|11/15|n.*961G>A|||||7734|,T|3_prime_UTR_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713938.1|nonsense_mediated_decay|9/13|n.*320G>A|||||1054|,T|3_prime_UTR_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713939.1|nonsense_mediated_decay|9/13|n.*776G>A|||||6590|,T|non_coding_transcript_exon_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713936.1|nonsense_mediated_decay|11/15|n.*961G>A||||||,T|non_coding_transcript_exon_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713937.1|nonsense_mediated_decay|10/13|n.1056G>A||||||,T|non_coding_transcript_exon_variant|MODIFIER|RPE65|ENSG00000",
+      "group": 10,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "68438259"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t68438259\t98820;rs12145904\tC\tT\t909.06\t.\tAC=192190;AF=0.131526;AF_ESP=0.156;AF_TGP=0.22384;ALLELEID=104710;AN=1461228;ANN=T|synonymous_variant|LOW|RPE65|ENSG00000116745|transcript|ENST00000262340.6|protein_coding|10/14|c.1056G>A|p.Glu352Glu|1105/2605|1056/1602|352/533||,T|3_prime_UTR_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713936.1|nonsense_mediated_decay|11/15|n.*961G>A|||||7734|,T|3_prime_UTR_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713938.1|nonsense_mediated_decay|9/13|n.*320G>A|||||1054|,T|3_prime_UTR_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713939.1|nonsense_mediated_decay|9/13|n.*776G>A|||||6590|,T|non_coding_transcript_exon_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713936.1|nonsense_mediated_decay|11/15|n.*961G>A||||||,T|non_coding_transcript_exon_variant|MODIFIER|RPE65|ENSG00000116745|transcript|ENST00000713937.1|nonsense_mediated_decay|10/13|n.1056G>A||||||,T|non_coding_transcript_exon_variant|MODIFIER|"
+    },
+    {
+      "cached": "chr1\t115701256\t.\tG\tA\t812.64\t.\tAC=529264;AF=0.367226;AF_ESP=0.38797;AF_EXAC=0.38379;AF_TGP=0.42572;ALLELEID=53325;AN=1441250;ANN=A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|11/11|c.1185C>T|p.Asp395Asp|1358/2593|1185/1200|395/399||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|12/12|c.1326C>T|p.Asp442Asp|1499/4717|1326/1341|442/446||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|9/9|c.1008C>T|p.Asp336Asp|1245/4269|1008/1023|336/340||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|13/13|c.555C>T|p.Asp185Asp|1489/2750|555/570|185/189||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713728.1|protein_coding|12/12|c.909C>T|p.Asp303Asp|1395/2630|909/924|303/307||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000874189.1|protein_coding|10/10|c.1110C>T|p.Asp370Asp|1302/2535|1110/1",
+      "group": 11,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "115701256"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t115701256\t44157;rs7413162\tG\tA\t812.64\t.\tAC=529264;AF=0.367226;AF_ESP=0.38797;AF_EXAC=0.38379;AF_TGP=0.42572;ALLELEID=53325;AN=1441250;ANN=A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|11/11|c.1185C>T|p.Asp395Asp|1358/2593|1185/1200|395/399||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|12/12|c.1326C>T|p.Asp442Asp|1499/4717|1326/1341|442/446||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|9/9|c.1008C>T|p.Asp336Asp|1245/4269|1008/1023|336/340||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|13/13|c.555C>T|p.Asp185Asp|1489/2750|555/570|185/189||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713728.1|protein_coding|12/12|c.909C>T|p.Asp303Asp|1395/2630|909/924|303/307||,A|synonymous_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000874189.1|protein_coding|10/10|c.1110C>T|p.Asp370Asp|13"
+    },
+    {
+      "cached": "chr1\t115717911\t.\tA\tT\t1717.06\t.\tAC=796475;AF=0.561731;AF_ESP=0.59926;AF_TGP=0.64277;ALLELEID=249369;AN=1417894;ANN=T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|7/10|c.784-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|9/12|n.*156-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|8/11|c.925-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|5/8|c.607-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|9/12|c.154-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000713727.1|nonsense_mediated_decay|7/10|n.784-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000713728.1|protein_coding|8/11|c.508-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST",
+      "group": 12,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "115717911"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t115717911\t257652;rs2997741\tA\tT\t1717.06\t.\tAC=796475;AF=0.561731;AF_ESP=0.59926;AF_TGP=0.64277;ALLELEID=249369;AN=1417894;ANN=T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|7/10|c.784-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|9/12|n.*156-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|8/11|c.925-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|5/8|c.607-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|9/12|c.154-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000713727.1|nonsense_mediated_decay|7/10|n.784-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000713728.1|protein_coding|8/11|c.508-17T>A||||||,T|intron_variant|MODIFIER|CASQ2|ENSG00000118729|"
+    },
+    {
+      "cached": "chr1\t115725557\t.\tGAA\tG\t222.6\t.\tAC=394566;AF=0.322289;ALLELEID=389309;AN=1224260;ANN=G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|6/10|c.738-6_738-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|8/12|n.*110-6_*110-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|7/11|c.879-6_879-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|8/12|c.108-6_108-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713727.1|nonsense_mediated_decay|6/10|n.738-6_738-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713728.1|protein_coding|7/11|c.462-6_462-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG000001187",
+      "group": 13,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "115725557"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t115725557\t402495;rs56889721\tGAA\tG\t222.6\t.\tAC=394566;AF=0.322289;ALLELEID=389309;AN=1224260;ANN=G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|6/10|c.738-6_738-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|8/12|n.*110-6_*110-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|7/11|c.879-6_879-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|8/12|c.108-6_108-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713727.1|nonsense_mediated_decay|6/10|n.738-6_738-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713728.1|protein_coding|7/11|c.462-6_462-5delTT||||||,G|splice_region_variant&intron_variant|LOW|CAS"
+    },
+    {
+      "cached": "chr1\t115740722\t.\tA\tG\t323.64\t.\tAC=1202361;AF=0.847207;AF_ESP=0.70844;AF_EXAC=0.78717;AF_TGP=0.64357;ALLELEID=53331;AN=1419206;ANN=G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|3/10|c.420+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|4/12|n.144+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|4/11|c.561+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|3/8|c.420+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|5/12|c.-265+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713727.1|nonsense_mediated_decay|3/10|n.420+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|tr",
+      "group": 14,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "115740722"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t115740722\t44163;rs9428083\tA\tG\t323.64\t.\tAC=1202361;AF=0.847207;AF_ESP=0.70844;AF_EXAC=0.78717;AF_TGP=0.64357;ALLELEID=53331;AN=1419206;ANN=G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|3/10|c.420+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|4/12|n.144+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|4/11|c.561+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|3/8|c.420+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000850611.1|protein_coding|5/12|c.-265+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG00000118729|transcript|ENST00000713727.1|nonsense_mediated_decay|3/10|n.420+6T>C||||||,G|splice_region_variant&intron_variant|LOW|CASQ2|ENSG"
+    },
+    {
+      "cached": "chr1\t115768346\t.\tT\tC\t268.64\t.\tAC=443580;AF=0.303714;AF_ESP=0.33938;AF_EXAC=0.3265;AF_TGP=0.40116;ALLELEID=53328;AN=1460520;ANN=C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|1/11|c.196A>G|p.Thr66Ala|369/2593|196/1200|66/399||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|1/12|c.196A>G|p.Thr66Ala|369/4717|196/1341|66/446||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|1/9|c.196A>G|p.Thr66Ala|433/4269|196/1023|66/340||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000874189.1|protein_coding|1/10|c.196A>G|p.Thr66Ala|388/2535|196/1125|66/374||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000713713.1|protein_coding|1/7|c.196A>G|p.Thr66Ala|369/1173|196/759|66/252||,C|5_prime_UTR_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|2/13|n.-81A>G|||||23476|,C|5_prime_UTR_v",
+      "group": 15,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "115768346"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t115768346\t44160;rs4074536\tT\tC\t268.64\t.\tAC=443580;AF=0.303714;AF_ESP=0.33938;AF_EXAC=0.3265;AF_TGP=0.40116;ALLELEID=53328;AN=1460520;ANN=C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000261448.6|protein_coding|1/11|c.196A>G|p.Thr66Ala|369/2593|196/1200|66/399||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000713711.1|protein_coding|1/12|c.196A>G|p.Thr66Ala|369/4717|196/1341|66/446||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000874188.1|protein_coding|1/9|c.196A>G|p.Thr66Ala|433/4269|196/1023|66/340||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000874189.1|protein_coding|1/10|c.196A>G|p.Thr66Ala|388/2535|196/1125|66/374||,C|missense_variant|MODERATE|CASQ2|ENSG00000118729|transcript|ENST00000713713.1|protein_coding|1/7|c.196A>G|p.Thr66Ala|369/1173|196/759|66/252||,C|5_prime_UTR_variant|MODIFIER|CASQ2|ENSG00000118729|transcript|ENST00000488931.2|nonsense_mediated_decay|2/13|n.-81A>G|||||23476|,C"
+    },
+    {
+      "cached": "chr1\t156137743\t.\tC\tT\t227.64\t.\tAC=367534;AF=0.263124;AF_ESP=0.19701;AF_EXAC=0.2655;AF_TGP=0.22025;ALLELEID=57212;AN=1396808;ANN=T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000368300.9|protein_coding|10/12|c.1698C>T|p.His566His|1906/3178|1698/1995|566/664||,T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000368299.7|protein_coding|10/12|c.1698C>T|p.His566His|1895/2253|1698/1845|566/614||,T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000448611.6|protein_coding|10/13|c.1362C>T|p.His454His|1406/1943|1362/1725|454/574||,T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000473598.6|protein_coding|11/13|c.1401C>T|p.His467His|1521/2015|1401/1698|467/565||,T|splice_region_variant&non_coding_transcript_exon_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000506981.1|retained_intron|1/3|n.282C>T||||||,T|splice_region_variant&synonymous_variant|LO",
+      "group": 16,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "156137743"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t156137743\t48048;rs4641\tC\tT\t227.64\t.\tAC=367534;AF=0.263124;AF_ESP=0.19701;AF_EXAC=0.2655;AF_TGP=0.22025;ALLELEID=57212;AN=1396808;ANN=T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000368300.9|protein_coding|10/12|c.1698C>T|p.His566His|1906/3178|1698/1995|566/664||,T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000368299.7|protein_coding|10/12|c.1698C>T|p.His566His|1895/2253|1698/1845|566/614||,T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000448611.6|protein_coding|10/13|c.1362C>T|p.His454His|1406/1943|1362/1725|454/574||,T|splice_region_variant&synonymous_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000473598.6|protein_coding|11/13|c.1401C>T|p.His467His|1521/2015|1401/1698|467/565||,T|splice_region_variant&non_coding_transcript_exon_variant|LOW|LMNA|ENSG00000160789|transcript|ENST00000506981.1|retained_intron|1/3|n.282C>T||||||,T|splice_region_variant&synonymous"
+    },
+    {
+      "cached": "chr1\t201050977\t.\tA\tG\t1126.06\t.\tAC=1024126;AF=0.700825;AF_ESP=0.75481;AF_EXAC=0.77049;AF_TGP=0.88039;ALLELEID=196497;AN=1461314;ANN=G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|33/43|c.4113+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|32/42|c.4056+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|33/43|n.*3276+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|33/43|n.*1631+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681078.1|nonsense_mediated_decay|33/43|n.4113+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681190.1|nonsense_mediated_decay|34/44|n.*295+7T>C||||||,G|splice_region_varia",
+      "group": 17,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "201050977"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t201050977\t199680;rs6702590\tA\tG\t1126.06\t.\tAC=1024126;AF=0.700825;AF_ESP=0.75481;AF_EXAC=0.77049;AF_TGP=0.88039;ALLELEID=196497;AN=1461314;ANN=G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|33/43|c.4113+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|32/42|c.4056+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|33/43|n.*3276+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|33/43|n.*1631+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681078.1|nonsense_mediated_decay|33/43|n.4113+7T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681190.1|nonsense_mediated_decay|34/44|n.*295+7T>C||||||,G|spli"
+    },
+    {
+      "cached": "chr1\t201075620\t.\tA\tG\t1195.06\t.\tAC=1143172;AF=0.782448;AF_ESP=0.70329;AF_EXAC=0.78137;AF_TGP=0.75958;ALLELEID=249634;AN=1461020;ANN=G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|12/43|c.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|12/42|c.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|12/43|n.*991-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|12/43|n.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681078.1|nonsense_mediated_decay|12/43|n.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681190.1|nonsense_mediated_decay|12/44|n.1828-5T>C||||||,G|splice_region_variant",
+      "group": 18,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "201075620"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t201075620\t254804;rs1998721\tA\tG\t1195.06\t.\tAC=1143172;AF=0.782448;AF_ESP=0.70329;AF_EXAC=0.78137;AF_TGP=0.75958;ALLELEID=249634;AN=1461020;ANN=G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|12/43|c.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|12/42|c.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|12/43|n.*991-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|12/43|n.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681078.1|nonsense_mediated_decay|12/43|n.1828-5T>C||||||,G|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681190.1|nonsense_mediated_decay|12/44|n.1828-5T>C||||||,G|splice"
+    },
+    {
+      "cached": "chr1\t201077947\t.\tA\tG\t325.64\t.\tAC=919893;AF=0.629611;AF_ESP=0.73604;AF_EXAC=0.58393;AF_TGP=0.57109;ALLELEID=249638;AN=1461050;ANN=G|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|11/44|c.1551T>C|p.Gly517Gly|1638/6028|1551/5622|517/1873||,G|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|11/43|c.1551T>C|p.Gly517Gly|1663/5996|1551/5565|517/1854||,G|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681874.1|protein_coding|11/43|c.1551T>C|p.Gly517Gly|1638/5968|1551/5562|517/1853||,G|3_prime_UTR_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*714T>C|||||11095|,G|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*714T>C||||||,G|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|11/44|n.1551",
+      "group": 19,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "201077947"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t201077947\t254800;rs4915477\tA\tG\t325.64\t.\tAC=919893;AF=0.629611;AF_ESP=0.73604;AF_EXAC=0.58393;AF_TGP=0.57109;ALLELEID=249638;AN=1461050;ANN=G|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|11/44|c.1551T>C|p.Gly517Gly|1638/6028|1551/5622|517/1873||,G|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|11/43|c.1551T>C|p.Gly517Gly|1663/5996|1551/5565|517/1854||,G|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681874.1|protein_coding|11/43|c.1551T>C|p.Gly517Gly|1638/5968|1551/5562|517/1853||,G|3_prime_UTR_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*714T>C|||||11095|,G|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*714T>C||||||,G|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_dec"
+    },
+    {
+      "cached": "chr1\t201078007\t.\tG\tA\t264.64\t.\tAC=91377;AF=0.0625115;AF_ESP=0.08442;AF_EXAC=0.0848;AF_TGP=0.122;ALLELEID=249642;AN=1461762;ANN=A|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|11/44|c.1491C>T|p.Asn497Asn|1578/6028|1491/5622|497/1873||,A|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|11/43|c.1491C>T|p.Asn497Asn|1603/5996|1491/5565|497/1854||,A|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681874.1|protein_coding|11/43|c.1491C>T|p.Asn497Asn|1578/5968|1491/5562|497/1853||,A|3_prime_UTR_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*654C>T|||||11035|,A|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*654C>T||||||,A|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|11/44|n.1491C>T",
+      "group": 20,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "201078007"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t201078007\t254795;rs16847674\tG\tA\t264.64\t.\tAC=91377;AF=0.0625115;AF_ESP=0.08442;AF_EXAC=0.0848;AF_TGP=0.122;ALLELEID=249642;AN=1461762;ANN=A|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|11/44|c.1491C>T|p.Asn497Asn|1578/6028|1491/5622|497/1873||,A|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|11/43|c.1491C>T|p.Asn497Asn|1603/5996|1491/5565|497/1854||,A|synonymous_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681874.1|protein_coding|11/43|c.1491C>T|p.Asn497Asn|1578/5968|1491/5562|497/1853||,A|3_prime_UTR_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*654C>T|||||11035|,A|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|11/44|n.*654C>T||||||,A|non_coding_transcript_exon_variant|MODIFIER|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay"
+    },
+    {
+      "cached": "chr1\t201083155\t.\tG\tA\t593.64\t.\tAC=41511;AF=0.0284171;AF_ESP=0.01522;AF_EXAC=0.0406;AF_TGP=0.05511;ALLELEID=249646;AN=1460776;ANN=A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|10/43|c.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|10/42|c.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|10/43|n.*556+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|10/43|n.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681078.1|nonsense_mediated_decay|10/43|n.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681190.1|nonsense_mediated_decay|10/44|n.1393+7C>T||||||,A|splice_region_variant&in",
+      "group": 21,
+      "kind": "complete_record",
+      "locus": [
+        "chr1",
+        "201083155"
+      ],
+      "occurrence": 1,
+      "uncached": "chr1\t201083155\t254792;rs3767512\tG\tA\t593.64\t.\tAC=41511;AF=0.0284171;AF_ESP=0.01522;AF_EXAC=0.0406;AF_TGP=0.05511;ALLELEID=249646;AN=1460776;ANN=A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000362061.4|protein_coding|10/43|c.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000367338.7|protein_coding|10/42|c.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000679417.1|nonsense_mediated_decay|10/43|n.*556+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000680059.1|nonsense_mediated_decay|10/43|n.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681078.1|nonsense_mediated_decay|10/43|n.1393+7C>T||||||,A|splice_region_variant&intron_variant|LOW|CACNA1S|ENSG00000081248|transcript|ENST00000681190.1|nonsense_mediated_decay|10/44|n.1393+7C>T||||||,A|splice_re"
+    }
+  ],
+  "historical_direct_digest": "f8e6c8562c8abaa8b2b9b87e340c42d9",
+  "ignored_annotation_mismatches": 0,
+  "ignored_fields": [],
+  "locus_mismatches": 0,
+  "new_direct_digest": "4af5683960588c3993c608f500e18716",
+  "raw_annotation_mismatches": 239,
+  "record_mismatches": 239,
+  "record_order_only_loci": 0,
+  "records_compared": 242,
+  "relevant_headers_equal": true,
+  "semantic_pass": false,
+  "uncached_header_sha256": "b12187a7c13995da829ba508adbf27bdfe4547d858f650c37a5917ba996a6be2",
+  "uncached_semantic_sha256": "d48f32ceea396298926f34ae60ef69c34b608071d7ceee2aa762340dfdf2f020"
+}

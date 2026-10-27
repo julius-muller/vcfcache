@@ -569,6 +569,29 @@ def test_carry_forward_skips_changed_conditions_and_preserves_provenance(tmp_pat
     assert manuscript.carry_forward_launch_checks(changed, old) == []
 
 
+def test_canonical_provenance_is_not_replaced_by_another_nodes_build(
+    tmp_path, monkeypatch
+):
+    import shutil
+
+    from benchmarks.performance_sprint.assemble import Files
+    from benchmarks.performance_sprint.cache_stage import snapshot_metadata
+
+    source = tmp_path / "source.json"
+    source.write_text('{"node": "canonical"}')
+    digest = sha256sum(source)
+    real_copy = shutil.copy2
+    monkeypatch.setattr(
+        shutil, "copy2", lambda original, destination: real_copy(source, destination)
+    )
+    asset = dict(path="/mnt/data/cache/fastvep_cache_provenance.json", sha256=digest)
+    staged = snapshot_metadata(asset, Files(), tmp_path / "frozen")
+    assert staged["sha256"] == digest
+    source.write_text('{"node": "independent replica"}')
+    assert snapshot_metadata(asset, Files(), tmp_path / "frozen") == staged
+    assert sha256sum(Path(staged["path"])) == digest
+
+
 def test_identical_local_cache_needs_no_copy(tmp_path):
     from benchmarks.performance_sprint.cache_stage import node_cache
 
@@ -581,6 +604,29 @@ def test_identical_local_cache_needs_no_copy(tmp_path):
         files={"annotation.yaml": sha256sum(original / "annotation.yaml")},
     )
     assert node_cache(cache, tmp_path / "private") == original
+
+
+def test_freeze_rehashes_after_delayed_metadata_change(tmp_path, monkeypatch):
+    import os
+
+    from benchmarks.performance_sprint import assemble
+
+    path = tmp_path / "copied.bcf"
+    path.write_bytes(b"unchanged payload")
+    expected = sha256sum(path)
+    calls = []
+
+    def delayed_copystat(actual):
+        calls.append(actual)
+        digest = sha256sum(actual)
+        if len(calls) == 1:
+            stat = path.stat()
+            os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns - 1000000))
+        return digest
+
+    monkeypatch.setattr(assemble, "sha256sum", delayed_copystat)
+    assert assemble.Files().get(path, expected)["sha256"] == expected
+    assert len(calls) == 2
 
 
 def test_verified_metadata_never_ignores_a_changed_file(tmp_path):

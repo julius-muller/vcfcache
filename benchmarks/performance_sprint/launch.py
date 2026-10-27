@@ -21,6 +21,7 @@ def main():
     parser.add_argument("--helper", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument("--reuse-launch-checks", type=Path)
+    parser.add_argument("--reuse-cache-payloads", type=Path)
     args = parser.parse_args()
     if args.receipt.exists():
         raise FileExistsError(args.receipt)
@@ -126,6 +127,10 @@ def main():
         if args.reuse_launch_checks:
             wrap += " --reuse-launch-checks " + shlex.quote(
                 str(args.reuse_launch_checks)
+            )
+        if args.reuse_cache_payloads:
+            wrap += " --reuse-cache-payloads " + shlex.quote(
+                str(args.reuse_cache_payloads)
             )
         command = [
             "sudo",
