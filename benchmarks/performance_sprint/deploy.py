@@ -22,7 +22,7 @@ def main():
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument(
         "--screen",
-        choices=("initial", "trusted-hits", "memory-preflight"),
+        choices=("initial", "trusted-hits", "memory-preflight", "native-route"),
         default="initial",
     )
     args = parser.parse_args()

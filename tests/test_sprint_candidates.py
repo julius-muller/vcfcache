@@ -99,3 +99,23 @@ def test_payload_prediction_is_bounded_and_abstains(tmp_path):
     assert prediction["estimated_buffer_bytes"] > 5_000_000 * 1024
     assert predict_buffer(sample, cache, 5_000_000, max_seconds=0) is None
     assert predict_buffer(sample, tmp_path / "absent", 5_000_000) is None
+
+
+@pytest.mark.parametrize("hits", [0, 1, 2, 10])
+@pytest.mark.parametrize("kind", ["normal", "multiallelic", "spanning", "preannotated"])
+def test_bounded_native_route(native, tmp_path, monkeypatch, hits, kind):
+    files = dataset(tmp_path / "data", hit_every=hits, kind=kind)
+    before, _ = run_case(tmp_path / "before", files, "fused", preserve=True)
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_NATIVE_ROUTE", "1")
+    after, new = run_case(tmp_path / "after", files, "fused", preserve=True)
+    assert strict_semantic_compare(after, before)["semantic_pass"]
+    assert new.last_run_stats.get("experimental_native_route") is True
+
+
+def test_bounded_native_route_chunk_boundaries(native, tmp_path, monkeypatch):
+    files = dataset(tmp_path / "data", records=40000, payload=100)
+    before, _ = run_case(tmp_path / "before", files, "fused", preserve=True)
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_NATIVE_ROUTE", "1")
+    after, new = run_case(tmp_path / "after", files, "fused", preserve=True)
+    assert strict_semantic_compare(after, before)["semantic_pass"]
+    assert new.last_run_stats["input_variants"] == 40000

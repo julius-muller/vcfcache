@@ -72,6 +72,25 @@ enum Command {
         #[arg(long)]
         indexed_misses: bool,
     },
+    /// Experimental bounded native overlay/router; annotator remains controller-owned.
+    RouteNative {
+        #[arg(long)]
+        cache: PathBuf,
+        #[arg(long)]
+        hits: PathBuf,
+        #[arg(long)]
+        misses: PathBuf,
+        #[arg(long)]
+        order: PathBuf,
+        #[arg(long)]
+        stats: PathBuf,
+        #[arg(long)]
+        tag: String,
+        #[arg(long, default_value_t = 0)]
+        threads: usize,
+        #[arg(long)]
+        indexed_misses: bool,
+    },
     /// Restore input order, filter annotation-less records and emit plain BCF.
     Assemble {
         #[arg(long)]
@@ -105,6 +124,8 @@ struct Counts {
     missing_annotated: u64,
     fallback_reason: Option<String>,
     trusted_hit_records: u64,
+    native_candidate_records: u64,
+    native_lookup_queries: u64,
 }
 
 fn save(path: &Path, counts: &Counts) -> Result<()> {
@@ -372,6 +393,25 @@ fn main() -> Result<()> {
             tag,
             indexed_misses,
         } => route(&hits, &misses, &order, &stats, &tag, indexed_misses),
+        Command::RouteNative {
+            cache,
+            hits,
+            misses,
+            order,
+            stats,
+            tag,
+            threads,
+            indexed_misses,
+        } => resident::route_stream(
+            &cache,
+            &hits,
+            &misses,
+            &order,
+            &stats,
+            &tag,
+            threads,
+            indexed_misses,
+        ),
         Command::Assemble {
             hits,
             misses,

@@ -1064,6 +1064,9 @@ class VCFAnnotator(VCFDatabase):
             "experimental_window_bp",
             "trusted_hit_records",
             "memory_prediction",
+            "experimental_native_route",
+            "native_route_candidates",
+            "native_route_fallbacks",
         ):
             if key in last_stats:
                 stats[key] = last_stats[key]

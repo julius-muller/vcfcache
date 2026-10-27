@@ -533,6 +533,7 @@ def run_cell(manifest, cell, scratch, evidence, cache, refs):
             "VCFCACHE_EXPERIMENT_WINDOW_BP",
             "VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS",
             "VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT",
+            "VCFCACHE_EXPERIMENT_NATIVE_ROUTE",
         }
         if set(experimental) - allowed_experiments:
             raise ValueError("unrecognized experiment environment")

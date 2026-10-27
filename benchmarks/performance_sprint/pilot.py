@@ -42,6 +42,16 @@ def design(original, screen="initial"):
                     {"VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "1"},
                 ),
             ]
+        elif screen == "native-route":
+            candidates = [
+                ("control-adaptive", "adaptive", "baseline", {}),
+                (
+                    "native-route",
+                    "adaptive",
+                    "profile",
+                    {"VCFCACHE_EXPERIMENT_NATIVE_ROUTE": "1"},
+                ),
+            ]
         elif screen == "memory-preflight":
             candidates = [
                 ("control-high-memory", "native", "baseline", {}),
@@ -86,6 +96,7 @@ def design(original, screen="initial"):
                     "VCFCACHE_EXPERIMENT_WINDOW_BP": "16384",
                     "VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "0",
                     "VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT": "0",
+                    "VCFCACHE_EXPERIMENT_NATIVE_ROUTE": "0",
                     **environment,
                 },
             )
@@ -95,7 +106,9 @@ def design(original, screen="initial"):
         groups.append(group)
     assert (
         sum(len(g["cells"]) for g in groups)
-        == {"initial": 14, "trusted-hits": 8, "memory-preflight": 4}[screen]
+        == {"initial": 14, "trusted-hits": 8, "memory-preflight": 4, "native-route": 8}[
+            screen
+        ]
     )
     return groups
 
@@ -115,9 +128,12 @@ def prepare(parent, root, request):
         reference_campaign=original["root"],
         reference_manifest_sha256=sha256sum(parent / "manifest.json"),
         max_cells=36,
-        planned_timed_cells={"initial": 14, "trusted-hits": 8, "memory-preflight": 4}[
-            request.get("screen", "initial")
-        ],
+        planned_timed_cells={
+            "initial": 14,
+            "trusted-hits": 8,
+            "memory-preflight": 4,
+            "native-route": 8,
+        }[request.get("screen", "initial")],
         deadline="2026-11-02T18:00:00+01:00",
         references_policy="Retained direct and cached outputs; checksum verification outside timing; no direct reruns",
         sprint_policy="Experimental switches only; no default change before measured gates",

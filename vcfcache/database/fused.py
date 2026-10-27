@@ -129,6 +129,12 @@ def _run_fused(
     trust_hits = trust_hits == "1"
     if trust_hits:
         helper_version(binary, (0, 6, 0))
+    native_route = os.environ.get("VCFCACHE_EXPERIMENT_NATIVE_ROUTE", "0")
+    if native_route not in {"0", "1"}:
+        raise ValueError("VCFCACHE_EXPERIMENT_NATIVE_ROUTE must be 0 or 1")
+    native_route = native_route == "1"
+    if native_route:
+        helper_version(binary, (0, 7, 0))
     manager.logger.info(
         f"Fused engine: {version}; preparation workers={workers}; CPU budget={cpu_budget}"
     )
@@ -198,16 +204,42 @@ def _run_fused(
         write_regions(shard / "regions.bed", task["regions"])
 
     def route(shard, task):
+        if native_route:
+            # Only the small original-record stream crosses this pipe. Native
+            # cache overlay is bounded per chunk and reuses resident semantics.
+            selector = f"{bcftools} view -R regions.bed --regions-overlap 0 {quote(str(task['source']))} -Ou | "
+            router = f"{native} route-native --cache {quote(str(cache))} --threads {compression_threads} "
+        else:
+            selector = (
+                f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
+                f"{quote(str(task['source']))} -c INFO -Ou --threads {compression_threads} | "
+            )
+            router = f"{native} route "
         pipelines.run(
-            f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
-            f"{quote(str(task['source']))} -c INFO -Ou --threads {compression_threads} | "
-            f"{native} route --hits hits.bcf --misses misses.raw.bcf "
+            selector + router + "--hits hits.bcf --misses misses.raw.bcf "
             f"--order order.bin --stats route.json --tag {quote(tag)}"
             + (" --indexed-misses" if indexed_miss_spools else ""),
             shard,
             "route",
         )
         counts = json.loads((shard / "route.json").read_text())
+        if native_route and counts.get("fallback_reason"):
+            # Replay only cache lookup for this shard, before any annotator is
+            # started. The old router still requests global legacy replay when
+            # partitioning itself is unsafe (for example mixed duplicate keys).
+            original_reason = counts["fallback_reason"]
+            (shard / "route.native-attempt.json").write_text(json.dumps(counts))
+            pipelines.run(
+                f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
+                f"{quote(str(task['source']))} -c INFO -Ou --threads {compression_threads} | "
+                f"{native} route --hits hits.bcf --misses misses.raw.bcf "
+                f"--order order.bin --stats route.json --tag {quote(tag)}"
+                + (" --indexed-misses" if indexed_miss_spools else ""),
+                shard,
+                "route-native-fallback",
+            )
+            counts = json.loads((shard / "route.json").read_text())
+            counts["native_route_fallback_reason"] = original_reason
         return counts
 
     counts = parallel(route, list(zip(shards, tasks, strict=True)))
@@ -230,7 +262,10 @@ def _run_fused(
         finally:
             manager.output_file = original_output
         manager.last_run_stats.update(
-            engine="legacy", requested_engine="fused", fallback_reason=reason
+            engine="legacy",
+            requested_engine="fused",
+            fallback_reason=reason,
+            experimental_native_route=native_route,
         )
         return result
     missing = sum(value["missing_variants"] for value in counts)
@@ -358,6 +393,17 @@ def _run_fused(
         "engine": "fused",
         "experimental_indexed_misses": indexed_miss_spools,
         "experimental_trust_routed_hits": trust_hits,
+        "experimental_native_route": native_route,
+        "native_route_fallbacks": [
+            value["native_route_fallback_reason"]
+            for value in counts
+            if value.get("native_route_fallback_reason")
+        ],
+        "native_route_candidates": (
+            sum(value.get("native_candidate_records", 0) for value in counts)
+            if native_route
+            else None
+        ),
         "trusted_hit_records": sum(
             value.get("trusted_hit_records", 0) for value in assembled
         ),

@@ -353,6 +353,27 @@ fn lookup(
         htslib::hts_set_cache_size(reader.file, 2 * 1024 * 1024);
     }
     let fields = tags(&reader.header)?;
+    drop(setup_span);
+    lookup_records(
+        entries,
+        &mut reader,
+        memory,
+        limit,
+        mode,
+        window_bp,
+        &fields,
+    )
+}
+
+fn lookup_records(
+    entries: &mut [Entry],
+    reader: &mut CacheReader,
+    memory: &AtomicUsize,
+    limit: usize,
+    mode: &str,
+    window_bp: i64,
+    fields: &[(Vec<u8>, TagType)],
+) -> Result<(u64, u64)> {
     let mut loci: HashMap<(u32, i64), Vec<usize>> = HashMap::new();
     let mut windows = Vec::<(u32, i64, i64)>::new();
     for (i, e) in entries.iter().enumerate() {
@@ -385,7 +406,6 @@ fn lookup(
         }
     }
     let mut seen = HashSet::new();
-    drop(setup_span);
     let mut query_span = super::profiling::Span::new("native.lookup.query_decode_overlay");
     let mut candidates = 0;
     for &(rid, start, end) in &windows {
@@ -421,7 +441,7 @@ fn lookup(
                     return Err(unsupported("duplicate matching cache records"));
                 }
                 let before = bytes(target);
-                overlay(target, source, &fields)?;
+                overlay(target, source, fields)?;
                 let after = bytes(target);
                 if after > before {
                     let total =
@@ -759,6 +779,171 @@ fn execute(job: &Job) -> Result<()> {
     serde_json::to_writer(&mut file, &stats)?;
     file.flush()?;
     event(serde_json::json!({"event":"complete"}))
+}
+
+/// Route at most 2K records (a complete equal-POS group) in each 128-MiB buffer.
+/// Reuses resident INFO contracts without retaining a whole annotated genome.
+#[allow(clippy::too_many_arguments)]
+pub fn route_stream(
+    cache: &Path,
+    hits: &Path,
+    misses: &Path,
+    order: &Path,
+    stats: &Path,
+    tag: &str,
+    threads: usize,
+    indexed_misses: bool,
+) -> Result<()> {
+    let _span = super::profiling::Span::new("adaptive.native_route");
+    let mut counts = super::Counts::default();
+    let mut input = bcf::Reader::from_stdin()?;
+    let result = (|| -> Result<()> {
+        let pool = if threads > 0 {
+            let ptr = unsafe { htslib::hts_tpool_init(threads as i32) };
+            ensure!(!ptr.is_null(), "cannot create cache codec pool");
+            Some(CodecPool(ptr))
+        } else {
+            None
+        };
+        let mut reader = CacheReader::open(cache)?;
+        compatible(input.header(), &reader.header)?;
+        let mut header = merge_header(input.header(), &reader.header)?;
+        if !matches!(header.info_type(tag.as_bytes()), Ok((TagType::String, _))) {
+            return Err(unsupported(
+                "required INFO tag is not a declared String field",
+            ));
+        }
+        if let Some(pool) = &pool {
+            let mut setting = htslib::htsThreadPool {
+                pool: pool.0,
+                qsize: 2,
+            };
+            ensure!(
+                unsafe { htslib::hts_set_thread_pool(reader.file, &mut setting) } == 0,
+                "cannot attach route codec pool"
+            );
+        }
+        unsafe {
+            htslib::hts_set_cache_size(reader.file, 2 * 1024 * 1024);
+        }
+        let fields = tags(&reader.header)?;
+        let template = bcf::Header::from_template(&header);
+        let mut hits = bcf::Writer::from_path(hits, &template, true, bcf::Format::Bcf)?;
+        let mut plain = if indexed_misses {
+            None
+        } else {
+            Some(bcf::Writer::from_path(
+                misses,
+                &template,
+                true,
+                bcf::Format::Bcf,
+            )?)
+        };
+        let indexed = if indexed_misses {
+            Some(super::adaptive::Spool::new(misses, &header)?)
+        } else {
+            None
+        };
+        let mut order = std::io::BufWriter::new(File::create(order)?);
+        let mut pending = next_record(&mut input)?;
+        let mut previous = None;
+        let mut keys = HashSet::new();
+        let mut info_buffer = bcf::record::Buffer::new();
+        const LIMIT: usize = 128 * 1024 * 1024;
+        while pending.is_some() {
+            let memory = AtomicUsize::new(0);
+            let mut entries = Vec::with_capacity(2048);
+            while let Some(mut record) = pending.take() {
+                let coord = (record.rid().context("missing input contig")?, record.pos());
+                if entries.len() >= 2048 && previous != Some(coord) {
+                    pending = Some(record);
+                    break;
+                }
+                ensure!(
+                    record.pos() >= 0 && previous.is_none_or(|last| coord >= last),
+                    "input is not coordinate sorted"
+                );
+                if previous != Some(coord) {
+                    keys.clear();
+                }
+                previous = Some(coord);
+                if record.alleles().len() != 2 {
+                    return Err(unsupported("unsplit multiallelic input"));
+                }
+                if !keys.insert(
+                    record
+                        .alleles()
+                        .iter()
+                        .map(|v| v.to_vec())
+                        .collect::<Vec<_>>(),
+                ) {
+                    return Err(unsupported("duplicate input key"));
+                }
+                record.translate(&mut header)?;
+                let retained = memory.fetch_add(bytes(&record), Ordering::Relaxed) + bytes(&record);
+                if retained > LIMIT {
+                    return Err(unsupported("bounded router buffer budget exceeded"));
+                }
+                entries.push(Entry {
+                    record,
+                    missing: false,
+                });
+                pending = next_record(&mut input)?;
+            }
+            let (candidates, queries) = lookup_records(
+                &mut entries,
+                &mut reader,
+                &memory,
+                LIMIT,
+                "regions",
+                16384,
+                &fields,
+            )?;
+            counts.native_candidate_records += candidates;
+            counts.native_lookup_queries += queries;
+            for entry in entries {
+                let hit = super::annotated(&entry.record, tag.as_bytes(), &mut info_buffer)?;
+                if hit {
+                    hits.write(&entry.record)?;
+                } else {
+                    if let Some(writer) = &indexed {
+                        writer.write(&header, &entry.record)?;
+                    } else {
+                        plain
+                            .as_mut()
+                            .context("missing plain spool writer")?
+                            .write(&entry.record)?;
+                    }
+                    counts.missing_variants += 1;
+                }
+                order.write_all(&[u8::from(!hit)])?;
+                counts.input_variants += 1;
+            }
+        }
+        order.flush()?;
+        drop(hits);
+        drop(plain);
+        if let Some(writer) = indexed {
+            writer.finish()?;
+        }
+        // Readers must detach their codec pool before its owning scope ends.
+        drop(reader);
+        drop(pool);
+        Ok(())
+    })();
+    if let Err(error) = result {
+        if error.to_string().starts_with("UNSUPPORTED:") {
+            // Drain the upstream selector, so a conservative fallback does not
+            // turn into SIGPIPE under the controller's pipefail contract.
+            for record in input.records() {
+                record?;
+            }
+            counts.fallback_reason = Some(error.to_string());
+        } else {
+            return Err(error);
+        }
+    }
+    super::save(stats, &counts)
 }
 
 pub fn run(path: &Path) -> Result<()> {
