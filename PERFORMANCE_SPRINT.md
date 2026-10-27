@@ -1,8 +1,38 @@
 # Performance sprint and manuscript rerun — deadline 2 November 2026
 
 Target delivery: **Monday 2 November, 18:00 CET**. Performance work takes
-priority in the first three days; candidate freeze is Friday 30 October at noon.
+priority in the first three days; candidate freeze is **no later than** Friday
+30 October at noon. Freeze and submit earlier as soon as the checks pass; do not
+leave ready work idle merely to follow a calendar date.
 This file is the handoff entry point, not a claim that future stages ran.
+
+## Feedback checkpoints and cluster utilization
+
+- Every status/handoff must state: **what is running; what advances automatically;
+  what requires active agent work; whether user feedback is needed; and the next
+  approximate check-in/resumption time**. Distinguish elapsed job ETA from the
+  additional active work needed for preparation. Say explicitly if nothing is
+  queued and the plan will not advance after the turn ends.
+- Do not ask for renewed permission for already-approved technical work. Request
+  user feedback only for a genuine choice, scope change or missing authority;
+  explain the decision and when it is needed. If a later active turn is required,
+  call it a **resumption point**, not a request for scientific feedback.
+- During benchmark execution, queue all ready independent conditions across all
+  healthy eligible workers, with enough queued work to refill freed nodes without
+  another conversation turn. Submit longest conditions first with realistic wall
+  limits; use dependencies for already-known subsequent stages where safe.
+- Each idle or excluded worker needs a concrete reason in status reports:
+  preparation/validation not finished (with remaining work), fewer remaining
+  independent cells than nodes, resource/health failure, or a required controlled
+  measurement. Re-check exclusions instead of inheriting them indefinitely.
+- Keep matched per-condition CPU/memory settings and isolated timed steps. Do not
+  change 8-CPU conditions to 16 CPUs, pack competing timing cells on one node, or
+  create unnecessary repeats merely to improve an apparent utilization number.
+  Slurm's current benchmark partition is node-exclusive.
+- `sl-w5` passed a fresh execution/affinity/resource preflight on 27 October.
+  The manuscript runner no longer hard-codes its exclusion. Any future exclusion
+  must be frozen with a named node and a written reason. Recheck health before
+  submission; use all six workers when they remain eligible.
 
 ## Fixed decisions
 
@@ -30,10 +60,10 @@ This file is the handoff entry point, not a claim that future stages ran.
    36 cached timed controls, including confirmations and regression checks.
    Adopt only reproducible >=5% end-to-end improvements without >5% reproducible
    regressions, or removal of substantial demonstrated fallback waste.
-3. **Friday noon:** freeze selected changes, packaging, defaults, helper and
+3. **By Friday noon, earlier if ready:** freeze selected changes, packaging, defaults, helper and
    recipes after host/container/strict-record testing. Native remains opt-in.
    Do not describe an experimental switch as an accepted product improvement.
-4. **Friday–Sunday:** rerun cached manuscript cells using approved direct
+4. **Immediately after freeze, targeting completion by Sunday:** rerun cached manuscript cells using approved direct
    references; separate jobs for long direct exceptions. One Slurm step/cgroup
    per condition, explicit retries, durable per-cell state, afterany collectors.
    Target all measurements/audits by Sunday 18:00. Monday: final consolidation,
@@ -68,7 +98,7 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
 - Bounded routing: fastVEP WES **51.91 → 47.81 s (7.9%)** and
   **52.51 → 49.67 s (5.4%)**, strict parity passes. Core WGS is **23.3% / 31.0%
   slower** on A06/C05. **Do not make it a universal default**.
-- Latest host suite: **632 passed, 21 skipped**. A freshly built standalone
+- Latest host suite: **633 passed, 21 skipped**. A freshly built standalone
   Docker test image also passes **632 tests, 21 skipped**, without mounting the
   source checkout; the small manuscript fixture tables are included explicitly.
   Ruff, Black and Rust formatting pass. The replay harness has a real-CLI
@@ -80,7 +110,7 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
 - `inventory-audited-20261027/` preserves **540 historical cached rows**, including
   all SnpEff conditions, 52-genome strategies and both synthetic-load cache sets.
   This is before provenance-based deduplication; no sample reduction is approved.
-  Historical cached time sums to **108.2 node-hours** (~22 h over five workers),
+  Historical cached time sums to **108.2 node-hours** (~18 h over six workers),
   before audits/queueing and the pinned vep-rs extension. It is not a completion ETA.
 - Read-only audits: job 1352 verified **23,200 annotation assets**, no failures.
   Job 1358 verified **64 input/recipe/region files**, no mismatches; its one missing
@@ -93,11 +123,14 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   `SNAPSHOT.json`. The 12 synthetic-load conditions retain timings and semantic
   metadata, but not per-delay direct BCFs; they are explicitly classified as
   metadata-only, not falsely promoted to complete-record output evidence.
-- **Read-only supplemental job 1370** checks just those 168 unresolved rows,
-  without rehashing the resolved VEP rows or repeating annotation. Request:
+- **Read-only supplemental job 1370 finished successfully**: 156 fastVEP
+  retained-output rows verified and 12 synthetic metadata-only rows verified;
+  **zero unresolved rows remain**. Across both audit passes, all 540 inventory
+  rows now have explicit evidence classes: 348 retained-output, 180 C2 digest-only
+  and 12 synthetic metadata-only. This is evidence classification, not automatic
+  approval of timing reuse. No annotation was repeated. Request:
   `reference-request-v2-20261027.json`; receipt: `audit-supplement-20261027.json`.
-  All 12 synthetic metadata records were checked successfully in a separate
-  quick read-only validation. They still require an explicit composed-reference
+  The synthetic conditions still require an explicit composed-reference
   decision before reuse; C2 digest-only limitations likewise remain visible.
 - `manuscript.py` implements a cached-only replay runner with a candidate-freeze
   gate, exact task-list binding, per-task approved reuse evidence, matched CPU
@@ -109,11 +142,18 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   core/clinical still needs its 12-genome matched-assay extension materialized.
   Preserve its known ClinVar discrepancies; no upstream tool work is authorized.
 
-Next review: finish the supplemental reference audit; select only supported
+Next active work (no new user decision currently required): select only supported
 changes, complete per-row reuse bindings (including CPU/preprocessing
 and digest-only limitations), materialize the replay tasks and vep-rs extension,
 then package/test/freeze before the Friday submission gate. If audits reveal a
 baseline mismatch, rerun only that direct exception in a separate job.
+
+At the 27 October afternoon handoff, no long-running job remains. The critical
+path is active preparation, not Slurm. Estimate **1–3 hours of further active
+work** to reach the next candidate/replay-readiness checkpoint; this is not an
+unattended wall-clock promise or an automatic scheduled launch. Resume promptly
+rather than waiting for Friday. Report a revised estimate if preparation exposes
+additional binding/validation work.
 
 Commands and launch receipts live in `benchmarks/performance_sprint/`.
 The live Slurm campaign, not this file's age, determines current progress.

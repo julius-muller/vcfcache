@@ -99,3 +99,11 @@ first. Records, metrics, commands, comparisons and failure outputs persist;
 successful large BCFs are not duplicated to shared storage. Slurm jobs/collectors
 persist after disconnect, but candidate decisions and figure preparation are
 not an unattended background agent.
+
+All healthy workers are eligible by default, including rechecked `sl-w5`.
+An optional `node_exclusions` object in the freeze maps literal node names to
+nonempty reasons; there is no permanent hard-coded fifth-worker exclusion.
+Queue the ready matrix promptly after its checks pass, not on an arbitrary
+calendar date. Report idle-node reasons and the next feedback/resumption
+checkpoint explicitly; preserve matched CPUs and isolated timing rather than
+filling cores with confounded concurrent measurements.

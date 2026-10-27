@@ -81,6 +81,21 @@ def minutes(task):
     return min(1440, max(30, int(task["historical_cached_seconds"] * 2 / 60 + 90)))
 
 
+def exclusion_args(freeze):
+    """Use every eligible worker unless a reviewed exclusion records its reason."""
+    exclusions = freeze.get("node_exclusions", {})
+    for node, reason in exclusions.items():
+        if (
+            not node.replace("-", "").isalnum()
+            or not isinstance(reason, str)
+            or not reason.strip()
+        ):
+            raise ValueError(
+                "each node exclusion requires a literal hostname and an explicit reason"
+            )
+    return ["--exclude=" + ",".join(sorted(exclusions))] if exclusions else []
+
+
 def check_file(record):
     """Hash outside timing; a missing historical artifact is never silently rebuilt."""
     path = Path(record["path"])
@@ -128,6 +143,7 @@ def prepare(root, document, freeze):
     """Freeze only a reviewed candidate and a complete approved historical matrix."""
     if not freeze.get("approved") or not freeze.get("tests_passed"):
         raise ValueError("candidate freeze is not approved")
+    exclusion_args(freeze)
     if freeze["tasks_sha256"] != sha256sum(document):
         raise ValueError("freeze approval does not bind this task document")
     tasks = read(document)
@@ -242,6 +258,7 @@ def submit(root, selected=None):
         history.append(batch)
         write_json_atomic(root / "submissions.json", history)
         build = manifest["freeze"]["build"]
+        exclude = exclusion_args(manifest["freeze"])
         worker = manifest["root"]
         prefix = f"cd /tmp; PYTHONPATH={shlex.quote(build['root'])} {PYTHON} -m benchmarks.performance_sprint.manuscript"
         try:
@@ -256,7 +273,7 @@ def submit(root, selected=None):
                     f"--cpus-per-task={task['cpus']}",
                     "--mem=28000M",
                     "--exclusive",
-                    "--exclude=sl-w5",
+                    *exclude,
                     f"--time={minutes(task)}",
                     f"--output={worker}/logs/{task['id']}-a{attempt}-%j.out",
                     "--wrap",
@@ -277,7 +294,7 @@ def submit(root, selected=None):
                     "--ntasks=1",
                     "--cpus-per-task=1",
                     "--mem=2000M",
-                    "--exclude=sl-w5",
+                    *exclude,
                     "--time=00:30:00",
                     "--dependency=afterany:"
                     + ":".join(j["job_id"] for j in batch["jobs"]),

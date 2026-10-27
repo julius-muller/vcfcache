@@ -451,5 +451,17 @@ def test_partial_slurm_submission_still_registers_collector(tmp_path, monkeypatc
     assert history[0]["jobs"][0]["job_id"] == "123"
     assert history[0]["collector"] == "125"
     assert "--dependency=afterany:123" in submitted[-1]
+    assert all("--exclude=sl-w5" not in command for command in submitted)
     with pytest.raises(ValueError, match="already submitted"):
         manuscript.submit(campaign)
+
+
+def test_worker_exclusions_must_be_explicit_and_justified():
+    from benchmarks.performance_sprint.manuscript import exclusion_args
+
+    assert exclusion_args({}) == []
+    assert exclusion_args(
+        dict(node_exclusions={"sl-w5": "failed current preflight"})
+    ) == ["--exclude=sl-w5"]
+    with pytest.raises(ValueError, match="explicit reason"):
+        exclusion_args(dict(node_exclusions={"sl-w5": ""}))

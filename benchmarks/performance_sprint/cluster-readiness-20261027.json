@@ -1,0 +1,24 @@
+{
+  "purpose": "Recheck the historically excluded worker before restoring six-node manuscript scheduling; not an annotation benchmark",
+  "node": "sl-w5",
+  "slurm_preflight_job_id": "1372",
+  "status": "passed",
+  "checks": {
+    "slurm_execution": "passed",
+    "cpu_affinity": [0, 1, 2, 3, 4, 5, 6, 7],
+    "requested_memory_mib": 28000,
+    "scratch_read_write": "passed",
+    "scratch_free_bytes": 174967586816,
+    "sample_and_cache_readable": true,
+    "helper_version": "vcfcache-engine 0.7.0",
+    "cgroup_path": "/system.slice/sl-w5_slurmstepd.scope/job_1372/step_0/user/task_0",
+    "bcftools_path": "/usr/local/bin/bcftools",
+    "bcftools_version": "bcftools 1.21",
+    "bcftools_sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de",
+    "bcftools_identical_to_sl_w2": true
+  },
+  "scheduler_policy": "All healthy nodes eligible by default; freeze-specific exclusions require explicit reasons. Keep measured per-condition CPUs unchanged.",
+  "scope_limit": "Does not claim that annotation ran on sl-w5 or that every asset was hashed there; each manuscript task retains its frozen asset/input checks.",
+  "audit_status": {"job_id": "1370", "completed": true, "retained_outputs_verified": 156, "historical_metadata_only": 12, "unresolved": 0},
+  "no_automatic_manuscript_launch": true
+}
