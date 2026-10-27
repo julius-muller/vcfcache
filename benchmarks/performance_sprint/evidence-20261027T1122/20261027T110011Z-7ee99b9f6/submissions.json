@@ -1,0 +1,89 @@
+[
+  {
+    "attempt": 1,
+    "collector_job_id": "1366",
+    "jobs": [
+      {
+        "cells": [
+          "g00-s000",
+          "g00-s001"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w2",
+          "--output=/results/performance-sprint/20261027T110011Z-7ee99b9f6/logs/g00-a1-%j.out",
+          "/mnt/data/slurm-results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6/benchmarks/engine_profile/job.sh",
+          "/results/performance-sprint/20261027T110011Z-7ee99b9f6",
+          "g00",
+          "1",
+          "g00-s000,g00-s001",
+          "/results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6"
+        ],
+        "group": "g00",
+        "job_id": "1362"
+      },
+      {
+        "cells": [
+          "g01-s000",
+          "g01-s001"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w4",
+          "--output=/results/performance-sprint/20261027T110011Z-7ee99b9f6/logs/g01-a1-%j.out",
+          "/mnt/data/slurm-results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6/benchmarks/engine_profile/job.sh",
+          "/results/performance-sprint/20261027T110011Z-7ee99b9f6",
+          "g01",
+          "1",
+          "g01-s000,g01-s001",
+          "/results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6"
+        ],
+        "group": "g01",
+        "job_id": "1363"
+      },
+      {
+        "cells": [
+          "g03-s000",
+          "g03-s001"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w3",
+          "--output=/results/performance-sprint/20261027T110011Z-7ee99b9f6/logs/g03-a1-%j.out",
+          "/mnt/data/slurm-results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6/benchmarks/engine_profile/job.sh",
+          "/results/performance-sprint/20261027T110011Z-7ee99b9f6",
+          "g03",
+          "1",
+          "g03-s000,g03-s001",
+          "/results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6"
+        ],
+        "group": "g03",
+        "job_id": "1364"
+      },
+      {
+        "cells": [
+          "g04-s000",
+          "g04-s001"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w6",
+          "--output=/results/performance-sprint/20261027T110011Z-7ee99b9f6/logs/g04-a1-%j.out",
+          "/mnt/data/slurm-results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6/benchmarks/engine_profile/job.sh",
+          "/results/performance-sprint/20261027T110011Z-7ee99b9f6",
+          "g04",
+          "1",
+          "g04-s000,g04-s001",
+          "/results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6"
+        ],
+        "group": "g04",
+        "job_id": "1365"
+      }
+    ],
+    "submitted_unix": 1793098819.1288562
+  }
+]

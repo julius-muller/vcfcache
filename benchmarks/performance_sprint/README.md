@@ -35,3 +35,52 @@ clinical discrepancies never justify new engine-output differences.
 Do not submit the full publication rerun before baseline-reuse decisions and
 the release-candidate freeze are recorded. Existing cached result figures are
 historical comparisons, not replacement evidence for a new engine.
+
+## Review days later
+
+Launch receipts bind each campaign, source/helper identity and accepted Slurm IDs.
+`deploy` locks the canonical receipt directory and counts uncertain submissions
+conservatively against the **36-cell total**; selecting another receipt path
+does not reset the budget.
+
+```sh
+python -m benchmarks.performance_sprint.review NEW_LOCAL_SNAPSHOT
+python -m benchmarks.performance_sprint.references prepare NEW_REFERENCE_REQUEST.json
+```
+
+The first command reads remote small evidence only; no annotation calls, retries
+or source changes. A snapshot may contain running states and is not live status.
+Large BCFs stay on the cluster. Each snapshot contains checksums and `cells.tsv`.
+
+## Cached-only manuscript runner
+
+`manuscript.py` is implemented, but **the full matrix is not submitted or approved**.
+Tasks require explicit input/cache/annotation-asset fingerprints, frozen runtime
+parameters, matched CPU count, historical cached duration and a baseline object.
+Baseline approval binds its audit evidence files and direct duration. Its kind is
+either `complete_records` (SHA-bound direct and historical cached BCFs) or
+`historical_annotation_digest` (the original direct/cached digest, query format
+and SHA-bound blocksort implementation). The latter never claims full-record
+direct equivalence. New cached-reference differences always fail; inherited
+annotator differences must remain explicitly declared.
+
+The freeze document must bind the exact task-document SHA256, complete required
+ID list, approved/tested candidate and immutable build file hashes. No implicit
+direct measurements or automatic retries exist. After a reviewed deployment:
+
+```sh
+python -m benchmarks.performance_sprint.manuscript prepare NEW_CAMPAIGN \
+  --tasks REVIEWED_TASKS.json --freeze APPROVED_FREEZE.json
+python -m benchmarks.performance_sprint.manuscript submit CAMPAIGN
+python -m benchmarks.performance_sprint.manuscript status CAMPAIGN
+python -m benchmarks.performance_sprint.manuscript resume CAMPAIGN --cell EXPLICIT_FAILED_ID
+```
+
+Use worker-visible `/results` paths in documents, and mapped
+`/mnt/data/slurm-results` paths for controller invocation. All conditions receive
+individual exclusive jobs and an `srun` cgroup; historical cached duration sets a
+30-minute to 24-hour limit including audit allowance. Longest conditions submit
+first. Records, metrics, commands, comparisons and failure outputs persist;
+successful large BCFs are not duplicated to shared storage. Slurm jobs/collectors
+persist after disconnect, but candidate decisions and figure preparation are
+not an unattended background agent.

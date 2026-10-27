@@ -1,0 +1,30 @@
+{
+  "cell": {
+    "assay": "wgs",
+    "build": "profile",
+    "cpus": 16,
+    "engine": "adaptive",
+    "environment": {
+      "VCFCACHE_EXPERIMENT_INDEXED_MISSES": "0",
+      "VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT": "0",
+      "VCFCACHE_EXPERIMENT_NATIVE_ROUTE": "1",
+      "VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "0",
+      "VCFCACHE_EXPERIMENT_WINDOW_BP": "16384"
+    },
+    "form": "bcf",
+    "id": "g04-s000",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": true,
+    "purpose": "native-route",
+    "recipe": "veprs-core",
+    "role": "measure",
+    "sample": "LP6005592-DNA_C05",
+    "skip_split": false,
+    "workers": 0
+  },
+  "job_id": "1365",
+  "node": "sl-w6",
+  "started_unix": 1793099827.536391,
+  "state": "running"
+}

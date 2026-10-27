@@ -1,0 +1,18 @@
+{
+  "controller": "ubuntu@10.133.241.128",
+  "worker_python": "/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python",
+  "deployment": "/results/deployment/performance-audit-20261027",
+  "jobs": [
+    {"job_id": "1352", "purpose": "frozen annotation assets", "output": "/results/performance-sprint/asset-audit-20261027", "matched": 23200, "mismatched": 0, "unavailable": 0},
+    {"job_id": "1358", "purpose": "genomes, recipes and GRCh38 regions", "output": "/results/performance-sprint/input-audit-20261027", "matched": 64, "mismatched": 0, "unavailable": 1, "unavailable_note": "Unused unpadded WES BED; the used padded WES and panel BEDs match"},
+    {"job_id": "1367", "purpose": "retained direct and cached output identity", "output": "/results/performance-sprint/reference-audit-20261027", "status_at_recording": "running", "read_only": true}
+  ],
+  "reference_request_sha256": "6e738ba2d78ed6fb46a25ca9afb0f6600cb84ec8a754d2ba79e8dfe622750e72",
+  "reference_auditor_sha256": "0697189de7650cead42306c2d5ccdfcf051e35084afae31090081249a16bdda6",
+  "wrappers": {
+    "/results/richness/scripts/fastvep_run.sh": {"sha256": "7371464917f136da57b4fb5adccf04776ee4e7fdead25e34496ebee8129c8454", "matches_frozen_copy": true},
+    "/results/snpeff/dist/snpeff_clinical_run.sh": {"sha256": "06139e502768524b757d123f94f239de680648445fc95fa975c4ecc16dff9668", "matches_frozen_copy": true},
+    "/results/snpeff/dist/snpeff_parallel.sh": {"sha256": "d118407c9cf270b94181ec1b4ff7ced94f09b8491f23cdae1e9ae26d0cbf10cd", "matches_frozen_copy": true}
+  },
+  "note": "Read-only audits do not consume timed engineering cells and do not automatically approve historical timing reuse. Status is a snapshot, not live monitoring."
+}

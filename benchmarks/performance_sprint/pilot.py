@@ -17,7 +17,12 @@ def design(original, screen="initial"):
         group = copy.deepcopy(
             next(g for g in original["groups"] if g["id"] == identifier)
         )
-        if screen == "memory-preflight" and group["recipe"] != "veprs-core":
+        if (
+            screen in {"memory-preflight", "memory-confirm"}
+            and group["recipe"] != "veprs-core"
+        ):
+            continue
+        if screen == "memory-confirm" and identifier != "g01":
             continue
         assay = "wes" if group["recipe"] == "fastvep" else "wgs"
         template = next(
@@ -52,7 +57,7 @@ def design(original, screen="initial"):
                     {"VCFCACHE_EXPERIMENT_NATIVE_ROUTE": "1"},
                 ),
             ]
-        elif screen == "memory-preflight":
+        elif screen in {"memory-preflight", "memory-confirm"}:
             candidates = [
                 ("control-high-memory", "native", "baseline", {}),
                 (
@@ -80,7 +85,7 @@ def design(original, screen="initial"):
                     {"VCFCACHE_EXPERIMENT_WINDOW_BP": "1024"},
                 ),
             ]
-        if identifier in {"g03", "g04"}:
+        if identifier in {"g03", "g04"} or screen == "memory-confirm":
             candidates.reverse()
         group["cells"] = []
         for index, (label, engine, build, environment) in enumerate(candidates):
@@ -100,15 +105,19 @@ def design(original, screen="initial"):
                     **environment,
                 },
             )
-            if screen == "memory-preflight":
+            if screen in {"memory-preflight", "memory-confirm"}:
                 cell["memory_mb"] = 8192
             group["cells"].append(cell)
         groups.append(group)
     assert (
         sum(len(g["cells"]) for g in groups)
-        == {"initial": 14, "trusted-hits": 8, "memory-preflight": 4, "native-route": 8}[
-            screen
-        ]
+        == {
+            "initial": 14,
+            "trusted-hits": 8,
+            "memory-preflight": 4,
+            "native-route": 8,
+            "memory-confirm": 2,
+        }[screen]
     )
     return groups
 
@@ -133,6 +142,7 @@ def prepare(parent, root, request):
             "trusted-hits": 8,
             "memory-preflight": 4,
             "native-route": 8,
+            "memory-confirm": 2,
         }[request.get("screen", "initial")],
         deadline="2026-11-02T18:00:00+01:00",
         references_policy="Retained direct and cached outputs; checksum verification outside timing; no direct reruns",

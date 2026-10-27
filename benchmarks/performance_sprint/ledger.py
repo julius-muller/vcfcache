@@ -95,9 +95,9 @@ def inventory(repo):
             row["concordant"],
         )
         records[-1]["historical_direct_digest"] = d["digest"]
-        records[-1][
-            "output_evidence"
-        ] = "annotator-specific historical digest; full direct output retention must be checked"
+        records[-1]["output_evidence"] = (
+            "annotator-specific historical digest; full direct output retention must be checked"
+        )
     path = NATIVE / "external_assay_v3_metrics.tsv"
     for index, row in enumerate(read_tsv(repo / path), 2):
         if row["tool"].lower() != "vep":

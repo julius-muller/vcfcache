@@ -39,21 +39,63 @@ This file is the handoff entry point, not a claim that future stages ran.
    Target all measurements/audits by Sunday 18:00. Monday: final consolidation,
    R/ggplot2 figures in a new directory and handoff, not silent sample reductions.
 
-## Current implementation
+## Current implementation (27 October, 12:20 CET)
 
 Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
 
-- Optional helper 0.5.0 adds an explicit indexed-miss mode. Standard behavior
-  remains plain BCF unless the experiment is requested.
-- Environment-only screening switches:
-  `VCFCACHE_EXPERIMENT_INDEXED_MISSES=0|1` and
-  `VCFCACHE_EXPERIMENT_WINDOW_BP=1024|4096|16384`.
-  Both are frozen per cell and reported in statistics/command metadata.
-- The first screening matrix has **14 cached-only cells** on A06/C05: indexed
-  spooling for core WGS and fastVEP WES, plus native WES windows and controls.
-  Direct and uninstrumented cached references come from the verified original
-  campaign; SHA256 checks precede timing. No direct runs are scheduled by it.
-- Changes are experimental and **not yet accepted by performance gates**.
+- Optional helper **0.7.0** supports indexed miss spools, native query windows,
+  trusted-hit assembly and a bounded native router inside the existing adaptive
+  workflow. Python adds a bounded decoded-payload memory preflight. Every switch
+  is experimental, frozen per condition and disabled by default.
+- **34/36 engineering cells submitted**: initial 1347–1350; trusted-hit
+  1353–1356; memory preflight 1359–1360; bounded route 1362–1365. Each phase has an
+  afterany collector. The remaining two cells are reserved for reversed-order
+  memory-preflight confirmation, not another exploratory matrix.
+- Initial and trusted-hit screens completed with strict direct and frozen-cache
+  parity. Neither indexed spooling, smaller windows nor trusted-hit assembly
+  showed a consistent >=5% gain across the two genomes: **do not promote them**.
+- Memory preflight: A06 **62.68 → 45.90 s (26.8% reduction)**, C05
+  **79.32 → 62.22 s (21.6%)**, all strict comparisons pass. Both controls otherwise
+  allocate an 8-GiB resident buffer and fall back. The prediction samples at most
+  128 records and takes <0.4 s here; its size estimate is heuristic, not an RSS
+  guarantee. Confirmation precedes adoption.
+- Bounded routing: fastVEP WES **51.91 → 47.81 s (7.9%)** and
+  **52.51 → 49.67 s (5.4%)**, strict parity passes. Core-WGS audits remain in
+  progress; the first cell's CLI time is slower. **Not a universal default**.
+- Host/container suite before the new replay harness: **618 passed, 21 skipped**
+  in each. The replay harness has a real-CLI integration test with only Slurm and
+  the resource sampler mocked; this is not a claim of cluster replay execution.
+
+## Manuscript rerun preparation
+
+- `inventory-audited-20261027/` preserves **540 historical cached rows**, including
+  all SnpEff conditions, 52-genome strategies and both synthetic-load cache sets.
+  This is before provenance-based deduplication; no sample reduction is approved.
+  Historical cached time sums to **108.2 node-hours** (~22 h over five workers),
+  before audits/queueing and the pinned vep-rs extension. It is not a completion ETA.
+- Read-only audits: job 1352 verified **23,200 annotation assets**, no failures.
+  Job 1358 verified **64 input/recipe/region files**, no mismatches; its one missing
+  unpadded WES interval file is not used by the manuscript. All 52 original genome
+  hashes match. The fastVEP and two SnpEff wrappers also match their frozen copies.
+- **Job 1367** hashes retained complete outputs against historical metrics,
+  checkpoints every row and explicitly identifies the **180 C2 rows with only
+  annotation/key digests retained**. It does not rerun annotation or automatically
+  approve timing reuse. `reference-request-20261027.json` resolves all 540 rows.
+- `manuscript.py` implements a cached-only replay runner with a candidate-freeze
+  gate, exact task-list binding, per-task approved reuse evidence, matched CPU
+  settings, cache/input/resource fingerprints, one independent Slurm step per
+  cell, explicit retries and durable afterany reviews. Successful cells cannot
+  be silently repeated. Killed/stale running states are not treated as success.
+- **The complete replay task document, baseline approval and candidate freeze are
+  not yet finalized; the manuscript rerun has NOT been submitted.** Pinned vep-rs
+  core/clinical still needs its 12-genome matched-assay extension materialized.
+  Preserve its known ClinVar discrepancies; no upstream tool work is authorized.
+
+Next review: finish the core-WGS comparisons and final confirmation; select only
+supported changes, complete per-row reuse bindings (including CPU/preprocessing
+and digest-only limitations), materialize the replay tasks and vep-rs extension,
+then package/test/freeze before the Friday submission gate. If audits reveal a
+baseline mismatch, rerun only that direct exception in a separate job.
 
 Commands and launch receipts live in `benchmarks/performance_sprint/`.
 The live Slurm campaign, not this file's age, determines current progress.

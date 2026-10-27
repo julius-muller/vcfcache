@@ -1,0 +1,13 @@
+{"schema_version": 1, "name": "workflow.config_and_setup", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095360921022316, "duration_ns": 9153930, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.resolve", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095361152100077, "duration_ns": 1551572, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095361157539651, "duration_ns": 4499325, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095361165843199, "duration_ns": 2974905, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095361172570786, "duration_ns": 32156690, "outcome": "complete"}
+{"schema_version": 1, "name": "native.index_preflight", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095361208435685, "duration_ns": 44206119, "outcome": "complete"}
+{"schema_version": 1, "name": "native.await_misses", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095361260402547, "duration_ns": 5504272094, "outcome": "complete", "child_pid": 23892}
+{"schema_version": 1, "name": "pipeline.annotate-misses", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095366770579889, "duration_ns": 39488674538, "outcome": "complete", "task": "native", "child_pid": 23920}
+{"schema_version": 1, "name": "annotation.indexability_check", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095406270417714, "duration_ns": 614504818, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095406889628441, "duration_ns": 25114776, "outcome": "complete"}
+{"schema_version": 1, "name": "output.publish", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095409870383751, "duration_ns": 196975, "outcome": "complete"}
+{"schema_version": 1, "name": "native.attempt", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095361152009951, "duration_ns": 48723188602, "outcome": "complete"}
+{"schema_version": 1, "name": "cli.import_and_run", "pid": 23884, "tid": 23884, "start_unix_ns": 1793095360453104183, "duration_ns": 49448645691, "outcome": "complete"}

@@ -1,0 +1,12 @@
+{"schema_version": 1, "name": "workflow.config_and_setup", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095422822587899, "duration_ns": 5829289, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.resolve", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095423034472909, "duration_ns": 1355808, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095423039497222, "duration_ns": 4102510, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095423046749177, "duration_ns": 18330731, "outcome": "complete"}
+{"schema_version": 1, "name": "native.index_preflight", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095423068535374, "duration_ns": 35419732, "outcome": "complete"}
+{"schema_version": 1, "name": "native.await_misses", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095423109891545, "duration_ns": 4545680037, "outcome": "complete", "child_pid": 37926}
+{"schema_version": 1, "name": "pipeline.annotate-misses", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095427661031267, "duration_ns": 36651553077, "outcome": "complete", "task": "native", "child_pid": 37952}
+{"schema_version": 1, "name": "annotation.indexability_check", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095464319956650, "duration_ns": 178748463, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095464502827224, "duration_ns": 26712668, "outcome": "complete"}
+{"schema_version": 1, "name": "output.publish", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095466428264006, "duration_ns": 200457, "outcome": "complete"}
+{"schema_version": 1, "name": "native.attempt", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095423034421754, "duration_ns": 43398830530, "outcome": "complete"}
+{"schema_version": 1, "name": "cli.import_and_run", "pid": 37919, "tid": 37919, "start_unix_ns": 1793095422508520838, "duration_ns": 43948565264, "outcome": "complete"}

@@ -2,6 +2,7 @@
 
 import argparse
 import datetime
+import fcntl
 import json
 import shlex
 import shutil
@@ -14,6 +15,38 @@ from benchmarks.engine_profile.deploy import HOST, remote
 from benchmarks.engine_profile.run import PYTHON
 from benchmarks.run_pilot import REPO_ROOT, sha256sum, write_json_atomic
 
+SCREEN_CELLS = {
+    "initial": 14,
+    "trusted-hits": 8,
+    "memory-preflight": 4,
+    "native-route": 8,
+    "memory-confirm": 2,
+}
+
+
+def reserved_cells(directory):
+    """Count submitted or uncertain launches conservatively across sprint phases."""
+    total = 0
+    campaigns = set()
+    for path in sorted(directory.glob("launch*.json")):
+        receipt = json.loads(path.read_text())
+        campaign = receipt["campaign"]
+        if campaign in campaigns:
+            raise ValueError(f"duplicate campaign receipts: {campaign}")
+        campaigns.add(campaign)
+        # A receipt is persisted before sbatch. Missing submission data is NOT
+        # evidence that no job was accepted; reserve the complete phase budget.
+        total += SCREEN_CELLS[receipt["request"]["screen"]]
+    return total
+
+
+def check_budget(directory, screen):
+    """Prevent a fifth screening phase silently exceeding the agreed 36 cells."""
+    planned = reserved_cells(directory) + SCREEN_CELLS[screen]
+    if planned > 36:
+        raise ValueError(f"sprint screening budget exceeded: {planned}/36 cells")
+    return planned
+
 
 def main():
     """Record deployment identity before scheduling the immutable pilot."""
@@ -22,12 +55,26 @@ def main():
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument(
         "--screen",
-        choices=("initial", "trusted-hits", "memory-preflight", "native-route"),
+        choices=tuple(SCREEN_CELLS),
         default="initial",
     )
     args = parser.parse_args()
+    lock_path = subprocess.check_output(
+        ["git", "rev-parse", "--git-path", "performance-sprint-deploy.lock"],
+        cwd=REPO_ROOT,
+        text=True,
+    ).strip()
+    # Keep the lock alive through receipt persistence and sbatch acceptance.
+    deploy_lock = (REPO_ROOT / lock_path).open("a")
+    fcntl.flock(deploy_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     if args.receipt.exists():
         parser.error("receipt already exists")
+    # The canonical receipt directory is fixed, not user-selectable, so choosing
+    # a new --receipt location cannot reset the accounting.
+    receipt_root = REPO_ROOT / "benchmarks/performance_sprint"
+    if args.receipt.resolve().parent != receipt_root.resolve():
+        parser.error(f"receipts must be stored directly in {receipt_root}")
+    check_budget(receipt_root, args.screen)
     if subprocess.check_output(
         ["git", "diff", "--name-only", "HEAD"], cwd=REPO_ROOT, text=True
     ).strip():
