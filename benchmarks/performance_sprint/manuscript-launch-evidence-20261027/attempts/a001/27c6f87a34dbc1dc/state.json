@@ -1,0 +1,90 @@
+{
+  "cache_hit_rate": 0.889273356401384,
+  "carried_forward": {
+    "campaign": "/results/manuscript-final/20261027T135803Z-b4b43512c/campaign",
+    "evidence": "/results/manuscript-final/20261027T135803Z-b4b43512c/campaign/attempts/a001/27c6f87a34dbc1dc",
+    "reason": "Unchanged primary configuration already passed; no technical repeat"
+  },
+  "direct_seconds": 30.722226383164525,
+  "effective_engine": "adaptive",
+  "finished_unix": 1793109924.0493798,
+  "input_records": 289,
+  "job_id": "1381",
+  "metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 3327603,
+        "throttled_usec": 0,
+        "usage_usec": 16610352,
+        "user_usec": 13282749
+      },
+      "memory_current_bytes": 289984512,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 557641728,
+      "path": "/system.slice/sl-w4_slurmstepd.scope/job_1381/step_0/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 41700,
+        "throttled_usec": 0,
+        "usage_usec": 224778,
+        "user_usec": 183077
+      },
+      "memory_current_bytes": 11497472,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11497472,
+      "path": "/system.slice/sl-w4_slurmstepd.scope/job_1381/step_0/user/task_0"
+    },
+    "cpu_seconds": 16.329202,
+    "exit_code": 0,
+    "largest_child_rss_kib": 170428,
+    "start_unix_ns": 1793109905734375597,
+    "wall_seconds": 16.95829797600163
+  },
+  "node": "sl-w4",
+  "output_index_sha256": "a2d7e5bd3cd0993a0ccbe6eef878c1350d551de5361f04f30d0b68a224cc9890",
+  "output_sha256": "54444a441e88d3af0410402f9b9a153315377adb8e05f2dc7aa2344244829547",
+  "prepared_input_sha256": "a483b67a00efd2acf2c6333c39b2fee8333021b540578cfc7e38f39fa458bfa6",
+  "speedup": 1.8116338341643001,
+  "started_unix": 1793109902.7545872,
+  "state": "complete",
+  "validation_scope": "complete cached-reference records; annotator-specific direct comparator"
+}

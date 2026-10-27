@@ -1,0 +1,235 @@
+{
+  "annotation_yaml_md5": "858eea42b3f0942ba314490bb5b6d1d5",
+  "assembly_decode_threads": 0,
+  "assembly_encode_threads": 6,
+  "cache_name": "snpeff_clinical_grch38_af001",
+  "cache_path": "/results/snpeff/caches/snpeff_clinical_grch38_af001/cache/snpeff_clinical_grch38_af001",
+  "codec_threads_per_worker": 6,
+  "command": "annotate",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "cpu_budget": 8,
+  "effective_engine": "adaptive",
+  "engine": "fused",
+  "engine_lookup": "auto",
+  "engine_wall_seconds": 88.48652509000385,
+  "estimate_note": "CSI candidate byte estimates, not observed cache I/O",
+  "experimental_indexed_misses": false,
+  "experimental_native_route": false,
+  "experimental_trust_routed_hits": false,
+  "genome_build_annotation": "GRCh38",
+  "genome_build_params": "GRCh38",
+  "input_file": "/mnt/data/tmp/manuscript-3693ce45be7d4941-wwzu2xa6/input.bcf",
+  "input_name": "input.bcf",
+  "lookup_regions": 86,
+  "lookup_strategies": [
+    {
+      "cache_records": 1435577,
+      "estimated_cache_bytes": 115376994,
+      "name": "chr1",
+      "requested_cache_bytes": 1131150,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1490699,
+      "estimated_cache_bytes": 114087168,
+      "name": "chr2",
+      "requested_cache_bytes": 858112,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1247559,
+      "estimated_cache_bytes": 109836945,
+      "name": "chr3",
+      "requested_cache_bytes": 400186,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1118422,
+      "estimated_cache_bytes": 71438683,
+      "name": "chr5",
+      "requested_cache_bytes": 96271,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1152753,
+      "estimated_cache_bytes": 85831257,
+      "name": "chr6",
+      "requested_cache_bytes": 576873,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1074641,
+      "estimated_cache_bytes": 81033435,
+      "name": "chr7",
+      "requested_cache_bytes": 603831,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 830834,
+      "estimated_cache_bytes": 63037769,
+      "name": "chr9",
+      "requested_cache_bytes": 231303,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 924515,
+      "estimated_cache_bytes": 70637220,
+      "name": "chr10",
+      "requested_cache_bytes": 673089,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 862831,
+      "estimated_cache_bytes": 66679749,
+      "name": "chr11",
+      "requested_cache_bytes": 453106,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 865133,
+      "estimated_cache_bytes": 67597981,
+      "name": "chr12",
+      "requested_cache_bytes": 134501,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 637579,
+      "estimated_cache_bytes": 34881614,
+      "name": "chr13",
+      "requested_cache_bytes": 344477,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 591558,
+      "estimated_cache_bytes": 47554226,
+      "name": "chr14",
+      "requested_cache_bytes": 86296,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 558135,
+      "estimated_cache_bytes": 49424597,
+      "name": "chr15",
+      "requested_cache_bytes": 391339,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 585392,
+      "estimated_cache_bytes": 48616661,
+      "name": "chr16",
+      "requested_cache_bytes": 297586,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 548630,
+      "estimated_cache_bytes": 53777543,
+      "name": "chr17",
+      "requested_cache_bytes": 320813,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 499973,
+      "estimated_cache_bytes": 35173912,
+      "name": "chr18",
+      "requested_cache_bytes": 196931,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 456595,
+      "estimated_cache_bytes": 49185249,
+      "name": "chr19",
+      "requested_cache_bytes": 437554,
+      "strategy": "regions"
+    }
+  ],
+  "lookup_tasks": 1,
+  "mode": "cached",
+  "native_route_candidates": null,
+  "native_route_fallbacks": [],
+  "native_version": "vcfcache-engine 0.7.0",
+  "output_file": "/mnt/data/tmp/manuscript-3693ce45be7d4941-wwzu2xa6/output.bcf",
+  "phase_timings": [
+    {
+      "phase": "preprocess",
+      "wall_seconds": 0.27305979799712077
+    },
+    {
+      "phase": "route",
+      "wall_seconds": 1.6384110119543038
+    },
+    {
+      "phase": "assemble",
+      "wall_seconds": 0.21465617005014792
+    }
+  ],
+  "requested_engine": "adaptive",
+  "run_timestamp": "2026-10-27T20:29:46",
+  "stage_timings": [
+    {
+      "stage": "preprocess",
+      "task": "prepare-0000",
+      "wall_seconds": 0.26873478398192674
+    },
+    {
+      "stage": "route",
+      "task": "shard-0000",
+      "wall_seconds": 1.6363273840397596
+    },
+    {
+      "stage": "collect-misses",
+      "task": "fused",
+      "wall_seconds": 0.09368742298102006
+    },
+    {
+      "stage": "annotate-misses",
+      "task": "fused",
+      "wall_seconds": 85.80810023698723
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0000",
+      "wall_seconds": 0.21235943504143506
+    },
+    {
+      "stage": "gather",
+      "task": "fused",
+      "wall_seconds": 0.046994097996503115
+    },
+    {
+      "stage": "index",
+      "task": "fused",
+      "wall_seconds": 0.04443495400482789
+    }
+  ],
+  "statistics_level": "light",
+  "task_estimated_work": [
+    10804538
+  ],
+  "threads": 8,
+  "trusted_hit_records": 0,
+  "variant_counts": {
+    "annotated_output": 242,
+    "dropped_variants": 0,
+    "input_variants": 242,
+    "missing_annotated": 40,
+    "missing_variants": 40,
+    "tool_annotated": 40,
+    "total_output": 242
+  },
+  "variant_md5": {
+    "all": null,
+    "bottom10": null,
+    "top10": null
+  },
+  "vcfcache_version": "0.5.5",
+  "workers": 1
+}

@@ -1,0 +1,159 @@
+{
+  "cache_hit_rate": 0.889273356401384,
+  "carried_forward": {
+    "campaign": "/results/manuscript-final/20261027T135803Z-b4b43512c/campaign",
+    "evidence": "/results/manuscript-final/20261027T135803Z-b4b43512c/campaign/attempts/a001/veprs-core-KPGP-00128-panel",
+    "reason": "Unchanged primary configuration already passed; no technical repeat"
+  },
+  "direct_metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 7256929,
+        "throttled_usec": 0,
+        "usage_usec": 37503312,
+        "user_usec": 30246382
+      },
+      "memory_current_bytes": 2202689536,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 5396955136,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1380/step_0/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 38753,
+        "throttled_usec": 0,
+        "usage_usec": 231526,
+        "user_usec": 192773
+      },
+      "memory_current_bytes": 11493376,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11493376,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1380/step_0/user/task_0"
+    },
+    "cpu_seconds": 37.203610999999995,
+    "exit_code": 0,
+    "largest_child_rss_kib": 2992596,
+    "start_unix_ns": 1793109907459046601,
+    "wall_seconds": 12.663564573973417
+  },
+  "direct_seconds": 12.663564573973417,
+  "effective_engine": "adaptive",
+  "finished_unix": 1793109927.879853,
+  "input_records": 289,
+  "job_id": "1380",
+  "metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 3040832,
+        "throttled_usec": 0,
+        "usage_usec": 22452729,
+        "user_usec": 19411896
+      },
+      "memory_current_bytes": 27410432,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 2633539584,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1380/step_1/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 33163,
+        "throttled_usec": 0,
+        "usage_usec": 165796,
+        "user_usec": 132633
+      },
+      "memory_current_bytes": 11489280,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11489280,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1380/step_1/user/task_0"
+    },
+    "cpu_seconds": 22.257387,
+    "exit_code": 0,
+    "largest_child_rss_kib": 2427692,
+    "start_unix_ns": 1793109920413712139,
+    "wall_seconds": 6.941103418997955
+  },
+  "node": "sl-w3",
+  "output_index_sha256": "d42480d7a994e187d23005f9701c76c76c53cd10ed01d7e017b95459f51a18fc",
+  "output_sha256": "064ec6e1fcb0e06782861a92da396dc4a70af001e2f0419c63cd0112d2ccbf3e",
+  "prepared_input_sha256": "e8c6415b5dd01fa19889a61705c0548cc1b20ef7605d280aca0608b18487420b",
+  "speedup": 1.8244310464115776,
+  "started_unix": 1793109904.2612739,
+  "state": "complete",
+  "validation_scope": "fresh paired complete-record/header comparison; no ignored fields"
+}

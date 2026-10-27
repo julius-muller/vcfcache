@@ -168,10 +168,21 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   fresh validation. Known clinical vep-rs differences remain timing-only and
   retain both full outputs; no upstream tool changes are authorized.
 
-Next active work: finish and verify the recovery deployment, submit its primary
-checks, and observe the automatic bulk dispatch. No new scientific user decision
-is currently needed. The bulk campaign stays gated until those checks pass;
-do not call a preparation job or a blocked dispatcher a running full campaign.
+**Live launch verified at 19:33 UTC / 20:33 CET on 27 October:** preparation
+1398 completed; all six primary conditions passed (two unchanged successful
+checks reused). Dispatcher 1405 released **594 jobs, 1406–1999**, with afterany
+collector **2000**. All six workers were running, with 588 annotation jobs queued
+and zero failures recorded. The full 600-condition campaign is now executing;
+this is not a claim that it has completed. Host and Docker suites both pass
+**646 tests, 21 skipped**; GitHub CI passed deployed revision `fe197f34d`.
+
+No new user decision is currently needed. Next operational check-in:
+**22:35 CET on 27 October**, approximately two hours after bulk release. Slurm
+and final collection advance automatically; unexpected failures still require
+active inspection. Provisional completion: **30–48 hours after bulk release**,
+to be revised from measured throughput. See
+`benchmarks/performance_sprint/ACTIVE_MANUSCRIPT_CAMPAIGN.md` for exact paths and
+days-later review commands. Do not resume closed optimization experiments.
 
 Commands and launch receipts live in `benchmarks/performance_sprint/`.
 The live Slurm campaign, not this file's age, determines current progress.

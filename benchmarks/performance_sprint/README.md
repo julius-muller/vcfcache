@@ -5,6 +5,9 @@ scope. These candidates do not change default annotation behavior.
 
 ## Approved manuscript execution
 
+Start with [the active campaign record](ACTIVE_MANUSCRIPT_CAMPAIGN.md) for exact
+paths, launch receipts, current-stage caveats and days-later review commands.
+
 The user selected A: engineering is closed (36/36 cells), and the supported
 candidate is frozen for the complete 600-condition manuscript campaign. Use
 `launch.py --helper COMPATIBLE_HELPER --receipt UNIQUE_RECEIPT.json`, optionally

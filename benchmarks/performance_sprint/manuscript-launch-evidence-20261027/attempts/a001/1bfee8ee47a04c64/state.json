@@ -1,0 +1,155 @@
+{
+  "cache_directory": "/results/snpeff/caches/snpeff_core_grch37_af001/cache/snpeff_core_grch37_af001",
+  "cache_hit_rate": 0.9515151515151515,
+  "direct_metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 3941216,
+        "throttled_usec": 0,
+        "usage_usec": 67038515,
+        "user_usec": 63097298
+      },
+      "memory_current_bytes": 175742976,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 3512463360,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1402/step_0/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 41966,
+        "throttled_usec": 0,
+        "usage_usec": 222506,
+        "user_usec": 180539
+      },
+      "memory_current_bytes": 11497472,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11497472,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1402/step_0/user/task_0"
+    },
+    "cpu_seconds": 66.66993599999999,
+    "exit_code": 0,
+    "largest_child_rss_kib": 3268224,
+    "start_unix_ns": 1793129179221536071,
+    "wall_seconds": 38.31212175101973
+  },
+  "direct_seconds": 38.31212175101973,
+  "effective_engine": "adaptive",
+  "finished_unix": 1793129254.2330139,
+  "input_records": 165,
+  "job_id": "1402",
+  "metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 4374114,
+        "throttled_usec": 0,
+        "usage_usec": 61332404,
+        "user_usec": 56958289
+      },
+      "memory_current_bytes": 24432640,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 3818823680,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1402/step_1/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 45459,
+        "throttled_usec": 0,
+        "usage_usec": 232348,
+        "user_usec": 186889
+      },
+      "memory_current_bytes": 11497472,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11497472,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_1402/step_1/user/task_0"
+    },
+    "cpu_seconds": 60.970521,
+    "exit_code": 0,
+    "largest_child_rss_kib": 3679760,
+    "start_unix_ns": 1793129217894613200,
+    "wall_seconds": 35.9875076719909
+  },
+  "node": "sl-w3",
+  "output_index_sha256": "e4900e624253691ba19503c3d7aaf4163246885d706829bb23128418805b89bb",
+  "output_sha256": "ae579dae6d6cfc4a4dc732efac380a5fc3fbee732522c9ca46647cf42f7b0e93",
+  "prepared_input_sha256": "1e525b494d2859a3d547ff7d2b229196cf79919a984a00c8b84edb0ad8eed29c",
+  "speedup": 1.0645950283697496,
+  "started_unix": 1793129177.3198264,
+  "state": "complete",
+  "validation_scope": "fresh paired complete-record/header comparison; no ignored fields"
+}

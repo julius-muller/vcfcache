@@ -1,0 +1,228 @@
+{
+  "annotation_yaml_md5": "3b2d900080d2b75e2e9820624042d834",
+  "assembly_decode_threads": 0,
+  "assembly_encode_threads": 6,
+  "cache_name": "snpeff_core_grch37_af001",
+  "cache_path": "/results/snpeff/caches/snpeff_core_grch37_af001/cache/snpeff_core_grch37_af001",
+  "codec_threads_per_worker": 6,
+  "command": "annotate",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "cpu_budget": 8,
+  "effective_engine": "adaptive",
+  "engine": "fused",
+  "engine_lookup": "auto",
+  "engine_wall_seconds": 32.639938925975,
+  "estimate_note": "CSI candidate byte estimates, not observed cache I/O",
+  "experimental_indexed_misses": false,
+  "experimental_native_route": false,
+  "experimental_trust_routed_hits": false,
+  "genome_build_annotation": "GRCh37",
+  "genome_build_params": "GRCh37",
+  "input_file": "/mnt/data/tmp/manuscript-1bfee8ee47a04c64-pmich6f0/input.bcf",
+  "input_name": "input.bcf",
+  "lookup_regions": 60,
+  "lookup_strategies": [
+    {
+      "cache_records": 1416429,
+      "estimated_cache_bytes": 47656589,
+      "name": "chr1",
+      "requested_cache_bytes": 720649,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1485399,
+      "estimated_cache_bytes": 47029190,
+      "name": "chr2",
+      "requested_cache_bytes": 497249,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1241076,
+      "estimated_cache_bytes": 41875923,
+      "name": "chr3",
+      "requested_cache_bytes": 146125,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1118309,
+      "estimated_cache_bytes": 32807782,
+      "name": "chr5",
+      "requested_cache_bytes": 82727,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1143082,
+      "estimated_cache_bytes": 32834913,
+      "name": "chr6",
+      "requested_cache_bytes": 182400,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 1063835,
+      "estimated_cache_bytes": 34102525,
+      "name": "chr7",
+      "requested_cache_bytes": 225738,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 819002,
+      "estimated_cache_bytes": 23025160,
+      "name": "chr9",
+      "requested_cache_bytes": 70700,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 903763,
+      "estimated_cache_bytes": 26913519,
+      "name": "chr10",
+      "requested_cache_bytes": 217360,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 861424,
+      "estimated_cache_bytes": 31408385,
+      "name": "chr11",
+      "requested_cache_bytes": 257835,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 861164,
+      "estimated_cache_bytes": 32056025,
+      "name": "chr12",
+      "requested_cache_bytes": 82381,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 633331,
+      "estimated_cache_bytes": 14791119,
+      "name": "chr13",
+      "requested_cache_bytes": 160982,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 554429,
+      "estimated_cache_bytes": 20735467,
+      "name": "chr15",
+      "requested_cache_bytes": 274917,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 578347,
+      "estimated_cache_bytes": 24058972,
+      "name": "chr16",
+      "requested_cache_bytes": 235589,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 526899,
+      "estimated_cache_bytes": 25419790,
+      "name": "chr17",
+      "requested_cache_bytes": 191609,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 499632,
+      "estimated_cache_bytes": 15608350,
+      "name": "chr18",
+      "requested_cache_bytes": 136769,
+      "strategy": "regions"
+    },
+    {
+      "cache_records": 454752,
+      "estimated_cache_bytes": 24607926,
+      "name": "chr19",
+      "requested_cache_bytes": 265393,
+      "strategy": "regions"
+    }
+  ],
+  "lookup_tasks": 1,
+  "mode": "cached",
+  "native_route_candidates": null,
+  "native_route_fallbacks": [],
+  "native_version": "vcfcache-engine 0.7.0",
+  "output_file": "/mnt/data/tmp/manuscript-1bfee8ee47a04c64-pmich6f0/output.bcf",
+  "phase_timings": [
+    {
+      "phase": "preprocess",
+      "wall_seconds": 0.1890489700017497
+    },
+    {
+      "phase": "route",
+      "wall_seconds": 1.7134718360030092
+    },
+    {
+      "phase": "assemble",
+      "wall_seconds": 0.07667132403003052
+    }
+  ],
+  "requested_engine": "adaptive",
+  "run_timestamp": "2026-10-27T20:27:33",
+  "stage_timings": [
+    {
+      "stage": "preprocess",
+      "task": "prepare-0000",
+      "wall_seconds": 0.18480021797586232
+    },
+    {
+      "stage": "route",
+      "task": "shard-0000",
+      "wall_seconds": 1.7116603520116769
+    },
+    {
+      "stage": "collect-misses",
+      "task": "fused",
+      "wall_seconds": 0.05549068603431806
+    },
+    {
+      "stage": "annotate-misses",
+      "task": "fused",
+      "wall_seconds": 30.350429169018753
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0000",
+      "wall_seconds": 0.07454779901308939
+    },
+    {
+      "stage": "gather",
+      "task": "fused",
+      "wall_seconds": 0.01661074999719858
+    },
+    {
+      "stage": "index",
+      "task": "fused",
+      "wall_seconds": 0.026281542028300464
+    }
+  ],
+  "statistics_level": "light",
+  "task_estimated_work": [
+    6649276
+  ],
+  "threads": 8,
+  "trusted_hit_records": 0,
+  "variant_counts": {
+    "annotated_output": 165,
+    "dropped_variants": 0,
+    "input_variants": 165,
+    "missing_annotated": 8,
+    "missing_variants": 8,
+    "tool_annotated": 8,
+    "total_output": 165
+  },
+  "variant_md5": {
+    "all": null,
+    "bottom10": null,
+    "top10": null
+  },
+  "vcfcache_version": "0.5.5",
+  "workers": 1
+}

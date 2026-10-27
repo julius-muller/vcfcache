@@ -1,0 +1,48 @@
+{
+  "against_cached": {
+    "cached_header_sha256": "5ab96d5836ea0744bc918469ac0cdd794ae55f75f003e2a8775dff5d78a9595b",
+    "cached_semantic_sha256": "3ce36391049f31b874247925a6e9e99a6447b1f26eeb31f76eb182a6abc9a9d8",
+    "canonicalization": [
+      "INFO tag order",
+      "CSQ entry order",
+      "complete-record order within identical CHROM/POS loci",
+      "indexed contig traversal order by contig name"
+    ],
+    "comparator": "fastvep_complete_record_and_header_v3",
+    "examples": [],
+    "ignored_annotation_mismatches": 0,
+    "ignored_fields": [],
+    "locus_mismatches": 0,
+    "raw_annotation_mismatches": 0,
+    "record_mismatches": 0,
+    "record_order_only_loci": 0,
+    "records_compared": 289,
+    "relevant_headers_equal": true,
+    "semantic_pass": true,
+    "uncached_header_sha256": "5ab96d5836ea0744bc918469ac0cdd794ae55f75f003e2a8775dff5d78a9595b",
+    "uncached_semantic_sha256": "3ce36391049f31b874247925a6e9e99a6447b1f26eeb31f76eb182a6abc9a9d8"
+  },
+  "against_direct": {
+    "annotation_mismatches": 0,
+    "annotation_order_only": 0,
+    "cached_semantic_sha256": "969ed365d17f68be28967b9e2121f359d99818847b3949a22a84a3ee746ae67e",
+    "comparator": "vep_semantic_with_documented_exceptions_v1",
+    "csq_headers_equal": true,
+    "examples": [],
+    "ignored_annotation_mismatches": 0,
+    "ignored_csq_fields": [
+      "HGNC_ID"
+    ],
+    "ignored_difference_reference": null,
+    "key_mismatches": 0,
+    "raw_annotation_mismatches": 0,
+    "record_order_only_loci": 0,
+    "records_compared": 289,
+    "semantic_pass": true,
+    "uncached_semantic_sha256": "969ed365d17f68be28967b9e2121f359d99818847b3949a22a84a3ee746ae67e",
+    "unordered_csq_fields": [
+      "DOMAINS"
+    ]
+  },
+  "validation_scope": "complete cached-reference records; annotator-specific direct comparator"
+}

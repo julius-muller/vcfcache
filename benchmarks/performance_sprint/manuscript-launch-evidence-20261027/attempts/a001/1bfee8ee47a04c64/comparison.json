@@ -1,0 +1,24 @@
+{
+  "cached_header_sha256": "24e219b42f44165adc25e45a0dbfd7273b107a783eb550a57905bc9a8ea741c7",
+  "cached_semantic_sha256": "62de0220c26b9578ae10ea96a73df63536894a432c1766fb385b6009970e2b9f",
+  "canonicalization": [
+    "INFO tag order",
+    "CSQ entry order",
+    "complete-record order within identical CHROM/POS loci",
+    "indexed contig traversal order by contig name"
+  ],
+  "comparator": "fastvep_complete_record_and_header_v3",
+  "examples": [],
+  "ignored_annotation_mismatches": 0,
+  "ignored_fields": [],
+  "locus_mismatches": 0,
+  "raw_annotation_mismatches": 0,
+  "record_mismatches": 0,
+  "record_order_only_loci": 0,
+  "records_compared": 165,
+  "relevant_headers_equal": true,
+  "semantic_pass": true,
+  "uncached_header_sha256": "24e219b42f44165adc25e45a0dbfd7273b107a783eb550a57905bc9a8ea741c7",
+  "uncached_semantic_sha256": "62de0220c26b9578ae10ea96a73df63536894a432c1766fb385b6009970e2b9f",
+  "validation_scope": "fresh paired complete-record/header comparison; no ignored fields"
+}
