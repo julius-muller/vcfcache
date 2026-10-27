@@ -39,7 +39,7 @@ This file is the handoff entry point, not a claim that future stages ran.
    Target all measurements/audits by Sunday 18:00. Monday: final consolidation,
    R/ggplot2 figures in a new directory and handoff, not silent sample reductions.
 
-## Current implementation (27 October, 12:20 CET)
+## Current implementation (27 October, 12:26 CET)
 
 Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
 
@@ -47,10 +47,12 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   trusted-hit assembly and a bounded native router inside the existing adaptive
   workflow. Python adds a bounded decoded-payload memory preflight. Every switch
   is experimental, frozen per condition and disabled by default.
-- **34/36 engineering cells submitted**: initial 1347–1350; trusted-hit
+- **36/36 engineering cells submitted**: initial 1347–1350; trusted-hit
   1353–1356; memory preflight 1359–1360; bounded route 1362–1365. Each phase has an
-  afterany collector. The remaining two cells are reserved for reversed-order
-  memory-preflight confirmation, not another exploratory matrix.
+  afterany collector. Final reversed-order memory-preflight confirmation is
+  **job 1368**, collector **1369**, campaign
+  `/results/performance-sprint/20261027T112225Z-2ea9a8cc6`.
+  The engineering budget is exhausted: no extra exploratory matrix is authorized.
 - Initial and trusted-hit screens completed with strict direct and frozen-cache
   parity. Neither indexed spooling, smaller windows nor trusted-hit assembly
   showed a consistent >=5% gain across the two genomes: **do not promote them**.
@@ -62,9 +64,11 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
 - Bounded routing: fastVEP WES **51.91 → 47.81 s (7.9%)** and
   **52.51 → 49.67 s (5.4%)**, strict parity passes. Core-WGS audits remain in
   progress; the first cell's CLI time is slower. **Not a universal default**.
-- Host/container suite before the new replay harness: **618 passed, 21 skipped**
-  in each. The replay harness has a real-CLI integration test with only Slurm and
-  the resource sampler mocked; this is not a claim of cluster replay execution.
+- Latest host suite: **630 passed, 21 skipped**. Latest container suite:
+  **629 passed, 21 skipped** (before the final legacy-receipt regression test).
+  Ruff, Black and Rust formatting pass. The replay harness has a real-CLI
+  integration test with only Slurm and the resource sampler mocked; this is not
+  a claim of cluster replay execution.
 
 ## Manuscript rerun preparation
 
