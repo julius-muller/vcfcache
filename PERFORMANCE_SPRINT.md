@@ -64,8 +64,9 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
 - Bounded routing: fastVEP WES **51.91 → 47.81 s (7.9%)** and
   **52.51 → 49.67 s (5.4%)**, strict parity passes. Core-WGS audits remain in
   progress; the first cell's CLI time is slower. **Not a universal default**.
-- Latest host suite: **630 passed, 21 skipped**. Latest container suite:
-  **629 passed, 21 skipped** (before the final legacy-receipt regression test).
+- Latest host suite: **630 passed, 21 skipped**. A freshly built standalone
+  Docker test image also passes **630 tests, 21 skipped**, without mounting the
+  source checkout; the small manuscript fixture tables are included explicitly.
   Ruff, Black and Rust formatting pass. The replay harness has a real-CLI
   integration test with only Slurm and the resource sampler mocked; this is not
   a claim of cluster replay execution.

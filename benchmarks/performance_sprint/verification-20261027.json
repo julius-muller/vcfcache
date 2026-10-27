@@ -1,0 +1,15 @@
+{
+  "host": {"command": ".venv/bin/python -m pytest -q", "passed": 630, "skipped": 21, "seconds": 47.87},
+  "standalone_container": {
+    "build": "docker build -f docker/Dockerfile.vcfcache --target test -t vcfcache:sprint-replay-test .",
+    "run": "docker run --rm -v /tmp/vcfcache-sprint07-helper.bC1dzz/vcfcache-engine:/usr/local/bin/vcfcache-engine:ro vcfcache:sprint-replay-test",
+    "passed": 630,
+    "skipped": 21,
+    "seconds": 69.64,
+    "source_checkout_mounted": false,
+    "helper_version": "0.7.0",
+    "helper_sha256": "41954eea4741514b840c760d9c6ddd457d2cdf261555d82acf0aa3cf0876fbd9"
+  },
+  "checks": {"ruff_vcfcache_benchmarks_scripts": "passed", "black_vcfcache": "passed", "cargo_fmt": "passed"},
+  "note": "These verify the implementation and isolated replay orchestration. The full manuscript Slurm replay has not been frozen or submitted. The integration test mocks Slurm/resource sampling only; real annotation CLI and comparison execute."
+}

@@ -28,8 +28,8 @@ ENV PATH="/opt/venv/bin:${PATH}"
 FROM base AS test
 COPY tests ./tests
 # Part of the suite exercises the benchmark drivers, so the modules they import
-# must be present. Only the Python sources are copied; benchmarks/figures holds
-# tens of megabytes of frozen result tables that the tests never read.
+# must be present. Copy source and the explicitly needed small fixture tables,
+# not the full benchmark archives or rendered figures.
 COPY benchmarks/*.py ./benchmarks/
 COPY benchmarks/fastvep_pilot/*.py ./benchmarks/fastvep_pilot/
 COPY benchmarks/branch_eval/*.py ./benchmarks/branch_eval/
@@ -43,6 +43,18 @@ COPY benchmarks/*.sh ./benchmarks/
 # Frozen source tables only (1 MB). benchmarks/figures/output holds ~78 MB of
 # rendered figures that no test reads.
 COPY benchmarks/figures/source_data ./benchmarks/figures/source_data
+# The sprint inventory tests verify all manuscript families against their real
+# small tables. Keep these fixtures explicit; never copy the multi-GB archives.
+COPY benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3/source/campaign_metrics.tsv \
+     benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3/source/external_assay_v3_metrics.tsv \
+     benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3/source/dual_cache_pipeline_spectrum.tsv \
+     ./benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3/source/
+COPY benchmarks/results/raw/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/measured.tsv ./benchmarks/results/raw/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/
+COPY benchmarks/results/raw/campaigns/external-fastvep-804963323e11-light-strict/manifests/measured.tsv ./benchmarks/results/raw/campaigns/external-fastvep-804963323e11-light-strict/manifests/
+COPY benchmarks/results/raw/campaigns/external-assay-v3-independent-af001-warm/manifests/benchmark_tasks.tsv ./benchmarks/results/raw/campaigns/external-assay-v3-independent-af001-warm/manifests/
+COPY benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-4f854e5-kpgp00319/manifests/tasks.tsv ./benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-4f854e5-kpgp00319/manifests/
+COPY benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-af001-cd87186-kpgp00319/manifests/tasks.tsv ./benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-af001-cd87186-kpgp00319/manifests/
+COPY benchmarks/reproduction/final_clinical_campaign/blocksort.frozen.awk ./benchmarks/reproduction/final_clinical_campaign/
 # One provenance test shells out to git; it is needed for tests, not at runtime.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
