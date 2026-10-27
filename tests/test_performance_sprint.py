@@ -565,3 +565,18 @@ def test_execution_deduplication_retains_source_aliases():
     assert len(tasks) == 1
     assert aliases == {"plot-copy": "cell-one"}
     assert tasks[0]["source_aliases"] == ["plot-copy"]
+
+
+def test_c2_pgp_does_not_require_membership_in_full52():
+    from benchmarks.performance_sprint.assemble import c2_input
+
+    assert c2_input(
+        dict(assembly="GRCh37", cohort="pgp", sample="hu24385B"), {}
+    ).endswith("/GRCh37/pgp/hu24385B.GRCh37.small_variants.vcf.gz")
+    assert (
+        c2_input(
+            dict(assembly="GRCh38", cohort="sgdp", sample="sample"),
+            {"sample": dict(input_vcf="original.vcf.gz")},
+        )
+        == "original.vcf.gz"
+    )

@@ -51,6 +51,13 @@ def argument(command, flag):
     return command[command.index(flag) + 1]
 
 
+def c2_input(row, grch38_inputs):
+    """C2's frozen PGP subset is not necessarily the full52 PGP selection."""
+    if row["assembly"] == "GRCh38":
+        return grch38_inputs[row["sample"]]["input_vcf"]
+    return f"/mnt/data/vcfcache_benchmarks/external_wgs/samples/{row['assembly']}/{row['cohort']}/{row['sample']}.{row['assembly']}.small_variants.vcf.gz"
+
+
 class Files:
     """Hash new cache/resources once, and pin previously audited file metadata."""
 
@@ -181,12 +188,9 @@ def historical_tasks(request, audits, files, proof, source_root):
                     )
             else:
                 query = "%CHROM\t%POS\t%REF\t%ALT\t%INFO/CSQ\t%INFO/FV_CLINVAR\t%INFO/FV_GNOMAD"
-            original = all_inputs[row["sample"]]
-            source = f"/mnt/data/vcfcache_benchmarks/external_wgs/samples/{row['assembly']}/{row['cohort']}/{row['sample']}.{row['assembly']}.small_variants.vcf.gz"
+            source = c2_input(row, all_inputs)
             # Use exactly C2's original source, including its explicit duplicate
             # normalization, rather than substituting a differently prepared VCF.
-            if row["assembly"] == "GRCh38":
-                source = original["input_vcf"]
             regions = {
                 (
                     "GRCh38",
