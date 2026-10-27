@@ -3,6 +3,36 @@
 See [the sprint handoff](../../PERFORMANCE_SPRINT.md) for the deadline, gates and
 scope. These candidates do not change default annotation behavior.
 
+## Approved manuscript execution
+
+The user selected A: engineering is closed (36/36 cells), and the supported
+candidate is frozen for the complete 600-condition manuscript campaign. Use
+`launch.py --helper COMPATIBLE_HELPER --receipt UNIQUE_RECEIPT.json`, optionally
+`--reuse-launch-checks PREVIOUS_WORKER_CAMPAIGN`, to stage an immutable deployment
+and submit preparation. The preparation worker is pinned to `sl-w1` as canonical
+cache source. Six primary conditions gate automatic submission of the remainder
+to all six healthy workers. Unchanged completed primary checks are reused, not
+remeasured. Every accepted job ID and each failure remain in durable receipts.
+
+Compatible retained historical direct outputs/timings are reused. The 180 C2
+projection-only references are replaced with fresh direct controls: incomplete
+old digests cannot establish complete-record equivalence. Clinical SnpEff uses
+`-noId` and explicit historical ASCII text encoding in both arms; no ID field or
+non-ASCII mismatch is silently ignored. Pinned clinical vep-rs discrepancies
+remain explicitly timing-only. Separate Slurm steps isolate direct and cached
+resource measurements. Cache replica staging and full comparison are untimed.
+
+Review later, on the controller with its mapped `/mnt/data/slurm-results` paths:
+
+```sh
+PYTHONPATH=DEPLOYMENT PYTHON -m benchmarks.performance_sprint.manuscript status CAMPAIGN
+PYTHONPATH=DEPLOYMENT PYTHON -m benchmarks.performance_sprint.manuscript collect CAMPAIGN
+```
+
+`DISPATCH_BLOCKED.json` means active repair is required; it is not an advancing
+background campaign. Explicit `resume --cell ID` never overwrites a success.
+See `PERFORMANCE_SPRINT.md` and the newest launch receipt for the current stage.
+
 ## Reproducible first screening
 
 Build the compatible helper, run tests and commit the candidate before deployment:

@@ -20,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--helper", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
+    parser.add_argument("--reuse-launch-checks", type=Path)
     args = parser.parse_args()
     if args.receipt.exists():
         raise FileExistsError(args.receipt)
@@ -63,6 +64,7 @@ def main():
             "git",
             "ls-files",
             "benchmarks/performance_sprint/*.py",
+            "benchmarks/performance_sprint/*.sh",
             "benchmarks/performance_sprint/reference-request-v2-20261027.json",
         ],
         cwd=REPO_ROOT,
@@ -121,6 +123,10 @@ def main():
             check=True,
         )
         wrap = f"cd /tmp; export PYTHONPATH={shlex.quote(deployment)}; {PYTHON} -m benchmarks.performance_sprint.assemble --request {deployment}/benchmarks/performance_sprint/reference-request-v2-20261027.json --source {deployment} --output {output} --build {deployment}-build.json --submit"
+        if args.reuse_launch_checks:
+            wrap += " --reuse-launch-checks " + shlex.quote(
+                str(args.reuse_launch_checks)
+            )
         command = [
             "sudo",
             "-u",
@@ -129,6 +135,7 @@ def main():
             "--parsable",
             "--partition=benchmark",
             "--nodes=1",
+            "--nodelist=sl-w1",
             "--ntasks=1",
             "--cpus-per-task=8",
             "--mem=28000M",

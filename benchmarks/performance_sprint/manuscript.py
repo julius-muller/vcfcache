@@ -40,9 +40,16 @@ def validate_task(task):
     if reference["cpus"] != task["cpus"]:
         raise ValueError("CPU allocation differs from historical direct baseline")
     paired = reference["kind"] == "new_paired_reference"
-    if paired and (task["family"] != "veprs_extension" or task["tool"] != "veprs"):
+    if paired and not (
+        (task["family"] == "veprs_extension" and task["tool"] == "veprs")
+        or (
+            task["family"] == "native_clinical_assays"
+            and task["tool"] in {"fastvep", "snpeff"}
+            and reference.get("replacement_reason")
+        )
+    ):
         raise ValueError(
-            "fresh direct measurements are restricted to the new vep-rs extension"
+            "fresh direct measurements require a new extension or documented baseline replacement"
         )
     if not paired and reference["reuse_decision"] != "approved":
         raise ValueError("baseline reuse has not been approved")
@@ -198,6 +205,72 @@ def latest(root, identifier):
     """Read the last explicit attempt; never overwrite a successful cell."""
     paths = sorted((root / "attempts").glob(f"*/{identifier}/state.json"))
     return read(paths[-1]) if paths else {}
+
+
+def carry_forward_launch_checks(root, previous):
+    """Reuse unchanged complete primary checks; never choose a best timing."""
+    current = verify(root)
+    old = verify(previous)
+    carried = []
+
+    def product(manifest):
+        return {
+            name: digest
+            for name, digest in manifest["freeze"]["build"]["files"].items()
+            if name.startswith(("vcfcache/", "native/", "resources/"))
+        }
+
+    if product(current) != product(old):
+        raise ValueError(
+            "cannot carry launch measurements across a product build change"
+        )
+    for task in current["tasks"]:
+        if task["id"] not in current["freeze"]["first_cells"]:
+            continue
+        candidate = next((t for t in old["tasks"] if t["id"] == task["id"]), None)
+        state = latest(previous, task["id"])
+        if not candidate or state.get("state") != "complete":
+            continue
+        keys = [
+            "family",
+            "tool",
+            "level",
+            "assay",
+            "parameters",
+            "environment",
+            "engine",
+            "cpus",
+            "preprocess",
+        ]
+        if any(candidate.get(key) != task.get(key) for key in keys):
+            continue
+        if (
+            candidate["input"] != task["input"]
+            or candidate["cache"]["files"] != task["cache"]["files"]
+        ):
+            continue
+        baseline_keys = ["kind", "direct", "cached", "direct_seconds"]
+        if any(
+            candidate["baseline"].get(key) != task["baseline"].get(key)
+            for key in baseline_keys
+        ):
+            continue
+        source = sorted((previous / "attempts").glob(f"*/{task['id']}/state.json"))[
+            -1
+        ].parent
+        destination = root / "attempts/a001" / task["id"]
+        shutil.copytree(source, destination)
+        state["carried_forward"] = dict(
+            campaign=str(previous),
+            evidence=str(source),
+            reason="Unchanged primary configuration already passed; no technical repeat",
+        )
+        write_json_atomic(destination / "state.json", state)
+        carried.append(task["id"])
+    write_json_atomic(
+        root / "CARRIED_FORWARD.json", dict(source=str(previous), cells=carried)
+    )
+    return carried
 
 
 def collect(root):
@@ -363,7 +436,14 @@ def dispatch(root):
 def start(root):
     """Submit first primary cells plus a durable gated continuation, not repeats."""
     manifest = verify(root)
-    batch = submit(root, manifest["freeze"]["first_cells"])
+    pending = [
+        identifier
+        for identifier in manifest["freeze"]["first_cells"]
+        if latest(root, identifier).get("state") != "complete"
+    ]
+    if not pending:
+        return dict(first_batch=None, automatic_dispatch=dispatch(root))
+    batch = submit(root, pending)
     deployment = manifest["freeze"]["build"]["root"]
     command = [
         "sbatch",
@@ -408,6 +488,30 @@ def without_csq_compare(first, second, scratch, cpus):
     return strict_semantic_compare(*outputs)
 
 
+def run_cli_direct(
+    command, launch, output, directory, scratch, parameters, environment
+):
+    """Measure the new extension's direct CLI in an independent Slurm cgroup."""
+    directory.mkdir()
+    direct_command = list(command)
+    direct_command[direct_command.index("--engine") + 1] = "legacy"
+    direct_command[direct_command.index("-o") + 1] = str(output)
+    direct_command[direct_command.index("--stats-dir") + 1] = str(
+        scratch / "direct-stats"
+    )
+    direct_command.append("--uncached")
+    direct_launch = list(launch[: launch.index("--") + 1]) + direct_command
+    direct_launch[direct_launch.index("--directory") + 1] = str(directory)
+    write_json_atomic(
+        directory / "command.json", dict(command=direct_launch, parameters=parameters)
+    )
+    with (directory / "run.log").open("w") as log:
+        subprocess.run(
+            direct_launch, env=environment, stdout=log, stderr=log, check=True
+        )
+    return read(directory / "resources.json")
+
+
 def run(root, identifier, attempt):
     """Prepare untimed, run one isolated timed step, audit, then checkpoint."""
     manifest = verify(root)
@@ -443,12 +547,14 @@ def run(root, identifier, attempt):
                     )
                 )
             source = checked_file(task["input"])
+            from benchmarks.performance_sprint.cache_stage import node_cache
+
+            cache_directory = node_cache(task["cache"])
+            state["cache_directory"] = str(cache_directory)
             for name, digest in task["cache"]["files"].items():
-                checked_file(
-                    dict(
-                        path=str(Path(task["cache"]["directory"]) / name), sha256=digest
-                    )
-                )
+                # node_cache verifies local bytes or unchanged metadata itself.
+                if task["cache"].get("storage") != "node_local":
+                    checked_file(dict(path=str(cache_directory / name), sha256=digest))
             for asset in task["annotation_assets"]:
                 checked_file(asset)
             group = task.get("annotation_asset_group")
@@ -507,7 +613,7 @@ def run(root, identifier, attempt):
                 "from vcfcache.cli import main; main()",
                 "annotate",
                 "-a",
-                task["cache"]["directory"],
+                str(cache_directory),
                 "-i",
                 str(source),
                 "-o",
@@ -560,31 +666,29 @@ def run(root, identifier, attempt):
             if task["baseline"]["kind"] == "new_paired_reference":
                 direct_output = scratch / "direct.bcf"
                 direct_directory = evidence / "direct"
-                direct_directory.mkdir()
-                direct_command = list(command)
-                direct_command[direct_command.index("--engine") + 1] = "legacy"
-                direct_command[direct_command.index("-o") + 1] = str(direct_output)
-                direct_command[direct_command.index("--stats-dir") + 1] = str(
-                    scratch / "direct-stats"
-                )
-                direct_command.append("--uncached")
-                direct_launch = list(launch[: launch.index("--") + 1]) + direct_command
-                direct_launch[direct_launch.index("--directory") + 1] = str(
-                    direct_directory
-                )
-                write_json_atomic(
-                    direct_directory / "command.json",
-                    dict(command=direct_launch, parameters=parameters),
-                )
-                with (direct_directory / "run.log").open("w") as log:
-                    subprocess.run(
-                        direct_launch,
-                        env=environment,
-                        stdout=log,
-                        stderr=log,
-                        check=True,
+                if task["family"] == "native_clinical_assays":
+                    from benchmarks.performance_sprint.baseline_exception import (
+                        run_direct,
                     )
-                state["direct_metrics"] = read(direct_directory / "resources.json")
+
+                    state["direct_metrics"] = run_direct(
+                        task,
+                        source,
+                        direct_output,
+                        direct_directory,
+                        build["root"],
+                        environment,
+                    )
+                else:
+                    state["direct_metrics"] = run_cli_direct(
+                        command,
+                        launch,
+                        direct_output,
+                        direct_directory,
+                        scratch,
+                        parameters,
+                        environment,
+                    )
                 if not state["direct_metrics"]["cgroup_after"]:
                     raise RuntimeError(
                         "new direct step lacks independent cgroup metrics"
@@ -688,9 +792,9 @@ def run(root, identifier, attempt):
                     "fresh paired complete-record/header comparison; no ignored fields"
                 )
                 if not comparison["semantic_pass"]:
-                    if task["level"] != "clinical":
+                    if task["tool"] != "veprs" or task["level"] != "clinical":
                         write_json_atomic(evidence / "comparison.json", comparison)
-                        raise RuntimeError("new core vep-rs paired output differs")
+                        raise RuntimeError("new strict paired output differs")
                     non_csq = without_csq_compare(
                         output, direct_output, scratch, task["cpus"]
                     )
@@ -750,6 +854,10 @@ def run(root, identifier, attempt):
                     shutil.copy2(str(output) + ".csi", evidence / "output.bcf.csi")
         finally:
             persist_run(scratch, evidence)
+            if state.get("timing_only") and output.exists():
+                for name in ["output.bcf", "output.bcf.csi"]:
+                    if (scratch / name).exists():
+                        shutil.copy2(scratch / name, evidence / name)
             if (
                 task["baseline"]["kind"] == "new_paired_reference"
                 and (scratch / "direct.bcf").exists()

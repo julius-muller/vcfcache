@@ -18,6 +18,7 @@ from pathlib import Path
 import yaml
 
 from benchmarks.engine_profile.run import read
+from benchmarks.performance_sprint.cache_stage import snapshot_cache
 from benchmarks.performance_sprint.manuscript import prepare, validate_task
 from benchmarks.run_pilot import sha256sum, write_json_atomic
 
@@ -226,6 +227,35 @@ def historical_tasks(request, audits, files, proof, source_root):
                 cached_digest=cached_row["digest"],
                 query_format=query + "\n",
                 blocksort=blocksort,
+            )
+            # Partial historical hashes cannot validate complete INFO/FORMAT.
+            # Keep them as provenance, but measure one fresh direct reference.
+            task["baseline"]["historical_projection"] = dict(task["baseline"])
+            task["baseline"].update(
+                kind="new_paired_reference",
+                replacement_reason="Historical clinical projection digests were not reproducible in launch checks; full-record references were not retained",
+            )
+            if row["tool"] == "snpeff" and row["level"] == "clinical":
+                shim = source_root / "benchmarks/performance_sprint/snpeff_info_java.sh"
+                params["java_cmd"] = str(shim)
+                task["annotation_assets"].append(files.get(shim))
+                task["baseline"]["configuration_change"] = (
+                    "SnpSift -noId at both database stages; preserve original IDs in both arms; explicitly pin historical ASCII text encoding"
+                )
+            task["wall_minutes"] = min(
+                1440,
+                max(
+                    60,
+                    int(
+                        (
+                            task["historical_cached_seconds"]
+                            + task["baseline"]["direct_seconds"]
+                        )
+                        * 2
+                        / 60
+                        + 120
+                    ),
+                ),
             )
         elif row["family"] == "synthetic_pipeline_spectrum":
             source = row["original_task"]["input_vcf"]
@@ -567,6 +597,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--build", type=Path, required=True)
     parser.add_argument("--submit", action="store_true")
+    parser.add_argument("--reuse-launch-checks", type=Path)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     files = Files()
@@ -622,6 +653,12 @@ def main():
     tasks = historical_tasks(read(args.request), audited, files, proofs, args.source)
     tasks, aliases = deduplicate(tasks)
     tasks += extension_tasks(tasks, files, proofs, args.output, groups)
+    mirrors = {}
+    for task in tasks:
+        key = task["cache"]["directory"]
+        if key not in mirrors:
+            mirrors[key] = snapshot_cache(task["cache"], files, args.output)
+        task["cache"] = mirrors[key]
     recipe_assets(tasks, files, groups)
     build = read(args.build)
     for task in tasks:
@@ -641,10 +678,14 @@ def main():
         first_cells=first_cells(tasks),
         created_unix=time.time(),
         engine_policy="adaptive primary; native remains opt-in; failed experiments disabled",
-        metadata_scope="Historical direct timings reused only within exact recipe/input/CPU bindings; digest/composed limitations preserved",
+        metadata_scope="Retained compatible complete-output historical baselines reused; 180 clinical projection-only conditions replaced with fresh strict pairs; composed-reference limitations preserved",
     )
     write_json_atomic(args.output / "freeze.json", freeze)
     prepare(args.output / "campaign", args.output / "tasks.json", freeze)
+    if args.reuse_launch_checks:
+        from benchmarks.performance_sprint.manuscript import carry_forward_launch_checks
+
+        carry_forward_launch_checks(args.output / "campaign", args.reuse_launch_checks)
     write_json_atomic(
         args.output / "ASSEMBLY.json",
         dict(

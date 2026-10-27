@@ -137,23 +137,41 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   settings, cache/input/resource fingerprints, one independent Slurm step per
   cell, explicit retries and durable afterany reviews. Successful cells cannot
   be silently repeated. Killed/stale running states are not treated as success.
-- **The complete replay task document, baseline approval and candidate freeze are
-  not yet finalized; the manuscript rerun has NOT been submitted.** Pinned vep-rs
-  core/clinical still needs its 12-genome matched-assay extension materialized.
-  Preserve its known ClinVar discrepancies; no upstream tool work is authorized.
+- **User selected A on 27 October:** stop optimization work, freeze the supported
+  candidate and execute the complete manuscript campaign. The 600-condition
+  manifest is materialized: 528 unique historical cached conditions plus 72 new
+  matched vep-rs pairs. Twelve identical historical WGS rows are aliases, not
+  repeated measurements. Primary engine: adaptive; native remains opt-in.
+- Preparation job 1376 exposed an independent C2 PGP sample-set lookup and failed
+  before measurements. Corrected preparation 1377 succeeded. First primary jobs
+  1378–1383 yielded three completed checks and three blocked checks; automatic
+  dispatcher 1385 correctly refused to release the bulk campaign. No failure is
+  silently discarded. Receipts preserve both immutable deployments.
+- Two clinical checks exposed limitations in historical projection-only digests.
+  Untimed overlay audit 1386 reproduced the new outputs with the legacy INFO
+  overlay. Fresh direct controls 1387 confirmed full fastVEP equality; SnpEff
+  additionally exposes reference-ID enrichment and one non-ASCII clinical-string
+  encoding difference. These are validation/configuration issues, not evidence
+  of a routing speed regression. Do not waive strict complete-record checks.
+- Recovery keeps original caches untouched. Canonical transport copies repair
+  drifted worker-local replicas into private node-local directories, outside
+  timing, without changing the original local/shared storage class. New clinical
+  pairs replace the 180 projection-only baselines with full retained direct
+  outputs. The SnpEff clinical recipe explicitly preserves input IDs (`-noId`)
+  and pins its historical ASCII text-encoding contract in both arms; the existing
+  accented-string limitation must not be represented as lossless Unicode output.
+  These required direct controls add approximately 53 node-hours (about nine
+  hours across six workers), not routine technical replicates.
+- Unchanged, already-complete first checks can be carried forward only with
+  matching product files, inputs, cache bytes, parameters, CPU/engine settings
+  and baseline binding. Changed configurations and failed checks need explicit
+  fresh validation. Known clinical vep-rs differences remain timing-only and
+  retain both full outputs; no upstream tool changes are authorized.
 
-Next active work (no new user decision currently required): select only supported
-changes, complete per-row reuse bindings (including CPU/preprocessing
-and digest-only limitations), materialize the replay tasks and vep-rs extension,
-then package/test/freeze before the Friday submission gate. If audits reveal a
-baseline mismatch, rerun only that direct exception in a separate job.
-
-At the 27 October afternoon handoff, no long-running job remains. The critical
-path is active preparation, not Slurm. Estimate **1–3 hours of further active
-work** to reach the next candidate/replay-readiness checkpoint; this is not an
-unattended wall-clock promise or an automatic scheduled launch. Resume promptly
-rather than waiting for Friday. Report a revised estimate if preparation exposes
-additional binding/validation work.
+Next active work: finish and verify the recovery deployment, submit its primary
+checks, and observe the automatic bulk dispatch. No new scientific user decision
+is currently needed. The bulk campaign stays gated until those checks pass;
+do not call a preparation job or a blocked dispatcher a running full campaign.
 
 Commands and launch receipts live in `benchmarks/performance_sprint/`.
 The live Slurm campaign, not this file's age, determines current progress.

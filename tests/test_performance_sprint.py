@@ -480,6 +480,109 @@ def test_worker_exclusions_must_be_explicit_and_justified():
         exclusion_args(dict(node_exclusions={"sl-w5": ""}))
 
 
+def test_clinical_reference_replacement_requires_explicit_reason():
+    from benchmarks.performance_sprint.manuscript import validate_task
+
+    task = manuscript_task()
+    task.update(family="native_clinical_assays", tool="snpeff")
+    task["baseline"]["kind"] = "new_paired_reference"
+    with pytest.raises(ValueError, match="documented baseline replacement"):
+        validate_task(task)
+    task["baseline"]["replacement_reason"] = "Historical digest not reproducible"
+    validate_task(task)
+
+
+def test_drifted_cache_is_repaired_privately_and_reused(tmp_path, monkeypatch):
+    import shutil
+
+    from benchmarks.performance_sprint.cache_stage import node_cache
+
+    real_disk_usage = shutil.disk_usage
+    monkeypatch.setattr(
+        shutil,
+        "disk_usage",
+        lambda path: real_disk_usage(path)._replace(free=100 * 1024**3),
+    )
+
+    original = tmp_path / "original/cache/test"
+    canonical = tmp_path / "canonical/cache/test"
+    for directory in [original, canonical]:
+        directory.mkdir(parents=True)
+        (directory.parents[1] / "workflow").mkdir()
+        (directory.parents[1] / "workflow/init.yaml").write_text("{}\n")
+        for name in [
+            "annotation.yaml",
+            "params.snapshot.yaml",
+            "vcfcache_annotated.bcf",
+            "vcfcache_annotated.bcf.csi",
+        ]:
+            (directory / name).write_text(name)
+    expected = {p.name: sha256sum(p) for p in canonical.iterdir()}
+    (original / "vcfcache_annotated.bcf").write_text("drifted replica")
+    cache = dict(
+        storage="node_local",
+        original_directory=str(original),
+        canonical_directory=str(canonical),
+        files=expected,
+    )
+    installed = node_cache(cache, tmp_path / "private")
+    assert installed != original
+    assert {p.name: sha256sum(p) for p in installed.iterdir()} == expected
+    assert (original / "vcfcache_annotated.bcf").read_text() == "drifted replica"
+    assert node_cache(cache, tmp_path / "private") == installed
+    (installed / "annotation.yaml").write_text("changed private cache")
+    with pytest.raises(
+        RuntimeError, match="previously installed private cache changed"
+    ):
+        node_cache(cache, tmp_path / "private")
+
+
+def test_carry_forward_skips_changed_conditions_and_preserves_provenance(tmp_path):
+    from benchmarks.performance_sprint import manuscript
+    from benchmarks.run_pilot import write_json_atomic
+
+    task = manuscript_task()
+    tasks = tmp_path / "tasks.json"
+    write_json_atomic(tasks, [task])
+    freeze = dict(
+        approved=True,
+        tests_passed=True,
+        tasks_sha256=sha256sum(tasks),
+        required_task_ids=[task["id"]],
+        first_cells=[task["id"]],
+        build=dict(files={"vcfcache/cli.py": "same"}),
+    )
+    old, new = tmp_path / "old", tmp_path / "new"
+    for directory in [old, new]:
+        manuscript.prepare(directory, tasks, freeze)
+    state_dir = old / "attempts/a001" / task["id"]
+    state_dir.mkdir(parents=True)
+    write_json_atomic(
+        state_dir / "state.json", dict(state="complete", metrics=dict(wall_seconds=2))
+    )
+    assert manuscript.carry_forward_launch_checks(new, old) == [task["id"]]
+    assert manuscript.latest(new, task["id"])["carried_forward"]["campaign"] == str(old)
+    changed = tmp_path / "changed"
+    task["parameters"] = dict(task["parameters"], changed_configuration=True)
+    write_json_atomic(tasks, [task])
+    manuscript.prepare(changed, tasks, dict(freeze, tasks_sha256=sha256sum(tasks)))
+    assert manuscript.carry_forward_launch_checks(changed, old) == []
+
+
+def test_identical_local_cache_needs_no_copy(tmp_path):
+    from benchmarks.performance_sprint.cache_stage import node_cache
+
+    original = tmp_path / "cache"
+    original.mkdir()
+    (original / "annotation.yaml").write_text("{}\n")
+    cache = dict(
+        storage="node_local",
+        original_directory=str(original),
+        files={"annotation.yaml": sha256sum(original / "annotation.yaml")},
+    )
+    assert node_cache(cache, tmp_path / "private") == original
+
+
 def test_verified_metadata_never_ignores_a_changed_file(tmp_path):
     from benchmarks.performance_sprint.assemble import Files
     from benchmarks.performance_sprint.manuscript import verified_file
