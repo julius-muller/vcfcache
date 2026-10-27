@@ -56,6 +56,11 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     start = time.perf_counter()
     binary = native_binary()
     version = helper_version(binary, (0, 3, 0))
+    window_bp = int(os.environ.get("VCFCACHE_EXPERIMENT_WINDOW_BP", "16384"))
+    if window_bp not in {1024, 4096, 16384}:
+        raise ValueError("VCFCACHE_EXPERIMENT_WINDOW_BP must be 1024, 4096 or 16384")
+    if window_bp != 16384:
+        helper_version(binary, (0, 5, 0))
     if workers > cpus:
         raise ValueError("native workers exceed configured CPU budget")
     workers = workers or min(8, max(1, cpus // 2))
@@ -112,6 +117,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                 memory_bytes=memory_mb * 1024 * 1024,
                 preserve=preserve,
                 lookup=lookup,
+                window_bp=window_bp,
             )
             job = root / "job.json"
             job.write_text(json.dumps(spec))
@@ -228,6 +234,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
             cpu_budget=cpus,
             cpu_affinity=sorted(os.sched_getaffinity(0)),
             engine_lookup=lookup,
+            experimental_window_bp=window_bp,
             engine_memory_mb=memory_mb,
             stage_timings=pipelines.timings,
             engine_wall_seconds=time.perf_counter() - start,

@@ -68,6 +68,9 @@ enum Command {
         stats: PathBuf,
         #[arg(long)]
         tag: String,
+        /// Experimental index-on-write miss spool; legacy plain BCF is the default.
+        #[arg(long)]
+        indexed_misses: bool,
     },
     /// Restore input order, filter annotation-less records and emit plain BCF.
     Assemble {
@@ -137,12 +140,33 @@ mod tests {
     }
 }
 
-fn route(hits: &Path, misses: &Path, order: &Path, stats: &Path, tag: &str) -> Result<()> {
+fn route(
+    hits: &Path,
+    misses: &Path,
+    order: &Path,
+    stats: &Path,
+    tag: &str,
+    indexed_misses: bool,
+) -> Result<()> {
     let _span = profiling::Span::new("adaptive.route_split_spool");
     let mut reader = bcf::Reader::from_stdin()?;
     let header = bcf::Header::from_template(reader.header());
     let mut hit_writer = bcf::Writer::from_path(hits, &header, true, bcf::Format::Bcf)?;
-    let mut miss_writer = bcf::Writer::from_path(misses, &header, true, bcf::Format::Bcf)?;
+    let mut plain_misses = if indexed_misses {
+        None
+    } else {
+        Some(bcf::Writer::from_path(
+            misses,
+            &header,
+            true,
+            bcf::Format::Bcf,
+        )?)
+    };
+    let indexed = if indexed_misses {
+        Some(adaptive::Spool::new(misses, reader.header())?)
+    } else {
+        None
+    };
     let mut order_writer = BufWriter::new(File::create(order)?);
     let mut counts = Counts::default();
     let supported = matches!(
@@ -203,7 +227,14 @@ fn route(hits: &Path, misses: &Path, order: &Path, stats: &Path, tag: &str) -> R
         if hit {
             hit_writer.write(&record)?;
         } else {
-            miss_writer.write(&record)?;
+            if let Some(writer) = &indexed {
+                writer.write(reader.header(), &record)?;
+            } else {
+                plain_misses
+                    .as_mut()
+                    .context("missing plain spool writer")?
+                    .write(&record)?;
+            }
             counts.missing_variants += 1;
         }
         order_writer.write_all(&[u8::from(!hit)])?;
@@ -212,7 +243,10 @@ fn route(hits: &Path, misses: &Path, order: &Path, stats: &Path, tag: &str) -> R
     order_writer.flush()?;
     // Explicitly close before Python compresses/indexes the miss spool.
     drop(hit_writer);
-    drop(miss_writer);
+    drop(plain_misses);
+    if let Some(writer) = indexed {
+        writer.finish()?;
+    }
     save(stats, &counts)
 }
 
@@ -329,7 +363,8 @@ fn main() -> Result<()> {
             order,
             stats,
             tag,
-        } => route(&hits, &misses, &order, &stats, &tag),
+            indexed_misses,
+        } => route(&hits, &misses, &order, &stats, &tag, indexed_misses),
         Command::Assemble {
             hits,
             misses,

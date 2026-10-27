@@ -117,6 +117,12 @@ def _run_fused(
     root.mkdir(parents=True, exist_ok=True)
     pipelines = Pipelines(manager.logger)
     version = helper_version(binary, (0, 2, 0))
+    indexed_miss_spools = os.environ.get("VCFCACHE_EXPERIMENT_INDEXED_MISSES", "0")
+    if indexed_miss_spools not in {"0", "1"}:
+        raise ValueError("VCFCACHE_EXPERIMENT_INDEXED_MISSES must be 0 or 1")
+    indexed_miss_spools = indexed_miss_spools == "1"
+    if indexed_miss_spools:
+        helper_version(binary, (0, 5, 0))
     manager.logger.info(
         f"Fused engine: {version}; preparation workers={workers}; CPU budget={cpu_budget}"
     )
@@ -190,7 +196,8 @@ def _run_fused(
             f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
             f"{quote(str(task['source']))} -c INFO -Ou --threads {compression_threads} | "
             f"{native} route --hits hits.bcf --misses misses.raw.bcf "
-            f"--order order.bin --stats route.json --tag {quote(tag)}",
+            f"--order order.bin --stats route.json --tag {quote(tag)}"
+            + (" --indexed-misses" if indexed_miss_spools else ""),
             shard,
             "route",
         )
@@ -294,8 +301,13 @@ def _run_fused(
         if missing:
             # The overlay must operate on every original miss record, including
             # records dropped by the recipe. Never substitute recipe FORMAT/GT.
-            prepare = f"{bcftools} view misses.raw.bcf -Ob0 -W -o misses.bcf && "
-            overlay = f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(annotated))} misses.bcf -c INFO -Ou --threads {assembly_decode_threads} | "
+            prepare = (
+                ""
+                if indexed_miss_spools
+                else f"{bcftools} view misses.raw.bcf -Ob0 -W -o misses.bcf && "
+            )
+            original_misses = "misses.raw.bcf" if indexed_miss_spools else "misses.bcf"
+            overlay = f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(annotated))} {original_misses} -c INFO -Ou --threads {assembly_decode_threads} | "
             miss_source = "-"
         else:
             prepare, overlay, miss_source = "", "", "misses.raw.bcf"
@@ -337,6 +349,7 @@ def _run_fused(
             shutil.copyfileobj(stream, sys.stdout.buffer)
     manager.last_run_stats = {
         "engine": "fused",
+        "experimental_indexed_misses": indexed_miss_spools,
         "requested_engine": "fused",
         "native_version": version,
         "workers": workers,

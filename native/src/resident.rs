@@ -37,6 +37,12 @@ struct Job {
     memory_bytes: usize,
     preserve: bool,
     lookup: String,
+    #[serde(default = "default_window_bp")]
+    window_bp: i64,
+}
+
+fn default_window_bp() -> i64 {
+    16384
 }
 
 #[derive(Default, Serialize)]
@@ -326,6 +332,7 @@ fn lookup(
     memory: &AtomicUsize,
     limit: usize,
     mode: &str,
+    window_bp: i64,
     pool: Option<&CodecPool>,
 ) -> Result<(u64, u64)> {
     let mut worker_span = super::profiling::Span::new("native.lookup.worker");
@@ -361,12 +368,12 @@ fn lookup(
         let start = if mode == "contigs" {
             0
         } else {
-            pos / 16384 * 16384
+            pos / window_bp * window_bp
         };
         let end = if mode == "contigs" {
             i64::MAX
         } else {
-            start + 16384
+            start + window_bp
         };
         if let Some(last) = windows
             .last_mut()
@@ -432,6 +439,10 @@ fn lookup(
 }
 
 fn execute(job: &Job) -> Result<()> {
+    ensure!(
+        [1024, 4096, 16384].contains(&job.window_bp),
+        "unsupported native query window"
+    );
     let _attempt = super::profiling::Span::new("native.execute");
     let prepare_span = super::profiling::Span::new("native.prepare_decode_split_stream");
     let mut stats = Stats::default();
@@ -531,6 +542,7 @@ fn execute(job: &Job) -> Result<()> {
                         memory,
                         job.memory_bytes,
                         &job.lookup,
+                        job.window_bp,
                         pool,
                     )
                 })

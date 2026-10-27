@@ -527,6 +527,14 @@ def run_cell(manifest, cell, scratch, evidence, cache, refs):
             VCFCACHE_ENGINE=build["root"] + "/native/target/release/vcfcache-engine",
         )
         environment.pop("VCFCACHE_PROFILE_DIR", None)
+        experimental = cell.get("environment", {})
+        allowed_experiments = {
+            "VCFCACHE_EXPERIMENT_INDEXED_MISSES",
+            "VCFCACHE_EXPERIMENT_WINDOW_BP",
+        }
+        if set(experimental) - allowed_experiments:
+            raise ValueError("unrecognized experiment environment")
+        environment.update(experimental)
         if cell["profile"]:
             environment["VCFCACHE_PROFILE_DIR"] = str(profile_root)
         if cell["perf"]:
@@ -590,6 +598,7 @@ def run_cell(manifest, cell, scratch, evidence, cache, refs):
                 cache_files=manifest["recipes"][cell["recipe"]]["files"],
                 profiling=cell["profile"],
                 effective_parameters=params,
+                experiment_environment=experimental,
                 temperature=manifest["storage_temperature"],
             ),
         )
@@ -737,12 +746,31 @@ def group_run(args):
     attempt = root / "attempts" / f"a{args.attempt:03d}"
     attempt.mkdir(parents=True, exist_ok=True)
     refs = {}
+    reference_root = Path(manifest.get("reference_campaign", str(root)))
+    reference_group = group
+    if reference_root != root:
+        reference_manifest = verify(reference_root)
+        if (
+            sha256sum(reference_root / "manifest.json")
+            != manifest["reference_manifest_sha256"]
+        ):
+            raise RuntimeError("reference campaign drift")
+        reference_group = next(
+            g for g in reference_manifest["groups"] if g["id"] == group["id"]
+        )
+        if (reference_group["sample"], reference_group["recipe"]) != (
+            group["sample"],
+            group["recipe"],
+        ):
+            raise RuntimeError("reference group does not match pilot")
     for assay in sorted({cell["assay"] for cell in group["cells"]}):
         for role in ("direct", "cached"):
             refcell = next(
-                c for c in group["cells"] if c["assay"] == assay and c["role"] == role
+                c
+                for c in reference_group["cells"]
+                if c["assay"] == assay and c["role"] == role
             )
-            previous = latest(root, refcell["id"])
+            previous = latest(reference_root, refcell["id"])
             if previous and previous.get("state") in {
                 "complete",
                 "complete_with_direct_difference",
