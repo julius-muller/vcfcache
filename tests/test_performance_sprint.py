@@ -25,6 +25,13 @@ def test_budget_counts_uncertain_submissions(tmp_path):
     assert check_budget(tmp_path, "memory-confirm") == 36
 
 
+def test_first_receipt_without_screen_uses_original_design(tmp_path):
+    (tmp_path / "launch-old.json").write_text(
+        json.dumps(dict(campaign="/results/first", request=dict(profile={})))
+    )
+    assert reserved_cells(tmp_path) == 14
+
+
 def test_duplicate_receipts_are_not_silently_counted(tmp_path):
     value = json.dumps(dict(campaign="/results/one", request=dict(screen="initial")))
     for name in ["launch-one.json", "launch-two.json"]:

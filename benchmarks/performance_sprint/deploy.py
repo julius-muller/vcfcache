@@ -36,7 +36,9 @@ def reserved_cells(directory):
         campaigns.add(campaign)
         # A receipt is persisted before sbatch. Missing submission data is NOT
         # evidence that no job was accepted; reserve the complete phase budget.
-        total += SCREEN_CELLS[receipt["request"]["screen"]]
+        # The first receipt predates the explicit screen field; its preparation
+        # entry point used the initial 14-cell design by default.
+        total += SCREEN_CELLS[receipt["request"].get("screen", "initial")]
     return total
 
 
