@@ -83,7 +83,10 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
         )
         return result
     prediction = None
-    predict = os.environ.get("VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT", "0")
+    # The paired 36-cell screen confirmed that bounded preflight avoids wasted
+    # resident loads on over-budget WGS inputs. Keep an explicit engineering
+    # override for replaying the old control, but enable the supported guard.
+    predict = os.environ.get("VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT", "1")
     if predict not in {"0", "1"}:
         raise ValueError("VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT must be 0 or 1")
     if (

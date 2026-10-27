@@ -327,7 +327,10 @@ def test_manuscript_collector_keeps_missing_jobs_visible(tmp_path):
     assert len(list((tmp_path / "campaign/reviews").glob("*.json"))) == 1
 
 
-def test_cached_runner_executes_real_cli_with_mock_slurm_only(tmp_path, monkeypatch):
+@pytest.mark.parametrize("new_pair", [False, True])
+def test_cached_runner_executes_real_cli_with_mock_slurm_only(
+    tmp_path, monkeypatch, new_pair
+):
     import shutil
     import subprocess
     import sys
@@ -368,6 +371,13 @@ def test_cached_runner_executes_real_cli_with_mock_slurm_only(tmp_path, monkeypa
     task["baseline"]["direct"] = task["baseline"]["cached"] = dict(
         path=str(reference), sha256=sha256sum(reference)
     )
+    if new_pair:
+        task.update(family="veprs_extension", tool="veprs", level="core")
+        task["baseline"].update(
+            kind="new_paired_reference",
+            reuse_decision="new_direct_required",
+            direct_seconds=None,
+        )
     tasks = tmp_path / "tasks.json"
     write_json_atomic(tasks, [task])
     build = dict(
@@ -411,6 +421,9 @@ def test_cached_runner_executes_real_cli_with_mock_slurm_only(tmp_path, monkeypa
     assert result["state"] == "complete", result.get("traceback")
     assert result["input_records"] == 20
     assert result["cache_hit_rate"] == 0.5
+    if new_pair:
+        assert (campaign / "attempts/a001/cell-one/direct.bcf").exists()
+        assert result["direct_seconds"] == 1
     assert (campaign / "attempts/a001/cell-one/comparison.json").exists()
     # Explicit replay is not allowed to overwrite its first attempt.
     with pytest.raises(FileExistsError):
@@ -465,3 +478,90 @@ def test_worker_exclusions_must_be_explicit_and_justified():
     ) == ["--exclude=sl-w5"]
     with pytest.raises(ValueError, match="explicit reason"):
         exclusion_args(dict(node_exclusions={"sl-w5": ""}))
+
+
+def test_verified_metadata_never_ignores_a_changed_file(tmp_path):
+    from benchmarks.performance_sprint.assemble import Files
+    from benchmarks.performance_sprint.manuscript import verified_file
+
+    path = tmp_path / "asset"
+    path.write_text("original")
+    files = Files()
+    record = files.get(path)
+    assert verified_file(record, files.known) == path
+    path.write_text("changed contents")
+    with pytest.raises(RuntimeError, match="frozen file changed"):
+        verified_file(record, files.known)
+
+
+def test_audit_merge_preserves_coverage_and_rejects_unexpected_rows(tmp_path):
+    from benchmarks.performance_sprint.assemble import merge_audits
+
+    original, supplement = tmp_path / "original.jsonl", tmp_path / "supplement.jsonl"
+    original.write_text(
+        json.dumps(dict(id="a", state="retained_outputs_verified"))
+        + "\n"
+        + json.dumps(dict(id="b", state="unresolved"))
+        + "\n"
+    )
+    supplement.write_text(
+        json.dumps(dict(id="b", state="historical_semantic_metadata_only")) + "\n"
+    )
+    assert set(merge_audits(original, supplement)) == {"a", "b"}
+    supplement.write_text(
+        json.dumps(dict(id="a", state="retained_outputs_verified")) + "\n"
+    )
+    with pytest.raises(ValueError, match="original unresolved"):
+        merge_audits(original, supplement)
+
+
+def test_dispatch_stops_on_failed_first_cells(tmp_path, monkeypatch):
+    from benchmarks.performance_sprint import manuscript
+
+    monkeypatch.setattr(
+        manuscript, "verify", lambda root: dict(freeze=dict(first_cells=["a", "b"]))
+    )
+    monkeypatch.setattr(
+        manuscript,
+        "latest",
+        lambda root, cell: dict(state="complete" if cell == "a" else "failed"),
+    )
+    with pytest.raises(RuntimeError, match="blocked automatic dispatch"):
+        manuscript.dispatch(tmp_path)
+    assert (tmp_path / "DISPATCH_BLOCKED.json").exists()
+
+
+def test_dispatch_schedules_only_remaining_primary_cells(tmp_path, monkeypatch):
+    from benchmarks.performance_sprint import manuscript
+
+    monkeypatch.setattr(
+        manuscript,
+        "verify",
+        lambda root: dict(
+            freeze=dict(first_cells=["a"]), tasks=[dict(id="a"), dict(id="b")]
+        ),
+    )
+    monkeypatch.setattr(manuscript, "latest", lambda root, cell: dict(state="complete"))
+    calls = []
+    monkeypatch.setattr(
+        manuscript,
+        "submit",
+        lambda root, cells: calls.append(cells) or dict(jobs=["123"]),
+    )
+    manuscript.dispatch(tmp_path)
+    assert calls == [["b"]]
+
+
+def test_execution_deduplication_retains_source_aliases():
+    import copy
+
+    from benchmarks.performance_sprint.assemble import deduplicate
+
+    original = manuscript_task()
+    duplicate = copy.deepcopy(original)
+    duplicate["id"] = "plot-copy"
+    duplicate["family"] = "another_plot"
+    tasks, aliases = deduplicate([original, duplicate])
+    assert len(tasks) == 1
+    assert aliases == {"plot-copy": "cell-one"}
+    assert tasks[0]["source_aliases"] == ["plot-copy"]

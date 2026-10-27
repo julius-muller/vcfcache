@@ -39,11 +39,18 @@ def validate_task(task):
     reference = task["baseline"]
     if reference["cpus"] != task["cpus"]:
         raise ValueError("CPU allocation differs from historical direct baseline")
-    if reference["reuse_decision"] != "approved":
+    paired = reference["kind"] == "new_paired_reference"
+    if paired and (task["family"] != "veprs_extension" or task["tool"] != "veprs"):
+        raise ValueError(
+            "fresh direct measurements are restricted to the new vep-rs extension"
+        )
+    if not paired and reference["reuse_decision"] != "approved":
         raise ValueError("baseline reuse has not been approved")
-    if reference["direct_seconds"] <= 0 or not reference.get("approval_evidence"):
+    if (not paired and reference["direct_seconds"] <= 0) or not reference.get(
+        "approval_evidence"
+    ):
         raise ValueError("baseline timing/evidence missing")
-    if reference["kind"] == "complete_records":
+    if reference["kind"] in {"complete_records", "composed_vep_reference"}:
         for name in ["direct", "cached"]:
             if set(reference[name]) != {"path", "sha256"}:
                 raise ValueError("full output reference requires exact SHA256 binding")
@@ -51,7 +58,7 @@ def validate_task(task):
         for name in ["direct_digest", "cached_digest", "query_format", "blocksort"]:
             if not reference.get(name):
                 raise ValueError(f"historical digest binding missing: {name}")
-    else:
+    elif not paired:
         raise ValueError("unsupported baseline evidence")
     if task["engine"] not in {"legacy", "adaptive", "native"}:
         raise ValueError("engine must be explicitly frozen")
@@ -78,7 +85,10 @@ def validate_task(task):
 
 def minutes(task):
     """Historical cached runtime plus explicit audit allowance, capped at 24 h."""
-    return min(1440, max(30, int(task["historical_cached_seconds"] * 2 / 60 + 90)))
+    return task.get(
+        "wall_minutes",
+        min(1440, max(30, int(task["historical_cached_seconds"] * 2 / 60 + 90))),
+    )
 
 
 def exclusion_args(freeze):
@@ -102,6 +112,17 @@ def check_file(record):
     if sha256sum(path) != record["sha256"]:
         raise RuntimeError(f"frozen file changed: {path}")
     return path
+
+
+def verified_file(record, attestations):
+    """Reuse a frozen SHA audit only while size and nanosecond mtime agree."""
+    path = Path(record["path"])
+    pinned = attestations.get(str(path))
+    if pinned and pinned["sha256"] == record["sha256"]:
+        stat = path.stat()
+        if stat.st_size == pinned["bytes"] and stat.st_mtime_ns == pinned["mtime_ns"]:
+            return path
+    return check_file(record)
 
 
 def annotation_digest(path, reference):
@@ -251,7 +272,11 @@ def submit(root, selected=None):
         ):
             raise ValueError("previous submission is still active")
         tasks = [t for t in manifest["tasks"] if not selected or t["id"] in selected]
-        if any(latest(root, t["id"]).get("state") == "complete" for t in tasks):
+        if any(
+            latest(root, t["id"]).get("state")
+            in {"complete", "complete_with_direct_difference"}
+            for t in tasks
+        ):
             raise ValueError("refusing to rerun a successful condition")
         attempt = len(history) + 1
         batch = dict(attempt=attempt, jobs=[], created_unix=time.time())
@@ -309,10 +334,89 @@ def submit(root, selected=None):
     return batch
 
 
+def dispatch(root):
+    """Release remaining primary cells only after the six first cells pass."""
+    manifest = verify(root)
+    initial = manifest["freeze"]["first_cells"]
+    bad = {
+        identifier: latest(root, identifier)
+        for identifier in initial
+        if latest(root, identifier).get("state")
+        not in {"complete", "complete_with_direct_difference"}
+    }
+    if bad:
+        write_json_atomic(
+            root / "DISPATCH_BLOCKED.json",
+            dict(
+                reason="first primary cells failed validation; inspect failures before explicit retry",
+                cells=bad,
+                created_unix=time.time(),
+            ),
+        )
+        raise RuntimeError("first-cell validation blocked automatic dispatch")
+    remaining = [t["id"] for t in manifest["tasks"] if t["id"] not in initial]
+    result = submit(root, remaining)
+    write_json_atomic(root / "AUTO_DISPATCH.json", result)
+    return result
+
+
+def start(root):
+    """Submit first primary cells plus a durable gated continuation, not repeats."""
+    manifest = verify(root)
+    batch = submit(root, manifest["freeze"]["first_cells"])
+    deployment = manifest["freeze"]["build"]["root"]
+    command = [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--cpus-per-task=1",
+        "--mem=2000M",
+        "--time=00:30:00",
+        f"--dependency=afterany:{batch['collector']}",
+        f"--output={manifest['root']}/logs/dispatch-%j.out",
+        "--wrap",
+        f"cd /tmp; PYTHONPATH={shlex.quote(deployment)} {PYTHON} -m benchmarks.performance_sprint.manuscript dispatch {shlex.quote(manifest['root'])}",
+    ]
+    job = subprocess.check_output(command, text=True).strip().split(";")[0]
+    receipt = dict(first_batch=batch, dispatch_job=job, command=command)
+    write_json_atomic(root / "START.json", receipt)
+    return receipt
+
+
+def without_csq_compare(first, second, scratch, cpus):
+    """Check complete non-CSQ records before classifying known clinical CSQ differences."""
+    outputs = []
+    for number, source in enumerate([first, second]):
+        output = scratch / f"non-csq-{number}.bcf"
+        subprocess.run(
+            [
+                "bcftools",
+                "annotate",
+                "-x",
+                "INFO/CSQ",
+                str(source),
+                "-Ob",
+                "-W",
+                "--threads",
+                str(cpus),
+                "-o",
+                str(output),
+            ],
+            check=True,
+        )
+        outputs.append(output)
+    return strict_semantic_compare(*outputs)
+
+
 def run(root, identifier, attempt):
     """Prepare untimed, run one isolated timed step, audit, then checkpoint."""
     manifest = verify(root)
     task = next(t for t in manifest["tasks"] if t["id"] == identifier)
+    attestations = manifest["freeze"].get("asset_attestations", {})
+
+    def checked_file(record):
+        return verified_file(record, attestations)
+
     validate_task(task)
     evidence = root / "attempts" / f"a{attempt:03d}" / identifier
     evidence.mkdir(parents=True, exist_ok=False)
@@ -330,7 +434,7 @@ def run(root, identifier, attempt):
         output = scratch / "output.bcf"
         try:
             for artifact in task["baseline"]["approval_evidence"]:
-                check_file(artifact)
+                checked_file(artifact)
             for path, digest in manifest["freeze"]["build"]["files"].items():
                 check_file(
                     dict(
@@ -338,20 +442,24 @@ def run(root, identifier, attempt):
                         sha256=digest,
                     )
                 )
-            source = check_file(task["input"])
+            source = checked_file(task["input"])
             for name, digest in task["cache"]["files"].items():
-                check_file(
+                checked_file(
                     dict(
                         path=str(Path(task["cache"]["directory"]) / name), sha256=digest
                     )
                 )
             for asset in task["annotation_assets"]:
-                check_file(asset)
+                checked_file(asset)
+            group = task.get("annotation_asset_group")
+            if group:
+                for asset in manifest["freeze"]["annotation_asset_groups"][group]:
+                    checked_file(asset)
             if task.get("preprocess"):
                 preparation = task["preprocess"]
                 view = ["bcftools", "view", str(source), "-Ou"]
                 if preparation.get("bed"):
-                    view += ["-R", str(check_file(preparation["bed"]))]
+                    view += ["-R", str(checked_file(preparation["bed"]))]
                 source = scratch / "input.bcf"
                 # All paths are shlex-quoted; the fixed pipeline exactly matches C2.
                 pipeline = [
@@ -448,6 +556,40 @@ def run(root, identifier, attempt):
                 evidence / "command.json",
                 dict(command=launch, task=task, parameters=parameters),
             )
+            direct_output = None
+            if task["baseline"]["kind"] == "new_paired_reference":
+                direct_output = scratch / "direct.bcf"
+                direct_directory = evidence / "direct"
+                direct_directory.mkdir()
+                direct_command = list(command)
+                direct_command[direct_command.index("--engine") + 1] = "legacy"
+                direct_command[direct_command.index("-o") + 1] = str(direct_output)
+                direct_command[direct_command.index("--stats-dir") + 1] = str(
+                    scratch / "direct-stats"
+                )
+                direct_command.append("--uncached")
+                direct_launch = list(launch[: launch.index("--") + 1]) + direct_command
+                direct_launch[direct_launch.index("--directory") + 1] = str(
+                    direct_directory
+                )
+                write_json_atomic(
+                    direct_directory / "command.json",
+                    dict(command=direct_launch, parameters=parameters),
+                )
+                with (direct_directory / "run.log").open("w") as log:
+                    subprocess.run(
+                        direct_launch,
+                        env=environment,
+                        stdout=log,
+                        stderr=log,
+                        check=True,
+                    )
+                state["direct_metrics"] = read(direct_directory / "resources.json")
+                if not state["direct_metrics"]["cgroup_after"]:
+                    raise RuntimeError(
+                        "new direct step lacks independent cgroup metrics"
+                    )
+                state["direct_seconds"] = state["direct_metrics"]["wall_seconds"]
             with (evidence / "run.log").open("w") as log:
                 subprocess.run(
                     launch, env=environment, stdout=log, stderr=log, check=True
@@ -477,9 +619,12 @@ def run(root, identifier, attempt):
             ):
                 raise RuntimeError("output count mismatch")
             reference = task["baseline"]
-            if reference["kind"] == "complete_records":
-                cached = check_file(reference["cached"])
-                direct = check_file(reference["direct"])
+            state["direct_seconds"] = state.get(
+                "direct_seconds", reference.get("direct_seconds")
+            )
+            if reference["kind"] in {"complete_records", "composed_vep_reference"}:
+                cached = checked_file(reference["cached"])
+                direct = checked_file(reference["direct"])
                 exact = strict_semantic_compare(output, cached)
                 comparator = (
                     semantic_compare
@@ -493,14 +638,72 @@ def run(root, identifier, attempt):
                     validation_scope="complete cached-reference records; annotator-specific direct comparator",
                 )
                 write_json_atomic(evidence / "comparison.json", comparison)
-                if not exact["semantic_pass"]:
-                    raise RuntimeError(
-                        "new output differs from frozen cached reference"
+                if reference["kind"] == "composed_vep_reference":
+                    # This is the same input/annotation recipe plus a plugin
+                    # that emits no fields. Do not call it a retained per-delay
+                    # full-record validation when those BCFs no longer exist.
+                    composed = semantic_compare(output, cached)
+                    comparison["composed_cached_reference"] = composed
+                    comparison["validation_scope"] = (
+                        "composed VEP semantic reference; per-delay historical timing retained, not full-record per-delay validation"
                     )
+                    write_json_atomic(evidence / "comparison.json", comparison)
+                    if not composed["semantic_pass"]:
+                        raise RuntimeError(
+                            "synthetic output differs from composed annotation reference"
+                        )
+                elif not exact["semantic_pass"]:
+                    if reference.get("allow_documented_vep_exception"):
+                        documented = semantic_compare(output, cached)
+                        other_fields = without_csq_compare(
+                            output, cached, scratch, task["cpus"]
+                        )
+                        comparison.update(
+                            documented_vep_cached=documented,
+                            non_csq_cached=other_fields,
+                        )
+                        write_json_atomic(evidence / "comparison.json", comparison)
+                        if not (
+                            documented["semantic_pass"]
+                            and other_fields["semantic_pass"]
+                            and exact["relevant_headers_equal"]
+                        ):
+                            raise RuntimeError(
+                                "new output differs beyond the documented VEP exception"
+                            )
+                        comparison["validation_scope"] = (
+                            "complete non-CSQ records and documented VEP CSQ equivalence; raw differences retained"
+                        )
+                    else:
+                        raise RuntimeError(
+                            "new output differs from frozen cached reference"
+                        )
                 if not against_direct["semantic_pass"] and not reference.get(
                     "inherited_direct_difference"
                 ):
                     raise RuntimeError("unexpected direct-output difference")
+            elif reference["kind"] == "new_paired_reference":
+                comparison = strict_semantic_compare(output, direct_output)
+                comparison["validation_scope"] = (
+                    "fresh paired complete-record/header comparison; no ignored fields"
+                )
+                if not comparison["semantic_pass"]:
+                    if task["level"] != "clinical":
+                        write_json_atomic(evidence / "comparison.json", comparison)
+                        raise RuntimeError("new core vep-rs paired output differs")
+                    non_csq = without_csq_compare(
+                        output, direct_output, scratch, task["cpus"]
+                    )
+                    comparison["non_csq_comparison"] = non_csq
+                    if not non_csq["semantic_pass"]:
+                        write_json_atomic(evidence / "comparison.json", comparison)
+                        raise RuntimeError(
+                            "clinical vep-rs differs outside its predeclared CSQ limitation"
+                        )
+                    comparison["validation_scope"] = (
+                        "pinned clinical vep-rs timing only; CSQ discrepancies retained and NOT validated speedup evidence"
+                    )
+                    state["timing_only"] = True
             else:
                 digest = annotation_digest(output, reference)
                 comparison = dict(
@@ -511,15 +714,30 @@ def run(root, identifier, attempt):
                 )
                 write_json_atomic(evidence / "comparison.json", comparison)
                 if not comparison["cached_match"]:
-                    raise RuntimeError(
-                        "new output differs from accepted historical cached digest"
-                    )
+                    if (
+                        str(reference.get("historical_acceptance", "")).startswith(
+                            "FAIL_CONTENT"
+                        )
+                        and comparison["direct_match"]
+                    ):
+                        state["timing_only"] = True
+                        comparison["validation_scope"] = (
+                            "predeclared SnpEff context exclusion now matches historical direct digest; raw cached-reference difference retained"
+                        )
+                    else:
+                        raise RuntimeError(
+                            "new output differs from accepted historical cached digest"
+                        )
+                elif not comparison["direct_match"]:
+                    state["timing_only"] = True
             write_json_atomic(evidence / "comparison.json", comparison)
             state.update(
-                state="complete",
+                state="complete_with_direct_difference"
+                if state.get("timing_only")
+                else "complete",
                 output_sha256=sha256sum(output),
                 output_index_sha256=sha256sum(Path(str(output) + ".csi")),
-                speedup=reference["direct_seconds"] / state["metrics"]["wall_seconds"],
+                speedup=state["direct_seconds"] / state["metrics"]["wall_seconds"],
                 validation_scope=comparison["validation_scope"],
             )
         except Exception as error:
@@ -532,6 +750,13 @@ def run(root, identifier, attempt):
                     shutil.copy2(str(output) + ".csi", evidence / "output.bcf.csi")
         finally:
             persist_run(scratch, evidence)
+            if (
+                task["baseline"]["kind"] == "new_paired_reference"
+                and (scratch / "direct.bcf").exists()
+            ):
+                for name in ["direct.bcf", "direct.bcf.csi"]:
+                    if (scratch / name).exists():
+                        shutil.copy2(scratch / name, evidence / name)
             state["finished_unix"] = time.time()
             write_json_atomic(evidence / "state.json", state)
     return state
@@ -541,7 +766,17 @@ def main():
     """Expose explicit preparation, submission and days-later review commands."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["prepare", "submit", "resume", "run", "collect", "status"]
+        "command",
+        choices=[
+            "prepare",
+            "submit",
+            "resume",
+            "run",
+            "collect",
+            "status",
+            "start",
+            "dispatch",
+        ],
     )
     parser.add_argument("campaign", type=Path)
     parser.add_argument("--tasks", type=Path)
@@ -562,10 +797,17 @@ def main():
         if not args.cell or len(args.cell) != 1:
             parser.error("run requires exactly one --cell")
         result = run(args.campaign, args.cell[0], args.attempt)
+    elif args.command in {"start", "dispatch"}:
+        result = (
+            start(args.campaign) if args.command == "start" else dispatch(args.campaign)
+        )
     else:
         result = collect(args.campaign)
     print(json.dumps(result, indent=2))
-    if args.command == "run" and result["state"] != "complete":
+    if args.command == "run" and result["state"] not in {
+        "complete",
+        "complete_with_direct_difference",
+    }:
         raise SystemExit(1)
 
 
