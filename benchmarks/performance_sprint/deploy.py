@@ -20,6 +20,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--helper", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
+    parser.add_argument(
+        "--screen", choices=("initial", "trusted-hits"), default="initial"
+    )
     args = parser.parse_args()
     if args.receipt.exists():
         parser.error("receipt already exists")
@@ -70,6 +73,7 @@ def main():
         binary.parent.mkdir(parents=True)
         shutil.copy2(args.helper, binary)
         request = dict(
+            screen=args.screen,
             profile=dict(
                 root=target,
                 commit=commit,
@@ -81,7 +85,7 @@ def main():
                     for p in sorted(source.rglob("*"))
                     if p.is_file()
                 },
-            )
+            ),
         )
         remote(f"cd /tmp && sudo -u appuser mkdir {shlex.quote(mapped)}")
         subprocess.run(

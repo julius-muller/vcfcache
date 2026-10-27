@@ -10,7 +10,7 @@ from benchmarks.engine_profile.run import claim, latest, read, verify
 from benchmarks.run_pilot import sha256sum, write_json_atomic
 
 
-def design(original):
+def design(original, screen="initial"):
     """Screen each change separately, with opposite per-sample condition order."""
     groups = []
     for identifier in ("g00", "g01", "g03", "g04"):
@@ -30,7 +30,19 @@ def design(original):
                 {"VCFCACHE_EXPERIMENT_INDEXED_MISSES": "1"},
             ),
         ]
-        if assay == "wes":
+        if screen == "trusted-hits":
+            candidates = [
+                ("control-adaptive", "adaptive", "baseline", {}),
+                (
+                    "trust-routed-hits",
+                    "adaptive",
+                    "profile",
+                    {"VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "1"},
+                ),
+            ]
+        elif screen != "initial":
+            raise ValueError("unknown screening phase")
+        elif assay == "wes":
             candidates += [
                 ("control-native", "native", "baseline", {}),
                 (
@@ -60,12 +72,13 @@ def design(original):
                 environment={
                     "VCFCACHE_EXPERIMENT_INDEXED_MISSES": "0",
                     "VCFCACHE_EXPERIMENT_WINDOW_BP": "16384",
+                    "VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "0",
                     **environment,
                 },
             )
             group["cells"].append(cell)
         groups.append(group)
-    assert sum(len(g["cells"]) for g in groups) == 14
+    assert sum(len(g["cells"]) for g in groups) == (14 if screen == "initial" else 8)
     return groups
 
 
@@ -76,7 +89,7 @@ def prepare(parent, root, request):
     manifest.update(
         root=str(root).replace("/mnt/data/slurm-results/", "/results/", 1),
         created_unix=time.time(),
-        groups=design(original),
+        groups=design(original, request.get("screen", "initial")),
         builds={
             "baseline": original["builds"]["profile"],
             "profile": request["profile"],
@@ -84,7 +97,7 @@ def prepare(parent, root, request):
         reference_campaign=original["root"],
         reference_manifest_sha256=sha256sum(parent / "manifest.json"),
         max_cells=36,
-        planned_timed_cells=14,
+        planned_timed_cells=14 if request.get("screen", "initial") == "initial" else 8,
         deadline="2026-11-02T18:00:00+01:00",
         references_policy="Retained direct and cached outputs; checksum verification outside timing; no direct reruns",
         sprint_policy="Experimental switches only; no default change before measured gates",

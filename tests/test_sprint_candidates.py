@@ -52,3 +52,35 @@ def test_screening_is_cached_only_and_bounded():
     }
     assert all(c["cpus"] == 16 for c in cells)
     assert {g["sample"] for g in groups} == {"LP6005519-DNA_A06", "LP6005592-DNA_C05"}
+    second = design(dict(groups=original()), "trusted-hits")
+    assert sum(len(g["cells"]) for g in second) == 8
+
+
+@pytest.mark.parametrize("hits", [0, 1, 2, 10])
+@pytest.mark.parametrize("kind", ["normal", "multiallelic", "spanning", "preannotated"])
+def test_trusted_routing_avoids_only_redundant_hit_inspection(
+    native, tmp_path, monkeypatch, hits, kind
+):
+    import json
+
+    files = dataset(tmp_path / "data", hit_every=hits, kind=kind)
+    before, old = run_case(tmp_path / "before", files, "fused", preserve=True)
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS", "1")
+    after, new = run_case(tmp_path / "after", files, "fused", preserve=True)
+    assert strict_semantic_compare(after, before)["semantic_pass"]
+    assert new.last_run_stats["experimental_trust_routed_hits"] is True
+    for key in [
+        "input_variants",
+        "missing_variants",
+        "output_variants",
+        "missing_annotated",
+    ]:
+        assert old.last_run_stats[key] == new.last_run_stats[key]
+    trusted = sum(
+        json.loads(p.read_text())["trusted_hit_records"]
+        for p in new.work_dir.glob("fused/shard-*/assemble.json")
+    )
+    assert (
+        trusted
+        == new.last_run_stats["input_variants"] - new.last_run_stats["missing_variants"]
+    )

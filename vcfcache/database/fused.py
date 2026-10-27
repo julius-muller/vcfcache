@@ -123,6 +123,12 @@ def _run_fused(
     indexed_miss_spools = indexed_miss_spools == "1"
     if indexed_miss_spools:
         helper_version(binary, (0, 5, 0))
+    trust_hits = os.environ.get("VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS", "0")
+    if trust_hits not in {"0", "1"}:
+        raise ValueError("VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS must be 0 or 1")
+    trust_hits = trust_hits == "1"
+    if trust_hits:
+        helper_version(binary, (0, 6, 0))
     manager.logger.info(
         f"Fused engine: {version}; preparation workers={workers}; CPU budget={cpu_budget}"
     )
@@ -298,6 +304,7 @@ def _run_fused(
     def assemble(shard, task):
         count = counts[shards.index(shard)]
         preserve = " --preserve-unannotated" if preserve_unannotated else ""
+        trust = " --trust-routed-hits" if trust_hits else ""
         if missing:
             # The overlay must operate on every original miss record, including
             # records dropped by the recipe. Never substitute recipe FORMAT/GT.
@@ -313,7 +320,7 @@ def _run_fused(
             prepare, overlay, miss_source = "", "", "misses.raw.bcf"
         pipelines.run(
             f"{prepare}{overlay}{native} assemble --hits hits.bcf --misses {miss_source} "
-            f"--order order.bin --stats assemble.json --tag {quote(tag)}{preserve} "
+            f"--order order.bin --stats assemble.json --tag {quote(tag)}{preserve}{trust} "
             f"--output output.bcf --threads {assembly_encode_threads}",
             shard,
             "assemble",
@@ -350,6 +357,7 @@ def _run_fused(
     manager.last_run_stats = {
         "engine": "fused",
         "experimental_indexed_misses": indexed_miss_spools,
+        "experimental_trust_routed_hits": trust_hits,
         "requested_engine": "fused",
         "native_version": version,
         "workers": workers,

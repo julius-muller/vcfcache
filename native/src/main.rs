@@ -90,6 +90,9 @@ enum Command {
         output: Option<PathBuf>,
         #[arg(long, default_value_t = 0)]
         threads: usize,
+        /// Trust the router's hit classification instead of parsing the same INFO again.
+        #[arg(long)]
+        trust_routed_hits: bool,
     },
 }
 
@@ -101,6 +104,7 @@ struct Counts {
     annotated_output: u64,
     missing_annotated: u64,
     fallback_reason: Option<String>,
+    trusted_hit_records: u64,
 }
 
 fn save(path: &Path, counts: &Counts) -> Result<()> {
@@ -317,7 +321,9 @@ fn assemble(
                 );
             }
             previous = Some(coordinate);
-            let has_annotation = annotated(record, tag.as_bytes(), &mut info_buffer)?;
+            let known_hit = output.trust_routed_hits && *partition == 0;
+            let has_annotation = known_hit || annotated(record, tag.as_bytes(), &mut info_buffer)?;
+            counts.trusted_hit_records += u64::from(known_hit);
             counts.input_variants += 1;
             if has_annotation {
                 counts.annotated_output += 1;
@@ -343,6 +349,7 @@ fn assemble(
 struct OutputOptions<'a> {
     path: Option<&'a Path>,
     threads: usize,
+    trust_routed_hits: bool,
 }
 
 fn main() -> Result<()> {
@@ -374,6 +381,7 @@ fn main() -> Result<()> {
             preserve_unannotated,
             output,
             threads,
+            trust_routed_hits,
         } => assemble(
             &hits,
             &misses,
@@ -384,6 +392,7 @@ fn main() -> Result<()> {
             OutputOptions {
                 path: output.as_deref(),
                 threads,
+                trust_routed_hits,
             },
         ),
     }
