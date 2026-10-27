@@ -17,6 +17,8 @@ def design(original, screen="initial"):
         group = copy.deepcopy(
             next(g for g in original["groups"] if g["id"] == identifier)
         )
+        if screen == "memory-preflight" and group["recipe"] != "veprs-core":
+            continue
         assay = "wes" if group["recipe"] == "fastvep" else "wgs"
         template = next(
             c for c in group["cells"] if c["assay"] == assay and c["role"] == "measure"
@@ -38,6 +40,16 @@ def design(original, screen="initial"):
                     "adaptive",
                     "profile",
                     {"VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "1"},
+                ),
+            ]
+        elif screen == "memory-preflight":
+            candidates = [
+                ("control-high-memory", "native", "baseline", {}),
+                (
+                    "memory-preflight",
+                    "native",
+                    "profile",
+                    {"VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT": "1"},
                 ),
             ]
         elif screen != "initial":
@@ -73,12 +85,18 @@ def design(original, screen="initial"):
                     "VCFCACHE_EXPERIMENT_INDEXED_MISSES": "0",
                     "VCFCACHE_EXPERIMENT_WINDOW_BP": "16384",
                     "VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "0",
+                    "VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT": "0",
                     **environment,
                 },
             )
+            if screen == "memory-preflight":
+                cell["memory_mb"] = 8192
             group["cells"].append(cell)
         groups.append(group)
-    assert sum(len(g["cells"]) for g in groups) == (14 if screen == "initial" else 8)
+    assert (
+        sum(len(g["cells"]) for g in groups)
+        == {"initial": 14, "trusted-hits": 8, "memory-preflight": 4}[screen]
+    )
     return groups
 
 
@@ -97,7 +115,9 @@ def prepare(parent, root, request):
         reference_campaign=original["root"],
         reference_manifest_sha256=sha256sum(parent / "manifest.json"),
         max_cells=36,
-        planned_timed_cells=14 if request.get("screen", "initial") == "initial" else 8,
+        planned_timed_cells={"initial": 14, "trusted-hits": 8, "memory-preflight": 4}[
+            request.get("screen", "initial")
+        ],
         deadline="2026-11-02T18:00:00+01:00",
         references_policy="Retained direct and cached outputs; checksum verification outside timing; no direct reruns",
         sprint_policy="Experimental switches only; no default change before measured gates",

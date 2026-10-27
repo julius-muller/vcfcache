@@ -148,6 +148,37 @@ def inventory(repo):
     return records
 
 
+def reference_hashes(repo):
+    """Bind shared original genomes, recipe snapshots and established GRCh38 regions."""
+    expected = {}
+    tasks = (
+        repo
+        / "benchmarks/results/raw/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/measured.tsv"
+    )
+    for row in read_tsv(tasks):
+        expected[row["input_vcf"]] = row["input_sha256"]
+    snapshots = repo / "benchmarks/reproduction/final_clinical_campaign/cache_recipes"
+    for snapshot in sorted(snapshots.glob("*.annotation.yaml")):
+        tool, level, assembly = snapshot.name.split(".", 1)[0].split("_")
+        name = f"{tool}_{level}_{assembly.lower()}_af001"
+        prefix = (
+            "/results/richness/caches"
+            if tool == "fastvep"
+            else "/results/snpeff/caches"
+        )
+        root = f"{prefix}/{name}/cache/{name}"
+        expected[root + "/annotation.yaml"] = sha256sum(snapshot)
+        expected[root + "/params.snapshot.yaml"] = sha256sum(
+            snapshots / f"{tool}_{level}_{assembly}.params.yaml"
+        )
+    for row in read_tsv(repo / "benchmarks/manifests/assay_regions.tsv"):
+        path = row["bed"]
+        digest = row.get("sha256")
+        if path and digest:
+            expected["/results/richness/regions/" + Path(path).name] = digest
+    return expected
+
+
 def main():
     """Write a source-fingerprinted planning inventory, not a submitted campaign."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -157,6 +188,10 @@ def main():
         raise FileExistsError(args.output)
     args.output.mkdir(parents=True)
     records = inventory(REPO_ROOT)
+    expected = reference_hashes(REPO_ROOT)
+    (args.output / "inputs_and_recipes.sha256").write_text(
+        "".join(f"{digest}  {path}\n" for path, digest in sorted(expected.items()))
+    )
     fields = list(dict.fromkeys(k for r in records for k in r))
     with (args.output / "baseline_reuse_ledger.tsv").open("w") as stream:
         writer = csv.DictWriter(stream, fields, delimiter="\t", lineterminator="\n")

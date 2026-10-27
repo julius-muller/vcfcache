@@ -1,0 +1,16 @@
+{
+  "approved_direct_reuses": 0,
+  "cached_node_hours": 108.17181823218587,
+  "deadline": "2026-11-02T18:00:00+01:00",
+  "families": {
+    "full52_wgs_strategies": 312,
+    "native_clinical_assays": 180,
+    "synthetic_pipeline_spectrum": 12,
+    "vep_matched_assays": 36
+  },
+  "note": "Possible cross-family duplicates are not deduplicated until full command/input fingerprints agree; direct columns repeat across strategies and must not be summed as unique work.",
+  "rerun_direct_by_default": false,
+  "rows": 540,
+  "status": "planning_inventory_not_submission",
+  "veprs_extension": "Pinned core and clinical, same twelve GRCh38 assay genomes; prepared after candidate freeze, no upstream repair."
+}

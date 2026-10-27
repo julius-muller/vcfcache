@@ -54,6 +54,9 @@ def test_screening_is_cached_only_and_bounded():
     assert {g["sample"] for g in groups} == {"LP6005519-DNA_A06", "LP6005592-DNA_C05"}
     second = design(dict(groups=original()), "trusted-hits")
     assert sum(len(g["cells"]) for g in second) == 8
+    third = design(dict(groups=original()), "memory-preflight")
+    assert sum(len(g["cells"]) for g in third) == 4
+    assert all(c["memory_mb"] == 8192 for g in third for c in g["cells"])
 
 
 @pytest.mark.parametrize("hits", [0, 1, 2, 10])
@@ -84,3 +87,15 @@ def test_trusted_routing_avoids_only_redundant_hit_inspection(
         trusted
         == new.last_run_stats["input_variants"] - new.last_run_stats["missing_variants"]
     )
+
+
+def test_payload_prediction_is_bounded_and_abstains(tmp_path):
+    from vcfcache.database.memory_preflight import predict_buffer
+
+    sample, cache, *_ = dataset(tmp_path / "data", records=100, payload=2000)
+    prediction = predict_buffer(sample, cache, 5_000_000, max_seconds=5)
+    assert prediction["sampled_records"] == 16
+    assert prediction["exact_cache_matches"] >= 8
+    assert prediction["estimated_buffer_bytes"] > 5_000_000 * 1024
+    assert predict_buffer(sample, cache, 5_000_000, max_seconds=0) is None
+    assert predict_buffer(sample, tmp_path / "absent", 5_000_000) is None

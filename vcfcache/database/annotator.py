@@ -1059,6 +1059,11 @@ class VCFAnnotator(VCFDatabase):
             "candidate_records",
             "lookup_queries",
             "compatibility_merge_reason",
+            "experimental_indexed_misses",
+            "experimental_trust_routed_hits",
+            "experimental_window_bp",
+            "trusted_hit_records",
+            "memory_prediction",
         ):
             if key in last_stats:
                 stats[key] = last_stats[key]

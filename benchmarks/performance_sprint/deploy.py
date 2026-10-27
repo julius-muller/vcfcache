@@ -21,7 +21,9 @@ def main():
     parser.add_argument("--helper", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument(
-        "--screen", choices=("initial", "trusted-hits"), default="initial"
+        "--screen",
+        choices=("initial", "trusted-hits", "memory-preflight"),
+        default="initial",
     )
     args = parser.parse_args()
     if args.receipt.exists():

@@ -20,6 +20,7 @@ from vcfcache.database.engine_runtime import (
     validate_info_headers,
 )
 from vcfcache.database.fused import run_fused
+from vcfcache.database.memory_preflight import predict_buffer
 from vcfcache.database.profiling import phase, profiled
 
 
@@ -81,6 +82,28 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
             fallback_reason="native memory buffer budget exceeded (indexed record-count lower bound)",
         )
         return result
+    prediction = None
+    predict = os.environ.get("VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT", "0")
+    if predict not in {"0", "1"}:
+        raise ValueError("VCFCACHE_EXPERIMENT_MEMORY_PREFLIGHT must be 0 or 1")
+    if (
+        predict == "1"
+        and memory_mb >= 2048
+        and count.returncode == 0
+        and int(count.stdout) * 1024 > memory_mb * 1024 * 1024 / 2
+    ):
+        prediction = predict_buffer(manager.input_file, cache, int(count.stdout))
+        if (
+            prediction
+            and prediction["estimated_buffer_bytes"] > memory_mb * 1024 * 1024 * 1.1
+        ):
+            result = run_fused(manager, cache, preserve, skip_split, 0, lookup)
+            manager.last_run_stats.update(
+                requested_engine="native",
+                memory_prediction=prediction,
+                fallback_reason="native memory buffer predicted to exceed budget (bounded payload sample)",
+            )
+            return result
     root = manager.work_dir / "native"
     root.mkdir(parents=True, exist_ok=True)
     pipelines = Pipelines(manager.logger)
@@ -235,6 +258,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
             cpu_affinity=sorted(os.sched_getaffinity(0)),
             engine_lookup=lookup,
             experimental_window_bp=window_bp,
+            memory_prediction=prediction,
             engine_memory_mb=memory_mb,
             stage_timings=pipelines.timings,
             engine_wall_seconds=time.perf_counter() - start,

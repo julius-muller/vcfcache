@@ -358,6 +358,9 @@ def _run_fused(
         "engine": "fused",
         "experimental_indexed_misses": indexed_miss_spools,
         "experimental_trust_routed_hits": trust_hits,
+        "trusted_hit_records": sum(
+            value.get("trusted_hit_records", 0) for value in assembled
+        ),
         "requested_engine": "fused",
         "native_version": version,
         "workers": workers,
