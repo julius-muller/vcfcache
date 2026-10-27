@@ -52,6 +52,21 @@ The first command reads remote small evidence only; no annotation calls, retries
 or source changes. A snapshot may contain running states and is not live status.
 Large BCFs stay on the cluster. Each snapshot contains checksums and `cells.tsv`.
 
+`evidence-final-engineering-20261027/` contains the completed 36-cell screen.
+Historical reference auditing is separate. The corrected request reads annotator
+campaign IDs from the accepted metrics snapshot, and synthetic conditions with
+missing direct BCFs remain explicitly metadata-only. To retry only unresolved
+reference lookups without repeating resolved hashes or annotation:
+
+```sh
+python -m benchmarks.performance_sprint.references audit NEW_AUDIT_DIRECTORY \
+  --request CORRECTED_REQUEST.json \
+  --only-unresolved-from ORIGINAL_AUDIT/references.jsonl
+```
+
+Supplemental summaries report their subset size and the full request size; they
+do not pretend to independently re-audit all 540 historical conditions.
+
 ## Cached-only manuscript runner
 
 `manuscript.py` is implemented, but **the full matrix is not submitted or approved**.

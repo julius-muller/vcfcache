@@ -1,0 +1,38 @@
+{"schema_version": 1, "name": "workflow.config_and_setup", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100762584622629, "duration_ns": 15365105, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.resolve", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100762934381204, "duration_ns": 2188200, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100762940191180, "duration_ns": 5317890, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100762948711951, "duration_ns": 35020791, "outcome": "complete"}
+{"schema_version": 1, "name": "native.index_preflight", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100762987186829, "duration_ns": 171299902, "outcome": "complete"}
+{"schema_version": 1, "name": "native.await_misses", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100763169004741, "duration_ns": 19436421698, "outcome": "complete", "child_pid": 27384}
+{"schema_version": 1, "name": "helper.resolve", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100783195755882, "duration_ns": 475272, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100783200360042, "duration_ns": 26969345, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100783569034812, "duration_ns": 3968019, "outcome": "complete"}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 27377, "tid": 27417, "start_unix_ns": 1793100783588871747, "duration_ns": 1769502892, "outcome": "complete", "task": "prepare-0003", "child_pid": 27421}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 27377, "tid": 27415, "start_unix_ns": 1793100783586632339, "duration_ns": 2661172627, "outcome": "complete", "task": "prepare-0001", "child_pid": 27419}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 27377, "tid": 27414, "start_unix_ns": 1793100783585203958, "duration_ns": 2865379705, "outcome": "complete", "task": "prepare-0000", "child_pid": 27418}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 27377, "tid": 27416, "start_unix_ns": 1793100783587805279, "duration_ns": 3378725284, "outcome": "complete", "task": "prepare-0002", "child_pid": 27420}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27437, "start_unix_ns": 1793100787409786065, "duration_ns": 4344183050, "outcome": "complete", "task": "shard-0003", "child_pid": 27440}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27435, "start_unix_ns": 1793100787410825176, "duration_ns": 6568882213, "outcome": "complete", "task": "shard-0001", "child_pid": 27441}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27436, "start_unix_ns": 1793100787408399936, "duration_ns": 6912965327, "outcome": "complete", "task": "shard-0002", "child_pid": 27439}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27434, "start_unix_ns": 1793100787406958965, "duration_ns": 7038198986, "outcome": "complete", "task": "shard-0000", "child_pid": 27438}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27434, "start_unix_ns": 1793100794451368714, "duration_ns": 1178031450, "outcome": "complete", "task": "shard-0007", "child_pid": 27495}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27437, "start_unix_ns": 1793100791762059497, "duration_ns": 5583779352, "outcome": "complete", "task": "shard-0004", "child_pid": 27470}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27435, "start_unix_ns": 1793100793986605125, "duration_ns": 5088268743, "outcome": "complete", "task": "shard-0005", "child_pid": 27479}
+{"schema_version": 1, "name": "pipeline.route", "pid": 27377, "tid": 27436, "start_unix_ns": 1793100794334516358, "duration_ns": 5392211419, "outcome": "complete", "task": "shard-0006", "child_pid": 27487}
+{"schema_version": 1, "name": "pipeline.collect-misses", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100799734617185, "duration_ns": 945489799, "outcome": "complete", "task": "fused", "child_pid": 27504}
+{"schema_version": 1, "name": "pipeline.annotate-misses", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100800687884407, "duration_ns": 8419854533, "outcome": "complete", "task": "fused", "child_pid": 27529}
+{"schema_version": 1, "name": "headers.validate", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100810764201529, "duration_ns": 25449687, "outcome": "complete"}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27593, "start_unix_ns": 1793100810809487560, "duration_ns": 3766403065, "outcome": "complete", "task": "shard-0003", "child_pid": 27597}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27591, "start_unix_ns": 1793100810805975253, "duration_ns": 5273218012, "outcome": "complete", "task": "shard-0001", "child_pid": 27594}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27590, "start_unix_ns": 1793100810807265775, "duration_ns": 5319880551, "outcome": "complete", "task": "shard-0000", "child_pid": 27595}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27592, "start_unix_ns": 1793100810808420895, "duration_ns": 5828776093, "outcome": "complete", "task": "shard-0002", "child_pid": 27596}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27592, "start_unix_ns": 1793100816646304171, "duration_ns": 806370691, "outcome": "complete", "task": "shard-0007", "child_pid": 27643}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27593, "start_unix_ns": 1793100814581390375, "duration_ns": 4676995579, "outcome": "complete", "task": "shard-0004", "child_pid": 27622}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27591, "start_unix_ns": 1793100816110404678, "duration_ns": 4310426766, "outcome": "complete", "task": "shard-0005", "child_pid": 27629}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 27377, "tid": 27590, "start_unix_ns": 1793100816134450516, "duration_ns": 4889005281, "outcome": "complete", "task": "shard-0006", "child_pid": 27631}
+{"schema_version": 1, "name": "pipeline.gather", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100821040856138, "duration_ns": 947022879, "outcome": "complete", "task": "fused", "child_pid": 27651}
+{"schema_version": 1, "name": "pipeline.index", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100821994514875, "duration_ns": 3661414645, "outcome": "complete", "task": "fused", "child_pid": 27652}
+{"schema_version": 1, "name": "output.publish", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100825662518172, "duration_ns": 167797, "outcome": "complete"}
+{"schema_version": 1, "name": "adaptive.attempt", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100783195640164, "duration_ns": 42529342347, "outcome": "complete"}
+{"schema_version": 1, "name": "native.attempt", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100762934272228, "duration_ns": 62795137958, "outcome": "complete"}
+{"schema_version": 1, "name": "cli.import_and_run", "pid": 27377, "tid": 27377, "start_unix_ns": 1793100761976450421, "duration_ns": 65155145950, "outcome": "complete"}

@@ -1,0 +1,22 @@
+{
+  "auditor_sha256": "477c380ef44c583985b144dc54c3cb323f0221b7178734266a080e7765831480",
+  "command": [
+    "sudo",
+    "-u",
+    "appuser",
+    "sbatch",
+    "--parsable",
+    "--partition=benchmark",
+    "--nodelist=sl-w1",
+    "--cpus-per-task=1",
+    "--mem=4000M",
+    "--time=04:00:00",
+    "--chdir=/tmp",
+    "--output=/results/performance-sprint/reference-audit-v2-20261027-%j.out",
+    "--wrap",
+    "PYTHONPATH=/results/deployment/performance-sprint-20261027T110011Z-7ee99b9f6 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python /results/deployment/performance-audit-20261027/references-v2.py audit /results/performance-sprint/reference-audit-v2-20261027 --request /results/deployment/performance-audit-20261027/reference-request-v2-20261027.json --only-unresolved-from /results/performance-sprint/reference-audit-20261027/references.jsonl"
+  ],
+  "job_id": "1370",
+  "purpose": "Read-only identity audit of 168 unresolved rows; no annotation reruns",
+  "request_sha256": "58db4e885a6e184e141e03ad66aff30dce7a79156618961a5366d416f4f2bb1b"
+}

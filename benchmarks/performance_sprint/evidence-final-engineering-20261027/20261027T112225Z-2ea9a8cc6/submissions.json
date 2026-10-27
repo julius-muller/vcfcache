@@ -1,0 +1,29 @@
+[
+  {
+    "attempt": 1,
+    "collector_job_id": "1369",
+    "jobs": [
+      {
+        "cells": [
+          "g01-s000",
+          "g01-s001"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w4",
+          "--output=/results/performance-sprint/20261027T112225Z-2ea9a8cc6/logs/g01-a1-%j.out",
+          "/mnt/data/slurm-results/deployment/performance-sprint-20261027T112225Z-2ea9a8cc6/benchmarks/engine_profile/job.sh",
+          "/results/performance-sprint/20261027T112225Z-2ea9a8cc6",
+          "g01",
+          "1",
+          "g01-s000,g01-s001",
+          "/results/deployment/performance-sprint-20261027T112225Z-2ea9a8cc6"
+        ],
+        "group": "g01",
+        "job_id": "1368"
+      }
+    ],
+    "submitted_unix": 1793100153.2707698
+  }
+]

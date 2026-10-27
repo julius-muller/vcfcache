@@ -1,0 +1,110 @@
+{
+  "cell": {
+    "assay": "wgs",
+    "build": "baseline",
+    "cpus": 16,
+    "engine": "adaptive",
+    "environment": {
+      "VCFCACHE_EXPERIMENT_INDEXED_MISSES": "0",
+      "VCFCACHE_EXPERIMENT_TRUST_ROUTED_HITS": "0",
+      "VCFCACHE_EXPERIMENT_WINDOW_BP": "16384"
+    },
+    "form": "bcf",
+    "id": "g04-s001",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": true,
+    "purpose": "control-adaptive",
+    "recipe": "veprs-core",
+    "role": "measure",
+    "sample": "LP6005592-DNA_C05",
+    "skip_split": false,
+    "workers": 0
+  },
+  "direct_pass": true,
+  "effective_engine": "adaptive",
+  "finished_unix": 1793098245.7008202,
+  "instrumentation_equivalent": true,
+  "job_id": "1356",
+  "metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 52219470,
+        "throttled_usec": 0,
+        "usage_usec": 465325739,
+        "user_usec": 413106269
+      },
+      "memory_current_bytes": 449146880,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 12171153408,
+      "path": "/system.slice/sl-w6_slurmstepd.scope/job_1356/step_1/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 47517,
+        "throttled_usec": 0,
+        "usage_usec": 235550,
+        "user_usec": 188032
+      },
+      "memory_current_bytes": 11485184,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11485184,
+      "path": "/system.slice/sl-w6_slurmstepd.scope/job_1356/step_1/user/task_0"
+    },
+    "cpu_seconds": 464.914565,
+    "exit_code": 0,
+    "largest_child_rss_kib": 4199224,
+    "start_unix_ns": 1793097518364072018,
+    "wall_seconds": 61.11240919097327
+  },
+  "node": "sl-w6",
+  "output_sha256": "d12a034d1f0e8e9aa687ea12a5447e13c2abea450ff19a949b9eab2dd644fe1a",
+  "started_unix": 1793097518.0165982,
+  "state": "complete"
+}

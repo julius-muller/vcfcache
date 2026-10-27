@@ -1,0 +1,26 @@
+[
+  {
+    "cached_reference_pass": true,
+    "cell": "g01-s000",
+    "condition": "memory-preflight",
+    "control_seconds": 65.32798970397562,
+    "direct_pass": true,
+    "recipe": "veprs-core",
+    "reduction": 0.3019657333146807,
+    "sample": "LP6005519-DNA_A06",
+    "state": "complete",
+    "wall_seconds": 45.60117538704071
+  },
+  {
+    "cached_reference_pass": true,
+    "cell": "g01-s001",
+    "condition": "control-high-memory",
+    "control_seconds": 65.32798970397562,
+    "direct_pass": true,
+    "recipe": "veprs-core",
+    "reduction": 0.0,
+    "sample": "LP6005519-DNA_A06",
+    "state": "complete",
+    "wall_seconds": 65.32798970397562
+  }
+]

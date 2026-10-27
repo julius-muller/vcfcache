@@ -1,0 +1,32 @@
+{"schema_version": 1, "name": "workflow.config_and_setup", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096030241493006, "duration_ns": 9397551, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.resolve", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096030461358726, "duration_ns": 1561652, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096030466028433, "duration_ns": 25304016, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096030699432260, "duration_ns": 4726190, "outcome": "complete"}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 38343, "tid": 38353, "start_unix_ns": 1793096030718972693, "duration_ns": 311032499, "outcome": "complete", "task": "prepare-0003", "child_pid": 38357}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 38343, "tid": 38350, "start_unix_ns": 1793096030715016162, "duration_ns": 382005092, "outcome": "complete", "task": "prepare-0000", "child_pid": 38354}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 38343, "tid": 38352, "start_unix_ns": 1793096030717692346, "duration_ns": 385311451, "outcome": "complete", "task": "prepare-0002", "child_pid": 38356}
+{"schema_version": 1, "name": "pipeline.preprocess", "pid": 38343, "tid": 38351, "start_unix_ns": 1793096030716559178, "duration_ns": 418354653, "outcome": "complete", "task": "prepare-0001", "child_pid": 38355}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38373, "start_unix_ns": 1793096031290001274, "duration_ns": 1171410760, "outcome": "complete", "task": "shard-0002", "child_pid": 38375}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38372, "start_unix_ns": 1793096031291418565, "duration_ns": 2190028044, "outcome": "complete", "task": "shard-0001", "child_pid": 38376}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38373, "start_unix_ns": 1793096032466408391, "duration_ns": 4500217117, "outcome": "complete", "task": "shard-0004", "child_pid": 38407}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38371, "start_unix_ns": 1793096031292546137, "duration_ns": 5971638312, "outcome": "complete", "task": "shard-0000", "child_pid": 38377}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38374, "start_unix_ns": 1793096031293943025, "duration_ns": 6650707693, "outcome": "complete", "task": "shard-0003", "child_pid": 38378}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38372, "start_unix_ns": 1793096033487030772, "duration_ns": 5114141875, "outcome": "complete", "task": "shard-0005", "child_pid": 38415}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38371, "start_unix_ns": 1793096037270039350, "duration_ns": 3168939798, "outcome": "complete", "task": "shard-0007", "child_pid": 38432}
+{"schema_version": 1, "name": "pipeline.route", "pid": 38343, "tid": 38373, "start_unix_ns": 1793096036971350070, "duration_ns": 4733626778, "outcome": "complete", "task": "shard-0006", "child_pid": 38424}
+{"schema_version": 1, "name": "pipeline.collect-misses", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096041712116498, "duration_ns": 299137960, "outcome": "complete", "task": "fused", "child_pid": 38440}
+{"schema_version": 1, "name": "pipeline.annotate-misses", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096042017527504, "duration_ns": 32546605361, "outcome": "complete", "task": "fused", "child_pid": 38465}
+{"schema_version": 1, "name": "headers.validate", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096074861214256, "duration_ns": 27037626, "outcome": "complete"}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38509, "start_unix_ns": 1793096074898914237, "duration_ns": 304563211, "outcome": "complete", "task": "shard-0002", "child_pid": 38512}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38508, "start_unix_ns": 1793096074900896093, "duration_ns": 542117600, "outcome": "complete", "task": "shard-0001", "child_pid": 38514}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38510, "start_unix_ns": 1793096074899878355, "duration_ns": 872139864, "outcome": "complete", "task": "shard-0003", "child_pid": 38513}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38507, "start_unix_ns": 1793096074897700146, "duration_ns": 898941415, "outcome": "complete", "task": "shard-0000", "child_pid": 38511}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38509, "start_unix_ns": 1793096075211900503, "duration_ns": 727215928, "outcome": "complete", "task": "shard-0004", "child_pid": 38539}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38508, "start_unix_ns": 1793096075453012783, "duration_ns": 775569649, "outcome": "complete", "task": "shard-0005", "child_pid": 38546}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38507, "start_unix_ns": 1793096075803469905, "duration_ns": 628005577, "outcome": "complete", "task": "shard-0007", "child_pid": 38555}
+{"schema_version": 1, "name": "pipeline.assemble", "pid": 38343, "tid": 38510, "start_unix_ns": 1793096075779968528, "duration_ns": 772437157, "outcome": "complete", "task": "shard-0006", "child_pid": 38553}
+{"schema_version": 1, "name": "pipeline.gather", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096076560750926, "duration_ns": 240907561, "outcome": "complete", "task": "fused", "child_pid": 38567}
+{"schema_version": 1, "name": "pipeline.index", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096076808895821, "duration_ns": 381823161, "outcome": "complete", "task": "fused", "child_pid": 38568}
+{"schema_version": 1, "name": "output.publish", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096077195633653, "duration_ns": 130125, "outcome": "complete"}
+{"schema_version": 1, "name": "adaptive.attempt", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096030461262896, "duration_ns": 46752027013, "outcome": "complete"}
+{"schema_version": 1, "name": "cli.import_and_run", "pid": 38343, "tid": 38343, "start_unix_ns": 1793096029777891663, "duration_ns": 47576097944, "outcome": "complete"}

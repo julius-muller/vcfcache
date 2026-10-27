@@ -1,0 +1,20 @@
+{
+  "scope": "Completed 36-cell engineering review and historical reference-audit resolution; no product defaults or annotation measurements changed",
+  "host": {"command": ".venv/bin/python -m pytest -q", "passed": 632, "skipped": 21, "seconds": 47.52},
+  "standalone_container": {
+    "build": "docker build -f docker/Dockerfile.vcfcache --target test -t vcfcache:sprint-replay-test .",
+    "run": "docker run --rm -v /tmp/vcfcache-sprint07-helper.bC1dzz/vcfcache-engine:/usr/local/bin/vcfcache-engine:ro vcfcache:sprint-replay-test",
+    "passed": 632,
+    "skipped": 21,
+    "seconds": 69.0,
+    "source_checkout_mounted": false
+  },
+  "regressions_covered": [
+    "Historical fastVEP campaign is resolved from its accepted metrics snapshot, not a superseded hard-coded campaign",
+    "Synthetic timing/semantic metadata are not misrepresented as full retained output validation",
+    "Supplemental audit retries only unresolved rows and binds the original checkpoint SHA256"
+  ],
+  "engineering_cells": {"complete": 36, "strict_direct_pass": 36, "strict_cached_reference_pass": 36},
+  "read_only_audit_job": "1370",
+  "manuscript_rerun_submitted": false
+}

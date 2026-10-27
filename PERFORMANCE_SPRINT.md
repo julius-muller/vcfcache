@@ -39,7 +39,7 @@ This file is the handoff entry point, not a claim that future stages ran.
    Target all measurements/audits by Sunday 18:00. Monday: final consolidation,
    R/ggplot2 figures in a new directory and handoff, not silent sample reductions.
 
-## Current implementation (27 October, 12:26 CET)
+## Current implementation (27 October — engineering screen complete)
 
 Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
 
@@ -47,7 +47,8 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   trusted-hit assembly and a bounded native router inside the existing adaptive
   workflow. Python adds a bounded decoded-payload memory preflight. Every switch
   is experimental, frozen per condition and disabled by default.
-- **36/36 engineering cells submitted**: initial 1347–1350; trusted-hit
+- **36/36 engineering cells completed**, all strict direct/frozen-cache output
+  checks passed: initial 1347–1350; trusted-hit
   1353–1356; memory preflight 1359–1360; bounded route 1362–1365. Each phase has an
   afterany collector. Final reversed-order memory-preflight confirmation is
   **job 1368**, collector **1369**, campaign
@@ -60,12 +61,15 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   **79.32 → 62.22 s (21.6%)**, all strict comparisons pass. Both controls otherwise
   allocate an 8-GiB resident buffer and fall back. The prediction samples at most
   128 records and takes <0.4 s here; its size estimate is heuristic, not an RSS
-  guarantee. Confirmation precedes adoption.
+  guarantee. Reversed-order A06 confirmation also passed: **65.33 → 45.60 s
+  (30.2%)**. This supports candidate selection for avoiding failed resident loads,
+  not a universal speedup over already-adaptive routing. Defaults remain unchanged
+  until the release-candidate gate.
 - Bounded routing: fastVEP WES **51.91 → 47.81 s (7.9%)** and
-  **52.51 → 49.67 s (5.4%)**, strict parity passes. Core-WGS audits remain in
-  progress; the first cell's CLI time is slower. **Not a universal default**.
-- Latest host suite: **630 passed, 21 skipped**. A freshly built standalone
-  Docker test image also passes **630 tests, 21 skipped**, without mounting the
+  **52.51 → 49.67 s (5.4%)**, strict parity passes. Core WGS is **23.3% / 31.0%
+  slower** on A06/C05. **Do not make it a universal default**.
+- Latest host suite: **632 passed, 21 skipped**. A freshly built standalone
+  Docker test image also passes **632 tests, 21 skipped**, without mounting the
   source checkout; the small manuscript fixture tables are included explicitly.
   Ruff, Black and Rust formatting pass. The replay harness has a real-CLI
   integration test with only Slurm and the resource sampler mocked; this is not
@@ -82,10 +86,19 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   Job 1358 verified **64 input/recipe/region files**, no mismatches; its one missing
   unpadded WES interval file is not used by the manuscript. All 52 original genome
   hashes match. The fastVEP and two SnpEff wrappers also match their frozen copies.
-- **Job 1367** hashes retained complete outputs against historical metrics,
-  checkpoints every row and explicitly identifies the **180 C2 rows with only
-  annotation/key digests retained**. It does not rerun annotation or automatically
-  approve timing reuse. `reference-request-20261027.json` resolves all 540 rows.
+- **Job 1367 finished**: 192 retained-output rows verified, 180 C2 digest-only
+  rows, 168 unresolved reference checks. These are audit limitations, not failed
+  benchmark runs. The 156 fastVEP lookups pointed to an obsolete campaign;
+  `references.py` now derives the campaign from the SHA-bound accepted source
+  `SNAPSHOT.json`. The 12 synthetic-load conditions retain timings and semantic
+  metadata, but not per-delay direct BCFs; they are explicitly classified as
+  metadata-only, not falsely promoted to complete-record output evidence.
+- **Read-only supplemental job 1370** checks just those 168 unresolved rows,
+  without rehashing the resolved VEP rows or repeating annotation. Request:
+  `reference-request-v2-20261027.json`; receipt: `audit-supplement-20261027.json`.
+  All 12 synthetic metadata records were checked successfully in a separate
+  quick read-only validation. They still require an explicit composed-reference
+  decision before reuse; C2 digest-only limitations likewise remain visible.
 - `manuscript.py` implements a cached-only replay runner with a candidate-freeze
   gate, exact task-list binding, per-task approved reuse evidence, matched CPU
   settings, cache/input/resource fingerprints, one independent Slurm step per
@@ -96,8 +109,8 @@ Branch: `feature/performance-sprint-20261027`; base `fd805f0b3`.
   core/clinical still needs its 12-genome matched-assay extension materialized.
   Preserve its known ClinVar discrepancies; no upstream tool work is authorized.
 
-Next review: finish the core-WGS comparisons and final confirmation; select only
-supported changes, complete per-row reuse bindings (including CPU/preprocessing
+Next review: finish the supplemental reference audit; select only supported
+changes, complete per-row reuse bindings (including CPU/preprocessing
 and digest-only limitations), materialize the replay tasks and vep-rs extension,
 then package/test/freeze before the Friday submission gate. If audits reveal a
 baseline mismatch, rerun only that direct exception in a separate job.

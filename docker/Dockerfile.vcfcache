@@ -50,7 +50,7 @@ COPY benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-
      benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3/source/dual_cache_pipeline_spectrum.tsv \
      ./benchmarks/figures/output/final/2026-08-25T224623Z-native-annotation-final-v3/source/
 COPY benchmarks/results/raw/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/measured.tsv ./benchmarks/results/raw/campaigns/external-vep-light-full52-bbef41d7db8e/manifests/
-COPY benchmarks/results/raw/campaigns/external-fastvep-804963323e11-light-strict/manifests/measured.tsv ./benchmarks/results/raw/campaigns/external-fastvep-804963323e11-light-strict/manifests/
+COPY benchmarks/results/raw/campaigns/external-fastvep-2cd2ab56d8ee-light-strict-v2/manifests/measured.tsv ./benchmarks/results/raw/campaigns/external-fastvep-2cd2ab56d8ee-light-strict-v2/manifests/
 COPY benchmarks/results/raw/campaigns/external-assay-v3-independent-af001-warm/manifests/benchmark_tasks.tsv ./benchmarks/results/raw/campaigns/external-assay-v3-independent-af001-warm/manifests/
 COPY benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-4f854e5-kpgp00319/manifests/tasks.tsv ./benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-4f854e5-kpgp00319/manifests/
 COPY benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-af001-cd87186-kpgp00319/manifests/tasks.tsv ./benchmarks/results/raw/campaigns/wgs-pipeline-spectrum-af001-cd87186-kpgp00319/manifests/

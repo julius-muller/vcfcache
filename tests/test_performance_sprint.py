@@ -59,6 +59,82 @@ def test_all_manuscript_families_have_explicit_reference_resolution():
     ]
     assert len(reused) == 6
     assert all("wgs-pipeline-spectrum-4f854e5" in r["direct_root"] for r in reused)
+    assert all(
+        r["reference_kind"] == "historical_semantic_metadata_only" for r in reused
+    )
+    snapshot_path = "benchmarks/figures/source_data/final/2026-08-09T223718Z-light-matched-final/SNAPSHOT.json"
+    snapshot = json.loads((REPO_ROOT / snapshot_path).read_text())
+    fast = [
+        r
+        for r in document["rows"]
+        if r["family"] == "full52_wgs_strategies" and r["tool"] == "fastvep"
+    ]
+    assert len(fast) == 156
+    assert all(snapshot["fastvep"]["campaign_id"] in r["direct_root"] for r in fast)
+    assert snapshot_path in document["sources"]
+
+
+def test_historical_metadata_is_not_full_output_validation(tmp_path):
+    from benchmarks.performance_sprint.references import historical_metadata
+    from benchmarks.run_pilot import write_json_atomic
+
+    baseline = tmp_path / "baseline.json"
+    comparison = tmp_path / "comparison.json"
+    write_json_atomic(
+        baseline,
+        dict(
+            semantic_pass=True,
+            uncached_wall_seconds=100,
+            cached_wall_seconds=20,
+            input_records=1000,
+        ),
+    )
+    write_json_atomic(comparison, dict(semantic_pass=True))
+    row = dict(
+        baseline_summary=dict(path=str(baseline), sha256=sha256sum(baseline)),
+        cached_summary=str(baseline),
+        baseline_comparison=str(comparison),
+        historical_direct_seconds=100,
+        historical_cached_seconds=20,
+        input_records=1000,
+    )
+    result = historical_metadata(row)
+    assert result["state"] == "historical_semantic_metadata_only"
+    assert result["full_output_validation"] is False
+    row["historical_direct_seconds"] = 101
+    with pytest.raises(RuntimeError, match="timing does not match"):
+        historical_metadata(row)
+
+
+def test_supplemental_audit_does_not_repeat_resolved_rows(tmp_path):
+    from benchmarks.run_pilot import write_json_atomic
+
+    request_file = tmp_path / "request.json"
+    write_json_atomic(
+        request_file,
+        dict(
+            rows=[
+                dict(
+                    id=name,
+                    family="fixture",
+                    reference_kind="historical_annotation_key_digest_only",
+                    expected_direct_digest="abc",
+                )
+                for name in ["done", "retry"]
+            ]
+        ),
+    )
+    old = tmp_path / "old.jsonl"
+    old.write_text(
+        json.dumps(dict(id="done", state="digest_only"))
+        + "\n"
+        + json.dumps(dict(id="retry", state="unresolved"))
+        + "\n"
+    )
+    result = audit(request_file, tmp_path / "supplement", old)
+    assert result["rows"] == 1 and result["full_request_rows"] == 2
+    assert result["unresolved_checkpoint_sha256"] == sha256sum(old)
+    assert result["digest_only"] == 1
 
 
 def test_final_confirmation_uses_only_two_remaining_budget_cells():

@@ -1,0 +1,35 @@
+{
+  "cells": 8,
+  "counts": {
+    "complete": 8
+  },
+  "scheduler": {
+    "1353": {
+      "evidence": "group-g00-a1.json",
+      "finished_unix": 1793096168.286904,
+      "group": "g00",
+      "scheduler_state": "unavailable",
+      "state": "GROUP_FINISHED"
+    },
+    "1354": {
+      "evidence": "group-g01-a1.json",
+      "finished_unix": 1793097469.01231,
+      "group": "g01",
+      "scheduler_state": "unavailable",
+      "state": "GROUP_FINISHED"
+    },
+    "1355": {
+      "evidence": "group-g03-a1.json",
+      "finished_unix": 1793096203.4036698,
+      "group": "g03",
+      "scheduler_state": "unavailable",
+      "state": "GROUP_FINISHED"
+    },
+    "1356": {
+      "exit_code": "0:0",
+      "group": "g04",
+      "reason": "None",
+      "state": "COMPLETED"
+    }
+  }
+}

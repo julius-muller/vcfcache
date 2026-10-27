@@ -1,0 +1,12 @@
+{"schema_version": 1, "name": "workflow.config_and_setup", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095431441954340, "duration_ns": 9503792, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.resolve", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095431675797846, "duration_ns": 2881424, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095431681861643, "duration_ns": 5223633, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095431690265618, "duration_ns": 22098103, "outcome": "complete"}
+{"schema_version": 1, "name": "native.index_preflight", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095431715624764, "duration_ns": 52724873, "outcome": "complete"}
+{"schema_version": 1, "name": "native.await_misses", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095431775619913, "duration_ns": 4988706568, "outcome": "complete", "child_pid": 24017}
+{"schema_version": 1, "name": "pipeline.annotate-misses", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095436769551285, "duration_ns": 33786636300, "outcome": "complete", "task": "native", "child_pid": 24043}
+{"schema_version": 1, "name": "annotation.indexability_check", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095470564025488, "duration_ns": 687763836, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095471256476158, "duration_ns": 30635390, "outcome": "complete"}
+{"schema_version": 1, "name": "output.publish", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095473822956058, "duration_ns": 1049111, "outcome": "complete"}
+{"schema_version": 1, "name": "native.attempt", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095431675730680, "duration_ns": 42152334700, "outcome": "complete"}
+{"schema_version": 1, "name": "cli.import_and_run", "pid": 24010, "tid": 24010, "start_unix_ns": 1793095430957492327, "duration_ns": 42896986963, "outcome": "complete"}

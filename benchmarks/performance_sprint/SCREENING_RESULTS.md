@@ -15,9 +15,10 @@ reproducible end-to-end benefit, not a favorable single stage.
 | Trusted hit assembly / core vep-rs WGS | 44.08 → 42.69 | 61.11 → 61.78 | Below gate; inconsistent |
 | Early memory fallback / core vep-rs WGS, 8-GiB native budget | 62.68 → 45.90 | 79.32 → 62.22 | 26.8% / 21.6% reduction; confirmation submitted |
 | Bounded native route / fastVEP WES | 51.91 → 47.81 | 52.51 → 49.67 | 7.9% / 5.4% reduction, sparse workload only |
-| Bounded native route / core vep-rs WGS | 43.90 → 54.11 | Pending | 23.3% slower on A06; not a universal default |
+| Bounded native route / core vep-rs WGS | 43.90 → 54.11 | 60.44 → 79.17 | 23.3% / 31.0% slower; not a universal default |
+| Early memory fallback / reversed-order A06 confirmation | 65.33 → 45.60 | Not repeated | 30.2% reduction; strict parity passes |
 
-All completed cells in this table passed strict complete-record/header checks
+All **36/36** engineering cells completed and passed strict complete-record/header checks
 against both retained direct output and the frozen cached reference. No ignored
 fields were needed in these core/fastVEP pilot cells. Clinical vep-rs inherited
 discrepancies are not being re-investigated or excused for new engine changes.
@@ -32,22 +33,24 @@ cost per miss or imply a 21–27% gain when adaptive routing is already selected
 The predictor samples <=128 records, abstains on weak evidence and reports a
 heuristic byte estimate rather than an RSS guarantee. It remains experimental.
 
-All **36** cached engineering cells are now submitted. Job **1368** reverses the
-A06 memory-screen order (candidate first, control second) to confirm the largest
-supported effect; collector **1369** persists its review. No further speculative
-engine cells are scheduled. Core-WGS route audits and historical-output identity
-audit **1367** are still running at this snapshot.
+All engineering jobs and collectors finished. Job **1368** reversed the A06
+memory-screen order (candidate first, control second) and confirmed the largest
+supported effect. No further speculative engine cells are scheduled. This
+supports selecting the fallback guard for the release-candidate review; it does
+not establish a gain when adaptive routing is already selected.
 
-Evidence: `evidence-20261027T1122/`, `audit-evidence-20261027/`, launch receipts and
-the immutable remote campaigns referenced there. The snapshot intentionally
-retains pending states; use live campaign review for later completion.
+Final engineering evidence: `evidence-final-engineering-20261027/`. The older
+`evidence-20261027T1122/` snapshot intentionally retains its then-pending states.
+Launch receipts bind the immutable remote campaigns. Historical-output identity
+audit **1367** finished separately; corrected reference resolution is being
+audited read-only as **job 1370**, without repeating annotation.
 
 ## Decision before manuscript replay
 
 Do not promote indexed spooling, smaller windows or trusted assembly based on
 these results. Do not make the bounded router universal: a sparse-input gain
 does not offset a dense-input regression. Review the final fallback confirmation
-and its applicability before selecting the release candidate. The previous
+and its applicability when selecting the release candidate. The previous
 adaptive/native engine results remain distinct from these incremental screens.
 
 The cached-only manuscript runner is implemented, not yet submitted. Complete
