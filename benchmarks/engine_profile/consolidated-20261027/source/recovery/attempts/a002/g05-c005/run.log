@@ -1,0 +1,38 @@
+[00:44:44] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[00:44:44] Genome build (params.yaml): GRCh38
+[00:44:44] Genome build (annotation.yaml): GRCh38
+[00:44:44] Initializing annotation of wgs.bcf
+[00:44:44] Contig overlap: cache=24 input=22 overlap=22
+[00:44:44] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[00:44:44] Running workflow in mode: annotate
+[W::hts_idx_load3] The index file is older than the data file: /mnt/data/tmp/engine-profile-g05-r7t0522i/bundle/cache/vep115.2_everything/vcfcache_annotated.bcf.csi
+[00:44:45] Fused engine: vcfcache-engine 0.4.0; preparation workers=4; CPU budget=16
+[00:44:49] Fused preprocess completed in 4.215s
+[00:44:51] Fused preprocess completed in 5.812s
+[00:44:51] Fused preprocess completed in 5.934s
+[00:44:53] Fused preprocess completed in 8.359s
+[00:44:54] Adaptive lookup: workers=4; codec threads=2; tasks=8; mode=auto
+[00:45:17] Fused route completed in 22.980s
+[00:45:23] Fused route completed in 29.018s
+[00:45:25] Fused route completed in 31.052s
+[00:45:25] Fused route completed in 31.373s
+[00:45:30] Fused route completed in 5.112s
+[00:45:38] Fused route completed in 21.413s
+[00:45:41] Fused route completed in 18.016s
+[00:45:43] Fused route completed in 18.429s
+[00:45:44] Fused collect-misses completed in 1.275s
+[01:48:57] Fused annotate-misses completed in 3792.139s
+[01:49:25] Fused assemble completed in 17.202s
+[01:49:33] Fused assemble completed in 25.083s
+[01:49:35] Fused assemble completed in 27.861s
+[01:49:37] Fused assemble completed in 29.527s
+[01:49:41] Fused assemble completed in 3.635s
+[01:49:49] Fused assemble completed in 23.970s
+[01:49:51] Fused assemble completed in 18.735s
+[01:49:55] Fused assemble completed in 19.863s
+[01:50:00] Fused gather completed in 4.761s
+[01:50:07] Fused index completed in 7.262s
+[01:50:07] Workflow completed successfully in 3923.2s
+Computing MD5 for /mnt/data/tmp/engine-profile-g05-r7t0522i/g05-c005/stats/wgs_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating wgs.bcf (cached mode)...
+Annotation completed in 3923.5s

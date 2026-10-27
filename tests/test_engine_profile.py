@@ -240,3 +240,61 @@ def test_recovery_only_unsuccessful_wgs(tmp_path):
     write_json_atomic(file, dict(state="complete"))
     with pytest.raises(ValueError, match="unsuccessful"):
         create(parent, tmp_path / "invalid", str(harness), "test-commit")
+
+
+def test_consolidation_keeps_configuration_and_failed_evidence(tmp_path):
+    from benchmarks.engine_profile.consolidate import consolidate
+
+    group = design()[2]
+    group["cells"] = group["cells"][4:8]
+    for campaign_name in ("original", "recovery"):
+        root = tmp_path / "source" / campaign_name
+        root.mkdir(parents=True)
+        manifest = dict(
+            groups=[group], recipes={"vep": dict(params={"vep_buffer": 500000})}
+        )
+        if campaign_name == "recovery":
+            manifest["recovery"] = dict(
+                parent_manifest_sha256=sha256sum(
+                    tmp_path / "source/original/manifest.json"
+                )
+            )
+        write_json_atomic(root / "manifest.json", manifest)
+        (root / "READY").write_text(sha256sum(root / "manifest.json"))
+        for cell in group["cells"]:
+            path = root / "attempts/a001" / cell["id"]
+            path.mkdir(parents=True)
+            state = dict(state="failed")
+            if campaign_name == "recovery":
+                state.update(
+                    state="complete",
+                    effective_engine="adaptive",
+                    direct_pass=True,
+                    metrics=dict(
+                        wall_seconds=10 if cell["role"] == "direct" else 5,
+                        cpu_seconds=8,
+                    ),
+                )
+                write_json_atomic(
+                    path / "statistics.json",
+                    dict(
+                        variant_counts=dict(input_variants=10, missing_variants=2),
+                        stage_timings=[dict(stage="annotate-misses", wall_seconds=2)],
+                    ),
+                )
+            write_json_atomic(path / "state.json", state)
+    rows = consolidate(tmp_path)
+    assert len(rows) == 8
+    assert sum(r["state"] == "failed" for r in rows) == 4
+    assert all(
+        r.get("speedup") == 2
+        for r in rows
+        if r["campaign"] == "recovery" and r["role"] != "direct"
+    )
+    manifest_path = tmp_path / "source/recovery/manifest.json"
+    manifest = run.read(manifest_path)
+    manifest["recovery"]["parent_manifest_sha256"] = "wrong"
+    write_json_atomic(manifest_path, manifest)
+    (manifest_path.parent / "READY").write_text(sha256sum(manifest_path))
+    with pytest.raises(ValueError, match="does not belong"):
+        consolidate(tmp_path)

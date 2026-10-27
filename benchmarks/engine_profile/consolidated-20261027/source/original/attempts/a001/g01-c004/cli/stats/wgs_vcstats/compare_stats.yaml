@@ -1,0 +1,27 @@
+command: annotate
+mode: uncached
+run_timestamp: '2026-10-23T21:21:58'
+output_file: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c004/output.bcf
+input_file: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/inputs/wgs.bcf
+input_name: wgs.bcf
+cache_name: veprs_core
+cache_path: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/bundle/cache/veprs_core
+annotation_yaml_md5: 46745032f587cf84caae3a50be8f0d21
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 4858092
+  annotated_output: 4858092
+  tool_annotated: 4858092
+  input_variants: 4858092
+  dropped_variants: 0
+  missing_variants: null
+  missing_annotated: null
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: legacy

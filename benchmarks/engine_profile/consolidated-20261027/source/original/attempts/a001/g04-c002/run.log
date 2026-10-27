@@ -1,0 +1,12 @@
+[21:20:02] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[21:20:03] Genome build (params.yaml): GRCh38
+[21:20:03] Genome build (annotation.yaml): GRCh38
+[21:20:03] Initializing annotation of wes.bcf
+[21:20:03] Contig overlap: cache=24 input=22 overlap=22
+[21:20:03] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[21:20:03] Running workflow in mode: annotate
+[21:20:15] Fused annotate-misses completed in 7.139s
+[21:20:17] Workflow completed successfully in 14.2s
+Computing MD5 for /mnt/data/tmp/engine-profile-g04-3v_6_ev4/g04-c002/stats/wes_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating wes.bcf (cached mode)...
+Annotation completed in 14.4s

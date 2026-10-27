@@ -3,6 +3,11 @@
 Engineering profiling only. This branch does not change the default engine,
 annotation semantics, cache format or manuscript. Baseline: `296855d72`.
 
+Completed-campaign consolidation and recommended decision gates:
+[27 October assessment](consolidated-20261027/ASSESSMENT.md). It includes matched
+timings, actual executed backends, conditional headroom estimates and a separate
+VEP WGS recovery configuration, with reproducible TSVs and hashed evidence.
+
 ## Frozen design
 
 86 cells (cap 96), including 24 once-only reference cells and 24 primary cells.

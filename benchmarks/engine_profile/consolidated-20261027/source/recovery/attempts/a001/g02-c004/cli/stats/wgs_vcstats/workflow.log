@@ -1,0 +1,50 @@
+[2026-10-25 00:06:08] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/workflow.log
+[2026-10-25 00:06:08] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-25 00:06:08] DEBUG [vcfcache.workflow_manager.py.__init__:168] Initializing Pure Python workflow in: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats
+[2026-10-25 00:06:08] DEBUG [vcfcache.workflow_manager.py.__init__:210] Loaded parameters from: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/workflow/params.snapshot.yaml
+[2026-10-25 00:06:08] DEBUG [vcfcache.workflow_manager.py.__init__:240] Loaded annotation config from: /mnt/data/tmp/engine-profile-g02-iu6_df90/bundle/cache/vep115.2_everything/annotation.yaml
+[2026-10-25 00:06:08] INFO [vcfcache.workflow_manager.py.__init__:249] Genome build (params.yaml): GRCh38
+[2026-10-25 00:06:08] INFO [vcfcache.workflow_manager.py.__init__:253] Genome build (annotation.yaml): GRCh38
+[2026-10-25 00:06:08] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-25 00:06:08] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/engine-profile-g02-iu6_df90/inputs/wgs.bcf
+[2026-10-25 00:06:08] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-25 00:06:08] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of wgs.bcf
+[2026-10-25 00:06:08] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/engine-profile-g02-iu6_df90/bundle/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-25 00:06:08] DEBUG [vcfcache.annotator.py.annotate:894] Starting VCF annotation
+[2026-10-25 00:06:08] DEBUG [vcfcache.workflow_manager.py._create_work_dir:1012] Created work directory: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/work
+[2026-10-25 00:06:08] INFO [vcfcache.workflow_manager.py.run:311] Running workflow in mode: annotate-nocache
+[2026-10-25 00:06:08] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:815] Annotating sample directly (no cache)
+[2026-10-25 00:06:08] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:845] Splitting multiallelic variants and removing spanning deletions
+[2026-10-25 00:06:08] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/work/annotate-nocache
+[2026-10-25 00:06:08] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools norm -m- /mnt/data/tmp/engine-profile-g02-iu6_df90/inputs/wgs.bcf -Ob | bcftools view -e 'ALT="*"' -o /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/work/annotate-nocache/wgs_normalized.bcf -Ob -W --threads 16
+[2026-10-25 00:06:32] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 24.609s: bcftools norm
+[2026-10-25 00:06:32] DEBUG [vcfcache.workflow_manager.py.run:107] STDERR: Lines   total/split/joined/realigned/removed/skipped:	4858092/0/0/0/0/0
+
+[2026-10-25 00:06:32] DEBUG [vcfcache.workflow_manager.py.run:58] Running command in /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/work/annotate-nocache
+[2026-10-25 00:06:32] DEBUG [vcfcache.workflow_manager.py.run:59] Command: bcftools view /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/work/annotate-nocache/wgs_normalized.bcf | \
+apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/115/vep.sif vep \
+  --offline \
+  --buffer_size 50000 \
+  --fork 4 \
+  --cache \
+  --dir_cache /mnt/data/apps/ensembl-vep/115/cachedir \
+  --format vcf \
+  --vcf \
+  --force_overwrite \
+  -i stdin \
+  -o stdout \
+  -a GRCh38 \
+  --hgvsg \
+  --everything \
+  --stats_file /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/auxiliary/vep_stats.html \
+  --warning_file /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/auxiliary/vep_warnings.txt \
+  2> /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/auxiliary/vep_stderr.txt | \
+bcftools view -o /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/output.bcf -Ob -W --threads 16
+
+[2026-10-25 03:10:20] INFO [vcfcache.workflow_manager.py.run:92] Command completed in 14627.890s: bcftools view
+[2026-10-25 03:10:20] DEBUG [vcfcache.workflow_manager.py._validate_info_tag:980] Validated INFO tag 'CSQ' present in /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/output.bcf
+[2026-10-25 03:10:21] INFO [vcfcache.workflow_manager.py._run_annotate_nocache:887] Direct annotation complete: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/output.bcf
+[2026-10-25 03:10:21] DEBUG [vcfcache.workflow_manager.py._write_trace_file:998] Trace file written to: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/vep115.2_everything_trace.txt
+[2026-10-25 03:10:21] INFO [vcfcache.workflow_manager.py.run:389] Workflow completed successfully in 11052.8s
+[2026-10-25 03:10:21] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1024] Cleaning up work directory
+[2026-10-25 03:10:21] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1027] Removing work directory: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c004/stats/wgs_vcstats/work

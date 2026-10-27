@@ -1,0 +1,27 @@
+{
+  "cell": {
+    "annotation_overrides": {
+      "vep_buffer": 50000,
+      "vep_forks": 4
+    },
+    "assay": "wgs",
+    "build": "baseline",
+    "cpus": 16,
+    "engine": "adaptive",
+    "form": "bcf",
+    "id": "g05-c005",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": false,
+    "purpose": "reference",
+    "recipe": "vep",
+    "role": "cached",
+    "sample": "LP6005592-DNA_C05",
+    "skip_split": false,
+    "workers": 0
+  },
+  "job_id": "1343",
+  "node": "sl-w2",
+  "started_unix": 1792900826.1475894,
+  "state": "running"
+}

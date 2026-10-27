@@ -1,0 +1,12 @@
+{"schema_version": 1, "name": "workflow.config_and_setup", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786111356007607, "duration_ns": 6442435, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.resolve", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786111504497145, "duration_ns": 1367435, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786111508739600, "duration_ns": 2595655, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786111514180988, "duration_ns": 18569608, "outcome": "complete"}
+{"schema_version": 1, "name": "native.index_preflight", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786111535636267, "duration_ns": 23321659, "outcome": "complete"}
+{"schema_version": 1, "name": "native.await_misses", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786111565683696, "duration_ns": 9213823218, "outcome": "complete", "child_pid": 5708}
+{"schema_version": 1, "name": "pipeline.annotate-misses", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786120784923533, "duration_ns": 38967242156, "outcome": "complete", "task": "native", "child_pid": 5711}
+{"schema_version": 1, "name": "annotation.indexability_check", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786159761771775, "duration_ns": 80618748, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786159845365186, "duration_ns": 11397405, "outcome": "complete"}
+{"schema_version": 1, "name": "output.publish", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786165194955505, "duration_ns": 69529, "outcome": "complete"}
+{"schema_version": 1, "name": "native.attempt", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786111504430455, "duration_ns": 53693937300, "outcome": "complete"}
+{"schema_version": 1, "name": "cli.import_and_run", "pid": 5701, "tid": 5701, "start_unix_ns": 1792786110948055837, "duration_ns": 54263831937, "outcome": "complete"}

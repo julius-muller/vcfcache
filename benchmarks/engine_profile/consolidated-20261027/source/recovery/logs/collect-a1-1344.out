@@ -1,0 +1,22 @@
+{
+  "cells": 8,
+  "counts": {
+    "complete": 5,
+    "incomplete_timeout": 3
+  },
+  "scheduler": {
+    "1342": {
+      "group": "g02",
+      "state": "GROUP_FINISHED",
+      "evidence": "group-g02-a1.json",
+      "scheduler_state": "unavailable",
+      "finished_unix": 1792900621.7857862
+    },
+    "1343": {
+      "group": "g05",
+      "state": "TIMEOUT",
+      "reason": "TimeLimit",
+      "exit_code": "0:15"
+    }
+  }
+}

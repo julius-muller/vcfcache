@@ -1,0 +1,90 @@
+{
+  "cell": {
+    "assay": "wgs",
+    "build": "profile",
+    "cpus": 1,
+    "engine": "native",
+    "form": "bcf",
+    "id": "g01-c009",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": true,
+    "purpose": "cpu-scaling",
+    "recipe": "veprs-core",
+    "role": "measure",
+    "sample": "LP6005519-DNA_A06",
+    "skip_split": false,
+    "workers": 0
+  },
+  "direct_pass": true,
+  "effective_engine": "adaptive",
+  "finished_unix": 1792786439.8584733,
+  "instrumentation_equivalent": true,
+  "job_id": "1336",
+  "metrics": {
+    "affinity": [
+      0
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 16499358,
+        "throttled_usec": 0,
+        "usage_usec": 196990279,
+        "user_usec": 180490921
+      },
+      "memory_current_bytes": 352862208,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 10616745984,
+      "path": "/system.slice/sl-w4_slurmstepd.scope/job_1336/step_9/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 41665,
+        "throttled_usec": 0,
+        "usage_usec": 211328,
+        "user_usec": 169662
+      },
+      "memory_current_bytes": 11497472,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11497472,
+      "path": "/system.slice/sl-w4_slurmstepd.scope/job_1336/step_9/user/task_0"
+    },
+    "cpu_seconds": 196.464822,
+    "exit_code": 0,
+    "largest_child_rss_kib": 3568784,
+    "start_unix_ns": 1792785707400534313,
+    "wall_seconds": 197.91460991500026
+  },
+  "node": "sl-w4",
+  "output_sha256": "b40a5157969b2c43743520418e01a33afb6d7609c2c2d7233cc184f9d72beac8",
+  "started_unix": 1792785707.0968575,
+  "state": "complete"
+}

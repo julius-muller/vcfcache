@@ -1,0 +1,24 @@
+[2026-10-23 21:20:27] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c003/stats/wes_vcstats/workflow.log
+[2026-10-23 21:20:27] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 21:20:27] DEBUG [vcfcache.workflow_manager.py.__init__:170] Initializing Pure Python workflow in: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c003/stats/wes_vcstats
+[2026-10-23 21:20:27] DEBUG [vcfcache.workflow_manager.py.__init__:212] Loaded parameters from: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c003/stats/wes_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 21:20:27] DEBUG [vcfcache.workflow_manager.py.__init__:242] Loaded annotation config from: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/bundle/cache/veprs_core/annotation.yaml
+[2026-10-23 21:20:27] INFO [vcfcache.workflow_manager.py.__init__:251] Genome build (params.yaml): GRCh38
+[2026-10-23 21:20:27] INFO [vcfcache.workflow_manager.py.__init__:255] Genome build (annotation.yaml): GRCh38
+[2026-10-23 21:20:27] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 21:20:27] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/inputs/wes.bcf
+[2026-10-23 21:20:27] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 21:20:27] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of wes.bcf
+[2026-10-23 21:20:27] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/bundle/cache/veprs_core/vcfcache_annotated.bcf
+[2026-10-23 21:20:27] DEBUG [vcfcache.annotator.py.annotate:894] Starting VCF annotation
+[2026-10-23 21:20:27] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/bundle/cache/veprs_core/vcfcache_annotated.bcf
+[2026-10-23 21:20:27] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/inputs/wes.bcf
+[2026-10-23 21:20:27] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=22 overlap=22
+[2026-10-23 21:20:27] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-23 21:20:27] DEBUG [vcfcache.workflow_manager.py._create_work_dir:1014] Created work directory: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c003/stats/wes_vcstats/work
+[2026-10-23 21:20:27] INFO [vcfcache.workflow_manager.py.run:313] Running workflow in mode: annotate
+[2026-10-23 21:20:37] INFO [vcfcache.engine_runtime.py.run:134] Fused annotate-misses completed in 6.887s
+[2026-10-23 21:20:39] DEBUG [vcfcache.workflow_manager.py._write_trace_file:1000] Trace file written to: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c003/stats/wes_vcstats/veprs_core_trace.txt
+[2026-10-23 21:20:39] INFO [vcfcache.workflow_manager.py.run:391] Workflow completed successfully in 12.3s
+[2026-10-23 21:20:39] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1026] Cleaning up work directory
+[2026-10-23 21:20:39] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1029] Removing work directory: /mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c003/stats/wes_vcstats/work

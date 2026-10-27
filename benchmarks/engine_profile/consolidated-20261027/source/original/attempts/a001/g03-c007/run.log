@@ -1,0 +1,37 @@
+[22:13:55] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[22:13:55] Genome build (params.yaml): GRCh38
+[22:13:55] Genome build (annotation.yaml): GRCh38
+[22:13:55] Initializing annotation of wgs.bcf
+[22:13:55] Contig overlap: cache=24 input=22 overlap=22
+[22:13:55] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[22:13:55] Running workflow in mode: annotate
+[22:13:56] Fused engine: vcfcache-engine 0.4.0; preparation workers=4; CPU budget=16
+[22:13:58] Fused preprocess completed in 2.168s
+[22:13:59] Fused preprocess completed in 3.186s
+[22:13:59] Fused preprocess completed in 3.376s
+[22:13:59] Fused preprocess completed in 3.496s
+[22:14:00] Adaptive lookup: workers=4; codec threads=2; tasks=8; mode=auto
+[22:14:07] Fused route completed in 7.463s
+[22:14:11] Fused route completed in 11.456s
+[22:14:12] Fused route completed in 12.745s
+[22:14:13] Fused route completed in 13.394s
+[22:14:15] Fused route completed in 2.135s
+[22:14:18] Fused route completed in 11.220s
+[22:14:20] Fused route completed in 9.202s
+[22:14:22] Fused route completed in 9.689s
+[22:14:23] Fused collect-misses completed in 1.328s
+[22:17:03] Fused annotate-misses completed in 159.251s
+[22:17:17] Fused assemble completed in 8.752s
+[22:17:21] Fused assemble completed in 12.192s
+[22:17:22] Fused assemble completed in 13.214s
+[22:17:23] Fused assemble completed in 14.274s
+[22:17:25] Fused assemble completed in 2.378s
+[22:17:29] Fused assemble completed in 12.086s
+[22:17:31] Fused assemble completed in 10.536s
+[22:17:33] Fused assemble completed in 10.987s
+[22:17:35] Fused gather completed in 1.891s
+[22:17:41] Fused index completed in 6.755s
+[22:17:42] Workflow completed successfully in 226.3s
+Computing MD5 for /mnt/data/tmp/engine-profile-g03-_0duykm9/g03-c007/stats/wgs_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating wgs.bcf (cached mode)...
+Annotation completed in 226.6s

@@ -1,0 +1,17 @@
+{"details":null,"duration_ns":334908550,"name":"native.prepare_decode_split_stream","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786111567816609,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":119726561,"name":"native.lookup.setup","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786111907565158,"tid":"ThreadId(2)"}
+{"details":{"buffer_bytes":412096761,"candidates":2969310,"queries":14140},"duration_ns":8230498451,"name":"native.lookup.query_decode_overlay","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786112029999726,"tid":"ThreadId(2)"}
+{"details":{"input_records":82714,"mode":"auto"},"duration_ns":8374429570,"name":"native.lookup.worker","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786111907564390,"tid":"ThreadId(2)"}
+{"details":null,"duration_ns":8378515554,"name":"native.lookup","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786111907362334,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":469613912,"name":"native.classify_misses","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786120288124964,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":4711983,"name":"bcf.index_save_flush","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786120766768280,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":359425,"name":"bcf.close_drain_codecs","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786120774171733,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":16299134,"name":"native.spool_misses","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786120760506217,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":39079972620,"name":"native.await_annotation","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786120779760057,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":198406712,"name":"native.merge_preflight","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786159861948880,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":5004753035,"name":"native.construct_encode_output","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786160062671845,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":29554825,"name":"bcf.index_save_flush","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786165070524282,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":3447954,"name":"bcf.close_drain_codecs","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786165102538195,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":37839648,"name":"native.finalize_output","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786165070524062,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":27347646,"name":"native.verify_output_index","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786165110785422,"tid":"ThreadId(1)"}
+{"details":null,"duration_ns":53581747850,"name":"native.execute","outcome":"scope_exit","pid":5708,"schema_version":1,"start_unix_ns":1792786111567816345,"tid":"ThreadId(1)"}

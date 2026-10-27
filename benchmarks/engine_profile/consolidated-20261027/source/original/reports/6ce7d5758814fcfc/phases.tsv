@@ -1,0 +1,117 @@
+cell	recipe	assay	phase	union_seconds	summed_seconds	occurrences	requested_engine	effective_engine
+g00-c002	fastvep	wes	workflow.config_and_setup	0.009645939	0.009645939	1	adaptive	
+g00-c002	fastvep	wes	helper.resolve	0.002530519	0.002530519	1	adaptive	
+g00-c002	fastvep	wes	headers.validate	0.031448838	0.031448838	1	adaptive	
+g00-c002	fastvep	wes	helper.version	0.021685187	0.021685187	1	adaptive	
+g00-c002	fastvep	wes	pipeline.preprocess	0.442251417	1.586081146	4	adaptive	
+g00-c002	fastvep	wes	pipeline.route	10.710961144	32.983422322	8	adaptive	
+g00-c002	fastvep	wes	pipeline.collect-misses	0.321374862	0.321374862	1	adaptive	
+g00-c002	fastvep	wes	bcf.index_save_flush	0.057936544	0.0794134	4	adaptive	
+g00-c002	fastvep	wes	bcf.close_drain_codecs	0.00210029	0.00210029	4	adaptive	
+g00-c002	fastvep	wes	adaptive.prepare_decode_index_spool	0.415198976	1.511604863	4	adaptive	
+g00-c002	fastvep	wes	adaptive.route_split_spool	10.693414433	32.863949245	8	adaptive	
+g01-c002	veprs-core	wes	workflow.config_and_setup	0.020306888	0.020306888	1	adaptive	adaptive
+g01-c002	veprs-core	wes	helper.resolve	0.003373593	0.003373593	1	adaptive	adaptive
+g01-c002	veprs-core	wes	headers.validate	0.058892254	0.058892254	2	adaptive	adaptive
+g01-c002	veprs-core	wes	helper.version	0.005568947	0.005568947	1	adaptive	adaptive
+g01-c002	veprs-core	wes	pipeline.preprocess	0.456978082	1.629170516	4	adaptive	adaptive
+g01-c002	veprs-core	wes	pipeline.route	6.925035478	23.966826447	7	adaptive	adaptive
+g01-c002	veprs-core	wes	pipeline.collect-misses	0.254667686	0.254667686	1	adaptive	adaptive
+g01-c002	veprs-core	wes	pipeline.annotate-misses	6.950838078	6.950838078	1	adaptive	adaptive
+g01-c002	veprs-core	wes	pipeline.assemble	1.100140203	3.684064338	7	adaptive	adaptive
+g01-c002	veprs-core	wes	pipeline.gather	0.198643553	0.198643553	1	adaptive	adaptive
+g01-c002	veprs-core	wes	pipeline.index	0.319625516	0.319625516	1	adaptive	adaptive
+g01-c002	veprs-core	wes	output.publish	0.000126021	0.000126021	1	adaptive	adaptive
+g01-c002	veprs-core	wes	adaptive.attempt	16.890536759	16.890536759	1	adaptive	adaptive
+g01-c002	veprs-core	wes	cli.import_and_run	18.349103704	18.349103704	1	adaptive	adaptive
+g01-c002	veprs-core	wes	bcf.index_save_flush	0.053218766	0.073949113	4	adaptive	adaptive
+g01-c002	veprs-core	wes	bcf.close_drain_codecs	0.002016519	0.002016519	4	adaptive	adaptive
+g01-c002	veprs-core	wes	adaptive.prepare_decode_index_spool	0.438187462	1.555860596	4	adaptive	adaptive
+g01-c002	veprs-core	wes	adaptive.route_split_spool	6.910375893	23.871869395	7	adaptive	adaptive
+g01-c002	veprs-core	wes	adaptive.assemble_encode	1.027752169	3.180401723	7	adaptive	adaptive
+g01-c003	veprs-core	wes	workflow.config_and_setup	0.010476805	0.010476805	1	native	native
+g01-c003	veprs-core	wes	helper.resolve	0.001892448	0.001892448	1	native	native
+g01-c003	veprs-core	wes	helper.version	0.004865761	0.004865761	1	native	native
+g01-c003	veprs-core	wes	headers.validate	0.056298775	0.056298775	2	native	native
+g01-c003	veprs-core	wes	native.index_preflight	0.037977874	0.037977874	1	native	native
+g01-c003	veprs-core	wes	native.await_misses	3.450970849	3.450970849	1	native	native
+g01-c003	veprs-core	wes	pipeline.annotate-misses	6.878824425	6.878824425	1	native	native
+g01-c003	veprs-core	wes	annotation.indexability_check	0.129682306	0.129682306	1	native	native
+g01-c003	veprs-core	wes	output.publish	0.000152977	0.000152977	1	native	native
+g01-c003	veprs-core	wes	native.attempt	12.210553442	12.210553442	1	native	native
+g01-c003	veprs-core	wes	cli.import_and_run	13.1434355	13.1434355	1	native	native
+g01-c003	veprs-core	wes	native.prepare_decode_split_stream	0.409809454	0.409809454	1	native	native
+g01-c003	veprs-core	wes	native.lookup.setup	0.25007304	1.538425985	8	native	native
+g01-c003	veprs-core	wes	native.lookup.query_decode_overlay	2.414511069	18.097141352	8	native	native
+g01-c003	veprs-core	wes	native.lookup.worker	2.606779334	19.833330689	8	native	native
+g01-c003	veprs-core	wes	native.lookup	2.611810946	2.611810946	1	native	native
+g01-c003	veprs-core	wes	native.classify_misses	0.389260313	0.389260313	1	native	native
+g01-c003	veprs-core	wes	bcf.index_save_flush	0.050535017	0.050535017	2	native	native
+g01-c003	veprs-core	wes	bcf.close_drain_codecs	0.004511891	0.004511891	2	native	native
+g01-c003	veprs-core	wes	native.spool_misses	0.020134607	0.020134607	1	native	native
+g01-c003	veprs-core	wes	native.await_annotation	7.056973013	7.056973013	1	native	native
+g01-c003	veprs-core	wes	native.merge_preflight	0.415796423	0.415796423	1	native	native
+g01-c003	veprs-core	wes	native.construct_encode_output	0.988667097	0.988667097	1	native	native
+g01-c003	veprs-core	wes	native.finalize_output	0.056224322	0.056224322	1	native	native
+g01-c003	veprs-core	wes	native.verify_output_index	0.062703431	0.062703431	1	native	native
+g01-c003	veprs-core	wes	native.execute	12.063508763	12.063508763	1	native	native
+g03-c002	fastvep	wes	workflow.config_and_setup	0.01026806	0.01026806	1	native	
+g03-c002	fastvep	wes	helper.resolve	0.003149221	0.003149221	1	native	
+g03-c002	fastvep	wes	helper.version	0.005083127	0.005083127	1	native	
+g03-c002	fastvep	wes	headers.validate	0.03399324	0.03399324	1	native	
+g03-c002	fastvep	wes	native.index_preflight	0.043071467	0.043071467	1	native	
+g03-c002	fastvep	wes	native.await_misses	6.03095237	6.03095237	1	native	
+g03-c002	fastvep	wes	native.prepare_decode_split_stream	0.538356278	0.538356278	1	native	
+g03-c002	fastvep	wes	native.lookup.setup	0.188532222	1.407751319	8	native	
+g03-c002	fastvep	wes	native.lookup.query_decode_overlay	4.32910084	32.550699241	8	native	
+g03-c002	fastvep	wes	native.lookup.worker	4.519200665	34.15709109	8	native	
+g03-c002	fastvep	wes	native.lookup	4.525168007	4.525168007	1	native	
+g03-c002	fastvep	wes	native.classify_misses	0.884593349	0.884593349	1	native	
+g03-c002	fastvep	wes	bcf.index_save_flush	0.028649619	0.028649619	1	native	
+g03-c002	fastvep	wes	bcf.close_drain_codecs	0.00151987	0.00151987	1	native	
+g03-c002	fastvep	wes	native.spool_misses	0.061869452	0.061869452	1	native	
+g04-c002	veprs-core	wes	workflow.config_and_setup	0.113993369	0.113993369	1	native	native
+g04-c002	veprs-core	wes	helper.resolve	0.003387566	0.003387566	1	native	native
+g04-c002	veprs-core	wes	helper.version	0.005302426	0.005302426	1	native	native
+g04-c002	veprs-core	wes	headers.validate	0.058950706	0.058950706	2	native	native
+g04-c002	veprs-core	wes	native.index_preflight	0.045608187	0.045608187	1	native	native
+g04-c002	veprs-core	wes	native.await_misses	3.879781588	3.879781588	1	native	native
+g04-c002	veprs-core	wes	pipeline.annotate-misses	7.132681373	7.132681373	1	native	native
+g04-c002	veprs-core	wes	annotation.indexability_check	0.479215266	0.479215266	1	native	native
+g04-c002	veprs-core	wes	output.publish	0.000122916	0.000122916	1	native	native
+g04-c002	veprs-core	wes	native.attempt	13.714207422	13.714207422	1	native	native
+g04-c002	veprs-core	wes	cli.import_and_run	17.382758322	17.382758322	1	native	native
+g04-c002	veprs-core	wes	native.prepare_decode_split_stream	0.486634107	0.486634107	1	native	native
+g04-c002	veprs-core	wes	native.lookup.setup	0.242668341	1.497127962	8	native	native
+g04-c002	veprs-core	wes	native.lookup.query_decode_overlay	2.733921969	20.370069853	8	native	native
+g04-c002	veprs-core	wes	native.lookup.worker	2.908339663	22.052254767	8	native	native
+g04-c002	veprs-core	wes	native.lookup	2.913644526	2.913644526	1	native	native
+g04-c002	veprs-core	wes	native.classify_misses	0.408036264	0.408036264	1	native	native
+g04-c002	veprs-core	wes	bcf.index_save_flush	0.069011609	0.069011609	2	native	native
+g04-c002	veprs-core	wes	bcf.close_drain_codecs	0.003803906	0.003803906	2	native	native
+g04-c002	veprs-core	wes	native.spool_misses	0.052053668	0.052053668	1	native	native
+g04-c002	veprs-core	wes	native.await_annotation	7.659361048	7.659361048	1	native	native
+g04-c002	veprs-core	wes	native.merge_preflight	0.502017256	0.502017256	1	native	native
+g04-c002	veprs-core	wes	native.construct_encode_output	1.422270665	1.422270665	1	native	native
+g04-c002	veprs-core	wes	native.finalize_output	0.053055777	0.053055777	1	native	native
+g04-c002	veprs-core	wes	native.verify_output_index	0.032765742	0.032765742	1	native	native
+g04-c002	veprs-core	wes	native.execute	13.572113302	13.572113302	1	native	native
+g04-c003	veprs-core	wes	workflow.config_and_setup	0.009178427	0.009178427	1	adaptive	adaptive
+g04-c003	veprs-core	wes	helper.resolve	0.001688981	0.001688981	1	adaptive	adaptive
+g04-c003	veprs-core	wes	headers.validate	0.052916963	0.052916963	2	adaptive	adaptive
+g04-c003	veprs-core	wes	helper.version	0.004406621	0.004406621	1	adaptive	adaptive
+g04-c003	veprs-core	wes	pipeline.preprocess	0.506363469	1.725491934	4	adaptive	adaptive
+g04-c003	veprs-core	wes	pipeline.route	6.763904102	22.816316919	7	adaptive	adaptive
+g04-c003	veprs-core	wes	pipeline.collect-misses	0.18847915	0.18847915	1	adaptive	adaptive
+g04-c003	veprs-core	wes	pipeline.annotate-misses	7.88333025	7.88333025	1	adaptive	adaptive
+g04-c003	veprs-core	wes	pipeline.assemble	1.278499058	4.30542328	7	adaptive	adaptive
+g04-c003	veprs-core	wes	pipeline.gather	0.21412739	0.21412739	1	adaptive	adaptive
+g04-c003	veprs-core	wes	pipeline.index	0.365013805	0.365013805	1	adaptive	adaptive
+g04-c003	veprs-core	wes	output.publish	0.000194321	0.000194321	1	adaptive	adaptive
+g04-c003	veprs-core	wes	adaptive.attempt	18.164595831	18.164595831	1	adaptive	adaptive
+g04-c003	veprs-core	wes	cli.import_and_run	19.008255788	19.008255788	1	adaptive	adaptive
+g04-c003	veprs-core	wes	bcf.index_save_flush	0.063058347	0.089653814	4	adaptive	adaptive
+g04-c003	veprs-core	wes	bcf.close_drain_codecs	0.002509381	0.002509381	4	adaptive	adaptive
+g04-c003	veprs-core	wes	adaptive.prepare_decode_index_spool	0.459212064	1.633898773	4	adaptive	adaptive
+g04-c003	veprs-core	wes	adaptive.route_split_spool	6.747071338	22.709183331	7	adaptive	adaptive
+g04-c003	veprs-core	wes	adaptive.assemble_encode	1.195967875	3.709850101	7	adaptive	adaptive

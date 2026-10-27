@@ -1,0 +1,12 @@
+{"schema_version": 1, "name": "workflow.config_and_setup", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787282706986794, "duration_ns": 6712778, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.resolve", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787282930741099, "duration_ns": 1704837, "outcome": "complete"}
+{"schema_version": 1, "name": "helper.version", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787282936578053, "duration_ns": 4913625, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787282944578400, "duration_ns": 23681136, "outcome": "complete"}
+{"schema_version": 1, "name": "native.index_preflight", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787282971525149, "duration_ns": 39013047, "outcome": "complete"}
+{"schema_version": 1, "name": "native.await_misses", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787283017228693, "duration_ns": 4625015333, "outcome": "complete", "child_pid": 8750}
+{"schema_version": 1, "name": "pipeline.annotate-misses", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787287648300203, "duration_ns": 34094340333, "outcome": "complete", "task": "native", "child_pid": 8777}
+{"schema_version": 1, "name": "annotation.indexability_check", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787321750336223, "duration_ns": 180879343, "outcome": "complete"}
+{"schema_version": 1, "name": "headers.validate", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787321935398850, "duration_ns": 42112349, "outcome": "complete"}
+{"schema_version": 1, "name": "output.publish", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787324035284193, "duration_ns": 148774, "outcome": "complete"}
+{"schema_version": 1, "name": "native.attempt", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787282930648397, "duration_ns": 41109250116, "outcome": "complete"}
+{"schema_version": 1, "name": "cli.import_and_run", "pid": 8743, "tid": 8743, "start_unix_ns": 1792787282276473247, "duration_ns": 41787427452, "outcome": "complete"}

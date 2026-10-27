@@ -1,0 +1,365 @@
+{
+  "annotation_yaml_md5": "46745032f587cf84caae3a50be8f0d21",
+  "assembly_decode_threads": 0,
+  "assembly_encode_threads": 2,
+  "cache_name": "veprs_core",
+  "cache_path": "/mnt/data/tmp/engine-profile-g04-3v_6_ev4/bundle/cache/veprs_core",
+  "codec_threads_per_worker": 2,
+  "command": "annotate",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "cpu_budget": 16,
+  "effective_engine": "adaptive",
+  "engine": "fused",
+  "engine_lookup": "auto",
+  "engine_wall_seconds": 56.868214035001074,
+  "estimate_note": "CSI candidate byte estimates, not observed cache I/O",
+  "fallback_reason": "native memory buffer budget exceeded (indexed record-count lower bound)",
+  "genome_build_annotation": "GRCh38",
+  "genome_build_params": "GRCh38",
+  "input_file": "/mnt/data/tmp/engine-profile-g04-3v_6_ev4/inputs/wgs.bcf",
+  "input_name": "wgs.bcf",
+  "lookup_regions": 22,
+  "lookup_strategies": [
+    {
+      "cache_records": 1435577,
+      "estimated_cache_bytes": 67733568,
+      "name": "chr1",
+      "requested_cache_bytes": 67733568,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1490699,
+      "estimated_cache_bytes": 66482176,
+      "name": "chr2",
+      "requested_cache_bytes": 66482176,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1247559,
+      "estimated_cache_bytes": 64941996,
+      "name": "chr3",
+      "requested_cache_bytes": 64941996,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1271726,
+      "estimated_cache_bytes": 47129339,
+      "name": "chr4",
+      "requested_cache_bytes": 47129339,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1118422,
+      "estimated_cache_bytes": 40635959,
+      "name": "chr5",
+      "requested_cache_bytes": 40635959,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1152753,
+      "estimated_cache_bytes": 49424691,
+      "name": "chr6",
+      "requested_cache_bytes": 49424691,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1074641,
+      "estimated_cache_bytes": 46449800,
+      "name": "chr7",
+      "requested_cache_bytes": 46449800,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 970901,
+      "estimated_cache_bytes": 45646796,
+      "name": "chr8",
+      "requested_cache_bytes": 45646796,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 830834,
+      "estimated_cache_bytes": 36687634,
+      "name": "chr9",
+      "requested_cache_bytes": 36687634,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 924515,
+      "estimated_cache_bytes": 41577754,
+      "name": "chr10",
+      "requested_cache_bytes": 41577754,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 862831,
+      "estimated_cache_bytes": 38877224,
+      "name": "chr11",
+      "requested_cache_bytes": 38877224,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 865133,
+      "estimated_cache_bytes": 39085781,
+      "name": "chr12",
+      "requested_cache_bytes": 39085781,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 637579,
+      "estimated_cache_bytes": 19821076,
+      "name": "chr13",
+      "requested_cache_bytes": 19821076,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 591558,
+      "estimated_cache_bytes": 27986667,
+      "name": "chr14",
+      "requested_cache_bytes": 27986667,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 558135,
+      "estimated_cache_bytes": 28458203,
+      "name": "chr15",
+      "requested_cache_bytes": 28458203,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 585392,
+      "estimated_cache_bytes": 28188333,
+      "name": "chr16",
+      "requested_cache_bytes": 28188333,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 548630,
+      "estimated_cache_bytes": 31901252,
+      "name": "chr17",
+      "requested_cache_bytes": 31901252,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 499973,
+      "estimated_cache_bytes": 19921995,
+      "name": "chr18",
+      "requested_cache_bytes": 19921995,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 456595,
+      "estimated_cache_bytes": 29618510,
+      "name": "chr19",
+      "requested_cache_bytes": 29614402,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 419415,
+      "estimated_cache_bytes": 18219387,
+      "name": "chr20",
+      "requested_cache_bytes": 18219387,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 303065,
+      "estimated_cache_bytes": 14742294,
+      "name": "chr21",
+      "requested_cache_bytes": 14742294,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 314314,
+      "estimated_cache_bytes": 18890465,
+      "name": "chr22",
+      "requested_cache_bytes": 18890465,
+      "strategy": "contigs"
+    }
+  ],
+  "lookup_tasks": 8,
+  "mode": "cached",
+  "native_version": "vcfcache-engine 0.4.0",
+  "output_file": "/mnt/data/tmp/engine-profile-g04-3v_6_ev4/g04-c006/output.bcf",
+  "phase_timings": [
+    {
+      "phase": "preprocess",
+      "wall_seconds": 4.151296719999664
+    },
+    {
+      "phase": "route",
+      "wall_seconds": 12.381754673000614
+    },
+    {
+      "phase": "assemble",
+      "wall_seconds": 13.699567075000232
+    }
+  ],
+  "requested_engine": "native",
+  "run_timestamp": "2026-10-23T21:35:13",
+  "stage_timings": [
+    {
+      "stage": "preprocess",
+      "task": "prepare-0003",
+      "wall_seconds": 2.025023792000866
+    },
+    {
+      "stage": "preprocess",
+      "task": "prepare-0002",
+      "wall_seconds": 3.2759552379993693
+    },
+    {
+      "stage": "preprocess",
+      "task": "prepare-0001",
+      "wall_seconds": 3.755034814999817
+    },
+    {
+      "stage": "preprocess",
+      "task": "prepare-0000",
+      "wall_seconds": 3.945428949999041
+    },
+    {
+      "stage": "route",
+      "task": "shard-0003",
+      "wall_seconds": 4.3358520999991015
+    },
+    {
+      "stage": "route",
+      "task": "shard-0001",
+      "wall_seconds": 6.998736527000801
+    },
+    {
+      "stage": "route",
+      "task": "shard-0000",
+      "wall_seconds": 7.117571365999538
+    },
+    {
+      "stage": "route",
+      "task": "shard-0002",
+      "wall_seconds": 7.320153360000404
+    },
+    {
+      "stage": "route",
+      "task": "shard-0007",
+      "wall_seconds": 1.248602593999749
+    },
+    {
+      "stage": "route",
+      "task": "shard-0004",
+      "wall_seconds": 6.035840016998918
+    },
+    {
+      "stage": "route",
+      "task": "shard-0006",
+      "wall_seconds": 4.490810208999392
+    },
+    {
+      "stage": "route",
+      "task": "shard-0005",
+      "wall_seconds": 5.378056098001252
+    },
+    {
+      "stage": "collect-misses",
+      "task": "fused",
+      "wall_seconds": 1.674321799999234
+    },
+    {
+      "stage": "annotate-misses",
+      "task": "fused",
+      "wall_seconds": 15.807327738000822
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0003",
+      "wall_seconds": 4.748045915999683
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0001",
+      "wall_seconds": 6.461544237999988
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0000",
+      "wall_seconds": 7.122160599999916
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0002",
+      "wall_seconds": 7.563431284999751
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0007",
+      "wall_seconds": 1.2743164549992798
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0004",
+      "wall_seconds": 6.421590422000008
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0005",
+      "wall_seconds": 5.0486948500001745
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0006",
+      "wall_seconds": 6.57482259200151
+    },
+    {
+      "stage": "gather",
+      "task": "fused",
+      "wall_seconds": 1.0264430659990467
+    },
+    {
+      "stage": "index",
+      "task": "fused",
+      "wall_seconds": 3.4156991069994547
+    }
+  ],
+  "statistics_level": "light",
+  "task_estimated_work": [
+    198259968.0,
+    166907495.0,
+    208780658.0,
+    121293854.0,
+    176568727.0,
+    154880263.0,
+    164859886.0,
+    25708449.0
+  ],
+  "threads": 16,
+  "variant_counts": {
+    "annotated_output": 6169350,
+    "dropped_variants": 0,
+    "input_variants": 6169350,
+    "missing_annotated": 1296702,
+    "missing_variants": 1296702,
+    "tool_annotated": 1296702,
+    "total_output": 6169350
+  },
+  "variant_md5": {
+    "all": null,
+    "bottom10": null,
+    "top10": null
+  },
+  "vcfcache_version": "0.5.5",
+  "workers": 4
+}

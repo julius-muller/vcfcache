@@ -1,0 +1,303 @@
+{
+  "annotation_yaml_md5": "46745032f587cf84caae3a50be8f0d21",
+  "assembly_decode_threads": 0,
+  "assembly_encode_threads": 2,
+  "cache_name": "veprs_core",
+  "cache_path": "/mnt/data/tmp/engine-profile-g01-3dqa9dj2/bundle/cache/veprs_core",
+  "codec_threads_per_worker": 2,
+  "command": "annotate",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "cpu_budget": 8,
+  "effective_engine": "adaptive",
+  "engine": "fused",
+  "engine_lookup": "auto",
+  "engine_wall_seconds": 60.568810706001386,
+  "estimate_note": "CSI candidate byte estimates, not observed cache I/O",
+  "fallback_reason": "native memory buffer budget exceeded (indexed record-count lower bound)",
+  "genome_build_annotation": "GRCh38",
+  "genome_build_params": "GRCh38",
+  "input_file": "/mnt/data/tmp/engine-profile-g01-3dqa9dj2/inputs/wgs.bcf",
+  "input_name": "wgs.bcf",
+  "lookup_regions": 22,
+  "lookup_strategies": [
+    {
+      "cache_records": 1435577,
+      "estimated_cache_bytes": 67733568,
+      "name": "chr1",
+      "requested_cache_bytes": 67733568,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1490699,
+      "estimated_cache_bytes": 66482176,
+      "name": "chr2",
+      "requested_cache_bytes": 66482176,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1247559,
+      "estimated_cache_bytes": 64941996,
+      "name": "chr3",
+      "requested_cache_bytes": 64904131,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1271726,
+      "estimated_cache_bytes": 47129339,
+      "name": "chr4",
+      "requested_cache_bytes": 47129339,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1118422,
+      "estimated_cache_bytes": 40635959,
+      "name": "chr5",
+      "requested_cache_bytes": 40624369,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1152753,
+      "estimated_cache_bytes": 49424691,
+      "name": "chr6",
+      "requested_cache_bytes": 49424691,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 1074641,
+      "estimated_cache_bytes": 46449800,
+      "name": "chr7",
+      "requested_cache_bytes": 46449800,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 970901,
+      "estimated_cache_bytes": 45646796,
+      "name": "chr8",
+      "requested_cache_bytes": 45646796,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 830834,
+      "estimated_cache_bytes": 36687634,
+      "name": "chr9",
+      "requested_cache_bytes": 36687634,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 924515,
+      "estimated_cache_bytes": 41577754,
+      "name": "chr10",
+      "requested_cache_bytes": 41577754,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 862831,
+      "estimated_cache_bytes": 38877224,
+      "name": "chr11",
+      "requested_cache_bytes": 38877224,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 865133,
+      "estimated_cache_bytes": 39085781,
+      "name": "chr12",
+      "requested_cache_bytes": 39085781,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 637579,
+      "estimated_cache_bytes": 19821076,
+      "name": "chr13",
+      "requested_cache_bytes": 19821076,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 591558,
+      "estimated_cache_bytes": 27986667,
+      "name": "chr14",
+      "requested_cache_bytes": 27986667,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 558135,
+      "estimated_cache_bytes": 28458203,
+      "name": "chr15",
+      "requested_cache_bytes": 28458203,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 585392,
+      "estimated_cache_bytes": 28188333,
+      "name": "chr16",
+      "requested_cache_bytes": 28188333,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 548630,
+      "estimated_cache_bytes": 31901252,
+      "name": "chr17",
+      "requested_cache_bytes": 31901252,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 499973,
+      "estimated_cache_bytes": 19921995,
+      "name": "chr18",
+      "requested_cache_bytes": 19921995,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 456595,
+      "estimated_cache_bytes": 29618510,
+      "name": "chr19",
+      "requested_cache_bytes": 29614402,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 419415,
+      "estimated_cache_bytes": 18219387,
+      "name": "chr20",
+      "requested_cache_bytes": 18219387,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 303065,
+      "estimated_cache_bytes": 14742294,
+      "name": "chr21",
+      "requested_cache_bytes": 14742294,
+      "strategy": "contigs"
+    },
+    {
+      "cache_records": 314314,
+      "estimated_cache_bytes": 18890465,
+      "name": "chr22",
+      "requested_cache_bytes": 18890465,
+      "strategy": "contigs"
+    }
+  ],
+  "lookup_tasks": 4,
+  "mode": "cached",
+  "native_version": "vcfcache-engine 0.4.0",
+  "output_file": "/mnt/data/tmp/engine-profile-g01-3dqa9dj2/g01-c011/output.bcf",
+  "phase_timings": [
+    {
+      "phase": "preprocess",
+      "wall_seconds": 5.018863106000936
+    },
+    {
+      "phase": "route",
+      "wall_seconds": 20.03346012700058
+    },
+    {
+      "phase": "assemble",
+      "wall_seconds": 17.924257037000643
+    }
+  ],
+  "requested_engine": "native",
+  "run_timestamp": "2026-10-23T22:24:47",
+  "stage_timings": [
+    {
+      "stage": "preprocess",
+      "task": "prepare-0001",
+      "wall_seconds": 3.8419552560008015
+    },
+    {
+      "stage": "preprocess",
+      "task": "prepare-0000",
+      "wall_seconds": 4.661922603998391
+    },
+    {
+      "stage": "route",
+      "task": "shard-0001",
+      "wall_seconds": 8.196781763002946
+    },
+    {
+      "stage": "route",
+      "task": "shard-0000",
+      "wall_seconds": 12.016709504998289
+    },
+    {
+      "stage": "route",
+      "task": "shard-0002",
+      "wall_seconds": 10.361681825001142
+    },
+    {
+      "stage": "route",
+      "task": "shard-0003",
+      "wall_seconds": 8.013852329000656
+    },
+    {
+      "stage": "collect-misses",
+      "task": "fused",
+      "wall_seconds": 0.5100360399992496
+    },
+    {
+      "stage": "annotate-misses",
+      "task": "fused",
+      "wall_seconds": 10.416016934002982
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0001",
+      "wall_seconds": 6.850453662998916
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0000",
+      "wall_seconds": 10.108767410998553
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0002",
+      "wall_seconds": 9.044517889997223
+    },
+    {
+      "stage": "assemble",
+      "task": "shard-0003",
+      "wall_seconds": 7.812112929997966
+    },
+    {
+      "stage": "gather",
+      "task": "fused",
+      "wall_seconds": 0.5368962799984729
+    },
+    {
+      "stage": "index",
+      "task": "fused",
+      "wall_seconds": 3.5830766430008225
+    }
+  ],
+  "statistics_level": "light",
+  "task_estimated_work": [
+    340625831.0,
+    253827070.0,
+    286165288.0,
+    252720599.0
+  ],
+  "threads": 8,
+  "variant_counts": {
+    "annotated_output": 4858092,
+    "dropped_variants": 0,
+    "input_variants": 4858092,
+    "missing_annotated": 355259,
+    "missing_variants": 355259,
+    "tool_annotated": 355259,
+    "total_output": 4858092
+  },
+  "variant_md5": {
+    "all": null,
+    "bottom10": null,
+    "top10": null
+  },
+  "vcfcache_version": "0.5.5",
+  "workers": 2
+}

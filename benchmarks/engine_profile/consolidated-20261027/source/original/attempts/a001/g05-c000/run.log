@@ -1,0 +1,14 @@
+[22:32:50] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[22:32:50] Genome build (params.yaml): GRCh38
+[22:32:50] Genome build (annotation.yaml): GRCh38
+[22:32:50] Initializing annotation of wes.bcf
+[22:32:50] Running workflow in mode: annotate-nocache
+[22:32:50] Annotating sample directly (no cache)
+[22:32:50] Splitting multiallelic variants and removing spanning deletions
+[22:32:51] Command completed in 1.103s: bcftools norm
+[22:38:10] Command completed in 319.828s: bcftools view
+[22:38:11] Direct annotation complete: /mnt/data/tmp/engine-profile-g05-qzs3t7ip/g05-c000/output.bcf
+[22:38:11] Workflow completed successfully in 321.1s
+Computing MD5 for /mnt/data/tmp/engine-profile-g05-qzs3t7ip/g05-c000/stats/wes_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating wes.bcf (uncached mode)...
+Annotation completed in 321.1s

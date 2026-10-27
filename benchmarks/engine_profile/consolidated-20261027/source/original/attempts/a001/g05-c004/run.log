@@ -1,0 +1,16 @@
+[22:49:10] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[22:49:10] Genome build (params.yaml): GRCh38
+[22:49:10] Genome build (annotation.yaml): GRCh38
+[22:49:10] Initializing annotation of wgs.bcf
+[22:49:10] Running workflow in mode: annotate-nocache
+[22:49:10] Annotating sample directly (no cache)
+[22:49:10] Splitting multiallelic variants and removing spanning deletions
+[22:49:40] Command completed in 30.101s: bcftools norm
+[22:59:28] Command completed in 587.166s: bcftools view
+[22:59:28] Direct annotation complete: /mnt/data/tmp/engine-profile-g05-qzs3t7ip/g05-c004/output.bcf
+[22:59:28] Workflow completed successfully in 617.5s
+Computing MD5 for /mnt/data/tmp/engine-profile-g05-qzs3t7ip/g05-c004/stats/wgs_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating wgs.bcf (uncached mode)...
+Annotation completed in 617.5s
+[2026-10-23T22:59:28.486] error: Detected 6 oom_kill events in StepId=1340.4. Some of the step tasks have been OOM Killed.
+srun: error: sl-w2: task 0: Out Of Memory

@@ -1,0 +1,30 @@
+-------------------- -------------------- --------------------
+Ensembl VEP (Rust)   v116.2
+-------------------- -------------------- --------------------
+[2m2026-10-23T19:50:57.786145Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m input: STDIN
+[2m2026-10-23T19:50:57.786180Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output: STDOUT
+[2m2026-10-23T19:50:57.786184Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m output format: vcf
+[2m2026-10-23T19:50:57.786296Z[0m [32m INFO[0m [2mvep_cli::runner[0m[2m:[0m Transcript cache: /results/veprs/json_cache/GRCh38_native_20261023 (lazy per-chromosome, index impl=bin)
+[2m2026-10-23T19:51:00.349835Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr1: 47849 transcripts
+Processed 10000 variants...Processed 20000 variants...Processed 30000 variants...Processed 40000 variants...[2m2026-10-23T19:51:03.224254Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr2: 38171 transcripts
+Processed 50000 variants...Processed 60000 variants...[2m2026-10-23T19:51:05.676505Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr3: 31093 transcripts
+Processed 70000 variants...Processed 80000 variants...[2m2026-10-23T19:51:07.399873Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr4: 21381 transcripts
+Processed 90000 variants...Processed 100000 variants...[2m2026-10-23T19:51:09.175241Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr5: 23976 transcripts
+Processed 110000 variants...Processed 120000 variants...[2m2026-10-23T19:51:11.700743Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr6: 25540 transcripts
+Processed 130000 variants...Processed 140000 variants...[2m2026-10-23T19:51:13.635497Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr7: 26815 transcripts
+Processed 150000 variants...Processed 160000 variants...[2m2026-10-23T19:51:15.191782Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr8: 20864 transcripts
+Processed 170000 variants...[2m2026-10-23T19:51:16.648378Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr9: 21283 transcripts
+Processed 180000 variants...Processed 190000 variants...[2m2026-10-23T19:51:18.309412Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr10: 20847 transcripts
+Processed 200000 variants...[2m2026-10-23T19:51:19.941974Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr11: 27423 transcripts
+Processed 210000 variants...Processed 220000 variants...[2m2026-10-23T19:51:21.578612Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr12: 25891 transcripts
+Processed 230000 variants...[2m2026-10-23T19:51:22.348498Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr13: 9990 transcripts
+Processed 240000 variants...Processed 250000 variants...[2m2026-10-23T19:51:23.836470Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr14: 16985 transcripts
+Processed 260000 variants...[2m2026-10-23T19:51:24.876853Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr15: 17823 transcripts
+Processed 270000 variants...[2m2026-10-23T19:51:26.047515Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr16: 20499 transcripts
+Processed 280000 variants...[2m2026-10-23T19:51:27.433878Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr17: 25870 transcripts
+Processed 290000 variants...[2m2026-10-23T19:51:28.134034Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr18: 9463 transcripts
+Processed 300000 variants...[2m2026-10-23T19:51:29.599253Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr19: 25140 transcripts
+Processed 310000 variants...[2m2026-10-23T19:51:30.314116Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr20: 12611 transcripts
+Processed 320000 variants...Processed 330000 variants...Processed 340000 variants...[2m2026-10-23T19:51:31.426518Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr21: 6752 transcripts
+[2m2026-10-23T19:51:32.167478Z[0m [32m INFO[0m [2mvep_cli::transcript_index[0m[2m:[0m   chr22: 11560 transcripts
+Processed 350000 variants...Processed 355259 variants (2651043 consequences) in 35.5s

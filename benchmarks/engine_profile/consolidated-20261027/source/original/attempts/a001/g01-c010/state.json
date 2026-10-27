@@ -1,0 +1,97 @@
+{
+  "cell": {
+    "assay": "wgs",
+    "build": "profile",
+    "cpus": 8,
+    "engine": "adaptive",
+    "form": "bcf",
+    "id": "g01-c010",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": true,
+    "purpose": "cpu-scaling",
+    "recipe": "veprs-core",
+    "role": "measure",
+    "sample": "LP6005519-DNA_A06",
+    "skip_split": false,
+    "workers": 0
+  },
+  "direct_pass": true,
+  "effective_engine": "adaptive",
+  "finished_unix": 1792787024.7690163,
+  "instrumentation_equivalent": true,
+  "job_id": "1336",
+  "metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 36068416,
+        "throttled_usec": 0,
+        "usage_usec": 296792364,
+        "user_usec": 260723948
+      },
+      "memory_current_bytes": 354119680,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 10706477056,
+      "path": "/system.slice/sl-w4_slurmstepd.scope/job_1336/step_10/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 47769,
+        "throttled_usec": 0,
+        "usage_usec": 221567,
+        "user_usec": 173798
+      },
+      "memory_current_bytes": 11485184,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11485184,
+      "path": "/system.slice/sl-w4_slurmstepd.scope/job_1336/step_10/user/task_0"
+    },
+    "cpu_seconds": 296.412689,
+    "exit_code": 0,
+    "largest_child_rss_kib": 3794020,
+    "start_unix_ns": 1792786440438824127,
+    "wall_seconds": 62.41029878300105
+  },
+  "node": "sl-w4",
+  "output_sha256": "dca45739a6032e54f205765ee689abe82f12131ec725889f9111d25a6aa8dccb",
+  "started_unix": 1792786440.113315,
+  "state": "complete"
+}

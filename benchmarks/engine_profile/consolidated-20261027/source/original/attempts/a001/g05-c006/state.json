@@ -1,0 +1,25 @@
+{
+  "cell": {
+    "assay": "wgs",
+    "build": "profile",
+    "cpus": 16,
+    "engine": "native",
+    "form": "bcf",
+    "id": "g05-c006",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": true,
+    "purpose": "primary",
+    "recipe": "vep",
+    "role": "measure",
+    "sample": "LP6005592-DNA_C05",
+    "skip_split": false,
+    "workers": 0
+  },
+  "finished_unix": 1792789168.8107228,
+  "job_id": "1340",
+  "node": "sl-w2",
+  "reason": "direct reference failed or missing",
+  "started_unix": 1792789168.80377,
+  "state": "skipped"
+}

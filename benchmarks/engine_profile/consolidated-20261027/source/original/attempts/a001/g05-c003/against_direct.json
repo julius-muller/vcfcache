@@ -1,0 +1,46 @@
+{
+  "cached_header_sha256": "95c65649cc0259e360e6a0e73b65252d04a67813c70dfefbcf60cd277419fd28",
+  "cached_semantic_sha256": "0649bd7922bcbb5c20a0205aff662700c8a33aeebd467337c53556935eb75250",
+  "canonicalization": [
+    "INFO tag order",
+    "CSQ entry order",
+    "complete-record order within identical CHROM/POS loci",
+    "indexed contig traversal order by contig name"
+  ],
+  "comparator": "fastvep_complete_record_and_header_v3",
+  "examples": [
+    {
+      "cached": "chr9\t68303273\t.\tA\tT\t42.31\t.\tCSQ=T|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST00000360171|protein_coding||||||||||rs7034645&COSV61551261|3238|1||SNV|HGNC|HGNC:18519|YES|MANE_Select|NM_201453.4||1|P1|CCDS35038.2|ENSP00000353295|Q5JTY5.134||UPI0000160884|Q5JTY5-1|||||||chr9:g.68303273A>T|||||||0.4316|0.4191|0.4522|0.4218|0.3864|0.4256|0.4341|0.4434|0.4291|0.3876|0.4117|0.4004|0.4266|0.4238|0.4007|0.3788|0.3921|0.4509|0.4242|0.4111|0.3431|0.4522|gnomADe_AMR||0&1|0&1||||||,T|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST00000377342|protein_coding||||||||||rs7034645&COSV61551261|3258|1||SNV|HGNC|HGNC:18519|||||1|||ENSP00000366559||A0A0A0MRU4.60|UPI0000210AB6||||||||chr9:g.68303273A>T|||||||0.4316|0.4191|0.4522|0.4218|0.3864|0.4256|0.4341|0.4434|0.4291|0.3876|0.4117|0.4004|0.4266|0.4238|0.4007|0.3788|0.3921|0.4509|0.4242|0.4111|0.3431|0.4522|gnomADe_AMR||0&1|0&1||||||,T|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST000",
+      "group": 104372,
+      "kind": "complete_record",
+      "locus": [
+        "chr9",
+        "68303273"
+      ],
+      "occurrence": 1,
+      "uncached": "chr9\t68303273\t.\tA\tT\t42.31\t.\tCSQ=T|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST00000360171|protein_coding||||||||||rs7034645&COSV61551261|3238|1||SNV|HGNC|HGNC:18519|YES|MANE_Select|NM_201453.4||1|P1|CCDS35038.2|ENSP00000353295|Q5JTY5.134||UPI0000160884|Q5JTY5-1|||||||chr9:g.68303273A>T|||||||0.4316|0.4191|0.4522|0.4218|0.3864|0.4256|0.4341|0.4434|0.4291|0.3876|0.4117|0.4004|0.4266|0.4238|0.4007|0.3788|0.3921|0.4509|0.4242|0.4111|0.3431|0.4522|gnomADe_AMR||0&1|0&1||||||,T|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST00000377342|protein_coding||||||||||rs7034645&COSV61551261|3258|1||SNV|HGNC|HGNC:18519|||||1|||ENSP00000366559||A0A0A0MRU4.60|UPI0000210AB6||||||||chr9:g.68303273A>T|||||||0.4316|0.4191|0.4522|0.4218|0.3864|0.4256|0.4341|0.4434|0.4291|0.3876|0.4117|0.4004|0.4266|0.4238|0.4007|0.3788|0.3921|0.4509|0.4242|0.4111|0.3431|0.4522|gnomADe_AMR||0&1|0&1||||||,T|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST000"
+    },
+    {
+      "cached": "chr9\t68304222\t.\tA\tG\t26.64\t.\tBaseQRankSum=-1.284;CSQ=G|3_prime_UTR_variant|MODIFIER|FOXD4L3|ENSG00000187559|Transcript|ENST00000342833|protein_coding|1/1||ENST00000342833.4:c.*17A>G||1356|||||rs782511877||1||SNV|HGNC|HGNC:18523|YES|MANE_Select|NM_199135.4|||P1|CCDS43833.1|ENSP00000341961|Q6VB84.149||UPI0000367635||||||||chr9:g.68304222A>G|||||||0.0004443|0.01254|0.001033|0|2.658e-05|0|0.0005179|7.162e-05|0.001356|0.0003195|0.005128|0.01766|0|0.002372|0|0|0|0|0.0001182|0.006274|0.0004235|0.01766|gnomADg_AFR|||||||||,G|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST00000360171|protein_coding||||||||||rs782511877|4187|1||SNV|HGNC|HGNC:18519|YES|MANE_Select|NM_201453.4||1|P1|CCDS35038.2|ENSP00000353295|Q5JTY5.134||UPI0000160884|Q5JTY5-1|||||||chr9:g.68304222A>G|||||||0.0004443|0.01254|0.001033|0|2.658e-05|0|0.0005179|7.162e-05|0.001356|0.0003195|0.005128|0.01766|0|0.002372|0|0|0|0|0.0001182|0.006274|0.0004235|0.01766|gnomADg_AFR|||||||||,G|downstream_gene_variant|MODI",
+      "group": 104373,
+      "kind": "complete_record",
+      "locus": [
+        "chr9",
+        "68304222"
+      ],
+      "occurrence": 1,
+      "uncached": "chr9\t68304222\t.\tA\tG\t26.64\t.\tBaseQRankSum=-1.284;CSQ=G|3_prime_UTR_variant|MODIFIER|FOXD4L3|ENSG00000187559|Transcript|ENST00000342833|protein_coding|1/1||ENST00000342833.4:c.*17A>G||1356|||||rs782511877||1||SNV|HGNC|HGNC:18523|YES|MANE_Select|NM_199135.4|||P1|CCDS43833.1|ENSP00000341961|Q6VB84.149||UPI0000367635||||||||chr9:g.68304222A>G|||||||0.0004443|0.01254|0.001033|0|2.658e-05|0|0.0005179|7.162e-05|0.001356|0.0003195|0.005128|0.01766|0|0.002372|0|0|0|0|0.0001182|0.006274|0.0004235|0.01766|gnomADg_AFR|||||||||,G|downstream_gene_variant|MODIFIER|ZNG1C|ENSG00000196873|Transcript|ENST00000360171|protein_coding||||||||||rs782511877|4187|1||SNV|HGNC|HGNC:18519|YES|MANE_Select|NM_201453.4||1|P1|CCDS35038.2|ENSP00000353295|Q5JTY5.134||UPI0000160884|Q5JTY5-1|||||||chr9:g.68304222A>G|||||||0.0004443|0.01254|0.001033|0|2.658e-05|0|0.0005179|7.162e-05|0.001356|0.0003195|0.005128|0.01766|0|0.002372|0|0|0|0|0.0001182|0.006274|0.0004235|0.01766|gnomADg_AFR|||||||||,G|downstream_gene_variant|MODI"
+    }
+  ],
+  "ignored_annotation_mismatches": 0,
+  "ignored_fields": [],
+  "locus_mismatches": 0,
+  "raw_annotation_mismatches": 2,
+  "record_mismatches": 2,
+  "record_order_only_loci": 111,
+  "records_compared": 108539,
+  "relevant_headers_equal": true,
+  "semantic_pass": false,
+  "uncached_header_sha256": "95c65649cc0259e360e6a0e73b65252d04a67813c70dfefbcf60cd277419fd28",
+  "uncached_semantic_sha256": "39b58be43c5676a20294f35e5ac623da915daaeebe00b29328855fdc0ccd628e"
+}

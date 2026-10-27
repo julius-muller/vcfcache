@@ -1,0 +1,48 @@
+[22:41:51] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[22:41:51] Genome build (params.yaml): GRCh38
+[22:41:51] Genome build (annotation.yaml): GRCh38
+[22:41:51] Initializing annotation of wes.bcf
+[22:41:51] Contig overlap: cache=24 input=22 overlap=22
+[22:41:51] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[22:41:51] Running workflow in mode: annotate
+[W::hts_idx_load3] The index file is older than the data file: /mnt/data/tmp/engine-profile-g05-qzs3t7ip/bundle/cache/vep115.2_everything/vcfcache_annotated.bcf.csi
+[22:41:56] Fused engine: vcfcache-engine 0.4.0; preparation workers=4; CPU budget=16
+[22:41:56] Fused preprocess completed in 0.204s
+[22:41:56] Fused preprocess completed in 0.249s
+[22:41:56] Fused preprocess completed in 0.274s
+[22:41:56] Fused preprocess completed in 0.367s
+[22:41:56] Adaptive lookup: workers=4; codec threads=2; tasks=13; mode=auto
+[22:41:57] Fused route completed in 0.887s
+[22:41:59] Fused route completed in 3.037s
+[22:42:00] Fused route completed in 3.478s
+[22:42:00] Fused route completed in 2.637s
+[22:42:01] Fused route completed in 0.935s
+[22:42:02] Fused route completed in 3.092s
+[22:42:03] Fused route completed in 6.366s
+[22:42:03] Fused route completed in 3.533s
+[22:42:07] Fused route completed in 4.057s
+[22:42:07] Fused route completed in 4.631s
+[22:42:08] Fused route completed in 6.973s
+[22:42:08] Fused route completed in 1.462s
+[22:42:08] Fused route completed in 5.119s
+[22:42:09] Fused collect-misses completed in 0.403s
+[22:44:50] Fused annotate-misses completed in 160.767s
+[22:44:51] Fused assemble completed in 0.329s
+[22:44:52] Fused assemble completed in 1.037s
+[22:44:52] Fused assemble completed in 1.078s
+[22:44:52] Fused assemble completed in 1.241s
+[22:44:52] Fused assemble completed in 1.015s
+[22:44:52] Fused assemble completed in 0.376s
+[22:44:53] Fused assemble completed in 0.838s
+[22:44:53] Fused assemble completed in 0.888s
+[22:44:53] Fused assemble completed in 1.042s
+[22:44:53] Fused assemble completed in 0.779s
+[22:44:53] Fused assemble completed in 0.406s
+[22:44:54] Fused assemble completed in 0.962s
+[22:44:54] Fused assemble completed in 1.077s
+[22:44:54] Fused gather completed in 0.267s
+[22:44:54] Fused index completed in 0.391s
+[22:44:54] Workflow completed successfully in 183.2s
+Computing MD5 for /mnt/data/tmp/engine-profile-g05-qzs3t7ip/g05-c002/stats/wes_vcstats/workflow/annotation.snapshot.yaml ...
+Annotating wes.bcf (cached mode)...
+Annotation completed in 183.5s

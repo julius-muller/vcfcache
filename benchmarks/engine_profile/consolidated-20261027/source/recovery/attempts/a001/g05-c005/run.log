@@ -1,0 +1,24 @@
+[05:00:27] Using bcftools 1.21+htslib-1.21 at /usr/local/bin/bcftools
+[05:00:27] Genome build (params.yaml): GRCh38
+[05:00:27] Genome build (annotation.yaml): GRCh38
+[05:00:27] Initializing annotation of wgs.bcf
+[05:00:27] Contig overlap: cache=24 input=22 overlap=22
+[05:00:27] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[05:00:27] Running workflow in mode: annotate
+[W::hts_idx_load3] The index file is older than the data file: /mnt/data/tmp/engine-profile-g05-avwvp4tf/bundle/cache/vep115.2_everything/vcfcache_annotated.bcf.csi
+[05:00:27] Fused engine: vcfcache-engine 0.4.0; preparation workers=4; CPU budget=16
+[05:00:30] Fused preprocess completed in 2.257s
+[05:00:30] Fused preprocess completed in 2.965s
+[05:00:31] Fused preprocess completed in 3.222s
+[05:00:31] Fused preprocess completed in 3.507s
+[05:00:31] Adaptive lookup: workers=4; codec threads=2; tasks=8; mode=auto
+[05:00:48] Fused route completed in 16.509s
+[05:00:55] Fused route completed in 23.459s
+[05:00:58] Fused route completed in 26.252s
+[05:00:59] Fused route completed in 27.150s
+[05:01:02] Fused route completed in 3.335s
+[05:01:08] Fused route completed in 19.904s
+[05:01:09] Fused route completed in 13.920s
+[05:01:13] Fused route completed in 14.887s
+[05:01:14] Fused collect-misses completed in 1.787s
+[2026-10-25T05:03:05.768] error: *** STEP 1343.1 ON sl-w2 CANCELLED AT 2026-10-25T05:03:05 DUE TO TIME LIMIT ***

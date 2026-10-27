@@ -1,0 +1,81 @@
+[
+  {
+    "attempt": 1,
+    "collector_job_id": "1344",
+    "jobs": [
+      {
+        "cells": [
+          "g02-c004",
+          "g02-c005",
+          "g02-c006",
+          "g02-c007"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w1",
+          "--output=/results/engine-profile/20261025-vep-memory-recovery-183514646/logs/g02-a1-%j.out",
+          "/mnt/data/slurm-results/deployment/engine-profile-recovery-20261025-183514646/benchmarks/engine_profile/job.sh",
+          "/results/engine-profile/20261025-vep-memory-recovery-183514646",
+          "g02",
+          "1",
+          "g02-c004,g02-c005,g02-c006,g02-c007",
+          "/results/deployment/engine-profile-recovery-20261025-183514646"
+        ],
+        "group": "g02",
+        "job_id": "1342"
+      },
+      {
+        "cells": [
+          "g05-c004",
+          "g05-c005",
+          "g05-c006",
+          "g05-c007"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w2",
+          "--output=/results/engine-profile/20261025-vep-memory-recovery-183514646/logs/g05-a1-%j.out",
+          "/mnt/data/slurm-results/deployment/engine-profile-recovery-20261025-183514646/benchmarks/engine_profile/job.sh",
+          "/results/engine-profile/20261025-vep-memory-recovery-183514646",
+          "g05",
+          "1",
+          "g05-c004,g05-c005,g05-c006,g05-c007",
+          "/results/deployment/engine-profile-recovery-20261025-183514646"
+        ],
+        "group": "g05",
+        "job_id": "1343"
+      }
+    ],
+    "submitted_unix": 1792879381.342578
+  },
+  {
+    "attempt": 2,
+    "collector_job_id": "1346",
+    "jobs": [
+      {
+        "cells": [
+          "g05-c005",
+          "g05-c006",
+          "g05-c007"
+        ],
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--nodelist=sl-w2",
+          "--output=/results/engine-profile/20261025-vep-memory-recovery-183514646/logs/g05-a2-%j.out",
+          "/mnt/data/slurm-results/deployment/engine-profile-recovery-20261025-183514646/benchmarks/engine_profile/job.sh",
+          "/results/engine-profile/20261025-vep-memory-recovery-183514646",
+          "g05",
+          "2",
+          "g05-c005,g05-c006,g05-c007",
+          "/results/deployment/engine-profile-recovery-20261025-183514646"
+        ],
+        "group": "g05",
+        "job_id": "1345"
+      }
+    ],
+    "submitted_unix": 1793058087.3785899
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "cell": {
+    "assay": "wgs",
+    "build": "baseline",
+    "cpus": 16,
+    "engine": "legacy",
+    "form": "bcf",
+    "id": "g02-c004",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": false,
+    "purpose": "reference",
+    "recipe": "vep",
+    "role": "direct",
+    "sample": "LP6005519-DNA_A06",
+    "skip_split": false,
+    "workers": 0
+  },
+  "error": "Slurm step/CLI exit 1; see run.log",
+  "finished_unix": 1792785282.9295433,
+  "job_id": "1337",
+  "node": "sl-w1",
+  "retained_output": "/results/engine-profile/20261023T190736Z-97545d739/attempts/a001/g02-c004/output.bcf",
+  "started_unix": 1792784048.3633184,
+  "state": "failed",
+  "traceback": "Traceback (most recent call last):\n  File \"/results/deployment/engine-profile-20261023T190736Z-97545d739-profile/benchmarks/engine_profile/run.py\", line 587, in run_cell\n    raise RuntimeError(\nRuntimeError: Slurm step/CLI exit 1; see run.log\n"
+}

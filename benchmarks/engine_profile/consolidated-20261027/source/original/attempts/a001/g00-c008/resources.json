@@ -1,0 +1,62 @@
+{
+  "affinity": [
+    0
+  ],
+  "cgroup_after": {
+    "cpu_stat": {
+      "burst_usec": 0,
+      "core_sched.force_idle_usec": 0,
+      "nice_usec": 0,
+      "nr_bursts": 0,
+      "nr_periods": 0,
+      "nr_throttled": 0,
+      "system_usec": 4087121,
+      "throttled_usec": 0,
+      "usage_usec": 95348677,
+      "user_usec": 91261555
+    },
+    "memory_current_bytes": 205484032,
+    "memory_events": {
+      "high": 0,
+      "low": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_group_kill": 0,
+      "oom_kill": 0,
+      "sock_throttled": 0
+    },
+    "memory_peak_bytes": 2900135936,
+    "path": "/system.slice/sl-w2_slurmstepd.scope/job_1335/step_8/user/task_0"
+  },
+  "cgroup_before": {
+    "cpu_stat": {
+      "burst_usec": 0,
+      "core_sched.force_idle_usec": 0,
+      "nice_usec": 0,
+      "nr_bursts": 0,
+      "nr_periods": 0,
+      "nr_throttled": 0,
+      "system_usec": 26938,
+      "throttled_usec": 0,
+      "usage_usec": 205533,
+      "user_usec": 178594
+    },
+    "memory_current_bytes": 11485184,
+    "memory_events": {
+      "high": 0,
+      "low": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_group_kill": 0,
+      "oom_kill": 0,
+      "sock_throttled": 0
+    },
+    "memory_peak_bytes": 11485184,
+    "path": "/system.slice/sl-w2_slurmstepd.scope/job_1335/step_8/user/task_0"
+  },
+  "cpu_seconds": 94.992215,
+  "exit_code": 0,
+  "largest_child_rss_kib": 4987292,
+  "start_unix_ns": 1792785999109969584,
+  "wall_seconds": 95.56693783499941
+}

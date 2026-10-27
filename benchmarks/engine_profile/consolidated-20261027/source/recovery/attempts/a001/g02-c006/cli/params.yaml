@@ -1,0 +1,11 @@
+annotation_tool_cmd: apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/115/vep.sif
+  vep
+bcftools_cmd: bcftools
+genome_build: GRCh38
+temp_dir: /mnt/data/tmp/engine-profile-g02-iu6_df90/g02-c006/tmp
+threads: 16
+tool_version_command: apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/115/vep.sif
+  vep | awk '/ensembl-vep/ {print $NF}'
+vep_buffer: 50000
+vep_cache: /mnt/data/apps/ensembl-vep/115/cachedir
+vep_forks: 4

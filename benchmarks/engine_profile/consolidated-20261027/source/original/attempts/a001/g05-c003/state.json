@@ -1,0 +1,106 @@
+{
+  "cell": {
+    "assay": "wes",
+    "build": "profile",
+    "cpus": 16,
+    "engine": "adaptive",
+    "form": "bcf",
+    "id": "g05-c003",
+    "memory_mb": 512,
+    "perf": false,
+    "profile": true,
+    "purpose": "primary",
+    "recipe": "vep",
+    "role": "measure",
+    "sample": "LP6005592-DNA_C05",
+    "skip_split": false,
+    "workers": 0
+  },
+  "direct_pass": false,
+  "effective_engine": "adaptive",
+  "finished_unix": 1792788549.8246949,
+  "instrumentation_equivalent": true,
+  "job_id": "1340",
+  "metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 91599132,
+        "throttled_usec": 0,
+        "usage_usec": 1606853620,
+        "user_usec": 1515254487
+      },
+      "memory_current_bytes": 1709903872,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 6630031360,
+      "path": "/system.slice/sl-w2_slurmstepd.scope/job_1340/step_3/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 50669,
+        "throttled_usec": 0,
+        "usage_usec": 229610,
+        "user_usec": 178940
+      },
+      "memory_current_bytes": 11485184,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11485184,
+      "path": "/system.slice/sl-w2_slurmstepd.scope/job_1340/step_3/user/task_0"
+    },
+    "cpu_seconds": 1605.473571,
+    "exit_code": 0,
+    "largest_child_rss_kib": 384328,
+    "start_unix_ns": 1792788330688730924,
+    "wall_seconds": 184.82269434599948
+  },
+  "node": "sl-w2",
+  "output_sha256": "d6dcaa52179b2dbbc01bc466f3e3f384edbb50ff1083cb911188131457f51442",
+  "retained_output": "/results/engine-profile/20261023T190736Z-97545d739/attempts/a001/g05-c003/output.bcf",
+  "started_unix": 1792788330.3634243,
+  "state": "complete_with_direct_difference"
+}

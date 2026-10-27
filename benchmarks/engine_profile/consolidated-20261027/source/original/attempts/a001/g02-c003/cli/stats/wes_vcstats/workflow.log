@@ -1,0 +1,55 @@
+[2026-10-23 21:31:19] DEBUG [vcfcache.logging.py.setup_logging:87] File logging enabled at: /mnt/data/tmp/engine-profile-g02-xquaopo2/g02-c003/stats/wes_vcstats/workflow.log
+[2026-10-23 21:31:19] DEBUG [vcfcache.logging.py.setup_logging:93] Log levels - Console: INFO, File: DEBUG
+[2026-10-23 21:31:19] DEBUG [vcfcache.workflow_manager.py.__init__:170] Initializing Pure Python workflow in: /mnt/data/tmp/engine-profile-g02-xquaopo2/g02-c003/stats/wes_vcstats
+[2026-10-23 21:31:19] DEBUG [vcfcache.workflow_manager.py.__init__:212] Loaded parameters from: /mnt/data/tmp/engine-profile-g02-xquaopo2/g02-c003/stats/wes_vcstats/workflow/params.snapshot.yaml
+[2026-10-23 21:31:19] DEBUG [vcfcache.workflow_manager.py.__init__:242] Loaded annotation config from: /mnt/data/tmp/engine-profile-g02-xquaopo2/bundle/cache/vep115.2_everything/annotation.yaml
+[2026-10-23 21:31:19] INFO [vcfcache.workflow_manager.py.__init__:251] Genome build (params.yaml): GRCh38
+[2026-10-23 21:31:19] INFO [vcfcache.workflow_manager.py.__init__:255] Genome build (annotation.yaml): GRCh38
+[2026-10-23 21:31:19] DEBUG [vcfcache.annotator.py._validate_inputs:583] Validating inputs
+[2026-10-23 21:31:19] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/engine-profile-g02-xquaopo2/inputs/wes.bcf
+[2026-10-23 21:31:19] DEBUG [vcfcache.annotator.py._validate_inputs:595] Input validation successful
+[2026-10-23 21:31:19] INFO [vcfcache.annotator.py.__init__:516] Initializing annotation of wes.bcf
+[2026-10-23 21:31:19] DEBUG [vcfcache.annotator.py.__init__:517] Cache file: /mnt/data/tmp/engine-profile-g02-xquaopo2/bundle/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-23 21:31:19] DEBUG [vcfcache.annotator.py.annotate:894] Starting VCF annotation
+[2026-10-23 21:31:19] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/engine-profile-g02-xquaopo2/bundle/cache/vep115.2_everything/vcfcache_annotated.bcf
+[2026-10-23 21:31:19] DEBUG [vcfcache.base.py.ensure_indexed:118] Checking index for: /mnt/data/tmp/engine-profile-g02-xquaopo2/inputs/wes.bcf
+[2026-10-23 21:31:19] INFO [vcfcache.annotator.py._log_contig_overlap:532] Contig overlap: cache=24 input=22 overlap=22
+[2026-10-23 21:31:19] INFO [vcfcache.annotator.py._log_contig_overlap:540] Overlapping contigs (first 10): chr1, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18
+[2026-10-23 21:31:19] DEBUG [vcfcache.workflow_manager.py._create_work_dir:1014] Created work directory: /mnt/data/tmp/engine-profile-g02-xquaopo2/g02-c003/stats/wes_vcstats/work
+[2026-10-23 21:31:19] INFO [vcfcache.workflow_manager.py.run:313] Running workflow in mode: annotate
+[2026-10-23 21:31:24] INFO [vcfcache.fused.py._run_fused:120] Fused engine: vcfcache-engine 0.4.0; preparation workers=4; CPU budget=16
+[2026-10-23 21:31:24] INFO [vcfcache.engine_runtime.py.run:134] Fused preprocess completed in 0.192s
+[2026-10-23 21:31:24] INFO [vcfcache.engine_runtime.py.run:134] Fused preprocess completed in 0.228s
+[2026-10-23 21:31:24] INFO [vcfcache.engine_runtime.py.run:134] Fused preprocess completed in 0.248s
+[2026-10-23 21:31:24] INFO [vcfcache.engine_runtime.py.run:134] Fused preprocess completed in 0.283s
+[2026-10-23 21:31:24] INFO [vcfcache.fused.py._run_fused:180] Adaptive lookup: workers=4; codec threads=2; tasks=11; mode=auto
+[2026-10-23 21:31:27] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 2.895s
+[2026-10-23 21:31:27] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 3.077s
+[2026-10-23 21:31:28] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 3.240s
+[2026-10-23 21:31:28] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 0.183s
+[2026-10-23 21:31:30] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 2.335s
+[2026-10-23 21:31:30] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 3.172s
+[2026-10-23 21:31:30] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 6.170s
+[2026-10-23 21:31:33] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 2.536s
+[2026-10-23 21:31:33] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 5.667s
+[2026-10-23 21:31:34] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 4.216s
+[2026-10-23 21:31:35] INFO [vcfcache.engine_runtime.py.run:134] Fused route completed in 4.924s
+[2026-10-23 21:31:36] INFO [vcfcache.engine_runtime.py.run:134] Fused collect-misses completed in 0.247s
+[2026-10-23 21:33:34] INFO [vcfcache.engine_runtime.py.run:134] Fused annotate-misses completed in 118.133s
+[2026-10-23 21:33:35] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 1.078s
+[2026-10-23 21:33:35] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 1.098s
+[2026-10-23 21:33:35] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 1.110s
+[2026-10-23 21:33:35] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 1.128s
+[2026-10-23 21:33:35] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 0.177s
+[2026-10-23 21:33:36] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 0.666s
+[2026-10-23 21:33:36] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 0.839s
+[2026-10-23 21:33:36] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 0.847s
+[2026-10-23 21:33:36] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 0.556s
+[2026-10-23 21:33:37] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 1.182s
+[2026-10-23 21:33:37] INFO [vcfcache.engine_runtime.py.run:134] Fused assemble completed in 1.046s
+[2026-10-23 21:33:38] INFO [vcfcache.engine_runtime.py.run:134] Fused gather completed in 0.402s
+[2026-10-23 21:33:38] INFO [vcfcache.engine_runtime.py.run:134] Fused index completed in 0.538s
+[2026-10-23 21:33:38] DEBUG [vcfcache.workflow_manager.py._write_trace_file:1000] Trace file written to: /mnt/data/tmp/engine-profile-g02-xquaopo2/g02-c003/stats/wes_vcstats/vep115.2_everything_trace.txt
+[2026-10-23 21:33:38] INFO [vcfcache.workflow_manager.py.run:391] Workflow completed successfully in 138.8s
+[2026-10-23 21:33:38] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1026] Cleaning up work directory
+[2026-10-23 21:33:38] DEBUG [vcfcache.workflow_manager.py.cleanup_work_dir:1029] Removing work directory: /mnt/data/tmp/engine-profile-g02-xquaopo2/g02-c003/stats/wes_vcstats/work

@@ -1,0 +1,85 @@
+{
+  "annotation_yaml_md5": "79ecfde8de61f086b7d11c8d3bfcec49",
+  "buffer_bytes": 783294396,
+  "cache_name": "vep115.2_everything",
+  "cache_path": "/mnt/data/tmp/engine-profile-g02-xquaopo2/bundle/cache/vep115.2_everything",
+  "candidate_records": 2969970,
+  "command": "annotate",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "cpu_budget": 16,
+  "effective_engine": "native",
+  "engine": "native",
+  "engine_lookup": "auto",
+  "engine_memory_mb": 2048,
+  "engine_wall_seconds": 134.65952603799997,
+  "genome_build_annotation": "GRCh38",
+  "genome_build_params": "GRCh38",
+  "input_file": "/mnt/data/tmp/engine-profile-g02-xquaopo2/inputs/wes.bcf",
+  "input_name": "wes.bcf",
+  "lookup_queries": 14147,
+  "mode": "cached",
+  "native_version": "vcfcache-engine 0.4.0",
+  "output_file": "/mnt/data/tmp/engine-profile-g02-xquaopo2/g02-c008/output.bcf",
+  "phase_timings": [
+    {
+      "phase": "prepare",
+      "wall_seconds": 0.424952541
+    },
+    {
+      "phase": "lookup",
+      "wall_seconds": 6.31291955
+    },
+    {
+      "phase": "merge-preflight",
+      "wall_seconds": 0.492779551
+    },
+    {
+      "phase": "merge-and-write",
+      "wall_seconds": 2.229431875
+    }
+  ],
+  "requested_engine": "native",
+  "run_timestamp": "2026-10-23T21:56:59",
+  "stage_timings": [
+    {
+      "stage": "annotate-misses",
+      "task": "native",
+      "wall_seconds": 123.18872148399896
+    }
+  ],
+  "statistics_level": "light",
+  "threads": 16,
+  "variant_counts": {
+    "annotated_output": 82714,
+    "dropped_variants": 0,
+    "input_variants": 82714,
+    "missing_annotated": 5432,
+    "missing_variants": 5432,
+    "tool_annotated": 5432,
+    "total_output": 82714
+  },
+  "variant_md5": {
+    "all": null,
+    "bottom10": null,
+    "top10": null
+  },
+  "vcfcache_version": "0.5.5",
+  "workers": 8
+}

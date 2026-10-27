@@ -1,0 +1,257 @@
+command: annotate
+mode: cached
+run_timestamp: '2026-10-23T21:38:16'
+output_file: /mnt/data/tmp/engine-profile-g00-mw6ivdsq/g00-c005/output.bcf
+input_file: /mnt/data/tmp/engine-profile-g00-mw6ivdsq/inputs/wgs.bcf
+input_name: wgs.bcf
+cache_name: fastvep_clinical_grch38_af001
+cache_path: /mnt/data/tmp/engine-profile-g00-mw6ivdsq/bundle/cache/fastvep_clinical_grch38_af001
+annotation_yaml_md5: 33a5f93e383eb9ead67f9454b04b0e61
+genome_build_params: GRCh38
+genome_build_annotation: GRCh38
+vcfcache_version: 0.5.5
+threads: 16
+statistics_level: light
+variant_counts:
+  total_output: 4858092
+  annotated_output: 4858092
+  tool_annotated: 355259
+  input_variants: 4858092
+  dropped_variants: 0
+  missing_variants: 355259
+  missing_annotated: 355259
+variant_md5:
+  top10: null
+  bottom10: null
+  all: null
+engine: fused
+requested_engine: adaptive
+effective_engine: adaptive
+native_version: vcfcache-engine 0.4.0
+workers: 4
+cpu_budget: 16
+cpu_affinity:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+stage_timings:
+- stage: preprocess
+  task: prepare-0003
+  wall_seconds: 1.874708831001044
+- stage: preprocess
+  task: prepare-0001
+  wall_seconds: 2.795967154999744
+- stage: preprocess
+  task: prepare-0002
+  wall_seconds: 2.962188855999557
+- stage: preprocess
+  task: prepare-0000
+  wall_seconds: 2.9658835619993624
+- stage: route
+  task: shard-0003
+  wall_seconds: 7.075594235000608
+- stage: route
+  task: shard-0001
+  wall_seconds: 9.5901562070012
+- stage: route
+  task: shard-0000
+  wall_seconds: 11.206105613000545
+- stage: route
+  task: shard-0002
+  wall_seconds: 11.30010196100011
+- stage: route
+  task: shard-0007
+  wall_seconds: 1.925632782998946
+- stage: route
+  task: shard-0004
+  wall_seconds: 9.842510503000085
+- stage: route
+  task: shard-0005
+  wall_seconds: 8.299813994999568
+- stage: route
+  task: shard-0006
+  wall_seconds: 7.842434342999695
+- stage: collect-misses
+  task: fused
+  wall_seconds: 0.9638300599999639
+- stage: annotate-misses
+  task: fused
+  wall_seconds: 57.357062099999894
+- stage: assemble
+  task: shard-0003
+  wall_seconds: 6.4609112050002295
+- stage: assemble
+  task: shard-0001
+  wall_seconds: 9.383842018998621
+- stage: assemble
+  task: shard-0000
+  wall_seconds: 10.5098860900016
+- stage: assemble
+  task: shard-0002
+  wall_seconds: 11.012401079000483
+- stage: assemble
+  task: shard-0007
+  wall_seconds: 1.3349782599998434
+- stage: assemble
+  task: shard-0004
+  wall_seconds: 7.632645916999536
+- stage: assemble
+  task: shard-0005
+  wall_seconds: 7.518103664999217
+- stage: assemble
+  task: shard-0006
+  wall_seconds: 7.88487042000088
+- stage: gather
+  task: fused
+  wall_seconds: 1.785316777000844
+- stage: index
+  task: fused
+  wall_seconds: 4.294772782001019
+codec_threads_per_worker: 2
+assembly_decode_threads: 0
+assembly_encode_threads: 2
+engine_lookup: auto
+lookup_strategies:
+- cache_records: 1435577
+  estimated_cache_bytes: 154313580
+  name: chr1
+  requested_cache_bytes: 154231484
+  strategy: contigs
+- cache_records: 1490699
+  estimated_cache_bytes: 153710267
+  name: chr2
+  requested_cache_bytes: 153626532
+  strategy: contigs
+- cache_records: 1247559
+  estimated_cache_bytes: 157373257
+  name: chr3
+  requested_cache_bytes: 157088961
+  strategy: contigs
+- cache_records: 1271726
+  estimated_cache_bytes: 111416664
+  name: chr4
+  requested_cache_bytes: 111384150
+  strategy: contigs
+- cache_records: 1118422
+  estimated_cache_bytes: 91953629
+  name: chr5
+  requested_cache_bytes: 91847760
+  strategy: contigs
+- cache_records: 1152753
+  estimated_cache_bytes: 110831651
+  name: chr6
+  requested_cache_bytes: 110831651
+  strategy: contigs
+- cache_records: 1074641
+  estimated_cache_bytes: 108407311
+  name: chr7
+  requested_cache_bytes: 108367548
+  strategy: contigs
+- cache_records: 970901
+  estimated_cache_bytes: 105792733
+  name: chr8
+  requested_cache_bytes: 105792733
+  strategy: contigs
+- cache_records: 830834
+  estimated_cache_bytes: 83130735
+  name: chr9
+  requested_cache_bytes: 83130735
+  strategy: contigs
+- cache_records: 924515
+  estimated_cache_bytes: 99244748
+  name: chr10
+  requested_cache_bytes: 99244748
+  strategy: contigs
+- cache_records: 862831
+  estimated_cache_bytes: 88869861
+  name: chr11
+  requested_cache_bytes: 88869861
+  strategy: contigs
+- cache_records: 865133
+  estimated_cache_bytes: 88287900
+  name: chr12
+  requested_cache_bytes: 88287900
+  strategy: contigs
+- cache_records: 637579
+  estimated_cache_bytes: 44199433
+  name: chr13
+  requested_cache_bytes: 44199433
+  strategy: contigs
+- cache_records: 591558
+  estimated_cache_bytes: 64735502
+  name: chr14
+  requested_cache_bytes: 64729882
+  strategy: contigs
+- cache_records: 558135
+  estimated_cache_bytes: 65465481
+  name: chr15
+  requested_cache_bytes: 65462406
+  strategy: contigs
+- cache_records: 585392
+  estimated_cache_bytes: 63481586
+  name: chr16
+  requested_cache_bytes: 63481586
+  strategy: contigs
+- cache_records: 548630
+  estimated_cache_bytes: 70930142
+  name: chr17
+  requested_cache_bytes: 70926612
+  strategy: contigs
+- cache_records: 499973
+  estimated_cache_bytes: 46004870
+  name: chr18
+  requested_cache_bytes: 45967052
+  strategy: contigs
+- cache_records: 456595
+  estimated_cache_bytes: 62569040
+  name: chr19
+  requested_cache_bytes: 62565438
+  strategy: contigs
+- cache_records: 419415
+  estimated_cache_bytes: 40131962
+  name: chr20
+  requested_cache_bytes: 40106729
+  strategy: contigs
+- cache_records: 303065
+  estimated_cache_bytes: 32873944
+  name: chr21
+  requested_cache_bytes: 32873944
+  strategy: contigs
+- cache_records: 314314
+  estimated_cache_bytes: 41755932
+  name: chr22
+  requested_cache_bytes: 41755932
+  strategy: contigs
+lookup_tasks: 8
+lookup_regions: 22
+task_estimated_work:
+- 358295527.0
+- 312856993.0
+- 367228623.0
+- 218595852.0
+- 322340941.0
+- 278858514.0
+- 291009030.0
+- 47212636.0
+estimate_note: CSI candidate byte estimates, not observed cache I/O
+phase_timings:
+- phase: preprocess
+  wall_seconds: 3.349437429998943
+- phase: route
+  wall_seconds: 19.05128828799934
+- phase: assemble
+  wall_seconds: 18.398877353998614
+engine_wall_seconds: 108.56874367800083
