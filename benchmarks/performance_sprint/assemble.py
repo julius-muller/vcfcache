@@ -18,7 +18,7 @@ from pathlib import Path
 import yaml
 
 from benchmarks.engine_profile.run import read
-from benchmarks.performance_sprint.cache_stage import snapshot_cache
+from benchmarks.performance_sprint.cache_stage import snapshot_cache, snapshot_metadata
 from benchmarks.performance_sprint.manuscript import prepare, validate_task
 from benchmarks.run_pilot import sha256sum, write_json_atomic
 
@@ -659,6 +659,11 @@ def main():
         if key not in mirrors:
             mirrors[key] = snapshot_cache(task["cache"], files, args.output)
         task["cache"] = mirrors[key]
+        task["original_annotation_assets"] = task["annotation_assets"]
+        task["annotation_assets"] = [
+            snapshot_metadata(asset, files, args.output)
+            for asset in task["annotation_assets"]
+        ]
     recipe_assets(tasks, files, groups)
     build = read(args.build)
     for task in tasks:

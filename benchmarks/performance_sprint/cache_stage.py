@@ -15,6 +15,18 @@ from pathlib import Path
 from benchmarks.run_pilot import sha256sum, write_json_atomic
 
 
+def snapshot_metadata(asset, files, output):
+    """Freeze canonical cache provenance, not another node's independent build log."""
+    path = Path(asset["path"])
+    if not str(path).startswith("/mnt/data/") or "provenance" not in path.name:
+        return asset
+    destination = output / "cache-provenance" / asset["sha256"] / path.name
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if not destination.exists():
+        shutil.copy2(path, destination)
+    return files.get(destination, asset["sha256"])
+
+
 def snapshot_cache(cache, files, output):
     """Publish immutable canonical transport copies for node-local cache files."""
     source = Path(cache["directory"])
