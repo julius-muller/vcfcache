@@ -65,7 +65,8 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     if workers > cpus:
         raise ValueError("native workers exceed configured CPU budget")
     workers = workers or min(8, max(1, cpus // 2))
-    validate_info_headers(manager.input_file, cache)
+    if validate_info_headers(manager.input_file, cache):
+        helper_version(binary, (0, 7, 1))
     bcftools = manager.params_file_content["bcftools_cmd"]
     with phase("native.index_preflight"):
         count = subprocess.run(
@@ -228,7 +229,8 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                         "sort-annotator-output",
                     )
                     spec["annotated"] = str(root / "sorted.bcf")
-                validate_info_headers(Path(spec["misses"]), Path(spec["annotated"]))
+                if validate_info_headers(Path(spec["misses"]), Path(spec["annotated"])):
+                    helper_version(binary, (0, 7, 1))
             process.stdin.write(
                 json.dumps({"action": "resume", "annotated": spec["annotated"]}) + "\n"
             )

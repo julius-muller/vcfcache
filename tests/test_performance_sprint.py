@@ -492,6 +492,166 @@ def test_clinical_reference_replacement_requires_explicit_reason():
     validate_task(task)
 
 
+def test_repair_reuses_exact_completed_direct_control(tmp_path):
+    from benchmarks.performance_sprint.repair_headers import reuse_direct
+    from benchmarks.run_pilot import write_json_atomic
+
+    task = manuscript_task()
+    source = tmp_path / "old-attempt"
+    (source / "direct").mkdir(parents=True)
+    original = manuscript_task()
+    write_json_atomic(source / "command.json", dict(task=original))
+    metrics = dict(
+        exit_code=0,
+        wall_seconds=1234,
+        affinity=list(range(8)),
+        cgroup_after=dict(verified=True),
+    )
+    write_json_atomic(source / "direct/resources.json", metrics)
+    write_json_atomic(
+        source / "direct/command.json", dict(command=["original-annotator"])
+    )
+    write_json_atomic(
+        source / "state.json",
+        dict(state="failed", job_id="123", direct_metrics=metrics),
+    )
+    (source / "direct.bcf").write_bytes(b"completed reference")
+    (source / "direct.bcf.csi").write_bytes(b"completed index")
+    task["baseline"]["direct_reuse"] = dict(
+        attempt=str(source),
+        command_sha256=sha256sum(source / "command.json"),
+        job_id="123",
+        files={"direct.bcf": sha256sum(source / "direct.bcf")},
+    )
+    output, reused = reuse_direct(task, tmp_path / "new-direct")
+    assert output == source / "direct.bcf"
+    assert reused["wall_seconds"] == 1234
+    assert (tmp_path / "new-direct/REUSED.json").is_file()
+    # Same sample name does not authorize reuse after a condition change.
+    task["parameters"]["changed_recipe"] = "not allowed"
+    with pytest.raises(RuntimeError, match="binding differs"):
+        reuse_direct(task, tmp_path / "bad-direct")
+
+
+def test_direct_reuse_rejects_nonpaired_and_unsafe_dependencies():
+    from benchmarks.performance_sprint.manuscript import validate_task
+
+    task = manuscript_task()
+    task["baseline"]["direct_reuse"] = dict(attempt="old")
+    with pytest.raises(ValueError, match="paired reference"):
+        validate_task(task)
+    task["baseline"].pop("direct_reuse")
+    task["after_jobs"] = ["1;bad"]
+    with pytest.raises(ValueError, match="predecessor job"):
+        validate_task(task)
+
+
+def test_repair_registers_only_replacements_and_never_cancels_running(
+    tmp_path, monkeypatch
+):
+    from benchmarks.performance_sprint import repair_headers
+    from benchmarks.run_pilot import write_json_atomic
+
+    parent, repair = tmp_path / "parent", tmp_path / "repair"
+    parent.mkdir()
+    repair.mkdir()
+    write_json_atomic(parent / "manifest.json", dict(original=True))
+    write_json_atomic(repair / "manifest.json", dict(repair=True))
+    original = dict(
+        attempt=2, jobs=[dict(cell="one", job_id="111"), dict(cell="two", job_id="112")]
+    )
+    write_json_atomic(parent / "submissions.json", [original])
+    manifest = dict(
+        freeze=dict(
+            repair_of=dict(
+                root=str(parent),
+                manifest_sha256=sha256sum(parent / "manifest.json"),
+                original_jobs=dict(one="111", two="112"),
+            )
+        )
+    )
+    batch = dict(
+        attempt=3,
+        jobs=[dict(cell="one", job_id="211"), dict(cell="two", job_id="212")],
+        collector="213",
+    )
+    monkeypatch.setattr(
+        repair_headers, "live_jobs", lambda: {"111": "PENDING", "112": "RUNNING"}
+    )
+    cancelled = []
+    monkeypatch.setattr(
+        repair_headers.subprocess,
+        "run",
+        lambda command, **kw: cancelled.append(command),
+    )
+    repair_headers.register_replacements(repair, manifest, batch)
+    history = json.loads((parent / "submissions.json").read_text())
+    assert history[0] == original
+    assert history[1]["jobs"] == batch["jobs"]
+    assert cancelled == [["scancel", "111"]]
+
+
+def test_repair_scope_preserves_successes_and_original_freeze(tmp_path, monkeypatch):
+    from benchmarks.performance_sprint import manuscript, repair_headers
+    from benchmarks.run_pilot import write_json_atomic
+
+    tasks = []
+    for n in range(36):
+        task = manuscript_task()
+        task.update(
+            id=f"cell-{n:02}",
+            family="native_clinical_assays",
+            tool="snpeff",
+            level="clinical",
+            assembly="GRCh37",
+            assay="panel",
+        )
+        task["baseline"]["historical_acceptance"] = "PASS"
+        tasks.append(task)
+    document = tmp_path / "tasks.json"
+    write_json_atomic(document, tasks)
+    parent = tmp_path / "parent"
+    manuscript.prepare(
+        parent,
+        document,
+        dict(
+            approved=True,
+            tests_passed=True,
+            tasks_sha256=sha256sum(document),
+            required_task_ids=[t["id"] for t in tasks],
+            build=dict(files={}),
+        ),
+    )
+    frozen = sha256sum(parent / "manifest.json")
+    write_json_atomic(
+        parent / "submissions.json",
+        [
+            dict(
+                attempt=2,
+                collector="2000",
+                jobs=[
+                    dict(cell=t["id"], job_id=str(100 + n)) for n, t in enumerate(tasks)
+                ],
+            )
+        ],
+    )
+    success = parent / "attempts/a002/cell-00"
+    success.mkdir(parents=True)
+    write_json_atomic(success / "state.json", dict(state="complete"))
+    monkeypatch.setattr(repair_headers, "live_jobs", lambda: {})
+    monkeypatch.setattr(manuscript, "start", lambda root: dict(test_submission=True))
+    output = tmp_path / "recovery"
+    repair_headers.prepare_repair(
+        parent, output, dict(root="frozen-new-build", files={})
+    )
+    result = json.loads((output / "campaign/manifest.json").read_text())
+    assert len(result["tasks"]) == 35
+    assert "cell-00" not in result["freeze"]["required_task_ids"]
+    assert result["freeze"]["repair_of"]["preserved_successful_ids"] == ["cell-00"]
+    assert (output / "campaign/attempts").resolve() == parent / "attempts"
+    assert sha256sum(parent / "manifest.json") == frozen
+
+
 def test_drifted_cache_is_repaired_privately_and_reused(tmp_path, monkeypatch):
     import shutil
 

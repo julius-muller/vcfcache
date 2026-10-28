@@ -40,6 +40,10 @@ def validate_task(task):
     if reference["cpus"] != task["cpus"]:
         raise ValueError("CPU allocation differs from historical direct baseline")
     paired = reference["kind"] == "new_paired_reference"
+    if reference.get("direct_reuse") and not paired:
+        raise ValueError("direct reuse requires an explicitly paired reference")
+    if any(not str(job).isdigit() for job in task.get("after_jobs", [])):
+        raise ValueError("unsafe predecessor job id")
     if paired and not (
         (task["family"] == "veprs_extension" and task["tool"] == "veprs")
         or (
@@ -351,7 +355,7 @@ def submit(root, selected=None):
             for t in tasks
         ):
             raise ValueError("refusing to rerun a successful condition")
-        attempt = len(history) + 1
+        attempt = manifest["freeze"].get("attempt_base", 0) + len(history) + 1
         batch = dict(attempt=attempt, jobs=[], created_unix=time.time())
         history.append(batch)
         write_json_atomic(root / "submissions.json", history)
@@ -372,6 +376,11 @@ def submit(root, selected=None):
                     "--mem=28000M",
                     "--exclusive",
                     *exclude,
+                    *(
+                        ["--dependency=afterany:" + ":".join(task["after_jobs"])]
+                        if task.get("after_jobs")
+                        else []
+                    ),
                     f"--time={minutes(task)}",
                     f"--output={worker}/logs/{task['id']}-a{attempt}-%j.out",
                     "--wrap",
@@ -404,6 +413,12 @@ def submit(root, selected=None):
                     subprocess.check_output(collector, text=True).strip().split(";")[0]
                 )
                 write_json_atomic(root / "submissions.json", history)
+                if manifest["freeze"].get("repair_of"):
+                    from benchmarks.performance_sprint.repair_headers import (
+                        register_replacements,
+                    )
+
+                    register_replacements(root, manifest, batch)
     return batch
 
 
@@ -429,6 +444,10 @@ def dispatch(root):
         raise RuntimeError("first-cell validation blocked automatic dispatch")
     remaining = [t["id"] for t in manifest["tasks"] if t["id"] not in initial]
     result = submit(root, remaining)
+    if manifest["freeze"].get("repair_of"):
+        from benchmarks.performance_sprint.repair_headers import finish_dispatch
+
+        finish_dispatch(root, manifest, result)
     write_json_atomic(root / "AUTO_DISPATCH.json", result)
     return result
 
@@ -529,6 +548,9 @@ def run(root, identifier, attempt):
         started_unix=time.time(),
         node=socket.gethostname(),
         job_id=os.environ.get("SLURM_JOB_ID"),
+        build_commit=manifest["freeze"]["build"].get("commit"),
+        source_manifest=str(root / "manifest.json"),
+        source_manifest_sha256=sha256sum(root / "manifest.json"),
     )
     write_json_atomic(evidence / "state.json", state)
     with tempfile.TemporaryDirectory(
@@ -666,7 +688,16 @@ def run(root, identifier, attempt):
             if task["baseline"]["kind"] == "new_paired_reference":
                 direct_output = scratch / "direct.bcf"
                 direct_directory = evidence / "direct"
-                if task["family"] == "native_clinical_assays":
+                if task["baseline"].get("direct_reuse"):
+                    from benchmarks.performance_sprint.repair_headers import (
+                        reuse_direct,
+                    )
+
+                    direct_output, state["direct_metrics"] = reuse_direct(
+                        task, direct_directory
+                    )
+                    state["reused_direct"] = str(direct_output)
+                elif task["family"] == "native_clinical_assays":
                     from benchmarks.performance_sprint.baseline_exception import (
                         run_direct,
                     )

@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument("--reuse-launch-checks", type=Path)
     parser.add_argument("--reuse-cache-payloads", type=Path)
+    parser.add_argument("--repair-parent", type=Path)
     args = parser.parse_args()
     if args.receipt.exists():
         raise FileExistsError(args.receipt)
@@ -159,6 +160,35 @@ def main():
         )
         args.receipt.parent.mkdir(parents=True, exist_ok=True)
         write_json_atomic(args.receipt, receipt)
+        if args.repair_parent:
+            # Metadata-only repair preparation runs on the controller: do not
+            # occupy or interrupt an active benchmark worker to edit the queue.
+            prepare_command = [
+                "sudo",
+                "-u",
+                "appuser",
+                "env",
+                f"PYTHONPATH={mapped}",
+                PYTHON.replace("/results/", "/mnt/data/slurm-results/", 1),
+                "-m",
+                "benchmarks.performance_sprint.repair_headers",
+                str(args.repair_parent),
+                "--output",
+                output,
+                "--build",
+                deployment + "-build.json",
+            ]
+            receipt.update(
+                preparation_command=prepare_command,
+                repair_parent=str(args.repair_parent),
+                workflow="Repair exactly 36 affected header-guard conditions, reuse completed direct controls, gate one primary panel then automatically release remainder",
+            )
+            write_json_atomic(args.receipt, receipt)
+            result = remote("cd /tmp; " + shlex.join(prepare_command))
+            receipt["repair_submission"] = json.loads(result)
+            write_json_atomic(args.receipt, receipt)
+            print(result)
+            return
         job = remote("cd /tmp; " + shlex.join(command)).strip()
         if not job.isdigit():
             raise RuntimeError(f"unexpected sbatch response: {job}")

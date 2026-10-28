@@ -44,9 +44,16 @@ def native_binary() -> str:
 
 @profiled("headers.validate")
 def validate_info_headers(target, annotations):
-    """Reject conflicting typed INFO definitions before an overlay can coerce data."""
+    """Reject unsafe coercion, allowing narrower values into Number=. fields.
+
+    INFO overlay retains the receiving header, as bcftools does. A variable
+    receiving cardinality can represent any incoming vector of the same type;
+    the reverse would narrow an unknown vector and remains an error.
+    Return whether a variable receiving declaration was needed for compatibility.
+    """
     # Header-only reads do not need CSI indexes. Opening file objects avoids
     # HTSlib's misleading missing-index diagnostic on deliberately plain spools.
+    variable_destination = False
     with (
         Path(target).open("rb") as target_stream,
         Path(annotations).open("rb") as annotation_stream,
@@ -56,11 +63,17 @@ def validate_info_headers(target, annotations):
         for name in original.header.info:
             if name in incoming.header.info:
                 left, right = original.header.info[name], incoming.header.info[name]
-                if (left.type, left.number) != (right.type, right.number):
+                same_type = left.type == right.type
+                compatible_number = left.number == right.number or (
+                    left.number == "." and left.type != "Flag"
+                )
+                if not (same_type and compatible_number):
                     raise ValueError(
                         f"Incompatible INFO header for {name}: "
                         f"{left.type}/{left.number} versus {right.type}/{right.number}"
                     )
+                variable_destination |= left.number != right.number
+    return variable_destination
 
 
 class Pipelines:

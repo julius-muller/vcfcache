@@ -226,7 +226,9 @@ def test_lookup_modes_and_boundaries(native, tmp_path, lookup, workers):
 def test_missing_cache_contig(native, tmp_path, lookup):
     files = dataset(tmp_path / "data")
     replacement = tmp_path / "short-cache.bcf"
-    with (pysam.VariantFile(str(files[1])) as inp,):
+    with (
+        pysam.VariantFile(str(files[1])) as inp,
+    ):
         header = pysam.VariantHeader()
         for declaration in inp.header.records:
             if declaration.type == "CONTIG" and declaration["ID"] == "1":
@@ -488,6 +490,59 @@ def test_incompatible_info_header_rejected(tmp_path):
     )
     with pytest.raises(ValueError, match="Incompatible INFO header for CSQ"):
         validate_info_headers(files[0], bad)
+
+
+@pytest.mark.parametrize(
+    "left,right,left_type,right_type,allowed",
+    [
+        (".", "A", "Integer", "Integer", True),
+        (".", "R", "Float", "Float", True),
+        (".", "1", "String", "String", True),
+        ("A", ".", "Integer", "Integer", False),
+        ("A", "R", "Integer", "Integer", False),
+        ("1", "A", "Integer", "Integer", False),
+        (".", "A", "Integer", "Float", False),
+    ],
+)
+def test_directional_info_cardinality_compatibility(
+    tmp_path, left, right, left_type, right_type, allowed
+):
+    paths = []
+    for label, number, kind in [
+        ("target", left, left_type),
+        ("incoming", right, right_type),
+    ]:
+        path = tmp_path / f"{label}.vcf"
+        path.write_text(
+            "##fileformat=VCFv4.2\n##contig=<ID=1>\n"
+            f'##INFO=<ID=AC,Number={number},Type={kind},Description="cardinality test">\n'
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n"
+        )
+        paths.append(path)
+    if allowed:
+        validate_info_headers(*paths)
+    else:
+        with pytest.raises(ValueError, match="Incompatible INFO header for AC"):
+            validate_info_headers(*paths)
+
+
+@pytest.mark.parametrize("engine", ["fused", "adaptive", "native"])
+@pytest.mark.parametrize("hits", [0, 1, 2])
+def test_variable_target_info_matches_legacy(native, tmp_path, engine, hits):
+    files = list(dataset(tmp_path / "data", hit_every=hits))
+    header = checked("bcftools", "view", "-h", files[0]).stdout.decode()
+    header = header.replace("ID=AC,Number=A", "ID=AC,Number=.")
+    replacement = tmp_path / "header.txt"
+    replacement.write_text(header)
+    target = tmp_path / "variable.bcf"
+    checked("bcftools", "reheader", "-h", replacement, "-o", target, files[0])
+    checked("bcftools", "index", target)
+    files[0] = target
+    legacy, _ = run_case(tmp_path, files, "legacy")
+    output, _ = run_case(tmp_path, files, engine)
+    assert strict_semantic_compare(output, legacy)["semantic_pass"]
+    with pysam.VariantFile(str(output)) as result:
+        assert result.header.info["AC"].number == "."
 
 
 def test_bad_routing_manifest(native, tmp_path):

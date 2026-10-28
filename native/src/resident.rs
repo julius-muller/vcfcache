@@ -3,7 +3,7 @@ use anyhow::{ensure, Context, Result};
 use rust_htslib::{
     bcf::{
         self,
-        header::{HeaderRecord, TagType},
+        header::{HeaderRecord, TagLength, TagType},
         Read,
     },
     htslib,
@@ -160,8 +160,13 @@ fn tags(header: &bcf::header::HeaderView) -> Result<Vec<(Vec<u8>, TagType)>> {
 fn compatible(base: &bcf::header::HeaderView, incoming: &bcf::header::HeaderView) -> Result<()> {
     for (name, _) in tags(incoming)? {
         if let Ok(left) = base.info_type(&name) {
+            let right = incoming.info_type(&name)?;
+            // Preserve the receiving declaration. Variable cardinality is a
+            // safe destination for a narrower same-type vector, not vice versa.
             ensure!(
-                left == incoming.info_type(&name)?,
+                left.0 == right.0
+                    && (left.1 == right.1
+                        || (left.1 == TagLength::Variable && left.0 != TagType::Flag)),
                 "Incompatible INFO header for {}",
                 String::from_utf8_lossy(&name)
             );
