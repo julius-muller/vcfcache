@@ -1,0 +1,671 @@
+{
+  "cancelled_held_predecessors": [
+    "1599",
+    "1605",
+    "1608",
+    "1623",
+    "1649",
+    "1764",
+    "1766",
+    "1768",
+    "1769",
+    "1775",
+    "1778",
+    "1781",
+    "1825",
+    "1844",
+    "1845",
+    "1848",
+    "1908",
+    "1912",
+    "1927",
+    "1932",
+    "1933",
+    "1936",
+    "1942",
+    "1945",
+    "1949",
+    "1953",
+    "1961",
+    "1966",
+    "1967",
+    "1968",
+    "1976"
+  ],
+  "jobs": [
+    {
+      "cell": "a8f32aa2d0833d21",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=396",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/a8f32aa2d0833d21-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell a8f32aa2d0833d21 --attempt 4"
+      ],
+      "job_id": "2004"
+    },
+    {
+      "cell": "19b3e5808e7e2f97",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=412",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/19b3e5808e7e2f97-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 19b3e5808e7e2f97 --attempt 4"
+      ],
+      "job_id": "2005"
+    },
+    {
+      "cell": "3185a3f6588fbb06",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=373",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/3185a3f6588fbb06-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 3185a3f6588fbb06 --attempt 4"
+      ],
+      "job_id": "2006"
+    },
+    {
+      "cell": "57391a8c737ada69",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--dependency=afterany:1568",
+        "--time=367",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/57391a8c737ada69-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 57391a8c737ada69 --attempt 4"
+      ],
+      "job_id": "2007"
+    },
+    {
+      "cell": "be4673b6c1f8f3e4",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=266",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/be4673b6c1f8f3e4-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell be4673b6c1f8f3e4 --attempt 4"
+      ],
+      "job_id": "2008"
+    },
+    {
+      "cell": "47c57696043ad7c3",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=350",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/47c57696043ad7c3-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 47c57696043ad7c3 --attempt 4"
+      ],
+      "job_id": "2009"
+    },
+    {
+      "cell": "399412f2079327fb",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=284",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/399412f2079327fb-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 399412f2079327fb --attempt 4"
+      ],
+      "job_id": "2010"
+    },
+    {
+      "cell": "4f3fbe2474e187c8",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=253",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/4f3fbe2474e187c8-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 4f3fbe2474e187c8 --attempt 4"
+      ],
+      "job_id": "2011"
+    },
+    {
+      "cell": "acdd5b2edcef888b",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=244",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/acdd5b2edcef888b-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell acdd5b2edcef888b --attempt 4"
+      ],
+      "job_id": "2012"
+    },
+    {
+      "cell": "1648a5b8581082c3",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=199",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/1648a5b8581082c3-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 1648a5b8581082c3 --attempt 4"
+      ],
+      "job_id": "2013"
+    },
+    {
+      "cell": "ff0f73b719317b85",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=142",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/ff0f73b719317b85-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell ff0f73b719317b85 --attempt 4"
+      ],
+      "job_id": "2014"
+    },
+    {
+      "cell": "fbd714b95a72765c",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=197",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/fbd714b95a72765c-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell fbd714b95a72765c --attempt 4"
+      ],
+      "job_id": "2015"
+    },
+    {
+      "cell": "5b42db9934a7e6fe",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=140",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/5b42db9934a7e6fe-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 5b42db9934a7e6fe --attempt 4"
+      ],
+      "job_id": "2016"
+    },
+    {
+      "cell": "a1c2e84a9cd904b7",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=138",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/a1c2e84a9cd904b7-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell a1c2e84a9cd904b7 --attempt 4"
+      ],
+      "job_id": "2017"
+    },
+    {
+      "cell": "cb73c3cccdb61bd7",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=138",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/cb73c3cccdb61bd7-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell cb73c3cccdb61bd7 --attempt 4"
+      ],
+      "job_id": "2018"
+    },
+    {
+      "cell": "63e54facaf1fea32",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=201",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/63e54facaf1fea32-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 63e54facaf1fea32 --attempt 4"
+      ],
+      "job_id": "2019"
+    },
+    {
+      "cell": "afe8daca77f48d10",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=136",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/afe8daca77f48d10-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell afe8daca77f48d10 --attempt 4"
+      ],
+      "job_id": "2020"
+    },
+    {
+      "cell": "d19eebda95a567c1",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=135",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/d19eebda95a567c1-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell d19eebda95a567c1 --attempt 4"
+      ],
+      "job_id": "2021"
+    },
+    {
+      "cell": "6433e506a823f5a3",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=131",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/6433e506a823f5a3-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 6433e506a823f5a3 --attempt 4"
+      ],
+      "job_id": "2022"
+    },
+    {
+      "cell": "dd16882cb0f06118",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=132",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/dd16882cb0f06118-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell dd16882cb0f06118 --attempt 4"
+      ],
+      "job_id": "2023"
+    },
+    {
+      "cell": "18d3e3b760ffbead",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=128",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/18d3e3b760ffbead-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 18d3e3b760ffbead --attempt 4"
+      ],
+      "job_id": "2024"
+    },
+    {
+      "cell": "3483c41f0d2b5474",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=131",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/3483c41f0d2b5474-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 3483c41f0d2b5474 --attempt 4"
+      ],
+      "job_id": "2025"
+    },
+    {
+      "cell": "85d684cf6a584432",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=123",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/85d684cf6a584432-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 85d684cf6a584432 --attempt 4"
+      ],
+      "job_id": "2026"
+    },
+    {
+      "cell": "724678d8e0753b94",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=123",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/724678d8e0753b94-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 724678d8e0753b94 --attempt 4"
+      ],
+      "job_id": "2027"
+    },
+    {
+      "cell": "fc3c40bee3c41507",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=123",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/fc3c40bee3c41507-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell fc3c40bee3c41507 --attempt 4"
+      ],
+      "job_id": "2028"
+    },
+    {
+      "cell": "ae0e84b9ec85625e",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=122",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/ae0e84b9ec85625e-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell ae0e84b9ec85625e --attempt 4"
+      ],
+      "job_id": "2029"
+    },
+    {
+      "cell": "b4830051de08ad9e",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=123",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/b4830051de08ad9e-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell b4830051de08ad9e --attempt 4"
+      ],
+      "job_id": "2030"
+    },
+    {
+      "cell": "19b355028a4cf4e3",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=122",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/19b355028a4cf4e3-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 19b355028a4cf4e3 --attempt 4"
+      ],
+      "job_id": "2031"
+    },
+    {
+      "cell": "6539a86cddfb7ab4",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=122",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/6539a86cddfb7ab4-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 6539a86cddfb7ab4 --attempt 4"
+      ],
+      "job_id": "2032"
+    },
+    {
+      "cell": "69cdc5b80cc8580a",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=122",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/69cdc5b80cc8580a-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 69cdc5b80cc8580a --attempt 4"
+      ],
+      "job_id": "2033"
+    },
+    {
+      "cell": "108a0e06ce019dd4",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=127",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/108a0e06ce019dd4-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 108a0e06ce019dd4 --attempt 4"
+      ],
+      "job_id": "2034"
+    },
+    {
+      "cell": "b8e0cfba131c6544",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=122",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/b8e0cfba131c6544-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell b8e0cfba131c6544 --attempt 4"
+      ],
+      "job_id": "2035"
+    },
+    {
+      "cell": "304145a0b07de280",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=125",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/304145a0b07de280-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 304145a0b07de280 --attempt 4"
+      ],
+      "job_id": "2036"
+    },
+    {
+      "cell": "77450bbb41215e56",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=121",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/77450bbb41215e56-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 77450bbb41215e56 --attempt 4"
+      ],
+      "job_id": "2037"
+    },
+    {
+      "cell": "c0f6d44cc4956327",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--exclusive",
+        "--time=121",
+        "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/c0f6d44cc4956327-a4-%j.out",
+        "--wrap",
+        "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell c0f6d44cc4956327 --attempt 4"
+      ],
+      "job_id": "2038"
+    }
+  ],
+  "running_predecessors_untouched": [
+    "1568"
+  ]
+}

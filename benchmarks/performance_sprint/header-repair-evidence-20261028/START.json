@@ -1,0 +1,40 @@
+{
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--partition=benchmark",
+    "--cpus-per-task=1",
+    "--mem=2000M",
+    "--time=00:30:00",
+    "--dependency=afterany:2002",
+    "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/dispatch-%j.out",
+    "--wrap",
+    "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript dispatch /results/manuscript-final/20261028T210624Z-787a3081a/campaign"
+  ],
+  "dispatch_job": "2003",
+  "first_batch": {
+    "attempt": 3,
+    "collector": "2002",
+    "created_unix": 1793221594.447346,
+    "jobs": [
+      {
+        "cell": "37c4fcdc350cd7f8",
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--partition=benchmark",
+          "--nodes=1",
+          "--ntasks=1",
+          "--cpus-per-task=8",
+          "--mem=28000M",
+          "--exclusive",
+          "--time=121",
+          "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/37c4fcdc350cd7f8-a3-%j.out",
+          "--wrap",
+          "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/manuscript-final/20261028T210624Z-787a3081a/campaign --cell 37c4fcdc350cd7f8 --attempt 3"
+        ],
+        "job_id": "2001"
+      }
+    ]
+  }
+}

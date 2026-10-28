@@ -3,6 +3,47 @@
 This is a durable launch record, **not live status**. Refresh Slurm/checkpoints
 before reporting progress.
 
+## Targeted header repair, 28 October
+
+The user approved the INFO-header compatibility repair after three clinical
+SnpEff GRCh37 WGS cached conditions failed (`Integer/.` versus `Integer/A`).
+The original controls, caches, candidate freeze and failed attempts are intact.
+See [repair details](HEADER_COMPATIBILITY_REPAIR.md).
+
+- Corrected build: **787a3081a**, helper **0.7.1**. Both host and Docker suites
+  pass **666 tests, 21 skipped**. All other conditions retain their frozen build.
+- Repair campaign: `/results/manuscript-final/20261028T210624Z-787a3081a/campaign`.
+  Receipt: `header-repair-launch-20261028.json`.
+- Gate **2001 passed**: 165 records, zero full-record mismatches, matching relevant
+  headers, no ignored fields. This was an unstarted final condition, not a repeat
+  of a successful sample/tool/configuration.
+- **35 remaining replacements accepted, jobs 2004–2038**; collector **2039**.
+  Final parent collector **2040** depends on both original collector 2000 and
+  repair collector 2039. Metadata-only gate jobs 2002/2003 were superseded by
+  controller-side collection/dispatch after the gate passed, avoiding exclusive
+  worker allocation just for queue bookkeeping. `CONTROLLER_DISPATCH.json`
+  records this; it is not a failed benchmark.
+- Original pending counterparts were held and then cancelled only after their
+  replacements were accepted. No running original was killed and no successful
+  condition was repeated. Only repair jobs' queue priority was raised; CPU,
+  memory, annotation configuration and node-exclusivity settings are unchanged.
+- Three retained WGS direct controls passed exact reuse preflight, preserving
+  **4.8 node-hours** of completed annotation. A fourth original control (1568)
+  is allowed to finish; replacement 2007 has `afterany:1568` and freezes/reuses
+  its successful direct artifacts before cached timing.
+- Replacement attempts are **a003/a004 in the original checkpoint tree** and
+  their accepted job IDs are in the original submission history. The original
+  600 logical conditions therefore remain the authoritative inventory. Historical
+  failed a002 attempts stay archived; until a retry starts, a raw latest-state
+  scan may still show its old failure. Check its replacement job ID in the
+  submission history rather than mistaking an accepted pending retry for no action.
+- At 21:20 UTC / 22:20 CET, all six workers were active and first WGS retry 2004
+  was running. Repair execution and final collection need no further user input.
+  This snapshot does not claim that all 36 replacements have already passed.
+
+The main status command below still reads all 600 slots, including replacement
+attempts. For repair-only checkpoints, use the repair deployment and campaign.
+
 - Candidate: `fe197f34d` (same product files as the previously validated checks).
 - Worker campaign: `/results/manuscript-final/20261027T191111Z-fe197f34d/campaign`.
 - Deployment: `/results/deployment/manuscript-final-20261027T191111Z-fe197f34d`.

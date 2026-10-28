@@ -8,6 +8,18 @@ This file is the handoff entry point, not a claim that future stages ran.
 
 ## Feedback checkpoints and cluster utilization
 
+**28 October header recovery:** user-approved fix deployed as `787a3081a` /
+helper 0.7.1 after the adaptive guard rejected compatible receiving `AC Number=.`
+headers. Real repaired gate 2001 passed strict complete-record/header comparison
+on 165 variants with zero mismatches. Jobs **2004–2038** replace only the remaining
+35 affected conditions; successful runs and all original data remain untouched.
+Three completed WGS direct controls are reused (4.8 node-hours preserved), and
+the fourth in-flight control is protected by an explicit predecessor dependency.
+Final collector **2040** waits for both original collector 2000 and repair
+collector 2039. All six workers remain active. The main checkpoint tree retains
+all 600 logical slots, with repairs in a003/a004 and explicit build provenance.
+Details and exact paths: `benchmarks/performance_sprint/ACTIVE_MANUSCRIPT_CAMPAIGN.md`.
+
 - Every status/handoff must state: **what is running; what advances automatically;
   what requires active agent work; whether user feedback is needed; and the next
   approximate check-in/resumption time**. Distinguish elapsed job ETA from the

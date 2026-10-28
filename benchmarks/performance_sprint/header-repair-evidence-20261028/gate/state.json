@@ -1,0 +1,158 @@
+{
+  "build_commit": "787a3081a29a434b7161b30bfff7a5af817dade0",
+  "cache_directory": "/results/snpeff/caches/snpeff_clinical_grch37_af001/cache/snpeff_clinical_grch37_af001",
+  "cache_hit_rate": 0.9515151515151515,
+  "direct_metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 6796939,
+        "throttled_usec": 0,
+        "usage_usec": 82901826,
+        "user_usec": 76104887
+      },
+      "memory_current_bytes": 210903040,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 4537970688,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_2001/step_0/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 35999,
+        "throttled_usec": 0,
+        "usage_usec": 210998,
+        "user_usec": 174998
+      },
+      "memory_current_bytes": 11489280,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11489280,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_2001/step_0/user/task_0"
+    },
+    "cpu_seconds": 82.545625,
+    "exit_code": 0,
+    "largest_child_rss_kib": 3067588,
+    "start_unix_ns": 1793221964981066471,
+    "wall_seconds": 38.14540046604816
+  },
+  "direct_seconds": 38.14540046604816,
+  "effective_engine": "adaptive",
+  "finished_unix": 1793222040.1921942,
+  "input_records": 165,
+  "job_id": "2001",
+  "metrics": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cgroup_after": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 5771531,
+        "throttled_usec": 0,
+        "usage_usec": 75859314,
+        "user_usec": 70087782
+      },
+      "memory_current_bytes": 27729920,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 3822866432,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_2001/step_1/user/task_0"
+    },
+    "cgroup_before": {
+      "cpu_stat": {
+        "burst_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "system_usec": 37009,
+        "throttled_usec": 0,
+        "usage_usec": 225228,
+        "user_usec": 188219
+      },
+      "memory_current_bytes": 11497472,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_peak_bytes": 11497472,
+      "path": "/system.slice/sl-w3_slurmstepd.scope/job_2001/step_1/user/task_0"
+    },
+    "cpu_seconds": 75.505476,
+    "exit_code": 0,
+    "largest_child_rss_kib": 3286456,
+    "start_unix_ns": 1793222003472260920,
+    "wall_seconds": 36.38701373199001
+  },
+  "node": "sl-w3",
+  "output_index_sha256": "f86bccd85582028205482d7eaeac2f9167074512d1d872a1ceb277e2c48fee79",
+  "output_sha256": "c82f12768b00192b999c9073a3f4f357241255a440e043ef134f825a3309a996",
+  "prepared_input_sha256": "dbc9abb95321751263cd26118d434b1fc98efb27b5cb69534706279bd75ea71e",
+  "source_manifest": "/results/manuscript-final/20261028T210624Z-787a3081a/campaign/manifest.json",
+  "source_manifest_sha256": "b61263e413931c02a82bbad5dae8f8ff83b3c23128fab4b8b74c68ed38045f24",
+  "speedup": 1.048324568402607,
+  "started_unix": 1793221962.8336685,
+  "state": "complete",
+  "validation_scope": "fresh paired complete-record/header comparison; no ignored fields"
+}

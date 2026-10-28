@@ -165,7 +165,11 @@ variant keys routed to both partitions cause an explicit legacy replay before
 output is published. The effective engine and reason are recorded. Parsing,
 subprocess and recipe failures are errors, **not** fallback triggers.
 INFO overlays reject conflicting Type/Number declarations rather than coercing
-values silently. This stricter invalid-input check is intentional.
+values silently. A receiving `Number=.` declaration may accept a narrower
+incoming vector of the same INFO type, retaining the receiving header exactly
+as legacy bcftools does. The reverse direction and incompatible fixed
+cardinalities remain errors. This compatibility requires helper 0.7.1 or newer
+for resident/native execution; no data values are rewritten.
 Annotator output is indexed and sorted only if not indexable. Temporary spools survive
 failures for diagnosis unless statistics are explicitly disabled; normal
 successful workflow cleanup is unchanged.

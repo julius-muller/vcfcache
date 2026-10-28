@@ -1,0 +1,15 @@
+{
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--partition=benchmark",
+    "--cpus-per-task=1",
+    "--mem=2000M",
+    "--time=00:30:00",
+    "--dependency=afterany:2000:2039",
+    "--output=/results/manuscript-final/20261028T210624Z-787a3081a/campaign/logs/final-parent-review-%j.out",
+    "--wrap",
+    "cd /tmp; PYTHONPATH=/results/deployment/manuscript-final-20261028T210624Z-787a3081a /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript collect /results/manuscript-final/20261027T191111Z-fe197f34d/campaign"
+  ],
+  "job_id": "2040"
+}
