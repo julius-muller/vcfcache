@@ -3,6 +3,28 @@
 This is a durable launch record, **not live status**. Refresh Slurm/checkpoints
 before reporting progress.
 
+## Final collection and analysis — 29 October
+
+The main and repair campaigns and final collectors **2000, 2039 and 2040
+completed**. Last condition finished at **12:57 UTC / 13:57 CET**. The later
+live queue check found no jobs and six idle workers; no automatic annotation
+stage remains. The launch/recovery sections below are preserved history.
+
+- **600** canonical terminal conditions; **604** execution attempts retained.
+- **572** accepted under their declared comparator scopes, **24** clinical
+  vep-rs timing-only, **four** known SnpEff strict warning differences excluded.
+- All **36** repaired clinical SnpEff GRCh37 slots finished: 34 accepted, two
+  known content discrepancies. This is not an outstanding runtime/header failure.
+- **12** aliases restore 612 plotting views without increasing independent
+  measurements or donor counts. Fifty-four distinct genome IDs overall.
+- Commands, comparisons, states, recipes, resource metrics and source hashes
+  were copied read-only into the new
+  [final analysis folder](final-analysis-20261029/README.md); large BCFs remain
+  at their original remote paths. Existing figures were not overwritten.
+- Read the [decision brief](final-analysis-20261029/DECISIONS.md) before changing
+  defaults or authorizing another benchmark. No new jobs were submitted by the
+  final consolidation, and no further work advances automatically after it.
+
 ## Targeted header repair, 28 October
 
 The user approved the INFO-header compatibility repair after three clinical

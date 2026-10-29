@@ -1,0 +1,33 @@
+{
+  "canonical_conditions": 600,
+  "plotting_views": 612,
+  "distinct_genomes": 54,
+  "accepted_under_declared_comparators": 572,
+  "evidence_classes": {
+    "validated": 572,
+    "snpeff_warning_failed_strict": 4,
+    "veprs_csq_timing_only": 24
+  },
+  "comparison_scopes": {
+    "fresh paired complete-record/header comparison; no ignored fields": 228,
+    "complete cached-reference records; annotator-specific direct comparator": 336,
+    "composed VEP semantic reference; per-delay historical timing retained, not full-record per-delay validation": 12,
+    "pinned clinical vep-rs timing only; CSQ discrepancies retained and NOT validated speedup evidence": 24
+  },
+  "baseline_origins": {
+    "fresh_paired": 248,
+    "reused_completed_new_control": 4,
+    "historical_reuse": 348
+  },
+  "executed_builds": {
+    "fe197f34d8adc7a6657ff5fc7da00c709763141f": 562,
+    "787a3081a29a434b7161b30bfff7a5af817dade0": 36,
+    "b4b43512cbc1c14b8f1417e3d9f4f42330dd9a5d": 2
+  },
+  "cache_payload_recipe_combinations": 33,
+  "payload_bound_build_costs": 10,
+  "terminal_archive_sha256": "9279773a1beac394fa404c6855002aaa4cf956656bd87fd2fff843edd3b9df74",
+  "snapshot_created_utc": "2026-10-29T19:23:19.505978+00:00",
+  "cohort_seed_id_audit_passed": true,
+  "gnomad_donor_disjointness": "not established"
+}

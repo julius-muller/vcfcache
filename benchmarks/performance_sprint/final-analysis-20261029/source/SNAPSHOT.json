@@ -1,0 +1,24 @@
+{
+  "aliases": 12,
+  "archive_sha256": "9279773a1beac394fa404c6855002aaa4cf956656bd87fd2fff843edd3b9df74",
+  "attempts": 604,
+  "conditions": 600,
+  "created_utc": "2026-10-29T19:23:19.505978+00:00",
+  "evidence_classes": {
+    "snpeff_warning_failed_strict": 4,
+    "validated": 572,
+    "veprs_csq_timing_only": 24
+  },
+  "last_finished_unix": 1793278657.8686836,
+  "manifest_sha256": "8e3ac0048bacacff15c0ef5a58c94d53b376e80974f976ff1e37931b3acf1b8d",
+  "note": "Historical direct timing reuse and synthetic composed-reference limitations retained; no failed/excluded row promoted to validated",
+  "plot_views": 612,
+  "remote_main": "/results/manuscript-final/20261027T191111Z-fe197f34d/campaign",
+  "remote_repair": "/results/manuscript-final/20261028T210624Z-787a3081a/campaign",
+  "repair_manifest_sha256": "b61263e413931c02a82bbad5dae8f8ff83b3c23128fab4b8b74c68ed38045f24",
+  "states": {
+    "complete": 572,
+    "complete_with_direct_difference": 24,
+    "failed": 4
+  }
+}

@@ -6,6 +6,27 @@ priority in the first three days; candidate freeze is **no later than** Friday
 leave ready work idle merely to follow a calendar date.
 This file is the handoff entry point, not a claim that future stages ran.
 
+## Completed campaign and decision analysis — 29 October
+
+**All approved annotation work and final collectors finished at 12:57 UTC /
+13:57 CET on 29 October.** A subsequent live check found an empty queue and
+all six workers idle because the matrix is complete. No next benchmark is
+automatically queued. The older launch/recovery snapshots below are historical.
+
+The [complete analysis and new R/ggplot2 figure set](benchmarks/performance_sprint/final-analysis-20261029/README.md)
+archives 600 terminal conditions, 604 attempts and 12 plotting aliases. There
+are 572 acceptances under declared comparator scopes, 24 clinical vep-rs
+timing-only conditions and four known SnpEff strict discrepancies. They are
+not all fresh complete-record direct comparisons; the report retains the exact
+validation and baseline-reuse scopes.
+
+[Next decisions](benchmarks/performance_sprint/final-analysis-20261029/DECISIONS.md):
+freeze/use the current dataset; review adaptive packaging/defaults with native
+opt-in; optionally authorize one bounded routing/assembly pilot before any
+further replay. No engine/default changes, annotation submissions or manuscript
+overwrites were made during final consolidation. User direction is needed
+before those next scopes; there is no pending job that needs another check-in.
+
 ## Feedback checkpoints and cluster utilization
 
 **28 October header recovery:** user-approved fix deployed as `787a3081a` /
