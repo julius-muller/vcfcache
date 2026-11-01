@@ -1,0 +1,130 @@
+{
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--partition=benchmark",
+    "--cpus-per-task=1",
+    "--mem=2000M",
+    "--time=00:30:00",
+    "--dependency=afterany:2076",
+    "--output=/results/python-adaptive-manuscript-20261101-ee2162473/campaign/logs/dispatch-%j.out",
+    "--wrap",
+    "cd /tmp; PYTHONPATH=/results/deployment/python-adaptive-20261101-ee2162473 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript dispatch /results/python-adaptive-manuscript-20261101-ee2162473/campaign"
+  ],
+  "dispatch_job": "2077",
+  "first_batch": {
+    "attempt": 1,
+    "collector": "2076",
+    "created_unix": 1793566846.616375,
+    "jobs": [
+      {
+        "cell": "3693ce45be7d4941",
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--partition=benchmark",
+          "--nodes=1",
+          "--ntasks=1",
+          "--cpus-per-task=8",
+          "--mem=28000M",
+          "--exclusive",
+          "--time=126",
+          "--output=/results/python-adaptive-manuscript-20261101-ee2162473/campaign/logs/3693ce45be7d4941-a1-%j.out",
+          "--wrap",
+          "cd /tmp; PYTHONPATH=/results/deployment/python-adaptive-20261101-ee2162473 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/python-adaptive-manuscript-20261101-ee2162473/campaign --cell 3693ce45be7d4941 --attempt 1"
+        ],
+        "job_id": "2070"
+      },
+      {
+        "cell": "c2cec40ae10ba446",
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--partition=benchmark",
+          "--nodes=1",
+          "--ntasks=1",
+          "--cpus-per-task=8",
+          "--mem=28000M",
+          "--exclusive",
+          "--time=91",
+          "--output=/results/python-adaptive-manuscript-20261101-ee2162473/campaign/logs/c2cec40ae10ba446-a1-%j.out",
+          "--wrap",
+          "cd /tmp; PYTHONPATH=/results/deployment/python-adaptive-20261101-ee2162473 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/python-adaptive-manuscript-20261101-ee2162473/campaign --cell c2cec40ae10ba446 --attempt 1"
+        ],
+        "job_id": "2071"
+      },
+      {
+        "cell": "1bfee8ee47a04c64",
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--partition=benchmark",
+          "--nodes=1",
+          "--ntasks=1",
+          "--cpus-per-task=8",
+          "--mem=28000M",
+          "--exclusive",
+          "--time=122",
+          "--output=/results/python-adaptive-manuscript-20261101-ee2162473/campaign/logs/1bfee8ee47a04c64-a1-%j.out",
+          "--wrap",
+          "cd /tmp; PYTHONPATH=/results/deployment/python-adaptive-20261101-ee2162473 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/python-adaptive-manuscript-20261101-ee2162473/campaign --cell 1bfee8ee47a04c64 --attempt 1"
+        ],
+        "job_id": "2072"
+      },
+      {
+        "cell": "27c6f87a34dbc1dc",
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--partition=benchmark",
+          "--nodes=1",
+          "--ntasks=1",
+          "--cpus-per-task=8",
+          "--mem=28000M",
+          "--exclusive",
+          "--time=90",
+          "--output=/results/python-adaptive-manuscript-20261101-ee2162473/campaign/logs/27c6f87a34dbc1dc-a1-%j.out",
+          "--wrap",
+          "cd /tmp; PYTHONPATH=/results/deployment/python-adaptive-20261101-ee2162473 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/python-adaptive-manuscript-20261101-ee2162473/campaign --cell 27c6f87a34dbc1dc --attempt 1"
+        ],
+        "job_id": "2073"
+      },
+      {
+        "cell": "d3a4e19d85523300",
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--partition=benchmark",
+          "--nodes=1",
+          "--ntasks=1",
+          "--cpus-per-task=8",
+          "--mem=28000M",
+          "--exclusive",
+          "--time=121",
+          "--output=/results/python-adaptive-manuscript-20261101-ee2162473/campaign/logs/d3a4e19d85523300-a1-%j.out",
+          "--wrap",
+          "cd /tmp; PYTHONPATH=/results/deployment/python-adaptive-20261101-ee2162473 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/python-adaptive-manuscript-20261101-ee2162473/campaign --cell d3a4e19d85523300 --attempt 1"
+        ],
+        "job_id": "2074"
+      },
+      {
+        "cell": "veprs-core-KPGP-00128-panel",
+        "command": [
+          "sbatch",
+          "--parsable",
+          "--partition=benchmark",
+          "--nodes=1",
+          "--ntasks=1",
+          "--cpus-per-task=8",
+          "--mem=28000M",
+          "--exclusive",
+          "--time=120",
+          "--output=/results/python-adaptive-manuscript-20261101-ee2162473/campaign/logs/veprs-core-KPGP-00128-panel-a1-%j.out",
+          "--wrap",
+          "cd /tmp; PYTHONPATH=/results/deployment/python-adaptive-20261101-ee2162473 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.performance_sprint.manuscript run /results/python-adaptive-manuscript-20261101-ee2162473/campaign --cell veprs-core-KPGP-00128-panel --attempt 1"
+        ],
+        "job_id": "2075"
+      }
+    ]
+  }
+}

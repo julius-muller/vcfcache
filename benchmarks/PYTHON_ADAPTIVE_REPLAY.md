@@ -48,5 +48,25 @@ freeze records the exact deployed product and runner files. Review with:
 PYTHONPATH=DEPLOYMENT PYTHON -m benchmarks.performance_sprint.manuscript status CAMPAIGN
 ```
 
-Submission receipts and exact deployment/campaign paths will be recorded below
-after Slurm accepts the launch jobs.
+## Accepted launch (2026-11-01, 22:00 CET)
+
+- Product freeze: `ee2162473b50bd57eb83c0495ad63bfc22deaf83`.
+- Controller deployment: `/mnt/data/slurm-results/deployment/python-adaptive-20261101-ee2162473`.
+- Controller campaign: `/mnt/data/slurm-results/python-adaptive-manuscript-20261101-ee2162473/campaign`.
+- Worker paths use `/results/` in place of `/mnt/data/slurm-results/`.
+- Launch cells: **2070–2075**, one on each of sl-w1 through sl-w6.
+- First collector: **2076**; automatic continuation: **2077**.
+- Local immutable submission receipts: [python_adaptive_replay_20261101](python_adaptive_replay_20261101/).
+
+Five launch conditions passed by 22:02 CET; the sixth (fastVEP WGS) was still
+running normally. The initial idle workers are intentional while that last
+gate completes; the automatic continuation then fills all eligible nodes.
+
+**ETA correction:** 16 hours above is annotation time alone, not end-to-end
+completion. The previous campaign occupied about **191 worker-hours after
+subtracting direct annotation**, including preparation and semantic audits:
+approximately **32 hours on six workers**. Python performance may change this.
+Use roughly **30–40 hours for the entire audited 600-cell matrix**, not a promise
+of overnight completion. Partial validated results are already arriving;
+artificial-delay supplement cells remain last. This distinction must accompany
+any timeline reported to the user.
