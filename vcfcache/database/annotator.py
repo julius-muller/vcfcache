@@ -831,6 +831,8 @@ class VCFAnnotator(VCFDatabase):
         preserve_unannotated: bool = False,
         skip_split_multiallelic: bool = False,
         md5_all: bool = False,
+        engine: str = "legacy",
+        engine_workers: int = 0,
     ) -> None:
         """Run annotation workflow on input VCF file.
 
@@ -840,6 +842,8 @@ class VCFAnnotator(VCFDatabase):
             preserve_unannotated: Whether to preserve variants without annotation in output
             skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
             md5_all: Compute full MD5 of all variants (no header) and store in stats
+            engine: Cached annotation engine, 'legacy' or 'adaptive'
+            engine_workers: Concurrent adaptive shards; 0 uses the thread budget
 
         Returns:
             Path to output file (BCF or Parquet)
@@ -867,6 +871,8 @@ class VCFAnnotator(VCFDatabase):
                 report=True,
                 preserve_unannotated=preserve_unannotated,
                 skip_split_multiallelic=skip_split_multiallelic,
+                engine=engine,
+                engine_workers=engine_workers,
             )
             duration = time.time() - start_time
             # Always show completion (even in default mode)

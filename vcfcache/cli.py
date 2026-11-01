@@ -734,6 +734,18 @@ def main() -> None:
         help="(optional) Skip splitting multiallelic variants. Use ONLY if certain input has no multiallelic variants (ALT field contains no commas). Provides small speedup (~6%% of runtime) but may cause format inconsistencies if multiallelic variants are present (default: False)",
     )
     vcf_parser.add_argument(
+        "--engine",
+        choices=("legacy", "adaptive"),
+        default="legacy",
+        help="(optional) Cached annotation engine. 'adaptive' restricts cache access to the occupied regions and runs contig shards concurrently (default: legacy)",
+    )
+    vcf_parser.add_argument(
+        "--engine-workers",
+        type=int,
+        default=0,
+        help="(optional) Concurrent shards for --engine adaptive; 0 uses the params.yaml thread budget (default: 0)",
+    )
+    vcf_parser.add_argument(
         "-f",
         "--force",
         dest="force",
@@ -940,6 +952,12 @@ def main() -> None:
             parser.error("--statistics none/--no-stats cannot be used with --stats-dir")
         if args.md5_all and args.statistics != "full":
             parser.error("--md5-all requires --statistics full")
+        if args.engine_workers < 0:
+            parser.error("--engine-workers must be non-negative")
+        if args.engine_workers and args.engine != "adaptive":
+            parser.error("--engine-workers requires --engine adaptive")
+        if args.uncached and args.engine != "legacy":
+            parser.error("--engine adaptive cannot be combined with --uncached")
 
     # Setup logging with verbosity
     logger = setup_logging(args.verbose)
@@ -1238,6 +1256,8 @@ def main() -> None:
                 preserve_unannotated=preserve_unannotated,
                 skip_split_multiallelic=skip_split_multiallelic,
                 md5_all=args.md5_all,
+                engine=args.engine,
+                engine_workers=args.engine_workers,
             )
 
             # Show detailed timing if --debug is enabled
