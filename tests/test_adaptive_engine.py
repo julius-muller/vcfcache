@@ -62,9 +62,7 @@ def records(path):
 @pytest.mark.parametrize("skip_split", [False, True])
 def test_matches_legacy(cache, tmp_path, workers, preserve, skip_split):
     """Multiallelics, spanning deletions and cache-absent contigs must agree."""
-    options = dict(
-        preserve_unannotated=preserve, skip_split_multiallelic=skip_split
-    )
+    options = dict(preserve_unannotated=preserve, skip_split_multiallelic=skip_split)
     expected, baseline = annotate(tmp_path / "legacy", cache, "legacy", **options)
     actual, stats = annotate(
         tmp_path / "adaptive", cache, "adaptive", engine_workers=workers, **options
@@ -84,3 +82,29 @@ def test_gathered_shards_stay_sorted():
             contig for contig, _, _ in occupied
         ]
         assert all(shard for shard in shards)
+
+
+@pytest.mark.parametrize("engine", ["legacy", "adaptive"])
+@pytest.mark.parametrize("uncached", [False, True])
+def test_zero_exit_truncated_annotation_is_rejected(cache, tmp_path, engine, uncached):
+    """An indexable, zero-exit partial recipe must not become a successful run."""
+    manager = WorkflowManager(
+        input_file=DATA / "sample4.bcf",
+        output_dir=tmp_path,
+        name="truncated",
+        anno_config_file=CONFIG / "test_annotation.yaml",
+        params_file=CONFIG / "test_params.yaml",
+        output_file=tmp_path / "result.bcf",
+        verbosity=0,
+    )
+    original = manager.nfa_config_content["annotation_cmd"]
+    manager.nfa_config_content["annotation_cmd"] = (
+        original
+        + '\nbcftools view -i "POS<0" ${OUTPUT_BCF} -Ob -o ${OUTPUT_BCF}.partial -W'
+        + "\nmv ${OUTPUT_BCF}.partial ${OUTPUT_BCF}"
+        + "\nmv ${OUTPUT_BCF}.partial.csi ${OUTPUT_BCF}.csi"
+    )
+    with pytest.raises(RuntimeError, match="Annotation record count changed"):
+        manager.run(
+            "annotate-nocache" if uncached else "annotate", db_bcf=cache, engine=engine
+        )

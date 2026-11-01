@@ -67,12 +67,10 @@ class BcftoolsCommand:
 
         # Execute command
         result = subprocess.run(
-            self.cmd,
-            shell=True,
+            ["/bin/bash", str(script_file.resolve())],
             capture_output=True,
             text=True,
             cwd=self.work_dir,
-            executable="/bin/bash",
         )
 
         # Calculate duration
@@ -516,6 +514,7 @@ class WorkflowManager(WorkflowBase):
         # Validate output has required INFO tag
         tag = self.nfa_config_content["must_contain_info_tag"]
         self._validate_info_tag(output_bcf, tag)
+        self._validate_annotation_count(db_bcf, output_bcf)
 
         self.logger.info(f"Annotation complete, cache created at: {output_bcf}")
 
@@ -634,15 +633,7 @@ class WorkflowManager(WorkflowBase):
         BcftoolsCommand(cmd2, self.logger, work_task).run()
 
         # Count missing variants
-        count_result = subprocess.run(
-            f"{bcftools} index -n {step2_bcf}.csi",
-            shell=True,
-            capture_output=True,
-            text=True,
-        )
-        missing_count = (
-            int(count_result.stdout.strip()) if count_result.returncode == 0 else 0
-        )
+        missing_count = self._require_variant_count(step2_bcf, bcftools)
         self.logger.info(f"Found {missing_count} variants not in cache")
 
         # Step 3: Annotate only missing variants
@@ -696,26 +687,8 @@ class WorkflowManager(WorkflowBase):
             output_target = work_task / f"{sample_name}_vc.bcf"
 
         if missing_count > 0:
-            # Check if annotation tool dropped any variants
-            step3_count_result = subprocess.run(
-                f"{bcftools} index -n {step3_bcf}.csi",
-                shell=True,
-                capture_output=True,
-                text=True,
-            )
-            step3_count = (
-                int(step3_count_result.stdout.strip())
-                if step3_count_result.returncode == 0
-                else 0
-            )
-
-            dropped_count = 0
-            if step3_count < missing_count:
-                dropped_count = missing_count - step3_count
-                self.logger.info(
-                    f"Annotation tool dropped {dropped_count} variants from input. "
-                    f"By default, these are also removed from cached output to match annotation tool behavior."
-                )
+            _, step3_count = self._validate_annotation_count(step2_bcf, step3_bcf)
+            dropped_count = missing_count - step3_count
 
             # Merge annotations from step3 into step1
             cmd4 = (
@@ -833,19 +806,17 @@ class WorkflowManager(WorkflowBase):
 
         result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
 
-        if output_bcf == "-":
-            stream_cmd = f"{bcftools} view {output_target} -Ob -o -"
-            result = BcftoolsCommand(stream_cmd, self.logger, work_task).run()
-
         # Validate output
         tag = self.nfa_config_content["must_contain_info_tag"]
         self._validate_info_tag(output_target, tag)
 
-        input_count = self._count_variants(input_bcf, bcftools)
-        output_count = self._count_variants(output_target, bcftools)
-        dropped = 0
-        if input_count is not None and output_count is not None:
-            dropped = max(input_count - output_count, 0)
+        input_count, output_count = self._validate_annotation_count(
+            input_bcf, output_target
+        )
+        dropped = input_count - output_count
+        if output_bcf == "-":
+            stream_cmd = f"{bcftools} view {output_target} -Ob -o -"
+            result = BcftoolsCommand(stream_cmd, self.logger, work_task).run()
         self.last_run_stats = {
             "input_variants": input_count,
             "output_variants": output_count,
@@ -855,6 +826,40 @@ class WorkflowManager(WorkflowBase):
         self.logger.info(f"Direct annotation complete: {output_bcf}")
 
         return result
+
+    def _require_variant_count(self, path: Path, bcftools_cmd: str) -> int:
+        """Never interpret an unreadable/missing index as a zero-miss result."""
+        count = self._count_variants(path, bcftools_cmd)
+        if count is None or count < 0:
+            raise RuntimeError(
+                f"Cannot verify variant count for {path}; refusing incomplete output"
+            )
+        return count
+
+    def _validate_annotation_count(self, source: Path, output: Path) -> tuple[int, int]:
+        """Check the recipe boundary, after normalization, before merging output.
+
+        Counts detect truncation, not semantic equivalence; publication runners
+        additionally compare variant keys and annotations outside the timed cell.
+        Deliberate filtering requires an explicit params-file opt-in.
+        """
+        allow_drops = self.params_file_content.get("allow_annotation_drops", False)
+        if not isinstance(allow_drops, bool):
+            raise ValueError("allow_annotation_drops must be a boolean")
+        bcftools = self.params_file_content["bcftools_cmd"]
+        expected = self._require_variant_count(source, bcftools)
+        actual = self._require_variant_count(output, bcftools)
+        if expected != actual:
+            message = f"Annotation record count changed: {expected} input, {actual} output ({output})"
+            if actual < expected and allow_drops:
+                self.logger.warning(
+                    message + "; allowed by explicit allow_annotation_drops: true"
+                )
+            else:
+                raise RuntimeError(
+                    message + "; refusing incomplete or expanded annotation output"
+                )
+        return expected, actual
 
     @staticmethod
     def _count_variants(path: Path, bcftools_cmd: str) -> Optional[int]:

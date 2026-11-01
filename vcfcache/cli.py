@@ -736,8 +736,8 @@ def main() -> None:
     vcf_parser.add_argument(
         "--engine",
         choices=("legacy", "adaptive"),
-        default="legacy",
-        help="(optional) Cached annotation engine. 'adaptive' restricts cache access to the occupied regions and runs contig shards concurrently (default: legacy)",
+        default=None,
+        help="(optional) Cached annotation engine. 'adaptive' restricts cache access to the occupied regions and runs contig shards concurrently (default: adaptive; uncached runs bypass routing)",
     )
     vcf_parser.add_argument(
         "--engine-workers",
@@ -944,6 +944,8 @@ def main() -> None:
         parser.error("--requirements and --list cannot be used together")
 
     if args.command == "annotate" and not (show_command_only or list_only):
+        if args.engine is None:
+            args.engine = "legacy" if args.uncached else "adaptive"
         if not args.i or not args.output_file:
             parser.error(
                 "annotate command requires -i/--vcf and -o/--output unless --requirements is used"

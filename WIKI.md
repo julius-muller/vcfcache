@@ -1,5 +1,21 @@
 # VCFcache Wiki
 
+## Python-adaptive branch: execution safety and default engine
+
+Cached CLI runs default to the Python/bcftools `adaptive` engine; `--engine legacy`
+remains available. No Rust binary is required. `--uncached` bypasses routing.
+Both engines execute the recorded Bash script with `set -euo pipefail`: a failed
+upstream command cannot be hidden by a successful final pipeline command.
+
+Annotation recipes must preserve the number of records supplied **after** input
+normalization and spanning-deletion filtering. Unexpected loss or expansion is
+fatal, as is an unreadable output index, including for direct runs and cache
+builds. A recipe intentionally filtering variants requires the explicit Boolean
+`allow_annotation_drops: true` in `params.yaml`; this emits a warning and never
+permits unreadable output or expanded records. Do not enable it for publication
+measurements. Count checks detect truncation, not semantic equivalence; the
+benchmark runner separately checks variant keys, annotations and relevant headers.
+
 The central correctness, compatibility, and performance objectives are defined
 in [PROJECT_GOALS.md](PROJECT_GOALS.md).
 

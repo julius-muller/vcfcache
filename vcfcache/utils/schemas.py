@@ -150,6 +150,13 @@ class ParamsYAMLSchema:
                     )
 
         # Validate optional_checks if present
+        if "allow_annotation_drops" in data and not isinstance(
+            data["allow_annotation_drops"], bool
+        ):
+            return (
+                False,
+                "Invalid params.yaml: Field 'allow_annotation_drops' must be a boolean",
+            )
         if "optional_checks" in data and not isinstance(data["optional_checks"], dict):
             return False, (
                 f"Invalid params.yaml: Field 'optional_checks' must be a dictionary, "

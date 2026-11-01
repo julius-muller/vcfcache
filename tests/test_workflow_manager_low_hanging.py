@@ -347,6 +347,7 @@ def test_run_cache_build_writes_logs(tmp_path, monkeypatch):
 
     monkeypatch.setattr(wf, "BcftoolsCommand", _Cmd)
     monkeypatch.setattr(mgr, "_validate_info_tag", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(mgr, "_validate_annotation_count", lambda *_args: (2, 2))
 
     mgr.nfa_config_content = {
         "annotation_cmd": "echo ${INPUT_BCF} > ${OUTPUT_BCF}",
@@ -377,13 +378,15 @@ def test_run_annotate_missing_variants(monkeypatch, tmp_path):
     mgr.params_file_content = {"bcftools_cmd": "bcftools", "threads": 1, "genome_build": "GRCh38"}
 
     def _run(cmd, *args, **kwargs):
+        if isinstance(cmd, list):
+            cmd = Path(cmd[1]).read_text()
         class _Res:
             returncode = 0
             stdout = ""
             stderr = ""
         if "index -n" in cmd:
             _Res.stdout = "2\n"
-        if cmd.strip().startswith("echo"):
+        if any(line.startswith("echo") for line in cmd.splitlines()):
             _Res.stdout = "anno\n"
         return _Res()
 

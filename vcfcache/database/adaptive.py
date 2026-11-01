@@ -9,8 +9,8 @@ fully annotated input as a compressed intermediate and then reads it twice.
 
 This engine keeps the same logical steps and the same bcftools commands, but
 restricts cache access to the regions the input occupies, runs
-coordinate-disjoint shards concurrently, and keeps the full-size intermediates
-uncompressed so the payload is BGZF-compressed once rather than three times.
+coordinate-disjoint shards concurrently, and uses fast BGZF level-1 compression
+for full-size intermediates to limit temporary disk traffic.
 
 Region restriction only pays while the merged window list stays short: past a
 few thousand windows the per-window index seeks cost more than a plain scan, so
@@ -261,7 +261,7 @@ def run_adaptive(
         manager.logger,
         work_task,
     ).run()
-    missing_count = manager._count_variants(step2_bcf, bcftools) or 0
+    missing_count = manager._require_variant_count(step2_bcf, bcftools)
     manager.logger.info(f"Found {missing_count} variants not in cache")
 
     # Step 3: one recipe invocation for every shard's misses, as on the legacy
@@ -294,13 +294,8 @@ def run_adaptive(
         if aux_dir.exists() and not any(aux_dir.iterdir()):
             aux_dir.rmdir()
 
-        step3_count = manager._count_variants(step3_bcf, bcftools) or 0
-        if step3_count < missing_count:
-            dropped_count = missing_count - step3_count
-            manager.logger.info(
-                f"Annotation tool dropped {dropped_count} variants from input. "
-                f"By default, these are also removed from cached output to match annotation tool behavior."
-            )
+        _, step3_count = manager._validate_annotation_count(step2_bcf, step3_bcf)
+        dropped_count = missing_count - step3_count
 
         # Step 4: overlay the new annotations back onto each shard's step 1,
         # which already carries the input's order, so no reordering is needed.
