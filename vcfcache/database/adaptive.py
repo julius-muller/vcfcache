@@ -240,7 +240,7 @@ def run_adaptive(
         "cache annotation",
         lambda number: (
             f"{bcftools} annotate {restrict(number)}-a {db_bcf} {input_bcf} -c INFO "
-            f"-o {dirs[number]}/step1.bcf -Ob0 -W --threads {shard_threads}"
+            f"-o {dirs[number]}/step1.bcf -Ob1 -W --threads {shard_threads}"
         ),
     )
 
@@ -310,7 +310,7 @@ def run_adaptive(
             lambda number: (
                 f"{bcftools} annotate {restrict(number)}-a {step3_bcf} "
                 f"{dirs[number]}/step1.bcf -c INFO "
-                f"-o {dirs[number]}/step4.bcf -Ob0 -W --threads {shard_threads}"
+                f"-o {dirs[number]}/step4.bcf -Ob1 -W --threads {shard_threads}"
             ),
         )
         merged = "step4.bcf"
@@ -324,7 +324,7 @@ def run_adaptive(
     step4_bcf = work_task / f"{sample_name}_merged.bcf"
     parts = " ".join(f"{dirs[number]}/{merged}" for number in range(len(regions)))
     BcftoolsCommand(
-        f"{bcftools} concat --no-version --naive {parts} -Ob0 -o {step4_bcf} && "
+        f"{bcftools} concat --no-version --naive {parts} -Ob1 -o {step4_bcf} && "
         f"{bcftools} index -f {step4_bcf}",
         manager.logger,
         work_task,
