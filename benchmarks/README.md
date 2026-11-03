@@ -1,5 +1,11 @@
 # VCFcache publication benchmarks
 
+The completed **Python-adaptive replay (2026-11-03)** is consolidated in
+[python_adaptive_results/final-20261103/RESULTS.md](python_adaptive_results/final-20261103/RESULTS.md),
+with [new manuscript figures and captions](python_adaptive_results/final-20261103/CAPTIONS.md),
+machine-readable data, RStudio tibbles and SHA256-bound terminal evidence. Old
+Rust measurements and previous printed figures are preserved separately.
+
 This directory contains the reproducible preparation and execution plan for the
 VCFcache publication benchmarks. Large datasets and results are kept outside Git
 under `/mnt/data/vcfcache_benchmarks`.
