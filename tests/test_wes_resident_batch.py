@@ -4,7 +4,9 @@ import json
 import subprocess
 
 from benchmarks.run_pilot import strict_semantic_compare
-from tests.test_fused_engine import dataset, native, run_case
+from tests.test_fused_engine import dataset, native as native_fixture, run_case
+
+native = native_fixture
 
 
 def test_loaded_cache_two_jobs(native, tmp_path):

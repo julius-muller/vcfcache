@@ -25,6 +25,7 @@ def main():
         "--selection", choices=["screen", "remaining"], default="screen"
     )
     parser.add_argument("--balance-order", action="store_true")
+    parser.add_argument("--no-submit", action="store_true")
     args = parser.parse_args()
     parent = Path(
         "/mnt/data/slurm-results/python-adaptive-manuscript-20261101-ee2162473/campaign/manifest.json"
@@ -90,6 +91,9 @@ def main():
     )
     write_json_atomic(args.root / "manifest.json", freeze)
     (args.root / "READY").write_text(sha256sum(args.root / "manifest.json") + "\n")
+    if args.no_submit:
+        print(json.dumps(dict(state="prepared_not_submitted", root=worker)))
+        return
     jobs = []
     for task in chosen:
         command = [

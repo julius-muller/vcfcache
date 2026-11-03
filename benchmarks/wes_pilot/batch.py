@@ -219,6 +219,17 @@ def driver(root, tool, deployment, binary):
                     task["preprocess"]["bed"], manifest["asset_attestations"]
                 )
                 cache = node_cache(task["cache"])
+                for name, digest in task["cache"]["files"].items():
+                    if task["cache"].get("storage") != "node_local":
+                        verified_file(
+                            dict(path=str(cache / name), sha256=digest),
+                            manifest["asset_attestations"],
+                        )
+                for asset in (
+                    task["annotation_assets"]
+                    + manifest["asset_groups"][task["annotation_asset_group"]]
+                ):
+                    verified_file(asset, manifest["asset_attestations"])
                 folder = scratch / task["id"]
                 folder.mkdir()
                 prepared = folder / "input.bcf"
