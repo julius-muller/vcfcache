@@ -107,6 +107,11 @@ def run(root, identifier, deployment, modes, binary):
                     command += ["--uncached"]
                 elif mode != "adaptive":
                     command += ["--engine-memory-mb", "2048"]
+                    if mode.startswith("resident-w"):
+                        command += [
+                            "--engine-workers",
+                            str(int(mode.removeprefix("resident-w"))),
+                        ]
                 environment = dict(
                     os.environ,
                     PYTHONPATH=deployment,
