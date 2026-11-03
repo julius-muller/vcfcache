@@ -69,12 +69,10 @@ class BcftoolsCommand:
 
         # Execute command
         result = subprocess.run(
-            self.cmd,
-            shell=True,
+            ["/bin/bash", str(script_file.resolve())],
             capture_output=True,
             text=True,
             cwd=self.work_dir,
-            executable="/bin/bash",
         )
 
         # Calculate duration
