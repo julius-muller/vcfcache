@@ -542,17 +542,33 @@ fn rss_bytes() -> Option<usize> {
 
 impl LoadedCache {
     fn load(path: &Path, cpus: usize) -> Result<Self> {
-        let mut reader = bcf::Reader::from_path(path)?;
+        // rust-htslib's ordinary Reader eagerly unpacks ALL INFO/alleles for
+        // every record. Retain standard BCF bytes instead; unpack only clones
+        // of matching records when a sample actually requests annotations.
+        let reader = CacheReader::open(path)?;
         if cpus > 1 {
-            reader.set_threads(cpus - 1)?;
+            ensure!(
+                unsafe { htslib::hts_set_threads(reader.file, (cpus - 1) as i32) } >= 0,
+                "cannot configure cache decoding threads"
+            );
         }
-        let header = reader.header().clone();
+        let header = reader.header.as_ref().clone();
         let mut records: Vec<Vec<bcf::Record>> =
             (0..header.contig_count()).map(|_| Vec::new()).collect();
         let mut retained_bytes = 0usize;
         let mut count = 0u64;
-        for row in reader.records() {
-            let record = row?;
+        loop {
+            let record = reader.header.empty_record();
+            let result =
+                unsafe { htslib::bcf_read(reader.file, reader.header.as_ptr(), record.inner) };
+            if result == -1 {
+                break;
+            }
+            ensure!(result == 0, "cache loading failed");
+            ensure!(
+                record.inner().unpacked == 0,
+                "cache loader unexpectedly unpacked INFO"
+            );
             let rid = record
                 .rid()
                 .context("resident cache record without contig")? as usize;
@@ -1190,7 +1206,7 @@ pub fn run_batch(path: &Path) -> Result<()> {
     let start = Instant::now();
     let loaded = LoadedCache::load(&first.cache, first.cpus)?;
     event(
-        serde_json::json!({"event":"cache-ready","load_seconds":start.elapsed().as_secs_f64(),"tracked_payload_bytes":loaded.retained_bytes,"rss_bytes":rss_bytes(),"cache":loaded.path}),
+        serde_json::json!({"event":"cache-ready","load_seconds":start.elapsed().as_secs_f64(),"tracked_payload_bytes":loaded.retained_bytes,"rss_bytes":rss_bytes(),"cache":loaded.path,"representation":"lazy-standard-BCF"}),
     )?;
     for (index, job) in jobs.iter().enumerate() {
         event(serde_json::json!({"event":"sample-ready","index":index}))?;
@@ -1211,6 +1227,6 @@ pub fn probe_cache(path: &Path, cpus: usize) -> Result<()> {
     let start = Instant::now();
     let store = LoadedCache::load(path, cpus)?;
     event(
-        serde_json::json!({"event":"cache-probe-complete","records":store.records.iter().map(Vec::len).sum::<usize>(),"load_seconds":start.elapsed().as_secs_f64(),"rss_bytes":rss_bytes(),"tracked_payload_bytes":store.retained_bytes}),
+        serde_json::json!({"event":"cache-probe-complete","records":store.records.iter().map(Vec::len).sum::<usize>(),"load_seconds":start.elapsed().as_secs_f64(),"rss_bytes":rss_bytes(),"tracked_payload_bytes":store.retained_bytes,"representation":"lazy-standard-BCF"}),
     )
 }
