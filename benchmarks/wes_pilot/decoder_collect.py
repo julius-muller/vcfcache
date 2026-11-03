@@ -2,8 +2,8 @@
 
 import argparse
 import json
-from statistics import median
 from pathlib import Path
+from statistics import median
 
 from benchmarks.performance_sprint.repair_headers import direct_binding
 from benchmarks.run_pilot import sha256sum
