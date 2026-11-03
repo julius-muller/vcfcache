@@ -39,6 +39,8 @@ struct Job {
     lookup: String,
     #[serde(default = "default_window_bp")]
     window_bp: i64,
+    #[serde(default)]
+    coalesce_chunks: bool,
 }
 
 fn default_window_bp() -> i64 {
@@ -55,6 +57,7 @@ struct Stats {
     candidate_records: u64,
     lookup_queries: u64,
     buffer_bytes: usize,
+    coalesced_chunks: bool,
     phase_timings: Vec<serde_json::Value>,
 }
 
@@ -237,6 +240,33 @@ impl Drop for CodecPool {
 }
 
 impl CacheReader {
+    /// Physical CSI span, without the estimator's conservative 64-KiB padding.
+    fn chunk_span(&self, rid: u32, start: i64, end: i64) -> Option<(u64, u64)> {
+        let itr = unsafe {
+            htslib::hts_itr_query(
+                self.index,
+                rid as i32,
+                start,
+                end,
+                Some(htslib::bcf_readrec),
+            )
+        };
+        if itr.is_null() {
+            return None;
+        }
+        let mut span: Option<(u64, u64)> = None;
+        unsafe {
+            for i in 0..(*itr).n_off as usize {
+                let chunk = *(*itr).off.add(i);
+                span = Some(match span {
+                    Some((lo, hi)) => (lo.min(chunk.u), hi.max(chunk.v)),
+                    None => (chunk.u, chunk.v),
+                });
+            }
+            htslib::hts_itr_destroy(itr);
+        }
+        span
+    }
     fn open(path: &Path) -> Result<Self> {
         let name = CString::new(path.to_str().context("non-UTF8 cache path")?)?;
         let file = unsafe { htslib::hts_open(name.as_ptr(), c"rb".as_ptr()) };
@@ -338,6 +368,7 @@ fn lookup(
     limit: usize,
     mode: &str,
     window_bp: i64,
+    coalesce_chunks: bool,
     pool: Option<&CodecPool>,
 ) -> Result<(u64, u64)> {
     let mut worker_span = super::profiling::Span::new("native.lookup.worker");
@@ -366,6 +397,7 @@ fn lookup(
         limit,
         mode,
         window_bp,
+        coalesce_chunks,
         &fields,
     )
 }
@@ -377,6 +409,7 @@ fn lookup_records(
     limit: usize,
     mode: &str,
     window_bp: i64,
+    coalesce_chunks: bool,
     fields: &[(Vec<u8>, TagType)],
 ) -> Result<(u64, u64)> {
     let mut loci: HashMap<(u32, i64), Vec<usize>> = HashMap::new();
@@ -409,6 +442,31 @@ fn lookup_records(
         } else {
             windows.push((rid, start, end));
         }
+    }
+    let original_queries = windows.len();
+    if coalesce_chunks {
+        let mut merged: Vec<(u32, i64, i64)> = Vec::new();
+        let mut spans: Vec<Option<(u64, u64)>> = Vec::new();
+        for (rid, start, end) in windows {
+            let span = reader.chunk_span(rid, start, end);
+            if let (Some(last), Some(Some((lo, hi))), Some((next_lo, next_hi))) =
+                (merged.last_mut(), spans.last_mut(), span)
+            {
+                if last.0 == rid
+                    && next_lo <= *hi
+                    && next_hi >= *lo
+                    && ((next_hi.max(*hi) >> 16) - (next_lo.min(*lo) >> 16)) <= 8 * 1024 * 1024
+                {
+                    last.2 = end;
+                    *lo = (*lo).min(next_lo);
+                    *hi = (*hi).max(next_hi);
+                    continue;
+                }
+            }
+            merged.push((rid, start, end));
+            spans.push(span);
+        }
+        windows = merged;
     }
     let mut seen = HashSet::new();
     let mut query_span = super::profiling::Span::new("native.lookup.query_decode_overlay");
@@ -459,7 +517,7 @@ fn lookup_records(
             Ok(())
         })?;
     }
-    query_span.details(serde_json::json!({"candidates":candidates, "queries":windows.len(), "buffer_bytes":memory.load(Ordering::Relaxed)}));
+    query_span.details(serde_json::json!({"candidates":candidates, "queries":windows.len(), "original_queries":original_queries,"coalesced_chunks":coalesce_chunks,"buffer_bytes":memory.load(Ordering::Relaxed)}));
     Ok((candidates, windows.len() as u64))
 }
 
@@ -471,6 +529,7 @@ fn execute(job: &Job) -> Result<()> {
     let _attempt = super::profiling::Span::new("native.execute");
     let prepare_span = super::profiling::Span::new("native.prepare_decode_split_stream");
     let mut stats = Stats::default();
+    stats.coalesced_chunks = job.coalesce_chunks;
     let start = Instant::now();
     let mut input = bcf::Reader::from_path(&job.input)?;
     let cache_header = bcf::Reader::from_path(&job.cache)?.header().clone();
@@ -568,6 +627,7 @@ fn execute(job: &Job) -> Result<()> {
                         job.memory_bytes,
                         &job.lookup,
                         job.window_bp,
+                        job.coalesce_chunks,
                         pool,
                     )
                 })
@@ -902,6 +962,7 @@ pub fn route_stream(
                 LIMIT,
                 "regions",
                 16384,
+                false,
                 &fields,
             )?;
             counts.native_candidate_records += candidates;

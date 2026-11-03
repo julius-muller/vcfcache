@@ -57,6 +57,8 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     start = time.perf_counter()
     binary = native_binary()
     version = helper_version(binary, (0, 3, 0))
+    if os.environ.get("VCFCACHE_EXPERIMENT_COALESCE_CHUNKS", "0") == "1":
+        helper_version(binary, (0, 8, 0))
     window_bp = int(os.environ.get("VCFCACHE_EXPERIMENT_WINDOW_BP", "16384"))
     if window_bp not in {1024, 4096, 16384}:
         raise ValueError("VCFCACHE_EXPERIMENT_WINDOW_BP must be 1024, 4096 or 16384")
@@ -145,6 +147,10 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                 preserve=preserve,
                 lookup=lookup,
                 window_bp=window_bp,
+                coalesce_chunks=os.environ.get(
+                    "VCFCACHE_EXPERIMENT_COALESCE_CHUNKS", "0"
+                )
+                == "1",
             )
             job = root / "job.json"
             job.write_text(json.dumps(spec))

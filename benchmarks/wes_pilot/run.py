@@ -61,6 +61,20 @@ def run(root, identifier, deployment, modes, binary):
             (scratch / "tmp").mkdir()
             (scratch / "params.yaml").write_text(yaml.safe_dump(params))
             reference = None
+            if manifest.get("reference_screen"):
+                origin = Path(manifest["reference_screen"]) / "cases" / identifier
+                previous = json.loads((origin / "state.json").read_text())
+                assert previous["state"] == "complete"
+                metrics = json.loads((origin / "direct/resources.json").read_text())
+                assert metrics["exit_code"] == 0 and len(metrics["affinity"]) == 8
+                state["reused_direct"] = dict(
+                    path=str(origin),
+                    job_id=previous["job_id"],
+                    wall_seconds=metrics["wall_seconds"],
+                )
+                binding = task["baseline"]["direct_reuse"]
+                reference = Path(binding["attempt"]) / "direct.bcf"
+                assert sha256sum(reference) == binding["files"]["direct.bcf"]
             for mode in modes:
                 directory = evidence / mode
                 directory.mkdir()
@@ -179,6 +193,8 @@ def run(root, identifier, deployment, modes, binary):
                             stats.get("effective_engine") == "native"
                         ), "resident candidate fell back"
                     adaptive_output = scratch / "adaptive.bcf"
+                    if mode == "coalesced":
+                        assert stats.get("coalesced_chunks") is True
                     if mode != "adaptive" and adaptive_output.exists():
                         comparison = strict_semantic_compare(output, adaptive_output)
                         write_json_atomic(

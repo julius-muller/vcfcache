@@ -1,7 +1,6 @@
 """Freeze and submit a bounded screen from the exact completed WES conditions."""
 
 import argparse
-import datetime
 import json
 import shlex
 import subprocess
@@ -21,6 +20,7 @@ def main():
     parser.add_argument(
         "--modes", nargs="+", default=["direct", "adaptive", "resident"]
     )
+    parser.add_argument("--reference-screen")
     args = parser.parse_args()
     parent = Path(
         "/mnt/data/slurm-results/python-adaptive-manuscript-20261101-ee2162473/campaign/manifest.json"
@@ -75,6 +75,7 @@ def main():
         asset_groups=original["freeze"]["annotation_asset_groups"],
         deadline_utc="2026-11-03T12:44:15Z",
         modes=args.modes,
+        reference_screen=args.reference_screen,
     )
     write_json_atomic(args.root / "manifest.json", freeze)
     (args.root / "READY").write_text(sha256sum(args.root / "manifest.json") + "\n")
