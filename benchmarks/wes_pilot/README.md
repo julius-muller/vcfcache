@@ -83,3 +83,32 @@ panel files. Numeric observations and R tibbles are available as TSV/RDS.
 See [RESULTS.md](results-20261103/RESULTS.md) for the decision, caveats, failures,
 and exact results. These are engineering measurements, not a replacement for
 the manuscript campaign or evidence of linear CPU scaling.
+
+## Fixed-worker decoder-pool follow-up
+
+The separate `decoder-results-20261103/` experiment holds lookup workers at four
+and the process CPU budget at eight, comparing zero versus four extra cache
+decoder threads. Annotation and final-output threading remain unchanged. It
+retimes both cached configurations in counterbalanced order within each worker;
+it reuses, rather than retimes, the original direct baseline.
+
+`VCFCACHE_EXPERIMENT_CODEC_THREADS=0` opts into the experiment (helper >=0.8.4).
+Omitting it retains the original `CPUs - lookup workers` pool allocation. Values
+must be non-negative and fit the remaining CPU budget. The helper and controller
+both enforce this, and `lookup_codec_threads` records the effective setting.
+No public default is changed. This switch jointly changes asynchronous decode,
+prefetch/seek overhead and availability of the ordinary decoded-block cache;
+it is not an isolated measurement of block-cache hit rate.
+
+Six screen pairs use the same three deterministic inputs per recipe as the
+earlier screen. The durable manifest pins source, binary and assets; every pair
+must have identical candidate/query counts, variant counts, and strict semantic
+digests. With the archived `source/` extracted, collect using:
+
+```sh
+python -m benchmarks.wes_pilot.decoder_collect benchmarks/wes_pilot/decoder-results-20261103
+```
+
+See its `RESULTS.md` for the outcome; these new conditions do not replace earlier
+measurements or figures. The preparer now takes an optional `--deadline-utc`
+instead of silently copying the previous campaign's expired timestamp.
