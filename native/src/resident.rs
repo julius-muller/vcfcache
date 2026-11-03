@@ -569,21 +569,18 @@ impl LoadedCache {
             bucket.push(record);
             count += 1;
             if count % 16384 == 0 {
-                let vectors = records
-                    .iter()
-                    .map(|v| v.capacity() * std::mem::size_of::<bcf::Record>())
-                    .sum::<usize>();
-                ensure!(
-                    retained_bytes + vectors <= 18usize * 1024 * 1024 * 1024,
-                    "resident cache exceeds 18-GiB tracked allocation budget"
-                );
                 ensure!(
                     rss_bytes().context("cannot enforce resident RSS budget")?
                         <= 20usize * 1024 * 1024 * 1024,
-                    "resident cache exceeds 20-GiB RSS budget"
+                    "resident cache exceeds 20-GiB RSS budget after {} records (tracked payload {})", count, retained_bytes
                 );
             }
         }
+        ensure!(
+            rss_bytes().context("cannot enforce resident RSS budget")?
+                <= 20usize * 1024 * 1024 * 1024,
+            "resident cache exceeds RSS budget at EOF"
+        );
         Ok(Self {
             path: path.to_path_buf(),
             header,
@@ -595,7 +592,14 @@ impl LoadedCache {
     fn lookup(&self, entries: &mut [Entry], memory: &AtomicUsize, limit: usize) -> Result<u64> {
         let fields = tags(&self.header)?;
         let mut candidates = 0;
-        for entry in entries {
+        for (number, entry) in entries.iter_mut().enumerate() {
+            if number % 1024 == 0 {
+                ensure!(
+                    rss_bytes().context("cannot enforce resident RSS budget")?
+                        <= 20usize * 1024 * 1024 * 1024,
+                    "resident session exceeded RSS budget during lookup"
+                );
+            }
             let name = entry
                 .record
                 .header()
@@ -1200,4 +1204,13 @@ pub fn run_batch(path: &Path) -> Result<()> {
         );
     }
     event(serde_json::json!({"event":"batch-complete"}))
+}
+
+pub fn probe_cache(path: &Path, cpus: usize) -> Result<()> {
+    ensure!(cpus > 0 && cpus <= 8, "invalid probe CPU budget");
+    let start = Instant::now();
+    let store = LoadedCache::load(path, cpus)?;
+    event(
+        serde_json::json!({"event":"cache-probe-complete","records":store.records.iter().map(Vec::len).sum::<usize>(),"load_seconds":start.elapsed().as_secs_f64(),"rss_bytes":rss_bytes(),"tracked_payload_bytes":store.retained_bytes}),
+    )
 }

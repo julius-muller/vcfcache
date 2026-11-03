@@ -4,7 +4,8 @@ import json
 import subprocess
 
 from benchmarks.run_pilot import strict_semantic_compare
-from tests.test_fused_engine import dataset, native as native_fixture, run_case
+from tests.test_fused_engine import dataset, run_case
+from tests.test_fused_engine import native as native_fixture
 
 native = native_fixture
 

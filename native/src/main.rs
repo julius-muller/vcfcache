@@ -36,6 +36,13 @@ enum Command {
         #[arg(long)]
         jobs: PathBuf,
     },
+    /// PILOT: measure complete cache loading without invoking any annotator.
+    CacheProbe {
+        #[arg(long)]
+        cache: PathBuf,
+        #[arg(long, default_value_t = 8)]
+        cpus: usize,
+    },
     /// EXPERIMENT: explicitly build an immutable mmap lookup sidecar.
     #[cfg(feature = "experimental-store")]
     StoreBuild {
@@ -382,6 +389,7 @@ fn main() -> Result<()> {
     match Cli::parse().command {
         Command::Resident { job } => resident::run(&job),
         Command::ResidentBatch { jobs } => resident::run_batch(&jobs),
+        Command::CacheProbe { cache, cpus } => resident::probe_cache(&cache, cpus),
         #[cfg(feature = "experimental-store")]
         Command::StoreBuild { cache, output } => store::build(&cache, &output),
         #[cfg(feature = "experimental-store")]
