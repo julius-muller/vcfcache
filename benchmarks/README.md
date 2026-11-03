@@ -6,6 +6,11 @@ with [new manuscript figures and captions](python_adaptive_results/final-2026110
 machine-readable data, RStudio tibbles and SHA256-bound terminal evidence. Old
 Rust measurements and previous printed figures are preserved separately.
 
+A [matching Rust-adaptive figure set](rust_adaptive_results/README.md),
+[prominent annotation-rich vep-rs timings and general runtime-model sensitivity](python_adaptive_results/interpretation-20261103/README.md)
+are also available. Clinical CSQ discrepancies remain explicitly provisional;
+the hypothetical sensitivity model is not fitted benchmark data.
+
 This directory contains the reproducible preparation and execution plan for the
 VCFcache publication benchmarks. Large datasets and results are kept outside Git
 under `/mnt/data/vcfcache_benchmarks`.
