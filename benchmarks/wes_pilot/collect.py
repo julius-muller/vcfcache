@@ -24,7 +24,15 @@ def table(path, rows):
     with path.open("w") as stream:
         writer = csv.DictWriter(stream, fields, delimiter="\t", lineterminator="\n")
         writer.writeheader()
-        writer.writerows(rows)
+        # Explicit missing values preserve rectangular TSVs without empty
+        # trailing cells being mistaken for accidental whitespace by Git.
+        writer.writerows(
+            {
+                key: "NA" if value is None or value == "" else value
+                for key, value in row.items()
+            }
+            for row in rows
+        )
 
 
 def collect(root):
