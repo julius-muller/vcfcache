@@ -173,6 +173,22 @@ def run(root, identifier, deployment, modes, binary):
                 write_json_atomic(directory / "statistics.json", stats)
                 if mode == "direct":
                     reference = output
+                state["rows"].append(
+                    dict(
+                        mode=mode,
+                        wall_seconds=metrics["wall_seconds"],
+                        output_sha256=sha256sum(output),
+                        records=n,
+                    )
+                )
+                write_json_atomic(evidence / "state.json", state)
+            # Audit only after all timed arms, allowing counterbalanced order
+            # without comparing/decompressing one arm before timing the next.
+            for mode in modes:
+                output = scratch / f"{mode}.bcf"
+                directory = evidence / mode
+                stats = json.loads((directory / "statistics.json").read_text())
+                if mode == "direct":
                     binding = task["baseline"].get("direct_reuse")
                     if binding:
                         historical = Path(binding["attempt"]) / "direct.bcf"
@@ -201,15 +217,6 @@ def run(root, identifier, deployment, modes, binary):
                             directory / "against_adaptive.json", comparison
                         )
                         assert comparison["semantic_pass"]
-                state["rows"].append(
-                    dict(
-                        mode=mode,
-                        wall_seconds=metrics["wall_seconds"],
-                        output_sha256=sha256sum(output),
-                        records=n,
-                    )
-                )
-                write_json_atomic(evidence / "state.json", state)
             state["state"] = "complete"
         except Exception as error:
             state.update(

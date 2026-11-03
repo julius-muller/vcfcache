@@ -1058,6 +1058,7 @@ class VCFAnnotator(VCFDatabase):
             "buffer_bytes",
             "candidate_records",
             "lookup_queries",
+            "coalesced_chunks",
             "compatibility_merge_reason",
             "experimental_indexed_misses",
             "experimental_trust_routed_hits",

@@ -31,6 +31,11 @@ enum Command {
         #[arg(long)]
         job: PathBuf,
     },
+    /// PILOT: load one unchanged cache once and execute a local job sequence.
+    ResidentBatch {
+        #[arg(long)]
+        jobs: PathBuf,
+    },
     /// EXPERIMENT: explicitly build an immutable mmap lookup sidecar.
     #[cfg(feature = "experimental-store")]
     StoreBuild {
@@ -376,6 +381,7 @@ struct OutputOptions<'a> {
 fn main() -> Result<()> {
     match Cli::parse().command {
         Command::Resident { job } => resident::run(&job),
+        Command::ResidentBatch { jobs } => resident::run_batch(&jobs),
         #[cfg(feature = "experimental-store")]
         Command::StoreBuild { cache, output } => store::build(&cache, &output),
         #[cfg(feature = "experimental-store")]

@@ -21,6 +21,10 @@ def main():
         "--modes", nargs="+", default=["direct", "adaptive", "resident"]
     )
     parser.add_argument("--reference-screen")
+    parser.add_argument(
+        "--selection", choices=["screen", "remaining"], default="screen"
+    )
+    parser.add_argument("--balance-order", action="store_true")
     args = parser.parse_args()
     parent = Path(
         "/mnt/data/slurm-results/python-adaptive-manuscript-20261101-ee2162473/campaign/manifest.json"
@@ -56,8 +60,14 @@ def main():
         (t for t in tasks if t["tool"] == "veprs"), key=lambda t: (hit(t), t["sample"])
     )
     selected.append(next(t["sample"] for t in order if t["sample"] not in selected))
-    chosen = [t for t in tasks if t["sample"] in selected]
-    assert len(chosen) == 6
+    chosen = [
+        t for t in tasks if (t["sample"] in selected) == (args.selection == "screen")
+    ]
+    assert len(chosen) == (6 if args.selection == "screen" else 18)
+    orders = {}
+    for index, task in enumerate(chosen):
+        shift = index % len(args.modes) if args.balance_order else 0
+        orders[task["id"]] = args.modes[shift:] + args.modes[:shift]
     args.root.mkdir(parents=True, exist_ok=False)
     worker = str(args.root).replace("/mnt/data/slurm-results/", "/results/", 1)
     (args.root / "logs").mkdir()
@@ -76,6 +86,7 @@ def main():
         deadline_utc="2026-11-03T12:44:15Z",
         modes=args.modes,
         reference_screen=args.reference_screen,
+        modes_by_id=orders,
     )
     write_json_atomic(args.root / "manifest.json", freeze)
     (args.root / "READY").write_text(sha256sum(args.root / "manifest.json") + "\n")
@@ -93,7 +104,7 @@ def main():
             "--binary",
             args.binary,
             "--modes",
-            *args.modes,
+            *orders[task["id"]],
         ]
         wrap = (
             "cd /tmp; PYTHONPATH="

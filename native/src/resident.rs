@@ -521,7 +521,139 @@ fn lookup_records(
     Ok((candidates, windows.len() as u64))
 }
 
-fn execute(job: &Job) -> Result<()> {
+struct LoadedCache {
+    path: PathBuf,
+    header: bcf::header::HeaderView,
+    records: Vec<Vec<bcf::Record>>,
+    retained_bytes: usize,
+}
+
+fn rss_bytes() -> Option<usize> {
+    std::fs::read_to_string("/proc/self/status")
+        .ok()?
+        .lines()
+        .find(|line| line.starts_with("VmRSS:"))?
+        .split_whitespace()
+        .nth(1)?
+        .parse::<usize>()
+        .ok()
+        .map(|kb| kb * 1024)
+}
+
+impl LoadedCache {
+    fn load(path: &Path, cpus: usize) -> Result<Self> {
+        let mut reader = bcf::Reader::from_path(path)?;
+        if cpus > 1 {
+            reader.set_threads(cpus - 1)?;
+        }
+        let header = reader.header().clone();
+        let mut records: Vec<Vec<bcf::Record>> =
+            (0..header.contig_count()).map(|_| Vec::new()).collect();
+        let mut retained_bytes = 0usize;
+        let mut count = 0u64;
+        for row in reader.records() {
+            let record = row?;
+            let rid = record
+                .rid()
+                .context("resident cache record without contig")? as usize;
+            let bucket = &mut records[rid];
+            ensure!(
+                bucket.last().is_none_or(|last| last.pos() <= record.pos()),
+                "cache is not sorted"
+            );
+            let inner = record.inner();
+            retained_bytes += inner.shared.m + inner.indiv.m + std::mem::size_of_val(inner) + 128;
+            if bucket.len() == bucket.capacity() {
+                bucket.reserve(bucket.capacity().max(1024));
+            }
+            bucket.push(record);
+            count += 1;
+            if count % 16384 == 0 {
+                let vectors = records
+                    .iter()
+                    .map(|v| v.capacity() * std::mem::size_of::<bcf::Record>())
+                    .sum::<usize>();
+                ensure!(
+                    retained_bytes + vectors <= 18usize * 1024 * 1024 * 1024,
+                    "resident cache exceeds 18-GiB tracked allocation budget"
+                );
+                ensure!(
+                    rss_bytes().context("cannot enforce resident RSS budget")?
+                        <= 20usize * 1024 * 1024 * 1024,
+                    "resident cache exceeds 20-GiB RSS budget"
+                );
+            }
+        }
+        Ok(Self {
+            path: path.to_path_buf(),
+            header,
+            records,
+            retained_bytes,
+        })
+    }
+
+    fn lookup(&self, entries: &mut [Entry], memory: &AtomicUsize, limit: usize) -> Result<u64> {
+        let fields = tags(&self.header)?;
+        let mut candidates = 0;
+        for entry in entries {
+            let name = entry
+                .record
+                .header()
+                .rid2name(entry.record.rid().context("input contig missing")?)?;
+            let Ok(rid) = self.header.name2rid(name) else {
+                continue;
+            };
+            let bucket = &self.records[rid as usize];
+            let pos = entry.record.pos();
+            let lo = bucket.partition_point(|r| r.pos() < pos);
+            let hi = bucket.partition_point(|r| r.pos() <= pos);
+            let mut matched = false;
+            for stored in &bucket[lo..hi] {
+                candidates += 1;
+                // Cloning preserves the shared loaded record unmodified when
+                // HTSlib lazily unpacks alleles/INFO for this target's overlay.
+                let mut source = stored.clone();
+                source.unpack();
+                if source.alleles().len() != 2 {
+                    return Err(unsupported("multiallelic cache candidate"));
+                }
+                if source.alleles() != entry.record.alleles() {
+                    if source
+                        .alleles()
+                        .iter()
+                        .zip(entry.record.alleles())
+                        .all(|(a, b)| a.eq_ignore_ascii_case(b))
+                    {
+                        return Err(unsupported("case-insensitive allele pairing"));
+                    }
+                    if source.alleles()[0] != entry.record.alleles()[0]
+                        && possible_padded_match(&source.alleles(), &entry.record.alleles())
+                    {
+                        return Err(unsupported("non-exact REF pairing"));
+                    }
+                    continue;
+                }
+                if matched {
+                    return Err(unsupported("duplicate matching cache records"));
+                }
+                matched = true;
+                let before = bytes(&entry.record);
+                overlay(&mut entry.record, &source, &fields)?;
+                let after = bytes(&entry.record);
+                if after > before {
+                    ensure!(
+                        memory.fetch_add(after - before, Ordering::Relaxed) + after - before
+                            <= limit,
+                        "resident input buffer exceeded budget"
+                    );
+                }
+            }
+        }
+        Ok(candidates)
+    }
+}
+
+fn execute(job: &Job, loaded: Option<&LoadedCache>) -> Result<()> {
     ensure!(
         [1024, 4096, 16384].contains(&job.window_bp),
         "unsupported native query window"
@@ -620,6 +752,11 @@ fn execute(job: &Job) -> Result<()> {
                 let memory = &memory;
                 let pool = pool.as_ref();
                 scope.spawn(move || {
+                    if let Some(store) = loaded {
+                        let queries = chunk.len() as u64;
+                        let candidates = store.lookup(chunk, memory, job.memory_bytes)?;
+                        return Ok((candidates, queries));
+                    }
                     lookup(
                         chunk,
                         &job.cache,
@@ -1018,10 +1155,49 @@ pub fn run(path: &Path) -> Result<()> {
         job.cpus > 0 && job.workers > 0 && job.memory_bytes > 0,
         "invalid native resource budget"
     );
-    match execute(&job) {
+    match execute(&job, None) {
         Err(error) if error.to_string().starts_with("UNSUPPORTED:") => {
             event(serde_json::json!({"event":"fallback","reason":error.to_string()}))
         }
         result => result,
     }
+}
+
+pub fn run_batch(path: &Path) -> Result<()> {
+    let jobs: Vec<Job> = serde_json::from_reader(File::open(path)?)?;
+    ensure!(!jobs.is_empty(), "empty resident job sequence");
+    let first = &jobs[0];
+    ensure!(
+        first.cpus > 0 && first.cpus <= 8,
+        "invalid batch CPU budget"
+    );
+    for job in &jobs {
+        ensure!(
+            job.cache == first.cache && job.cpus == first.cpus,
+            "batch cache/CPU changed"
+        );
+        ensure!(
+            job.workers > 0
+                && job.workers <= job.cpus
+                && job.memory_bytes <= 2usize * 1024 * 1024 * 1024,
+            "invalid batch input budget"
+        );
+    }
+    let start = Instant::now();
+    let loaded = LoadedCache::load(&first.cache, first.cpus)?;
+    event(
+        serde_json::json!({"event":"cache-ready","load_seconds":start.elapsed().as_secs_f64(),"tracked_payload_bytes":loaded.retained_bytes,"rss_bytes":rss_bytes(),"cache":loaded.path}),
+    )?;
+    for (index, job) in jobs.iter().enumerate() {
+        event(serde_json::json!({"event":"sample-ready","index":index}))?;
+        // No fallback in an experimental persistent session: it must be clear
+        // whether the loaded-cache path actually produced every result.
+        execute(job, Some(&loaded))?;
+        ensure!(
+            rss_bytes().context("cannot enforce session RSS budget")?
+                <= 20usize * 1024 * 1024 * 1024,
+            "resident session exceeds 20-GiB RSS budget"
+        );
+    }
+    event(serde_json::json!({"event":"batch-complete"}))
 }
