@@ -41,6 +41,8 @@ struct Job {
     window_bp: i64,
     #[serde(default)]
     coalesce_chunks: bool,
+    #[serde(default)]
+    codec_threads: Option<usize>,
 }
 
 fn default_window_bp() -> i64 {
@@ -58,6 +60,7 @@ struct Stats {
     lookup_queries: u64,
     buffer_bytes: usize,
     coalesced_chunks: bool,
+    lookup_codec_threads: usize,
     phase_timings: Vec<serde_json::Value>,
 }
 
@@ -742,7 +745,13 @@ fn execute(job: &Job, loaded: Option<&LoadedCache>) -> Result<()> {
     let lookup_span = super::profiling::Span::new("native.lookup");
     let workers = job.workers.max(1).min(entries.len().max(1));
     let size = entries.len().max(1).div_ceil(workers);
-    let codec_threads = job.cpus.saturating_sub(workers);
+    ensure!(workers <= job.cpus, "lookup workers exceed CPU budget");
+    let codec_threads = job.codec_threads.unwrap_or(job.cpus - workers);
+    ensure!(
+        codec_threads <= job.cpus - workers,
+        "cache codec threads exceed CPU budget"
+    );
+    stats.lookup_codec_threads = codec_threads;
     let pool = if codec_threads > 0 {
         let ptr = unsafe { htslib::hts_tpool_init(codec_threads as i32) };
         ensure!(!ptr.is_null(), "cannot create cache codec pool");

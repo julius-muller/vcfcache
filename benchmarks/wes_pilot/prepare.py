@@ -4,6 +4,7 @@ import argparse
 import json
 import shlex
 import subprocess
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from benchmarks.engine_profile.run import PYTHON
@@ -27,6 +28,7 @@ def main():
     parser.add_argument("--balance-order", action="store_true")
     parser.add_argument("--exclude-ids", nargs="*", default=[])
     parser.add_argument("--no-submit", action="store_true")
+    parser.add_argument("--deadline-utc")
     args = parser.parse_args()
     parent = Path(
         "/mnt/data/slurm-results/python-adaptive-manuscript-20261101-ee2162473/campaign/manifest.json"
@@ -89,7 +91,8 @@ def main():
         binary_sha256=sha256sum(binary_local),
         asset_attestations=original["freeze"]["asset_attestations"],
         asset_groups=original["freeze"]["annotation_asset_groups"],
-        deadline_utc="2026-11-03T12:44:15Z",
+        deadline_utc=args.deadline_utc
+        or (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
         modes=args.modes,
         excluded_ids=args.exclude_ids,
         reference_screen=args.reference_screen,

@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 import shlex
 import subprocess
 import tempfile
@@ -108,9 +109,11 @@ def run(root, identifier, deployment, modes, binary):
                 elif mode != "adaptive":
                     command += ["--engine-memory-mb", "2048"]
                     if mode.startswith("resident-w"):
+                        match = re.fullmatch(r"resident-w(\d+)(?:-c(\d+))?", mode)
+                        assert match is not None, "invalid resident configuration"
                         command += [
                             "--engine-workers",
-                            str(int(mode.removeprefix("resident-w"))),
+                            match[1],
                         ]
                 environment = dict(
                     os.environ,
@@ -127,6 +130,8 @@ def run(root, identifier, deployment, modes, binary):
                         environment.pop(key)
                 if mode == "coalesced":
                     environment["VCFCACHE_EXPERIMENT_COALESCE_CHUNKS"] = "1"
+                if mode.startswith("resident-w") and match[2] is not None:
+                    environment["VCFCACHE_EXPERIMENT_CODEC_THREADS"] = match[2]
                 launch = [
                     "srun",
                     "--exclusive",
@@ -150,6 +155,11 @@ def run(root, identifier, deployment, modes, binary):
                         deployment=deployment,
                         binary=binary,
                         mode=mode,
+                        experimental_environment={
+                            key: value
+                            for key, value in environment.items()
+                            if key.startswith("VCFCACHE_EXPERIMENT_")
+                        },
                     ),
                 )
                 with (directory / "run.log").open("w") as log:
@@ -213,6 +223,11 @@ def run(root, identifier, deployment, modes, binary):
                         assert (
                             stats.get("effective_engine") == "native"
                         ), "resident candidate fell back"
+                    if "-c" in mode:
+                        expected = int(mode.rsplit("-c", 1)[1])
+                        assert (
+                            stats.get("lookup_codec_threads") == expected
+                        ), "decoder override not applied"
                     adaptive_output = scratch / "adaptive.bcf"
                     if mode == "coalesced":
                         assert stats.get("coalesced_chunks") is True

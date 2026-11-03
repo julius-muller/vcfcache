@@ -67,6 +67,12 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     if workers > cpus:
         raise ValueError("native workers exceed configured CPU budget")
     workers = workers or min(8, max(1, cpus // 2))
+    codec_threads = os.environ.get("VCFCACHE_EXPERIMENT_CODEC_THREADS")
+    if codec_threads is not None:
+        helper_version(binary, (0, 8, 4))
+        codec_threads = int(codec_threads)
+        if not 0 <= codec_threads <= cpus - workers:
+            raise ValueError("cache codec threads exceed remaining CPU budget")
     if validate_info_headers(manager.input_file, cache):
         helper_version(binary, (0, 7, 1))
     bcftools = manager.params_file_content["bcftools_cmd"]
@@ -143,6 +149,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                 tag=manager.nfa_config_content["must_contain_info_tag"],
                 workers=workers,
                 cpus=cpus,
+                codec_threads=codec_threads,
                 memory_bytes=memory_mb * 1024 * 1024,
                 preserve=preserve,
                 lookup=lookup,

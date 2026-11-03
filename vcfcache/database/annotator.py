@@ -1059,6 +1059,7 @@ class VCFAnnotator(VCFDatabase):
             "candidate_records",
             "lookup_queries",
             "coalesced_chunks",
+            "lookup_codec_threads",
             "compatibility_merge_reason",
             "experimental_indexed_misses",
             "experimental_trust_routed_hits",
