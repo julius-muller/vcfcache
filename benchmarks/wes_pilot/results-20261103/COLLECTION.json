@@ -1,0 +1,28 @@
+{
+  "cli_rows": 96,
+  "worker_allocation_rows": 28,
+  "attempts": {
+    "complete": 30,
+    "failed": 6
+  },
+  "batch": [
+    {
+      "error": "Command '['srun', '--exclusive', '--exact', '--cpu-bind=cores', '-n1', '-c8', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '/results/deployment/wes-pilot-v081-20261103/benchmarks/engine_profile/measure.py', '--directory', '/results/wes-pilot/20261103-batch/batch-fastvep/resident-batch', '--', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '-m', 'benchmarks.wes_pilot.batch', '/mnt/data/tmp/wes-batch-len6_o2a/prepared.json', '--phase', 'resident-batch', '--binary', '/results/deployment/wes-pilot-v081-20261103/native/target/release/vcfcache-engine']' returned non-zero exit status 1.",
+      "finished_unix": 1793701778.8292587,
+      "job_id": "2686",
+      "started_unix": 1793700239.8859904,
+      "state": "failed",
+      "tool": "fastvep",
+      "traceback": "Traceback (most recent call last):\n  File \"/results/deployment/wes-pilot-v081-20261103/benchmarks/wes_pilot/batch.py\", line 309, in driver\n    subprocess.run(command, env=env, stdout=log, stderr=log, check=True)\n  File \"/home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['srun', '--exclusive', '--exact', '--cpu-bind=cores', '-n1', '-c8', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '/results/deployment/wes-pilot-v081-20261103/benchmarks/engine_profile/measure.py', '--directory', '/results/wes-pilot/20261103-batch/batch-fastvep/resident-batch', '--', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '-m', 'benchmarks.wes_pilot.batch', '/mnt/data/tmp/wes-batch-len6_o2a/prepared.json', '--phase', 'resident-batch', '--binary', '/results/deployment/wes-pilot-v081-20261103/native/target/release/vcfcache-engine']' returned non-zero exit status 1.\n"
+    },
+    {
+      "error": "Command '['srun', '--exclusive', '--exact', '--cpu-bind=cores', '-n1', '-c8', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '/results/deployment/wes-pilot-v081-20261103/benchmarks/engine_profile/measure.py', '--directory', '/results/wes-pilot/20261103-batch/batch-veprs/resident-batch', '--', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '-m', 'benchmarks.wes_pilot.batch', '/mnt/data/tmp/wes-batch-lzamiqyg/prepared.json', '--phase', 'resident-batch', '--binary', '/results/deployment/wes-pilot-v081-20261103/native/target/release/vcfcache-engine']' returned non-zero exit status 1.",
+      "finished_unix": 1793700920.5060291,
+      "job_id": "2685",
+      "started_unix": 1793700258.5750573,
+      "state": "failed",
+      "tool": "veprs",
+      "traceback": "Traceback (most recent call last):\n  File \"/results/deployment/wes-pilot-v081-20261103/benchmarks/wes_pilot/batch.py\", line 309, in driver\n    subprocess.run(command, env=env, stdout=log, stderr=log, check=True)\n  File \"/home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['srun', '--exclusive', '--exact', '--cpu-bind=cores', '-n1', '-c8', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '/results/deployment/wes-pilot-v081-20261103/benchmarks/engine_profile/measure.py', '--directory', '/results/wes-pilot/20261103-batch/batch-veprs/resident-batch', '--', '/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python', '-m', 'benchmarks.wes_pilot.batch', '/mnt/data/tmp/wes-batch-lzamiqyg/prepared.json', '--phase', 'resident-batch', '--binary', '/results/deployment/wes-pilot-v081-20261103/native/target/release/vcfcache-engine']' returned non-zero exit status 1.\n"
+    }
+  ]
+}

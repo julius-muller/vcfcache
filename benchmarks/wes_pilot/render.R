@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
 #### PATHS AND PACKAGES ####
-args<-commandArgs(TRUE);stopifnot(length(args)==1)
+args<-commandArgs(TRUE);stopifnot(length(args)>=1,length(args)<=2)
 root<-normalizePath(args[[1]],mustWork=TRUE)
 .libPaths(c(file.path(path.expand("~"),".local/lib/R/4.5"),.libPaths()))
 suppressPackageStartupMessages({library(ggplot2);library(patchwork);library(tibble)})
-out<-file.path(root,"figures");if(dir.exists(out))stop("Choose a new output directory")
+out<-file.path(root,if(length(args)==2)args[[2]] else "figures");if(dir.exists(out))stop("Choose a new output directory")
 read_tsv<-function(name) as_tibble(read.delim(file.path(root,"tables",name),quote="",comment.char="",na.strings=c("","NA")))
 write_tsv<-function(x,name)write.table(x,file.path(root,"tables",name),sep="\t",quote=FALSE,row.names=FALSE)
 save_plot<-function(p,name,w=10,h=5){
@@ -17,7 +17,17 @@ theme_journal<-function()theme_classic(base_size=10)+theme(strip.background=elem
 
 #### COLD APPLICATION-START CLI COMPARISONS ####
 x<-read_tsv("cli_conditions.tsv")
-names<-c(adaptive="Rust-adaptive",resident="Resident input",coalesced="Coalesced input")
+if(file.exists(file.path(root,"tables/worker_tuning.tsv"))){
+ tuning<-read_tsv("worker_tuning.tsv")
+ w8<-subset(tuning,workers==8)
+ # A single globally selected configuration, never the best arm per sample.
+ stopifnot(nrow(w8)==24,!anyDuplicated(w8$id))
+ fields<-union(names(x),names(w8))
+ for(n in setdiff(fields,names(x)))x[[n]]<-NA
+ for(n in setdiff(fields,names(w8)))w8[[n]]<-NA
+ x<-rbind(x[,fields],w8[,fields])
+}
+names<-c(adaptive="Rust-adaptive",resident="Resident input: 4 workers",coalesced="Coalesced input: 4 workers",`resident-w8`="Resident input: 8 workers")
 x<-subset(x,mode!="direct");x$backend<-factor(names[x$mode],levels=unname(names))
 x$recipe<-ifelse(x$tool=="veprs","vep-rs core","fastVEP clinical")
 x$cohort<-toupper(x$cohort)
@@ -28,7 +38,36 @@ p1<-ggplot(x,aes(ratio,backend,colour=cohort,shape=cohort))+
  geom_point(position=position_jitter(width=0,height=.1,seed=19),size=2)+facet_wrap(~recipe,nrow=1)+
  scale_x_log10(labels=scales::label_number(suffix="×"))+scale_colour_manual(values=c(KPGP="#306B8D",SGDP="#A36037"))+
  labs(x="Direct / cached CLI elapsed time",y=NULL,colour=NULL,shape=NULL)+theme_journal()
-save_plot(p1,"Figure1_cold_CLI_WES",10.5,4)
+save_plot(p1+labs(tag="A"),"panels/Figure1A_cold_CLI_WES",10.5,4)
+if(all(c("annotation_seconds","lookup_seconds") %in% names(x))){
+ z<-subset(x,mode %in% c("resident","coalesced","resident-w8"))
+ z$other_seconds<-z$cached_seconds-z$annotation_seconds-z$lookup_seconds
+ stopifnot(all(z$other_seconds>=0))
+ stages<-rbind(transform(z,phase="Miss-recipe invocation",fraction=annotation_seconds/cached_seconds),
+  transform(z,phase="Cache lookup",fraction=lookup_seconds/cached_seconds),
+  transform(z,phase="Other CLI / I/O",fraction=other_seconds/cached_seconds))
+ stages<-aggregate(fraction~recipe+backend+phase,stages,mean)
+ p1b<-ggplot(stages,aes(fraction,backend,fill=phase))+geom_col(width=.65)+facet_wrap(~recipe,nrow=1)+
+  scale_x_continuous(labels=scales::label_percent())+scale_fill_manual(values=c("Miss-recipe invocation"="#76608D","Cache lookup"="#306B8D","Other CLI / I/O"="#B08A48"))+
+  labs(x="Mean fraction of cached elapsed time",y=NULL,fill=NULL)+theme_journal()
+ save_plot(p1b+labs(tag="B"),"panels/Figure1B_measured_time_fractions",10.5,3.5)
+ save_plot((p1/p1b)+plot_annotation(tag_levels="A"),"Figure1_cold_CLI_WES",10.5,7.5)
+}else save_plot(p1,"Figure1_cold_CLI_WES",10.5,4)
+
+#### GENERIC LOOKUP WORKER ALLOCATION: SAME EIGHT-CPU BUDGET ####
+if(exists("tuning")){
+ # Show every paired confirmation, including regressions. No sample-specific
+ # or assay-specific dispatch policy is introduced by this engineering pilot.
+ paired<-subset(x,mode %in% c("resident","resident-w8"))
+ paired$configuration<-factor(ifelse(paired$mode=="resident","4 lookup + 4 codec","8 lookup + 0 codec"),levels=c("4 lookup + 4 codec","8 lookup + 0 codec"))
+ p3<-ggplot(paired,aes(configuration,cached_seconds,group=sample,colour=cohort,shape=cohort))+
+  geom_line(linewidth=.4,alpha=.65)+geom_point(size=2)+facet_wrap(~recipe,nrow=1)+
+  scale_colour_manual(values=c(KPGP="#306B8D",SGDP="#A36037"))+
+  labs(x=NULL,y="Cached CLI elapsed time (s)",colour=NULL,shape=NULL)+theme_journal()
+ save_plot(p3,"Figure2_paired_worker_allocation",10.5,4)
+ worker_summary<-do.call(rbind,lapply(split(subset(tuning,workers==8),subset(tuning,workers==8)$tool),function(d)data.frame(tool=d$tool[1],n=nrow(d),median_gain_over_resident4=median(d$gain_over_resident4),n_faster_than_resident4=sum(d$gain_over_resident4>1))))
+ write_tsv(worker_summary,"worker_summary.tsv")
+}
 
 #### RESIDENT SESSION: WARM LATENCY IS NOT COLD PERFORMANCE ####
 if(file.exists(file.path(root,"tables/resident_warm.tsv"))){

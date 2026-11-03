@@ -3,6 +3,8 @@
 import json
 import subprocess
 
+import pytest
+
 from benchmarks.run_pilot import strict_semantic_compare
 from tests.test_fused_engine import dataset, run_case
 from tests.test_fused_engine import native as native_fixture
@@ -10,8 +12,10 @@ from tests.test_fused_engine import native as native_fixture
 native = native_fixture
 
 
-def test_loaded_cache_two_jobs(native, tmp_path):
-    files = dataset(tmp_path / "data", records=40)
+@pytest.mark.parametrize("hits", [0, 1, 2, 10])
+@pytest.mark.parametrize("workers", [1, 4])
+def test_loaded_cache_two_jobs(native, tmp_path, hits, workers):
+    files = dataset(tmp_path / "data", records=40, hit_every=hits)
     reference, _ = run_case(tmp_path, files, "legacy")
     _, old = run_case(tmp_path, files, "native")
     spec = json.loads((old.work_dir / "native/job.json").read_text())
@@ -21,6 +25,7 @@ def test_loaded_cache_two_jobs(native, tmp_path):
         folder.mkdir()
         job = dict(
             spec,
+            workers=workers,
             input=str(files[0]),
             misses=str(folder / "misses.bcf"),
             output=str(folder / "output.bcf"),
