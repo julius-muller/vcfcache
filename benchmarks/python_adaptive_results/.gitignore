@@ -2,3 +2,6 @@
 /final-20261103/source/campaign/
 # Superseded, uncommitted rendering draft; final outputs are figures-v2/.
 /final-20261103/figures/
+# The repository-wide manuscript/ rule must not hide finished figure assets.
+!/*/figures-*/manuscript/
+!/*/figures-*/manuscript/**
