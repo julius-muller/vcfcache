@@ -25,6 +25,7 @@ def main():
         "--selection", choices=["screen", "remaining"], default="screen"
     )
     parser.add_argument("--balance-order", action="store_true")
+    parser.add_argument("--exclude-ids", nargs="*", default=[])
     parser.add_argument("--no-submit", action="store_true")
     args = parser.parse_args()
     parent = Path(
@@ -65,6 +66,10 @@ def main():
         t for t in tasks if (t["sample"] in selected) == (args.selection == "screen")
     ]
     assert len(chosen) == (6 if args.selection == "screen" else 18)
+    # A confirmed configuration is never rerun on already completed targets.
+    known = {t["id"] for t in chosen}
+    assert set(args.exclude_ids) <= known
+    chosen = [t for t in chosen if t["id"] not in args.exclude_ids]
     orders = {}
     for index, task in enumerate(chosen):
         shift = index % len(args.modes) if args.balance_order else 0
@@ -86,6 +91,7 @@ def main():
         asset_groups=original["freeze"]["annotation_asset_groups"],
         deadline_utc="2026-11-03T12:44:15Z",
         modes=args.modes,
+        excluded_ids=args.exclude_ids,
         reference_screen=args.reference_screen,
         modes_by_id=orders,
     )
