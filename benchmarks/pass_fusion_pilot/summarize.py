@@ -67,6 +67,32 @@ def summarize(root):
         folder = source / "cases" / case["id"]
         state_path = folder / "state.json"
         state = read(state_path) if state_path.exists() else dict(state="not_started")
+        recovery_path = folder / "AUDIT_RECOVERY.json"
+        recovered = False
+        if recovery_path.exists():
+            recovery = read(recovery_path)
+            assert (
+                recovery["accepted"]
+                and recovery["audit_only"]
+                and recovery["no_timing_reruns"]
+            )
+            assert recovery["original_state_sha256"] == sha256sum(state_path)
+            assert recovery["source_manifest_sha256"] == sha256sum(
+                source / "manifest.json"
+            )
+            for name, digest in recovery["comparison_sha256"].items():
+                assert sha256sum(folder / name) == digest
+            for binding in recovery["timed_bindings"]:
+                directory = folder / f"r{binding['repeat']:02d}" / binding["mode"]
+                assert (
+                    sha256sum(directory / "command.json") == binding["command_sha256"]
+                )
+                assert (
+                    sha256sum(directory / "resources.json")
+                    == binding["resources_sha256"]
+                )
+            state = dict(state, state="complete")
+            recovered = True
         attempts.append(
             dict(
                 case=case["id"],
@@ -75,6 +101,7 @@ def summarize(root):
                 state=state["state"],
                 job_id=state.get("job_id"),
                 error=state.get("error"),
+                audit_recovered=recovered,
             )
         )
         if state["state"] != "complete":
@@ -119,6 +146,7 @@ def summarize(root):
             )
             if mode != "direct":
                 comparison = read(directory / "against_direct.json")
+                assert comparison["records_compared"] == task["input"]["records"]
                 assert (
                     comparison["semantic_pass"] and comparison["ignored_fields"] == []
                 )

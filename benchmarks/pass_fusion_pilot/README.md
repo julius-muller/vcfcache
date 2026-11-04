@@ -74,6 +74,8 @@ The accepted retry definition is:
 - Source: `e72d6fe11fc2df302bea6dd6f7987d0b0fbb08d0`.
 - Typical jobs: **2782–2787**; lower-hit jobs: **2788–2789**.
 - Automatic after-any review: **2790**.
+- Automatic audited tables/evidence archive: **2791**, after review, using
+  analysis-only source `c1d716be9efad31554bd1f9837f350f35a82e27d`.
 - Each block has a one-hour Slurm limit, a fresh eight-CPU step per condition,
   two same-node replicates, and durable JSON checkpoints.
 
@@ -89,6 +91,22 @@ Review never submits another campaign:
 ```sh
 python -m benchmarks.pass_fusion_pilot.run collect /results/python-pass-fusion-20261104-v2
 ```
+
+After copying the raw metadata into a new local results directory's `source/`
+subdirectory, regenerate accepted tables and R/ggplot2 figures with:
+
+```sh
+python -m benchmarks.pass_fusion_pilot.summarize benchmarks/pass_fusion_pilot/results-20261104-v2
+Rscript --vanilla benchmarks/pass_fusion_pilot/render.R benchmarks/pass_fusion_pilot/results-20261104-v2 figures-v1
+```
+
+Only complete two-repeat blocks with passing strict comparisons enter the
+summary. Per-node results remain separate; no fastest-repeat selection or
+unadjusted cross-node engine ranking is produced. The R renderer refuses to
+overwrite a figure directory and exports PDF/SVG, 600-dpi PNG, individual panels,
+and a named tibble-list RDS. Kernel memory peaks include filesystem cache; I/O
+device counters are kept separate and are not relabelled as logical bytes or
+complete NFS traffic.
 
 `manifest.json` plus `READY` bind the definition; `submissions.json` preserves
 commands and IDs. Each case's `state.json` contains its node, completed timings
