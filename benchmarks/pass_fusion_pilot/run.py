@@ -37,6 +37,38 @@ def manifest(root):
     return json.loads(document.read_text())
 
 
+def command_for(mode, cache, prepared, output, params, stats_dir):
+    """Build branch-compatible CLI controls; uncached must use the legacy engine."""
+    if mode not in MODES:
+        raise ValueError("unknown pilot condition")
+    command = [
+        PYTHON,
+        "-c",
+        "from vcfcache.cli import main; main()",
+        "annotate",
+        "-a",
+        str(cache),
+        "-i",
+        str(prepared),
+        "-o",
+        str(output),
+        "-y",
+        str(params),
+        "--engine",
+        "legacy" if mode == "direct" else "adaptive",
+        "--statistics",
+        "light",
+        "--stats-dir",
+        str(stats_dir),
+        "-v",
+    ]
+    if mode == "direct":
+        command += ["--uncached"]
+    elif mode != "control-auto":
+        command += ["--engine-workers", mode[-1]]
+    return command
+
+
 def prepare(args):
     """Pin typical runs to all nodes; queue low-hit validation on both CPU classes."""
     original = json.loads(PARENT.read_text())
@@ -86,6 +118,7 @@ def prepare(args):
         asset_attestations=original["freeze"]["asset_attestations"],
         asset_groups=original["freeze"]["annotation_asset_groups"],
         design="fresh same-node direct each replicate; reverse condition order in replicate 2; no technical best-picking",
+        supersedes=args.supersedes,
     )
     write_json_atomic(args.root / "manifest.json", data)
     (args.root / "READY").write_text(sha256sum(args.root / "manifest.json") + "\n")
@@ -291,31 +324,9 @@ def run(root, identifier):
                         output = Path(rep_temp) / (mode + ".bcf")
                         outputs[mode] = output
                         stats_dir = Path(rep_temp) / (mode + "-stats")
-                        command = [
-                            PYTHON,
-                            "-c",
-                            "from vcfcache.cli import main; main()",
-                            "annotate",
-                            "-a",
-                            str(cache),
-                            "-i",
-                            str(prepared),
-                            "-o",
-                            str(output),
-                            "-y",
-                            str(params),
-                            "--engine",
-                            "adaptive",
-                            "--statistics",
-                            "light",
-                            "--stats-dir",
-                            str(stats_dir),
-                            "-v",
-                        ]
-                        if mode == "direct":
-                            command += ["--uncached"]
-                        elif mode != "control-auto":
-                            command += ["--engine-workers", mode[-1]]
+                        command = command_for(
+                            mode, cache, prepared, output, params, stats_dir
+                        )
                         environment = {
                             k: v
                             for k, v in os.environ.items()
@@ -440,7 +451,7 @@ def collect(root):
         state = (
             json.loads(path.read_text()) if path.exists() else dict(state="not_started")
         )
-        rows.append(dict(case=case, **state))
+        rows.append(dict(state, definition=case))
     result = dict(
         reviewed_unix=time.time(),
         cases=rows,
@@ -462,6 +473,7 @@ def main():
     prepare_parser.add_argument("root", type=Path)
     prepare_parser.add_argument("--deployment", required=True)
     prepare_parser.add_argument("--commit", required=True)
+    prepare_parser.add_argument("--supersedes")
     run_parser = sub.add_parser("run")
     run_parser.add_argument("root", type=Path)
     run_parser.add_argument("--case", required=True)
