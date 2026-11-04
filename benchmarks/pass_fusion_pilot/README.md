@@ -79,6 +79,19 @@ The accepted retry definition is:
 - Each block has a one-hour Slurm limit, a fresh eight-CPU step per condition,
   two same-node replicates, and durable JSON checkpoints.
 
+All 80 timed invocations returned successfully. Job 2788 reached its wall limit
+during the subsequent **untimed** comparison of the second repetition. Audit-
+only job **2792**, pinned to the same worker, passed its two remaining comparisons
+from retained BCFs. It did not rerun timings or annotation, and preserved the
+original nonterminal state file. An `AUDIT_RECOVERY.json` receipt binds the old
+state, commands/resources, unchanged retained outputs and passing comparisons.
+Final analysis **2793** completed after that audit and accepted all eight blocks
+(80 timings, 64 passing strict comparisons). Nothing remained queued at final
+review. These two jobs use analysis-only source
+`4fb62cd9ef9b658cca1286eae088c88caf61ca92`; the timed source remains unchanged.
+Acceptance is reported in `results-20261104-v2/ACCEPTANCE.json`, not inferred from
+the scheduler's exit status. See that directory's `RESULTS.md` for the conclusion.
+
 The first launch, `/results/python-pass-fusion-20261104`, is explicitly
 superseded. Its runner incorrectly combined `--engine adaptive` with `--uncached`,
 which this Python branch rejects. Partial/failed evidence is retained and
@@ -101,7 +114,8 @@ Rscript --vanilla benchmarks/pass_fusion_pilot/render.R benchmarks/pass_fusion_p
 ```
 
 Only complete two-repeat blocks with passing strict comparisons enter the
-summary. Per-node results remain separate; no fastest-repeat selection or
+summary, including explicitly receipted audit-only recovery where applicable.
+Per-node results remain separate; no fastest-repeat selection or
 unadjusted cross-node engine ranking is produced. The R renderer refuses to
 overwrite a figure directory and exports PDF/SVG, 600-dpi PNG, individual panels,
 and a named tibble-list RDS. Kernel memory peaks include filesystem cache; I/O
