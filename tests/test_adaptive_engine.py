@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 from vcfcache.database.adaptive import plan_shards
 from vcfcache.database.workflow_manager import WorkflowManager
@@ -30,19 +31,27 @@ def cache(tmp_path_factory):
     return built[0]
 
 
-def annotate(root, cache, engine, **options):
+def annotate(
+    root, cache, engine, *, threads=8, input_file=None, recipe_cmd=None, **options
+):
     """Annotate the shared sample with one engine and return (output, stats)."""
     root.mkdir(parents=True, exist_ok=True)
     output = root / "result.bcf"
+    parameters = yaml.safe_load((CONFIG / "test_params.yaml").read_text())
+    parameters["threads"] = threads
+    params_file = root / "params.yaml"
+    params_file.write_text(yaml.safe_dump(parameters))
     manager = WorkflowManager(
-        input_file=DATA / "sample4.bcf",
+        input_file=input_file or DATA / "sample4.bcf",
         output_dir=root,
         name="adaptive_run",
         anno_config_file=CONFIG / "test_annotation.yaml",
-        params_file=CONFIG / "test_params.yaml",
+        params_file=params_file,
         output_file=output,
         verbosity=0,
     )
+    if recipe_cmd is not None:
+        manager.nfa_config_content["annotation_cmd"] = recipe_cmd
     manager.run("annotate", db_bcf=cache, engine=engine, **options)
     return output, manager.last_run_stats
 
@@ -60,9 +69,13 @@ def records(path):
 @pytest.mark.parametrize("workers", [1, 2, 4])
 @pytest.mark.parametrize("preserve", [False, True])
 @pytest.mark.parametrize("skip_split", [False, True])
-def test_matches_legacy(cache, tmp_path, workers, preserve, skip_split):
+@pytest.mark.parametrize("fused", [False, True])
+def test_matches_legacy(
+    cache, tmp_path, monkeypatch, workers, preserve, skip_split, fused
+):
     """Multiallelics, spanning deletions and cache-absent contigs must agree."""
     options = dict(preserve_unannotated=preserve, skip_split_multiallelic=skip_split)
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_FUSED_PUBLISH", str(int(fused)))
     expected, baseline = annotate(tmp_path / "legacy", cache, "legacy", **options)
     actual, stats = annotate(
         tmp_path / "adaptive", cache, "adaptive", engine_workers=workers, **options
@@ -71,6 +84,105 @@ def test_matches_legacy(cache, tmp_path, workers, preserve, skip_split):
     for key in ("input_variants", "output_variants", "missing_variants"):
         assert stats[key] == baseline[key]
     assert stats["engine"] == "adaptive"
+    assert stats["fused_publish"] is fused
+    if fused:
+        assert stats["shards"] * (2 + stats["publish_threads_per_shard"]) <= 8
+        assert not list((tmp_path / "adaptive").rglob("step4.bcf"))
+        assert not list((tmp_path / "adaptive").rglob("*_merged.bcf"))
+
+
+def test_fused_single_cpu_retains_original_path(cache, tmp_path, monkeypatch):
+    """A two-process merge pipe must not be launched on the one-CPU path."""
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_FUSED_PUBLISH", "1")
+    output, stats = annotate(tmp_path, cache, "adaptive", threads=1)
+    assert output.exists() and stats["fused_publish"] is False
+
+
+@pytest.mark.parametrize("preserve", [False, True])
+def test_fused_filters_after_overlay(cache, tmp_path, monkeypatch, preserve):
+    """A recipe may keep records without adding the required annotation value."""
+    command = "bcftools view ${INPUT_BCF} -Ob -o ${OUTPUT_BCF} -W"
+    expected, _ = annotate(
+        tmp_path / "legacy",
+        cache,
+        "legacy",
+        recipe_cmd=command,
+        preserve_unannotated=preserve,
+    )
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_FUSED_PUBLISH", "1")
+    actual, stats = annotate(
+        tmp_path / "fused",
+        cache,
+        "adaptive",
+        recipe_cmd=command,
+        preserve_unannotated=preserve,
+        engine_workers=2,
+    )
+    assert stats["missing_variants"] > 0 and stats["fused_publish"] is True
+    assert records(actual) == records(expected)
+
+
+@pytest.mark.parametrize("kind", ["all-hits", "empty-cache", "empty-input"])
+def test_fused_degenerate_inputs(cache, tmp_path, monkeypatch, kind):
+    """Zero misses and empty streams still publish valid, indexed, sorted BCF."""
+    fully_annotated, _ = annotate(tmp_path / "reference", cache, "legacy")
+    empty = tmp_path / "empty.bcf"
+    subprocess.run(
+        [
+            "bcftools",
+            "view",
+            "-i",
+            "POS<0",
+            str(fully_annotated),
+            "-Ob",
+            "-W",
+            "-o",
+            str(empty),
+        ],
+        check=True,
+    )
+    source = empty if kind == "empty-input" else DATA / "sample4.bcf"
+    database = empty if kind == "empty-cache" else fully_annotated
+    expected, _ = annotate(tmp_path / "legacy", database, "legacy", input_file=source)
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_FUSED_PUBLISH", "1")
+    actual, stats = annotate(
+        tmp_path / "fused", database, "adaptive", input_file=source
+    )
+    assert stats["fused_publish"] is True
+    assert records(actual) == records(expected)
+    if kind != "empty-cache":
+        assert stats["missing_variants"] == 0
+
+
+def test_incompatible_naive_headers_preserve_existing_output(tmp_path):
+    """Do not force concatenation across incompatible BCF tag dictionaries."""
+    import logging
+
+    import pysam
+
+    from vcfcache.database.adaptive import publish_shards
+
+    parts = []
+    for index, order in enumerate([("FIRST", "SECOND"), ("SECOND", "FIRST")]):
+        header = pysam.VariantHeader()
+        header.contigs.add("1", length=1000)
+        for tag in order:
+            header.info.add(tag, 1, "Integer", "test")
+        path = tmp_path / f"part-{index}.bcf"
+        with pysam.VariantFile(path, "wb", header=header) as writer:
+            record = writer.new_record(contig="1", start=index, alleles=("A", "C"))
+            record.info["FIRST"] = 1
+            record.info["SECOND"] = 2
+            writer.write(record)
+        subprocess.run(["bcftools", "index", str(path)], check=True)
+        parts.append(path)
+    output = tmp_path / "result.bcf"
+    output.write_bytes(b"existing output")
+    manager = WorkflowManager.__new__(WorkflowManager)
+    manager.logger = logging.getLogger(__name__)
+    with pytest.raises(subprocess.CalledProcessError):
+        publish_shards(manager, parts, output, tmp_path, "bcftools")
+    assert output.read_bytes() == b"existing output"
 
 
 def test_gathered_shards_stay_sorted():

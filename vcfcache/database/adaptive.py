@@ -18,7 +18,12 @@ larger inputs use whole-contig regions and keep the sharding and compression
 benefits only.
 """
 
+import os
+import shlex
+import shutil
 import subprocess
+import sys
+import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -27,6 +32,45 @@ from vcfcache.database.workflow_manager import BcftoolsCommand
 
 WINDOW = 16384
 UNBOUNDED = 2**31 - 1
+
+
+def publish_shards(manager, parts, output_bcf, work_task, bcftools):
+    """Validate naive BCF concatenation and publish without another record pass.
+
+    bcftools --naive (never --naive-force) verifies compatible BCF dictionaries.
+    Stage on the destination filesystem; only a successful, indexed, count-
+    checked concatenation replaces the requested output. Stdout stays binary.
+    """
+    target = work_task / "stdout.bcf" if output_bcf == "-" else Path(output_bcf)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    expected = sum(manager._require_variant_count(p, bcftools) for p in parts)
+    with tempfile.TemporaryDirectory(
+        prefix=".vcfcache-publish-", dir=target.parent
+    ) as temporary:
+        staged = Path(temporary) / "output.bcf"
+        files = " ".join(shlex.quote(str(p)) for p in parts)
+        result = BcftoolsCommand(
+            f"{shlex.quote(bcftools)} concat --no-version --naive {files} -Ob "
+            f"-o {shlex.quote(str(staged))} && "
+            f"{shlex.quote(bcftools)} index -f {shlex.quote(str(staged))}",
+            manager.logger,
+            work_task,
+        ).run()
+        actual = manager._require_variant_count(staged, bcftools)
+        if actual != expected:
+            raise RuntimeError(
+                f"Final shard gather changed record count: {expected} -> {actual}"
+            )
+        if output_bcf == "-":
+            # Capture timing/output counts before the temporary file is removed.
+            os.replace(staged, target)
+            os.replace(Path(str(staged) + ".csi"), Path(str(target) + ".csi"))
+            with target.open("rb") as stream:
+                shutil.copyfileobj(stream, sys.stdout.buffer)
+        else:
+            os.replace(staged, target)
+            os.replace(Path(str(staged) + ".csi"), Path(str(target) + ".csi"))
+    return result, target
 
 
 def index_stats(bcftools: str, path: Path) -> List[Tuple[str, int, int]]:
@@ -171,6 +215,14 @@ def run_adaptive(
     bcftools = manager.params_file_content["bcftools_cmd"]
     tag = manager.nfa_config_content["must_contain_info_tag"]
     threads = manager.params_file_content.get("threads", 1)
+    requested = os.environ.get("VCFCACHE_EXPERIMENT_FUSED_PUBLISH", "0")
+    if requested not in {"0", "1"}:
+        raise ValueError("VCFCACHE_EXPERIMENT_FUSED_PUBLISH must be 0 or 1")
+    if threads < 1 or workers < 0:
+        raise ValueError("threads must be positive and workers non-negative")
+    # A piped annotator and a post-overlay filter each need a main process.
+    # Leave the original single-CPU path and all defaults unchanged.
+    fused_publish = requested == "1" and threads >= 2
 
     # Step 0: identical to the legacy path, and the index it writes is what
     # lets every later step address shards without reading the records again.
@@ -195,14 +247,22 @@ def run_adaptive(
     input_count = manager._count_variants(Path(input_bcf), bcftools)
 
     occupied = index_stats(bcftools, Path(input_bcf))
-    shards = plan_shards(occupied, workers or threads or 1)
+    selected_workers = workers or threads
+    if fused_publish:
+        selected_workers = min(selected_workers, max(1, threads // 2))
+    shards = plan_shards(occupied, selected_workers)
     windowed = bool(shards) and bool(input_count) and input_count <= max_windows
     # An empty input has no occupied contig to shard; one unrestricted pass
     # keeps the remaining steps and the recorded statistics well defined.
     regions: List[Optional[Path]] = list(
         write_regions(bcftools, Path(input_bcf), shards, work_task, windowed)
     ) or [None]
-    shard_threads = max(1, threads // len(regions))
+    shard_threads = (
+        max(0, threads // len(regions) - 1)
+        if fused_publish
+        else max(1, threads // len(regions))
+    )
+    publish_threads = max(0, threads // len(regions) - 2)
     manager.logger.info(
         f"Adaptive engine: {len(regions)} shard(s); "
         f"cache access={'merged windows' if windowed else 'whole contigs'}"
@@ -268,6 +328,7 @@ def run_adaptive(
     # path; annotator start-up is too expensive to pay per shard.
     step3_count = 0
     dropped_count = 0
+    step3_bcf = None
     if missing_count > 0:
         manager.logger.info(f"Step 3/4: Annotating {missing_count} missing variants")
         step3_bcf = work_task / f"{sample_name}_missing_annotated.bcf"
@@ -300,20 +361,95 @@ def run_adaptive(
         # Step 4: overlay the new annotations back onto each shard's step 1,
         # which already carries the input's order, so no reordering is needed.
         manager.logger.info("Step 4/4: Merging cache and newly annotated variants")
-        run_shards(
-            "annotation merge",
-            lambda number: (
-                f"{bcftools} annotate {restrict(number)}-a {step3_bcf} "
-                f"{dirs[number]}/step1.bcf -c INFO "
-                f"-o {dirs[number]}/step4.bcf -Ob1 -W --threads {shard_threads}"
-            ),
-        )
+        if not fused_publish:
+            run_shards(
+                "annotation merge",
+                lambda number: (
+                    f"{bcftools} annotate {restrict(number)}-a {step3_bcf} "
+                    f"{dirs[number]}/step1.bcf -c INFO "
+                    f"-o {dirs[number]}/step4.bcf -Ob1 -W --threads {shard_threads}"
+                ),
+            )
         merged = "step4.bcf"
     else:
         manager.logger.info("Step 3/4: Skipped (all variants found in cache)")
         manager.logger.info("Step 4/4: Merging cache and newly annotated variants")
         merged = "step1.bcf"
 
+    output_bcf = manager._resolve_output_bcf(sample_name)
+    if fused_publish:
+        # Never put this filter on `annotate -i`: that would inspect the old
+        # tag before overlay and discard precisely the misses being annotated.
+        select = "" if preserve_unannotated else f"-i 'INFO/{tag}!=\"\"' "
+
+        def publish_command(number):
+            source = shlex.quote(str(dirs[number] / "step1.bcf"))
+            prefix = ""
+            if missing_count:
+                prefix = (
+                    f"{bcftools} annotate {restrict(number)}-a {shlex.quote(str(step3_bcf))} "
+                    f"{source} -c INFO -Ou | "
+                )
+                source = "-"
+            codec = publish_threads if missing_count else shard_threads
+            return (
+                f"{prefix}{bcftools} view --no-version {select}{source} "
+                f"-o {shlex.quote(str(dirs[number]/'final.bcf'))} -Ob -W --threads {codec}"
+            )
+
+        run_shards("fused merge/filter/final compression", publish_command)
+        result, output_target = publish_shards(
+            manager,
+            [folder / "final.bcf" for folder in dirs],
+            output_bcf,
+            work_task,
+            bcftools,
+        )
+    else:
+        result, output_target = publish_legacy_shards(
+            manager,
+            dirs,
+            regions,
+            merged,
+            work_task,
+            sample_name,
+            preserve_unannotated,
+            bcftools,
+            threads,
+            output_bcf,
+        )
+
+    manager.last_run_stats = {
+        "input_variants": input_count,
+        "output_variants": manager._count_variants(Path(output_target), bcftools),
+        "missing_variants": missing_count,
+        "missing_annotated": step3_count,
+        "dropped_variants": dropped_count if missing_count > 0 else 0,
+        "engine": "adaptive",
+        "shards": len(regions),
+        "cache_access": "windows" if windowed else "contigs",
+        "fused_publish": fused_publish,
+        "compression_threads_per_shard": shard_threads,
+        "publish_threads_per_shard": publish_threads if fused_publish else None,
+    }
+    manager.logger.info(f"Annotation complete: {output_bcf}")
+    return result
+
+
+def publish_legacy_shards(
+    manager,
+    dirs,
+    regions,
+    merged,
+    work_task,
+    sample_name,
+    preserve_unannotated,
+    bcftools,
+    threads,
+    output_bcf,
+):
+    """Retain the original gather/filter/compress control without algorithm changes."""
+    tag = manager.nfa_config_content["must_contain_info_tag"]
     # Gather by BGZF block copy: the shards are coordinate-disjoint and were
     # planned in index order, so no record is decoded or recompressed here.
     step4_bcf = work_task / f"{sample_name}_merged.bcf"
@@ -326,7 +462,6 @@ def run_adaptive(
     ).run()
 
     # Publishing performs the single full-size compression of the run.
-    output_bcf = manager._resolve_output_bcf(sample_name)
     output_target = output_bcf
     if output_bcf == "-":
         output_target = work_task / f"{sample_name}_vc.bcf"
@@ -344,16 +479,4 @@ def run_adaptive(
         )
     result = BcftoolsCommand(publish, manager.logger, work_task).run()
 
-    manager.last_run_stats = {
-        "input_variants": input_count,
-        "output_variants": manager._count_variants(Path(output_target), bcftools),
-        "missing_variants": missing_count,
-        "missing_annotated": step3_count,
-        "dropped_variants": dropped_count if missing_count > 0 else 0,
-        "engine": "adaptive",
-        "shards": len(regions),
-        "cache_access": "windows" if windowed else "contigs",
-    }
-    manager.logger.info(f"Annotation complete: {output_bcf}")
-
-    return result
+    return result, output_target
