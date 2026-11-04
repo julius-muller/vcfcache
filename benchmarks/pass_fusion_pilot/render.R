@@ -41,7 +41,7 @@ save_plot <- function(plot, name, width, height) {
 save_plot(p, "Figure1_same_node_pass_fusion", 12, 3 * ceiling(length(unique(conditions$panel)) / 3))
 dir.create(file.path(out, "panels"))
 for (panel in unique(conditions$panel)) {
-  one <- p %+% conditions[conditions$panel == panel, ]
+  one <- p + conditions[conditions$panel == panel, ]
   save_plot(one, file.path("panels", gsub("[^A-Za-z0-9_-]", "_", panel)), 6, 4)
 }
-writeLines(capture.output(sessionInfo()), file.path(out, "R_sessionInfo.txt"))
+writeLines(trimws(capture.output(sessionInfo()), which = "right"), file.path(out, "R_sessionInfo.txt"))
