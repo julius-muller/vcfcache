@@ -185,6 +185,66 @@ def test_incompatible_naive_headers_preserve_existing_output(tmp_path):
     assert output.read_bytes() == b"existing output"
 
 
+def test_fused_binary_stdout(cache, tmp_path):
+    """BCF stdout must not be decoded as text or mixed with log output."""
+    import os
+    import sys
+
+    expected, _ = annotate(tmp_path / "legacy", cache, "legacy")
+    directory = tmp_path / "stdout"
+    directory.mkdir()
+    program = """
+import sys
+from pathlib import Path
+from vcfcache.database.workflow_manager import WorkflowManager
+m=WorkflowManager(input_file=Path(sys.argv[1]),output_dir=Path(sys.argv[2]),name="stdout",
+    anno_config_file=Path(sys.argv[3]),params_file=Path(sys.argv[4]),output_file="-",verbosity=0)
+m.run("annotate",db_bcf=Path(sys.argv[5]),engine="adaptive",engine_workers=2)
+"""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            program,
+            str(DATA / "sample4.bcf"),
+            str(directory),
+            str(CONFIG / "test_annotation.yaml"),
+            str(tmp_path / "legacy/params.yaml"),
+            str(cache),
+        ],
+        env=dict(os.environ, VCFCACHE_EXPERIMENT_FUSED_PUBLISH="1"),
+        capture_output=True,
+        check=True,
+    )
+    decoded = subprocess.run(
+        ["bcftools", "view", "-H", "-"],
+        input=result.stdout,
+        capture_output=True,
+        check=True,
+    )
+    assert decoded.stdout.decode() == records(expected)
+
+
+def test_fused_pipe_failure_preserves_previous_output(cache, tmp_path, monkeypatch):
+    """An upstream failure must not replace an existing requested deliverable."""
+    from vcfcache.database.workflow_manager import BcftoolsCommand
+
+    output = tmp_path / "result.bcf"
+    output.write_bytes(b"previous output")
+    original = BcftoolsCommand.run
+
+    def failing_pipeline(command, *args, **kwargs):
+        if " -c INFO -Ou | " in command.cmd:
+            command.cmd = "false | true"
+        return original(command, *args, **kwargs)
+
+    monkeypatch.setattr(BcftoolsCommand, "run", failing_pipeline)
+    monkeypatch.setenv("VCFCACHE_EXPERIMENT_FUSED_PUBLISH", "1")
+    with pytest.raises(RuntimeError, match="Workflow execution failed"):
+        annotate(tmp_path, cache, "adaptive", engine_workers=2)
+    assert output.read_bytes() == b"previous output"
+
+
 def test_gathered_shards_stay_sorted():
     """Shards must be consecutive in index order, or a naive gather misorders."""
     occupied = [(f"chr{index}", 1000, 10 * index) for index in range(1, 9)]
