@@ -50,6 +50,11 @@ An after-any Slurm collector writes `REVIEW.json`, `conditions.tsv` and
 Slurm accounting days later. Preserve the original main source deployment and
 the private 1.25 tools alongside the manifest/READY binding.
 
+Workers do not have R installed. A bounded three-hour, one-shot controller
+postprocessor (`render_on_head.py`) waits for the final review and renders
+`figures-head-v1/`, using the private test-only R library. Its PID, deadline and
+outcome are recorded in `render_state.json`. It never submits annotation jobs.
+
 ```sh
 python -m benchmarks.input_preserving_pilot.run collect RESULT_ROOT
 Rscript --vanilla benchmarks/input_preserving_pilot/render.R LOCAL_RESULT_ROOT figures-v1
