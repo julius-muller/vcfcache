@@ -67,7 +67,7 @@ class BcftoolsCommand:
 
         # Execute command
         result = subprocess.run(
-            self.cmd,
+            "set -euo pipefail\n" + self.cmd,
             shell=True,
             capture_output=True,
             text=True,
@@ -266,8 +266,7 @@ class WorkflowManager(WorkflowBase):
         timeline: bool = False,
         report: bool = False,
         temp: Union[Path, str] = "/tmp",
-        preserve_unannotated: bool = False,
-        skip_split_multiallelic: bool = False,
+        preserve_unannotated: bool = True,
     ) -> subprocess.CompletedProcess:
         """Execute the workflow using pure Python.
 
@@ -280,8 +279,7 @@ class WorkflowManager(WorkflowBase):
             timeline: Ignored (not supported in pure Python mode)
             report: Ignored (not supported in pure Python mode)
             temp: Temporary directory for intermediate files
-            preserve_unannotated: Whether to preserve variants without annotation in output
-            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
+            preserve_unannotated: Deprecated no-op; all input records are retained
 
         Returns:
             subprocess.CompletedProcess with execution results
@@ -319,12 +317,9 @@ class WorkflowManager(WorkflowBase):
                 result = self._run_annotate(
                     db_bcf,
                     preserve_unannotated=preserve_unannotated,
-                    skip_split_multiallelic=skip_split_multiallelic,
                 )
             elif db_mode == "annotate-nocache":
-                result = self._run_annotate_nocache(
-                    skip_split_multiallelic=skip_split_multiallelic
-                )
+                result = self._run_annotate_nocache()
             else:
                 raise ValueError(
                     f"Invalid db_mode: {db_mode}. Must be one of: "
@@ -511,333 +506,18 @@ class WorkflowManager(WorkflowBase):
         return self.output_file
 
     def _run_annotate(
-        self,
-        db_bcf: Path,
-        preserve_unannotated: bool = False,
-        skip_split_multiallelic: bool = False,
+        self, db_bcf: Path, preserve_unannotated: bool = True
     ) -> subprocess.CompletedProcess:
-        """Annotate sample using cache - 4-step caching process.
+        """Reuse exact annotations without changing or removing input records."""
+        from vcfcache.database.preserving import run
 
-        This is the key performance feature that makes VCFcache fast.
-        It uses pre-annotated common variants from the cache and only
-        annotates novel variants.
+        return run(self, cache=db_bcf)
 
-        Args:
-            db_bcf: Path to cache BCF (vcfcache_annotated.bcf)
-            preserve_unannotated: Whether to preserve variants without annotation in output
-            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
+    def _run_annotate_nocache(self) -> subprocess.CompletedProcess:
+        """Run the recipe on the original indexed input, without preprocessing."""
+        from vcfcache.database.preserving import run
 
-        Returns:
-            subprocess.CompletedProcess with results
-
-        Example and Debug:
-          ROOT = Path("/home/j380r/projects/vcfcache").resolve()  # or Path.cwd() if you're in repo root
-          TEST_DATA = ROOT / "tests" / "data" / "nodata"
-
-          sample_bcf   = TEST_DATA / "sample4.bcf"       # toy sample to annotate
-          blueprint_bcf = TEST_DATA / "gnomad_test.bcf"  # toy “blueprint” to turn into an annotated cache
-
-          params = ROOT / "tests" / "config" / "test_params.yaml"
-          anno   = ROOT / "tests" / "config" / "test_annotation.yaml"  # adds INFO/MOCK_ANNO
-
-          scratch = Path(tempfile.mkdtemp(prefix="vcfcache_dbg_"))
-          cache_dir = scratch / "cache"
-          out_dir   = scratch / "annot_out"
-          cache_dir.mkdir(parents=True, exist_ok=True)
-          out_dir.mkdir(parents=True, exist_ok=True)
-
-          # 1) Build a tiny annotated cache BCF (creates cache_dir/vcfcache_annotated.bcf in tmp)
-          self = WorkflowManager(
-              input_file=sample_bcf,
-              output_dir=cache_dir,
-              name="dbg_cache",
-              anno_config_file=anno,
-              params_file=params,
-              verbosity=2,
-          )
-                  # Create work directory
-          self._create_work_dir(self.output_dir, dirname="work")
-          db_bcf=blueprint_bcf
-        """
-        self.logger.info("Annotating sample using cache (4-step process)")
-
-        work_task = self.work_dir / "annotate"
-        work_task.mkdir(parents=True, exist_ok=True)
-
-        sample_name = self.input_file.stem
-        input_bcf = self.input_file
-        bcftools = self.params_file_content["bcftools_cmd"]
-        tag = self.nfa_config_content["must_contain_info_tag"]
-
-        # Get thread count from params
-        threads = self.params_file_content.get("threads", 1)
-
-        # Step 0: Split multiallelic variants and remove spanning deletions (ALT=*)
-        if skip_split_multiallelic:
-            self.logger.info(
-                "Step 0/4: Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)"
-            )
-            # Still need to remove spanning deletions even when skipping split
-            self.logger.info("Step 0/4: Removing spanning deletion alleles (ALT=*)")
-            filtered_input = work_task / f"{sample_name}_no_span_del.bcf"
-            filter_cmd = f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
-            BcftoolsCommand(filter_cmd, self.logger, work_task).run()
-            input_bcf = filtered_input
-        else:
-            self.logger.info(
-                "Step 0/4: Splitting multiallelic variants and removing spanning deletions"
-            )
-            normalized_input = work_task / f"{sample_name}_normalized.bcf"
-            # Combine norm and filter: split multiallelic, then remove ALT=*
-            norm_cmd = (
-                f"{bcftools} norm -m- {input_bcf} -Ob | "
-                f"{bcftools} view -e 'ALT=\"*\"' -o {normalized_input} -Ob -W --threads {threads}"
-            )
-            BcftoolsCommand(norm_cmd, self.logger, work_task).run()
-            input_bcf = normalized_input  # Use normalized input for subsequent steps
-
-        input_count = self._count_variants(Path(input_bcf), bcftools)
-
-        # Step 1: Add cache annotations
-        self.logger.info("Step 1/4: Adding cache annotations")
-        step1_bcf = work_task / f"{sample_name}_isecvst.bcf"
-        cmd1 = (
-            f"{bcftools} annotate -a {db_bcf} {input_bcf} -c INFO "
-            f"-o {step1_bcf} -Ob -W --threads {threads}"
-        )
-        BcftoolsCommand(cmd1, self.logger, work_task).run()
-
-        # Step 2: Filter to get missing annotations
-        self.logger.info("Step 2/4: Identifying variants missing from cache")
-        step2_bcf = work_task / f"{sample_name}_isecvst_miss.bcf"
-        cmd2 = (
-            f"{bcftools} filter -i 'INFO/{tag}==\"\"' {step1_bcf} "
-            f"-o {step2_bcf} -Ob -W --threads {threads}"
-        )
-        BcftoolsCommand(cmd2, self.logger, work_task).run()
-
-        # Count missing variants
-        count_result = subprocess.run(
-            f"{bcftools} index -n {step2_bcf}.csi",
-            shell=True,
-            capture_output=True,
-            text=True,
-        )
-        missing_count = (
-            int(count_result.stdout.strip()) if count_result.returncode == 0 else 0
-        )
-        self.logger.info(f"Found {missing_count} variants not in cache")
-
-        # Step 3: Annotate only missing variants
-        if missing_count > 0:
-            self.logger.info(f"Step 3/4: Annotating {missing_count} missing variants")
-            step3_bcf = work_task / f"{sample_name}_missing_annotated.bcf"
-            aux_dir = self.output_dir / "auxiliary"
-            aux_dir.mkdir(exist_ok=True)
-
-            anno_cmd = self._substitute_variables(
-                self.nfa_config_content["annotation_cmd"],
-                extra_vars={
-                    "INPUT_BCF": str(step2_bcf),
-                    "OUTPUT_BCF": str(step3_bcf),
-                    "AUXILIARY_DIR": str(aux_dir),
-                },
-            )
-            BcftoolsCommand(anno_cmd, self.logger, work_task).run()
-
-            # Save annotation tool logs for novel variants
-            stdout_file = work_task / "stdout.txt"
-            stderr_file = work_task / "stderr.txt"
-
-            annotation_log = self.output_dir / "annotation_tool.log"
-            if stdout_file.exists() and stdout_file.stat().st_size > 0:
-                annotation_log.write_text(stdout_file.read_text())
-                self.logger.info(f"Annotation output saved to: {annotation_log}")
-
-            annotation_err_log = self.output_dir / "annotation_tool_err.log"
-            if stderr_file.exists() and stderr_file.stat().st_size > 0:
-                annotation_err_log.write_text(stderr_file.read_text())
-                self.logger.info(f"Annotation errors saved to: {annotation_err_log}")
-
-            # Remove auxiliary directory if empty
-            if aux_dir.exists() and not any(aux_dir.iterdir()):
-                aux_dir.rmdir()
-                self.logger.debug("Removed empty auxiliary directory")
-        else:
-            self.logger.info("Step 3/4: Skipped (all variants found in cache)")
-            # Create empty file for step 4
-            step3_bcf = step2_bcf
-
-        # Step 4: Merge newly annotated back into original
-        self.logger.info("Step 4/4: Merging cache and newly annotated variants")
-
-        # First merge annotations into a temporary file
-        step4_bcf = work_task / f"{sample_name}_merged.bcf"
-        output_bcf = self._resolve_output_bcf(sample_name)
-        output_target = output_bcf
-        if output_bcf == "-":
-            output_target = work_task / f"{sample_name}_vc.bcf"
-
-        if missing_count > 0:
-            # Check if annotation tool dropped any variants
-            step3_count_result = subprocess.run(
-                f"{bcftools} index -n {step3_bcf}.csi",
-                shell=True,
-                capture_output=True,
-                text=True,
-            )
-            step3_count = (
-                int(step3_count_result.stdout.strip())
-                if step3_count_result.returncode == 0
-                else 0
-            )
-
-            dropped_count = 0
-            if step3_count < missing_count:
-                dropped_count = missing_count - step3_count
-                self.logger.info(
-                    f"Annotation tool dropped {dropped_count} variants from input. "
-                    f"By default, these are also removed from cached output to match annotation tool behavior."
-                )
-
-            # Merge annotations from step3 into step1
-            cmd4 = (
-                f"{bcftools} annotate -a {step3_bcf} {step1_bcf} -c INFO "
-                f"-o {step4_bcf} -Ob -W --threads {threads}"
-            )
-        else:
-            # No new annotations, just copy step1
-            cmd4 = f"cp {step1_bcf} {step4_bcf} && cp {step1_bcf}.csi {step4_bcf}.csi"
-            step3_count = 0
-            dropped_count = 0
-
-        BcftoolsCommand(cmd4, self.logger, work_task).run()
-
-        # Post-filter: Remove variants without annotation to match annotation tool behavior
-        # This ensures cached output is identical to uncached output
-        # Skip filtering if --preserve-unannotated flag is set
-        if preserve_unannotated:
-            self.logger.info(
-                "Preserving unannotated variants in output (--preserve-unannotated flag set)"
-            )
-            if output_bcf == "-":
-                copy_cmd = f"{bcftools} view {step4_bcf} -Ob -o -"
-                result = BcftoolsCommand(copy_cmd, self.logger, work_task).run()
-            else:
-                copy_cmd = f"cp {step4_bcf} {output_bcf} && cp {step4_bcf}.csi {output_bcf}.csi"
-                result = BcftoolsCommand(copy_cmd, self.logger, work_task).run()
-        else:
-            if output_bcf == "-":
-                filter_cmd = (
-                    f"{bcftools} view -i 'INFO/{tag}!=\"\"' {step4_bcf} "
-                    f"-o - -Ob --threads {threads}"
-                )
-            else:
-                filter_cmd = (
-                    f"{bcftools} view -i 'INFO/{tag}!=\"\"' {step4_bcf} "
-                    f"-o {output_bcf} -Ob -W --threads {threads}"
-                )
-            result = BcftoolsCommand(filter_cmd, self.logger, work_task).run()
-
-        self.last_run_stats = {
-            "input_variants": input_count,
-            "output_variants": self._count_variants(Path(output_target), bcftools),
-            "missing_variants": missing_count,
-            "missing_annotated": step3_count,
-            "dropped_variants": dropped_count if missing_count > 0 else 0,
-        }
-        self.logger.info(f"Annotation complete: {output_bcf}")
-
-        return result
-
-    def _run_annotate_nocache(
-        self, skip_split_multiallelic: bool = False
-    ) -> subprocess.CompletedProcess:
-        """Annotate sample directly without using cache.
-
-        This is for benchmarking or when cache is not available.
-
-        Args:
-            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
-
-        Returns:
-            subprocess.CompletedProcess with results
-        """
-        self.logger.info("Annotating sample directly (no cache)")
-
-        work_task = self.work_dir / "annotate-nocache"
-        work_task.mkdir(parents=True, exist_ok=True)
-
-        sample_name = self.input_file.stem
-        input_bcf = self.input_file
-        output_bcf = self._resolve_output_bcf(sample_name)
-        output_target = output_bcf
-        if output_bcf == "-":
-            output_target = work_task / f"{sample_name}_vc.bcf"
-        aux_dir = self.output_dir / "auxiliary"
-        aux_dir.mkdir(exist_ok=True)
-        bcftools = self.params_file_content["bcftools_cmd"]
-
-        # Get thread count from params
-        threads = self.params_file_content.get("threads", 1)
-
-        # Step 0: Split multiallelic variants and remove spanning deletions (ALT=*)
-        if skip_split_multiallelic:
-            self.logger.info(
-                "Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)"
-            )
-            # Still need to remove spanning deletions even when skipping split
-            self.logger.info("Removing spanning deletion alleles (ALT=*)")
-            filtered_input = work_task / f"{sample_name}_no_span_del.bcf"
-            filter_cmd = f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
-            BcftoolsCommand(filter_cmd, self.logger, work_task).run()
-            input_bcf = filtered_input
-        else:
-            self.logger.info(
-                "Splitting multiallelic variants and removing spanning deletions"
-            )
-            normalized_input = work_task / f"{sample_name}_normalized.bcf"
-            # Combine norm and filter: split multiallelic, then remove ALT=*
-            norm_cmd = (
-                f"{bcftools} norm -m- {input_bcf} -Ob | "
-                f"{bcftools} view -e 'ALT=\"*\"' -o {normalized_input} -Ob -W --threads {threads}"
-            )
-            BcftoolsCommand(norm_cmd, self.logger, work_task).run()
-            input_bcf = normalized_input  # Use normalized input for annotation
-
-        anno_cmd = self._substitute_variables(
-            self.nfa_config_content["annotation_cmd"],
-            extra_vars={
-                "INPUT_BCF": str(input_bcf),
-                "OUTPUT_BCF": str(output_target),
-                "AUXILIARY_DIR": str(aux_dir),
-            },
-        )
-
-        result = BcftoolsCommand(anno_cmd, self.logger, work_task).run()
-
-        if output_bcf == "-":
-            stream_cmd = f"{bcftools} view {output_target} -Ob -o -"
-            result = BcftoolsCommand(stream_cmd, self.logger, work_task).run()
-
-        # Validate output
-        tag = self.nfa_config_content["must_contain_info_tag"]
-        self._validate_info_tag(output_target, tag)
-
-        input_count = self._count_variants(input_bcf, bcftools)
-        output_count = self._count_variants(output_target, bcftools)
-        dropped = 0
-        if input_count is not None and output_count is not None:
-            dropped = max(input_count - output_count, 0)
-        self.last_run_stats = {
-            "input_variants": input_count,
-            "output_variants": output_count,
-            "dropped_variants": dropped,
-        }
-
-        self.logger.info(f"Direct annotation complete: {output_bcf}")
-
-        return result
+        return run(self)
 
     @staticmethod
     def _count_variants(path: Path, bcftools_cmd: str) -> Optional[int]:

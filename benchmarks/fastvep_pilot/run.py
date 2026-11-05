@@ -709,7 +709,6 @@ def vcfcache_command(
         "full",
         "-y",
         config.params,
-        "--skip-split-multiallelic",
         "--force",
     ]
     if uncached:

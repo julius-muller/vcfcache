@@ -1530,8 +1530,8 @@ def test_main_annotate_uncached_print(monkeypatch, capsys, tmp_path):
         ],
     )
     cli.main()
-    out = capsys.readouterr().out
-    assert "uncached mode" in out
+    captured = capsys.readouterr()
+    assert "uncached mode" in captured.err
 
 
 def test_main_push_requires_token(monkeypatch, tmp_path):

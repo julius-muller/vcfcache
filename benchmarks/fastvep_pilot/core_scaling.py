@@ -231,7 +231,6 @@ def command(config: Config, cores: int, mode: str, run_dir: Path) -> list[str | 
         "light",
         "-y",
         config.root / f"config/params.cores-{cores}.yaml",
-        "--skip-split-multiallelic",
         "--force",
     ]
     if uncached:

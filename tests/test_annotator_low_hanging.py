@@ -527,7 +527,7 @@ def test_light_statistics_use_workflow_counters_without_rescan(monkeypatch, tmp_
 
     assert stats["statistics_level"] == "light"
     assert stats["variant_counts"]["total_output"] == 97
-    assert stats["variant_counts"]["annotated_output"] == 97
+    assert stats["variant_counts"]["annotated_output"] is None
     assert stats["variant_counts"]["tool_annotated"] == 17
     assert stats["variant_md5"] == {"top10": None, "bottom10": None, "all": None}
 
@@ -930,7 +930,9 @@ def test_vcf_annotator_init_minimal(monkeypatch, tmp_path):
 
 
 def test_chr_prefix_hint_detects_naming_mismatch():
-    hint = VCFAnnotator._chr_prefix_hint({"1", "2", "X"}, {"chr1", "chr2", "chrX", "chrY"})
+    hint = VCFAnnotator._chr_prefix_hint(
+        {"1", "2", "X"}, {"chr1", "chr2", "chrX", "chrY"}
+    )
     assert "adding" in hint and "rename-chrs" in hint
 
     hint = VCFAnnotator._chr_prefix_hint({"chr1", "chr2"}, {"1", "2", "3"})

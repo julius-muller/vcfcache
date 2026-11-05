@@ -346,31 +346,29 @@ vcfcache annotate \
   ```
 - Convert output to Parquet (for downstream querying):
   ```bash
-  vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --vcf sample.bcf --output sample_vc.bcf --stats-dir outdir --parquet --force
-  ```
-- Preserve variants without annotation in output (by default, vcfcache mirrors annotation tool behavior):
-  ```bash
-  vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --vcf sample.bcf --output sample_vc.bcf --stats-dir outdir --preserve-unannotated --force
-  ```
-- Skip splitting multiallelic variants for small speedup (~6% of runtime):
-  ```bash
-  vcfcache annotate -a /path/to/cache_root/cache/<annotation_name> --vcf sample.bcf --output sample_vc.bcf --stats-dir outdir --skip-split-multiallelic --force
-  ```
-  **WARNING**: Use `--skip-split-multiallelic` ONLY if you are certain your input VCF has no multiallelic variants (no commas in ALT field). If multiallelic variants are present, this will cause format inconsistencies between cached and uncached outputs. By default, vcfcache always splits multiallelic variants using `bcftools norm -m-` to ensure consistent output format.
+- All input records are retained. The old `--preserve-unannotated` flag is a deprecated no-op.
 
-### Input preprocessing
+### Input-preserving annotation
 
-VCFcache automatically preprocesses input VCF/BCF files before annotation:
+Both cached and direct annotation use the supplied sorted, indexed VCF/BCF
+without splitting, left-aligning, removing `ALT=*`, or rewriting a prepared copy.
+Input files and indexes are never modified. The removed sample-splitting option
+is no longer necessary. Optional blueprint-generation `--normalize` remains
+available and does not apply to sample annotation.
 
-1. **Multiallelic splitting** (unless `--skip-split-multiallelic` is used): Splits multiallelic variants into biallelic records using `bcftools norm -m-`
-2. **Spanning deletion removal**: Removes variants with `ALT=*` (spanning deletion alleles), which are VCF placeholder notation that annotation tools like VEP cannot process
+Cache reuse requires exact biallelic allele matches. Unsplit multiallelic records
+are sent intact to the recipe, avoiding partial-ALT hits and incorrect
+allele-number annotations. Different representations may lower the hit rate;
+users may prepare their data upstream if desired.
 
-These preprocessing steps ensure:
-- Consistent input format for annotation tools
-- Identical outputs between cached and uncached modes
-- No unannotated variants in the output (annotation tools skip `ALT=*` variants)
-
-### Output equivalence and verification
+Recipes must retain every record with unchanged variant identity, ID, quality,
+filter and FORMAT/sample data. Annotation INFO fields may change. Unannotated
+records are retained; a recipe that filters or splits records fails before the
+deliverable is replaced. Duplicate variant keys use direct annotation because
+VCF-to-VCF pairing is one-to-one; this bypass is explicit in run statistics.
+Inputs must already be sorted/indexable; no assembly or contig-name conversion
+is performed. Light statistics leave the annotated-record count unknown rather
+than assuming that every retained record has an annotation.
 
 VCFcache does not modify the annotation logic of your recipe:
 

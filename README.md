@@ -9,6 +9,12 @@
 
 VCFcache accelerates variant annotation by caching annotations for a user-defined variant set and reusing them across runs, so only novel variants are processed at runtime.
 
+Sample annotation preserves the supplied variant representation and genotypes:
+no splitting, left-alignment or automatic record removal. Exact biallelic cache
+matches are reused; other records are passed intact to the recipe. Inputs must
+be sorted and indexed, and recipes must retain every record. Optional blueprint
+normalization remains separate. See [input handling](WIKI.md#input-preserving-annotation).
+
 The project's correctness, compatibility, and fast-annotator performance
 targets are defined in [PROJECT_GOALS.md](PROJECT_GOALS.md).
 

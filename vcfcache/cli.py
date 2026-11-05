@@ -725,13 +725,7 @@ def main() -> None:
         "--preserve-unannotated",
         action="store_true",
         default=False,
-        help="(optional) Preserve variants without annotation in output. By default, vcfcache mirrors annotation tool behavior (default: False)",
-    )
-    vcf_parser.add_argument(
-        "--skip-split-multiallelic",
-        action="store_true",
-        default=False,
-        help="(optional) Skip splitting multiallelic variants. Use ONLY if certain input has no multiallelic variants (ALT field contains no commas). Provides small speedup (~6%% of runtime) but may cause format inconsistencies if multiallelic variants are present (default: False)",
+        help="Deprecated no-op: all input records are now always retained",
     )
     vcf_parser.add_argument(
         "-f",
@@ -1215,7 +1209,7 @@ def main() -> None:
             # Always show what we're doing (even in default mode)
             input_name = Path(args.i).name
             mode = "uncached" if args.uncached else "cached"
-            print(f"Annotating {input_name} ({mode} mode)...")
+            print(f"Annotating {input_name} ({mode} mode)...", file=sys.stderr)
 
             vcf_annotator = VCFAnnotator(
                 annotation_db=args.a,
@@ -1230,13 +1224,11 @@ def main() -> None:
                 bcftools_path=bcftools_path,
             )
 
-            preserve_unannotated = getattr(args, "preserve_unannotated", False)
-            skip_split_multiallelic = getattr(args, "skip_split_multiallelic", False)
+            preserve_unannotated = True
             vcf_annotator.annotate(
                 uncached=args.uncached,
                 convert_parquet=args.parquet,
                 preserve_unannotated=preserve_unannotated,
-                skip_split_multiallelic=skip_split_multiallelic,
                 md5_all=args.md5_all,
             )
 

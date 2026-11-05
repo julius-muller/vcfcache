@@ -38,7 +38,7 @@ def test_matched_commands_only_add_uncached_flag(tmp_path: Path) -> None:
     ]
     assert direct[:-1] == cached
     assert direct[-1] == "--uncached"
-    assert "--skip-split-multiallelic" in direct
+    assert "--skip-split-multiallelic" not in direct
 
 
 def test_fastvep_fasta_index_does_not_require_samtools(tmp_path: Path) -> None:

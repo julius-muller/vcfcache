@@ -70,7 +70,7 @@ def setup_logging(verbosity: int, log_file: Optional[Path] = None) -> logging.Lo
         logger.handlers.clear()
 
     # Console handler - less verbose
-    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler = logging.StreamHandler(sys.stderr)
     console_handler.setLevel(console_level)
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)

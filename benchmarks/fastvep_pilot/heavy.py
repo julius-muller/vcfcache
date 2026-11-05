@@ -330,7 +330,6 @@ def vcfcache_command(
         "light",
         "-y",
         config.params,
-        "--skip-split-multiallelic",
         "--force",
     ]
     if uncached:

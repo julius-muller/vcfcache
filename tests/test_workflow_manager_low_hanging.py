@@ -83,7 +83,11 @@ def test_substitute_variables_skip_var(tmp_path):
 
 def test_write_trace_file(tmp_path):
     mgr = _make_manager(tmp_path)
-    mgr._write_trace_file("annotate", start_time=wf.datetime.datetime.now(), end_time=wf.datetime.datetime.now())
+    mgr._write_trace_file(
+        "annotate",
+        start_time=wf.datetime.datetime.now(),
+        end_time=wf.datetime.datetime.now(),
+    )
     trace = tmp_path / "demo_trace.txt"
     assert trace.exists()
     assert "annotate" in trace.read_text()
@@ -266,7 +270,9 @@ def test_run_annotate_dispatches(tmp_path):
     mgr = _make_manager(tmp_path)
     called = {"db": None, "preserve": None}
 
-    def _run_annotate(db_bcf, preserve_unannotated=False, skip_split_multiallelic=False):
+    def _run_annotate(
+        db_bcf, preserve_unannotated=False, skip_split_multiallelic=False
+    ):
         called["db"] = db_bcf
         called["preserve"] = preserve_unannotated
         return "ok"
@@ -354,68 +360,26 @@ def test_run_cache_build_writes_logs(tmp_path, monkeypatch):
         "required_tool_version": "1.0",
         "genome_build": "GRCh38",
     }
-    mgr.params_file_content = {"bcftools_cmd": "bcftools", "threads": 1, "genome_build": "GRCh38"}
+    mgr.params_file_content = {
+        "bcftools_cmd": "bcftools",
+        "threads": 1,
+        "genome_build": "GRCh38",
+    }
 
     mgr._run_cache_build(Path("db.bcf"))
     assert (mgr.output_dir / "annotation_tool.log").exists()
 
 
-def test_run_annotate_missing_variants(monkeypatch, tmp_path):
+@pytest.mark.parametrize("preserve", [False, True])
+def test_run_annotate_delegates_preservation(monkeypatch, tmp_path, preserve):
+    from vcfcache.database import preserving
+
     mgr = _make_manager(tmp_path)
-    mgr.input_file = tmp_path / "sample.bcf"
-    mgr.input_file.write_text("bcf")
-    mgr.output_dir = tmp_path / "out"
-    mgr.output_dir.mkdir()
-    mgr.work_dir = tmp_path / "work"
-    mgr.work_dir.mkdir()
-    mgr.nfa_config_content = {
-        "annotation_cmd": "echo ${INPUT_BCF} > ${OUTPUT_BCF}",
-        "must_contain_info_tag": "MOCK",
-        "required_tool_version": "1.0",
-        "genome_build": "GRCh38",
-    }
-    mgr.params_file_content = {"bcftools_cmd": "bcftools", "threads": 1, "genome_build": "GRCh38"}
-
-    def _run(cmd, *args, **kwargs):
-        class _Res:
-            returncode = 0
-            stdout = ""
-            stderr = ""
-        if "index -n" in cmd:
-            _Res.stdout = "2\n"
-        if cmd.strip().startswith("echo"):
-            _Res.stdout = "anno\n"
-        return _Res()
-
-    monkeypatch.setattr(wf.subprocess, "run", _run)
-    result = mgr._run_annotate(Path("cache.bcf"), preserve_unannotated=True)
-    assert result is not None
-    assert (mgr.output_dir / "annotation_tool.log").exists()
-
-
-def test_run_annotate_no_missing(monkeypatch, tmp_path):
-    mgr = _make_manager(tmp_path)
-    mgr.input_file = tmp_path / "sample.bcf"
-    mgr.input_file.write_text("bcf")
-    mgr.output_dir = tmp_path / "out"
-    mgr.output_dir.mkdir()
-    mgr.work_dir = tmp_path / "work"
-    mgr.work_dir.mkdir()
-    mgr.nfa_config_content = {
-        "annotation_cmd": "echo ${INPUT_BCF} > ${OUTPUT_BCF}",
-        "must_contain_info_tag": "MOCK",
-        "required_tool_version": "1.0",
-        "genome_build": "GRCh38",
-    }
-    mgr.params_file_content = {"bcftools_cmd": "bcftools", "threads": 1, "genome_build": "GRCh38"}
-
-    def _run(cmd, *args, **kwargs):
-        class _Res:
-            returncode = 0
-            stdout = "0\n" if "index -n" in cmd else ""
-            stderr = ""
-        return _Res()
-
-    monkeypatch.setattr(wf.subprocess, "run", _run)
-    result = mgr._run_annotate(Path("cache.bcf"), preserve_unannotated=False)
-    assert result is not None
+    observed = []
+    monkeypatch.setattr(
+        preserving,
+        "run",
+        lambda manager, cache=None: observed.append((manager, cache)) or "ok",
+    )
+    assert mgr._run_annotate(Path("cache.bcf"), preserve_unannotated=preserve) == "ok"
+    assert observed == [(mgr, Path("cache.bcf"))]

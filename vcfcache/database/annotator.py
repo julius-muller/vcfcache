@@ -414,16 +414,14 @@ class VCFAnnotator(VCFDatabase):
                     f"Output file must end with .bcf or be '-'/'stdout': {output_file}"
                 )
             output_path = output_path.resolve()
-            if output_path.exists():
-                if force:
-                    output_path.unlink()
-                    csi_path = output_path.with_suffix(output_path.suffix + ".csi")
-                    if csi_path.exists():
-                        csi_path.unlink()
-                else:
-                    raise FileExistsError(
-                        f"Output file already exists: {output_path}\nIf intended, use --force to overwrite."
-                    )
+            if output_path == self.input_vcf.resolve() or (
+                output_path.exists() and output_path.samefile(self.input_vcf)
+            ):
+                raise ValueError("Output must not overwrite the input file")
+            if output_path.exists() and not force:
+                raise FileExistsError(
+                    f"Output file already exists: {output_path}\nIf intended, use --force to overwrite."
+                )
             output_path.parent.mkdir(parents=True, exist_ok=True)
             self.output_vcf = output_path
 
@@ -532,6 +530,11 @@ class VCFAnnotator(VCFDatabase):
                 print(preview_msg)
             return
 
+        if (
+            self._count_variants(self.input_vcf) == 0
+            or self._count_variants(self.cache_file) == 0
+        ):
+            return  # Empty inputs and empty caches are valid, lossless cases.
         raise RuntimeError(
             "No contigs in common between cache and input. "
             f"{self._chr_prefix_hint(input_set, cache_set)}"
@@ -828,8 +831,7 @@ class VCFAnnotator(VCFDatabase):
         self,
         uncached: bool = False,
         convert_parquet: bool = False,
-        preserve_unannotated: bool = False,
-        skip_split_multiallelic: bool = False,
+        preserve_unannotated: bool = True,
         md5_all: bool = False,
     ) -> None:
         """Run annotation workflow on input VCF file.
@@ -837,8 +839,7 @@ class VCFAnnotator(VCFDatabase):
         Args:
             uncached: Whether to run the workflow in uncached mode
             convert_parquet: Whether to convert output to Parquet format
-            preserve_unannotated: Whether to preserve variants without annotation in output
-            skip_split_multiallelic: Skip splitting multiallelic variants (use only if certain input has none)
+            preserve_unannotated: Deprecated no-op; all input records are retained
             md5_all: Compute full MD5 of all variants (no header) and store in stats
 
         Returns:
@@ -866,11 +867,10 @@ class VCFAnnotator(VCFDatabase):
                 dag=True,
                 report=True,
                 preserve_unannotated=preserve_unannotated,
-                skip_split_multiallelic=skip_split_multiallelic,
             )
             duration = time.time() - start_time
             # Always show completion (even in default mode)
-            print(f"Annotation completed in {duration:.1f}s")
+            print(f"Annotation completed in {duration:.1f}s", file=sys.stderr)
 
             if not self.no_stats:
                 from vcfcache.utils.completion import write_completion_flag
@@ -885,7 +885,7 @@ class VCFAnnotator(VCFDatabase):
                 self._write_compare_stats(
                     mode=mode,
                     md5_all=md5_all,
-                    preserve_unannotated=preserve_unannotated,
+                    preserve_unannotated=True,
                 )
 
             if convert_parquet:
@@ -970,6 +970,9 @@ class VCFAnnotator(VCFDatabase):
         }
 
         last_stats = getattr(self.nx_workflow, "last_run_stats", {}) or {}
+        for key in ("input_preprocessing", "cache_matching", "region_mode"):
+            if key in last_stats:
+                stats[key] = last_stats[key]
         stats["variant_counts"]["dropped_variants"] = last_stats.get("dropped_variants")
         stats["variant_counts"]["missing_variants"] = last_stats.get("missing_variants")
         stats["variant_counts"]["missing_annotated"] = last_stats.get(
@@ -993,33 +996,8 @@ class VCFAnnotator(VCFDatabase):
                 stats["variant_md5"]["bottom10"] = bottom_md5
                 if md5_all:
                     stats["variant_md5"]["all"] = self._compute_all_md5(self.output_vcf)
-            elif mode == "uncached":
-                # The direct workflow validates that the required annotation
-                # tag exists in the annotator output.
-                stats["variant_counts"]["annotated_output"] = stats["variant_counts"][
-                    "total_output"
-                ]
-            elif mode == "cached":
-                input_variants = last_stats.get("input_variants")
-                missing_variants = last_stats.get("missing_variants")
-                missing_annotated = last_stats.get("missing_annotated")
-                if all(
-                    value is not None
-                    for value in (
-                        input_variants,
-                        missing_variants,
-                        missing_annotated,
-                    )
-                ):
-                    stats["variant_counts"]["annotated_output"] = (
-                        input_variants - missing_variants + missing_annotated
-                    )
-                elif not preserve_unannotated:
-                    # The final cached filter guarantees that every retained
-                    # record has the required annotation tag.
-                    stats["variant_counts"]["annotated_output"] = stats[
-                        "variant_counts"
-                    ]["total_output"]
+            # Retained records need not carry annotation. Only full statistics
+            # explicitly count the required tag; light statistics leave it unknown.
 
         tool_annotated = None
         if mode == "cached":
