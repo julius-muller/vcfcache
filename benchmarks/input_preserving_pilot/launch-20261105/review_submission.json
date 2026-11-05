@@ -1,0 +1,19 @@
+{
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--partition=benchmark",
+    "--ntasks=1",
+    "--cpus-per-task=1",
+    "--mem=3000M",
+    "--time=00:10:00",
+    "--chdir=/tmp",
+    "--exclude=sl-w5",
+    "--dependency=afterany:2794:2795:2796:2797:2798:2799",
+    "--job-name=input-preserving-review",
+    "--output=/results/input-preserving-20261105/logs/review-%j.out",
+    "--wrap",
+    "PYTHONPATH=/results/deployment/input-preserving-20261105 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.input_preserving_pilot.run collect /results/input-preserving-20261105"
+  ],
+  "job_id": "2800"
+}

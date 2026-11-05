@@ -1,5 +1,29 @@
 # Input-preserving main / bcftools 1.25 pilot
 
+## Submitted run: 5 November 2026
+
+- Shared root: `/results/input-preserving-20261105` on workers,
+  `/mnt/data/slurm-results/input-preserving-20261105` on the controller.
+- Frozen timed source: `55f572cfe2750cfa6cf8a06e31ce45f50448e359`;
+  baseline: `136bafa90`. Later commits add controller postprocessing/docs only.
+- Jobs: **2794** core WES / sl-w1, **2795** core WGS / sl-w2,
+  **2796** fastVEP clinical WES / sl-w3, **2797** fastVEP clinical WGS / sl-w4,
+  **2798** vep-rs clinical WES / sl-w6. **sl-w5 is excluded**.
+- Reader job **2799** follows core WES on sl-w1; after-any review is **2800**.
+  The independent controller renderer records its bounded lifetime and result
+  in `render_state.json` (initial PID 254867).
+- Preflight: 430 local tests passed / 18 skipped; all 15 focused tests passed
+  against the deployed 1.25 build and its real HTSlib on the controller.
+- First core-WES block completed with all strict comparisons passing, zero
+  mismatches in 75,946 records, including both direct-version outputs. Other
+  blocks were still running when this launch note was written; this is not a
+  final performance result. Consult the shared `REVIEW.json` and `RESULTS.md`.
+
+The source/launch bindings are copied into `launch-20261105/`; changing this
+README never edits the deployed timed sources or earlier manuscript results.
+
+## Implementation
+
 The simple main workflow now uses the supplied sorted/indexed sample directly.
 It never splits alleles or removes records. Cache/blueprint normalization remains
 separate. Exact biallelic matches are reused; multiallelics are fresh misses.

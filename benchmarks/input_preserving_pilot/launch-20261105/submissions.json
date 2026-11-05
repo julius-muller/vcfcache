@@ -1,0 +1,159 @@
+[
+  {
+    "case": {
+      "id": "veprs-core-wes",
+      "node": "sl-w1",
+      "offset": 0,
+      "task_id": "veprs-core-KPGP-00139-wes"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w1",
+      "--job-name=input-preserving-veprs-core-wes",
+      "--output=/results/input-preserving-20261105/logs/veprs-core-wes-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/input-preserving-20261105 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.input_preserving_pilot.run run /results/input-preserving-20261105 --case veprs-core-wes"
+    ],
+    "job_id": "2794"
+  },
+  {
+    "case": {
+      "id": "veprs-core-wgs",
+      "node": "sl-w2",
+      "offset": 1,
+      "task_id": "veprs-core-KPGP-00139-wgs"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w2",
+      "--job-name=input-preserving-veprs-core-wgs",
+      "--output=/results/input-preserving-20261105/logs/veprs-core-wgs-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/input-preserving-20261105 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.input_preserving_pilot.run run /results/input-preserving-20261105 --case veprs-core-wgs"
+    ],
+    "job_id": "2795"
+  },
+  {
+    "case": {
+      "id": "fastvep-clinical-wes",
+      "node": "sl-w3",
+      "offset": 2,
+      "task_id": "8c8ad0da4f62e0ed"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w3",
+      "--job-name=input-preserving-fastvep-clinical-wes",
+      "--output=/results/input-preserving-20261105/logs/fastvep-clinical-wes-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/input-preserving-20261105 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.input_preserving_pilot.run run /results/input-preserving-20261105 --case fastvep-clinical-wes"
+    ],
+    "job_id": "2796"
+  },
+  {
+    "case": {
+      "id": "fastvep-clinical-wgs",
+      "node": "sl-w4",
+      "offset": 3,
+      "task_id": "d702ab9dadc95b29"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w4",
+      "--job-name=input-preserving-fastvep-clinical-wgs",
+      "--output=/results/input-preserving-20261105/logs/fastvep-clinical-wgs-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/input-preserving-20261105 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.input_preserving_pilot.run run /results/input-preserving-20261105 --case fastvep-clinical-wgs"
+    ],
+    "job_id": "2797"
+  },
+  {
+    "case": {
+      "id": "veprs-clinical-wes",
+      "node": "sl-w6",
+      "offset": 4,
+      "task_id": "veprs-clinical-KPGP-00139-wes"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w6",
+      "--job-name=input-preserving-veprs-clinical-wes",
+      "--output=/results/input-preserving-20261105/logs/veprs-clinical-wes-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/input-preserving-20261105 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.input_preserving_pilot.run run /results/input-preserving-20261105 --case veprs-clinical-wes"
+    ],
+    "job_id": "2798"
+  },
+  {
+    "case": {
+      "id": "reader",
+      "node": "sl-w1",
+      "offset": 0,
+      "task_id": "veprs-core-KPGP-00139-wes"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w1",
+      "--job-name=input-preserving-reader",
+      "--output=/results/input-preserving-20261105/logs/reader-%j.out",
+      "--dependency=afterany:2794",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/input-preserving-20261105 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.input_preserving_pilot.run run /results/input-preserving-20261105 --case reader"
+    ],
+    "job_id": "2799"
+  }
+]
