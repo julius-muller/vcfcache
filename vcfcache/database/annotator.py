@@ -530,9 +530,8 @@ class VCFAnnotator(VCFDatabase):
                 print(preview_msg)
             return
 
-        if (
-            self._count_variants(self.input_vcf) == 0
-            or self._count_variants(self.cache_file) == 0
+        if (not input_set and self._count_variants(self.input_vcf) == 0) or (
+            not cache_set and self._count_variants(self.cache_file) == 0
         ):
             return  # Empty inputs and empty caches are valid, lossless cases.
         raise RuntimeError(

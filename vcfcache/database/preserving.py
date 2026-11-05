@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -152,6 +153,7 @@ def run(manager, cache=None):
     restriction = ""
     if cache and total:
         bed = work / "occupied.bed" if mode == "windows" else None
+        inspection_start = time.monotonic()
         if inspect_input(bcftools, source, bed):
             manager.logger.warning(
                 "Duplicate variant keys: use direct annotation to preserve every occurrence"
@@ -163,6 +165,9 @@ def run(manager, cache=None):
                 cache_matching="bypassed-duplicate-keys",
             )
             return result
+        manager.logger.info(
+            f"Input key inspection completed in {time.monotonic() - inspection_start:.3f}s"
+        )
         if bed:
             restriction = f"-R {quoted(bed)} --regions-overlap 0 "
 
@@ -230,8 +235,12 @@ def run(manager, cache=None):
             if not any(auxiliary.iterdir()):
                 auxiliary.rmdir()
             try:
+                validation_start = time.monotonic()
                 manager._validate_info_tag(annotated, tag)
                 validate_recipe(bcftools, recipe_input, annotated)
+                manager.logger.info(
+                    f"Recipe identity/FORMAT validation completed in {time.monotonic() - validation_start:.3f}s"
+                )
             except Exception:
                 if annotated.exists():
                     shutil.copyfile(annotated, work / "failed_recipe.bcf")
