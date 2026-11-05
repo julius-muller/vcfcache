@@ -48,9 +48,11 @@ Rscript --vanilla benchmarks/fastvep_pilot/plot_followup.R \
 - threads: 16 for Rayon and bcftools;
 - timed WGS cells: direct, 100%, 90%, and 80% cache hits.
 
-Both VCFcache arms use `--skip-split-multiallelic`. The frozen input contains
-no multiallelic or spanning-deletion records, so this removes redundant
-normalization symmetrically without changing the input contract.
+The historical pilot used `--skip-split-multiallelic` in both arms; that option
+still rewrote the input to filter spanning deletions. Its frozen input contains
+no multiallelic or spanning-deletion records. Current main runners use the
+input-preserving interface without this removed option. Reproduce historical
+timings from their recorded source commit, not a newer main checkout.
 
 ## Commands
 
