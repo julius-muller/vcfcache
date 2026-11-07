@@ -1,0 +1,19 @@
+{
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--partition=benchmark",
+    "--ntasks=1",
+    "--cpus-per-task=1",
+    "--mem=3000M",
+    "--time=00:10:00",
+    "--chdir=/tmp",
+    "--exclude=sl-w5",
+    "--dependency=afterany:2807:2808:2809:2810:2811:2812",
+    "--job-name=rust125-review",
+    "--output=/results/rust-hts125-20261107/logs/review-%j.out",
+    "--wrap",
+    "PYTHONPATH=/results/deployment/rust-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.rust_hts125_pilot.run collect /results/rust-hts125-20261107 --terminal"
+  ],
+  "job_id": "2813"
+}

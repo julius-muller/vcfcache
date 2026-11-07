@@ -1,0 +1,211 @@
+[
+  {
+    "case": {
+      "id": "veprs-wes-KPGP-00139",
+      "modes": [
+        "adaptive-control121",
+        "adaptive-external125",
+        "adaptive-linked125",
+        "adaptive-prepared125",
+        "resident-control121",
+        "resident-external125",
+        "resident-linked125",
+        "resident-prepared125",
+        "direct-prepared125"
+      ],
+      "node": "sl-w1",
+      "task_id": "veprs-core-KPGP-00139-wes"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w1",
+      "--job-name=rust125-veprs-wes-KPGP-00139",
+      "--output=/results/rust-hts125-20261107/logs/veprs-wes-KPGP-00139-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/rust-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.rust_hts125_pilot.run run /results/rust-hts125-20261107 --case veprs-wes-KPGP-00139"
+    ],
+    "job_id": "2807"
+  },
+  {
+    "case": {
+      "id": "fastvep-wes-KPGP-00139",
+      "modes": [
+        "adaptive-linked125",
+        "adaptive-prepared125",
+        "resident-control121",
+        "resident-external125",
+        "resident-linked125",
+        "resident-prepared125",
+        "direct-prepared125",
+        "adaptive-control121",
+        "adaptive-external125"
+      ],
+      "node": "sl-w2",
+      "task_id": "8c8ad0da4f62e0ed"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w2",
+      "--job-name=rust125-fastvep-wes-KPGP-00139",
+      "--output=/results/rust-hts125-20261107/logs/fastvep-wes-KPGP-00139-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/rust-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.rust_hts125_pilot.run run /results/rust-hts125-20261107 --case fastvep-wes-KPGP-00139"
+    ],
+    "job_id": "2808"
+  },
+  {
+    "case": {
+      "id": "veprs-wes-LP6005592-DNA_C05",
+      "modes": [
+        "resident-control121",
+        "resident-external125",
+        "resident-linked125",
+        "resident-prepared125",
+        "direct-prepared125",
+        "adaptive-control121",
+        "adaptive-external125",
+        "adaptive-linked125",
+        "adaptive-prepared125"
+      ],
+      "node": "sl-w3",
+      "task_id": "veprs-core-LP6005592-DNA-C05-wes"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w3",
+      "--job-name=rust125-veprs-wes-LP6005592-DNA_C05",
+      "--output=/results/rust-hts125-20261107/logs/veprs-wes-LP6005592-DNA_C05-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/rust-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.rust_hts125_pilot.run run /results/rust-hts125-20261107 --case veprs-wes-LP6005592-DNA_C05"
+    ],
+    "job_id": "2809"
+  },
+  {
+    "case": {
+      "id": "fastvep-wes-LP6005592-DNA_C05",
+      "modes": [
+        "resident-linked125",
+        "resident-prepared125",
+        "direct-prepared125",
+        "adaptive-control121",
+        "adaptive-external125",
+        "adaptive-linked125",
+        "adaptive-prepared125",
+        "resident-control121",
+        "resident-external125"
+      ],
+      "node": "sl-w4",
+      "task_id": "f5683a0cf820cb33"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w4",
+      "--job-name=rust125-fastvep-wes-LP6005592-DNA_C05",
+      "--output=/results/rust-hts125-20261107/logs/fastvep-wes-LP6005592-DNA_C05-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/rust-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.rust_hts125_pilot.run run /results/rust-hts125-20261107 --case fastvep-wes-LP6005592-DNA_C05"
+    ],
+    "job_id": "2810"
+  },
+  {
+    "case": {
+      "id": "veprs-wgs-KPGP-00139",
+      "modes": [
+        "adaptive-prepared125",
+        "direct-prepared125",
+        "adaptive-control121",
+        "adaptive-external125",
+        "adaptive-linked125"
+      ],
+      "node": "sl-w6",
+      "task_id": "veprs-core-KPGP-00139-wgs"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w6",
+      "--job-name=rust125-veprs-wgs-KPGP-00139",
+      "--output=/results/rust-hts125-20261107/logs/veprs-wgs-KPGP-00139-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/rust-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.rust_hts125_pilot.run run /results/rust-hts125-20261107 --case veprs-wgs-KPGP-00139"
+    ],
+    "job_id": "2811"
+  },
+  {
+    "case": {
+      "id": "fastvep-wgs-KPGP-00139",
+      "modes": [
+        "adaptive-control121",
+        "adaptive-external125",
+        "adaptive-linked125",
+        "adaptive-prepared125",
+        "direct-prepared125"
+      ],
+      "node": "sl-w1",
+      "task_id": "d702ab9dadc95b29"
+    },
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--exclusive",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=8",
+      "--mem=28000M",
+      "--time=02:00:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w1",
+      "--job-name=rust125-fastvep-wgs-KPGP-00139",
+      "--output=/results/rust-hts125-20261107/logs/fastvep-wgs-KPGP-00139-%j.out",
+      "--dependency=afterany:2807",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/rust-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.rust_hts125_pilot.run run /results/rust-hts125-20261107 --case fastvep-wgs-KPGP-00139"
+    ],
+    "job_id": "2812"
+  }
+]
