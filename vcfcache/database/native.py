@@ -55,6 +55,9 @@ def run_native(
 
 def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus):
     start = time.perf_counter()
+    prepared = os.environ.get("VCFCACHE_PILOT_PREPARED", "0")
+    if prepared not in {"0", "1"}:
+        raise ValueError("VCFCACHE_PILOT_PREPARED must be 0 or 1")
     binary = native_binary()
     version = helper_version(binary, (0, 3, 0))
     if os.environ.get("VCFCACHE_EXPERIMENT_COALESCE_CHUNKS", "0") == "1":
@@ -123,7 +126,8 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
     # Normalization writes a FIFO, not an indexed on-disk sample. The resident
     # process reads it once; run normalization asynchronously to avoid deadlock.
     fifo = root / "input.bcf.pipe"
-    os.mkfifo(fifo)
+    if prepared == "0":
+        os.mkfifo(fifo)
     source = quote(str(manager.input_file))
     normalize = (
         f"{bcftools} view {source} -Ou"
@@ -140,7 +144,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
         with staged_output(target, ".vcfcache-native-") as stage:
             staged = stage.path
             spec = dict(
-                input=str(fifo),
+                input=str(manager.input_file if prepared == "1" else fifo),
                 cache=str(cache),
                 misses=str(root / "misses.bcf"),
                 annotated=str(root / "annotated.bcf"),
@@ -161,17 +165,20 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
             )
             job = root / "job.json"
             job.write_text(json.dumps(spec))
-            normalizer = subprocess.Popen(
-                [
-                    "/bin/bash",
-                    "-euo",
-                    "pipefail",
-                    "-c",
-                    f"{normalize} > {quote(str(fifo))}",
-                ],
-                stderr=stderr,
-                start_new_session=True,
-            )
+            # Experimental trusted-input assertion, verified outside timing by
+            # the pilot. Do not transform or pipe an already-prepared BCF.
+            if prepared == "0":
+                normalizer = subprocess.Popen(
+                    [
+                        "/bin/bash",
+                        "-euo",
+                        "pipefail",
+                        "-c",
+                        f"{normalize} > {quote(str(fifo))}",
+                    ],
+                    stderr=stderr,
+                    start_new_session=True,
+                )
             process = subprocess.Popen(
                 [binary, "resident", "--job", str(job)],
                 stdin=subprocess.PIPE,
@@ -206,7 +213,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
                 return result
             if state["event"] != "misses-ready":
                 raise RuntimeError(f"unexpected native event: {state}")
-            if normalizer.wait():
+            if normalizer is not None and normalizer.wait():
                 raise RuntimeError("native normalization failed")
             if state["missing_variants"]:
                 auxiliary = manager.output_dir / "auxiliary"
@@ -269,6 +276,7 @@ def _run(manager, cache, preserve, skip_split, workers, lookup, memory_mb, cpus)
         stats = json.loads((root / "stats.json").read_text())
         stats.update(
             engine="native",
+            pilot_prepared=prepared == "1",
             requested_engine="native",
             native_version=version,
             workers=workers,

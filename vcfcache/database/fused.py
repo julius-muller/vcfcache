@@ -68,6 +68,10 @@ def _run_fused(
 ):
     """Route coordinate tasks concurrently, annotate once, and gather in order."""
     started = time.perf_counter()
+    prepared_input = os.environ.get("VCFCACHE_PILOT_PREPARED", "0")
+    if prepared_input not in {"0", "1"}:
+        raise ValueError("VCFCACHE_PILOT_PREPARED must be 0 or 1")
+    matching = "--pair-logic exact " if prepared_input == "1" else ""
     phase_timings = []
     binary = native_binary()
     quote = shlex.quote
@@ -177,9 +181,14 @@ def _run_fused(
                 f"{bcftools} norm {selection} {source} -m- -Ou | " f"{bcftools} view "
             )
         # Indexed target is required by bcftools annotate for BCF annotations.
+        preparation = (
+            f"{bcftools} view {selection} {source} -Ou | "
+            if prepared_input == "1"
+            else f"{preparation}-e 'ALT=\"*\"' -Ou | "
+        )
         pipelines.run(
-            f"{preparation}-e 'ALT=\"*\"' -Ou | "
-            f"{native} prepare --output normalized.bcf --metadata plan.json --cache {quote(str(cache))}",
+            preparation
+            + f"{native} prepare --output normalized.bcf --metadata plan.json --cache {quote(str(cache))}",
             shard,
             "preprocess",
         )
@@ -211,7 +220,7 @@ def _run_fused(
             router = f"{native} route-native --cache {quote(str(cache))} --threads {compression_threads} "
         else:
             selector = (
-                f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
+                f"{bcftools} annotate {matching}-R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
                 f"{quote(str(task['source']))} -c INFO -Ou --threads {compression_threads} | "
             )
             router = f"{native} route "
@@ -230,7 +239,7 @@ def _run_fused(
             original_reason = counts["fallback_reason"]
             (shard / "route.native-attempt.json").write_text(json.dumps(counts))
             pipelines.run(
-                f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
+                f"{bcftools} annotate {matching}-R regions.bed --regions-overlap 0 -a {quote(str(cache))} "
                 f"{quote(str(task['source']))} -c INFO -Ou --threads {compression_threads} | "
                 f"{native} route --hits hits.bcf --misses misses.raw.bcf "
                 f"--order order.bin --stats route.json --tag {quote(tag)}"
@@ -349,7 +358,7 @@ def _run_fused(
                 else f"{bcftools} view misses.raw.bcf -Ob0 -W -o misses.bcf && "
             )
             original_misses = "misses.raw.bcf" if indexed_miss_spools else "misses.bcf"
-            overlay = f"{bcftools} annotate -R regions.bed --regions-overlap 0 -a {quote(str(annotated))} {original_misses} -c INFO -Ou --threads {assembly_decode_threads} | "
+            overlay = f"{bcftools} annotate {matching}-R regions.bed --regions-overlap 0 -a {quote(str(annotated))} {original_misses} -c INFO -Ou --threads {assembly_decode_threads} | "
             miss_source = "-"
         else:
             prepare, overlay, miss_source = "", "", "misses.raw.bcf"
@@ -391,6 +400,7 @@ def _run_fused(
             shutil.copyfileobj(stream, sys.stdout.buffer)
     manager.last_run_stats = {
         "engine": "fused",
+        "pilot_prepared": prepared_input == "1",
         "experimental_indexed_misses": indexed_miss_spools,
         "experimental_trust_routed_hits": trust_hits,
         "experimental_native_route": native_route,

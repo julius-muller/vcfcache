@@ -1034,6 +1034,7 @@ class VCFAnnotator(VCFDatabase):
         last_stats = getattr(self.nx_workflow, "last_run_stats", {}) or {}
         stats["engine"] = last_stats.get("engine", "legacy")
         for key in (
+            "pilot_prepared",
             "requested_engine",
             "effective_engine",
             "selection_reason",

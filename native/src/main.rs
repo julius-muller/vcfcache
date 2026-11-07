@@ -26,6 +26,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Report the library linked into this helper, not the external bcftools.
+    BuildInfo,
     /// Retain a small input in memory, perform native BCF lookup, await recipe.
     Resident {
         #[arg(long)]
@@ -387,6 +389,21 @@ struct OutputOptions<'a> {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
+        Command::BuildInfo => {
+            let version = unsafe { std::ffi::CStr::from_ptr(rust_htslib::htslib::hts_version()) };
+            let features =
+                unsafe { std::ffi::CStr::from_ptr(rust_htslib::htslib::hts_feature_string()) };
+            println!(
+                "{}",
+                serde_json::json!({
+                    "helper_version": env!("CARGO_PKG_VERSION"),
+                    "htslib_version": version.to_string_lossy(),
+                    "htslib_features": features.to_string_lossy(),
+                    "libdeflate": unsafe { rust_htslib::htslib::hts_features() } & (1 << 20) != 0
+                })
+            );
+            Ok(())
+        }
         Command::Resident { job } => resident::run(&job),
         Command::ResidentBatch { jobs } => resident::run_batch(&jobs),
         Command::CacheProbe { cache, cpus } => resident::probe_cache(&cache, cpus),
