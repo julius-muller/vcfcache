@@ -1,0 +1,76 @@
+{
+  "finished": 1794072549.8627746,
+  "input_sha256": "6d849a320dc55812bf9ae187b663a7929b720031d12b18bdc79c05f920242794",
+  "job_id": "2801",
+  "node": "sl-w1",
+  "phase": "untimed_semantic_audit",
+  "records": 75946,
+  "rows": [
+    {
+      "cache_access": null,
+      "codec_threads": null,
+      "missing": 7364,
+      "mode": "baseline-121",
+      "records": 75946,
+      "seconds": 19.251889052102342,
+      "shards": null
+    },
+    {
+      "cache_access": null,
+      "codec_threads": null,
+      "missing": 7364,
+      "mode": "baseline-125",
+      "records": 75946,
+      "seconds": 20.037403743946925,
+      "shards": null
+    },
+    {
+      "cache_access": "contigs",
+      "codec_threads": 1,
+      "missing": 7364,
+      "mode": "prepared-auto125",
+      "records": 75946,
+      "seconds": 19.069427791051567,
+      "shards": 7
+    },
+    {
+      "cache_access": "contigs",
+      "codec_threads": 3,
+      "missing": 7364,
+      "mode": "prepared-contigs2",
+      "records": 75946,
+      "seconds": 18.653087742859498,
+      "shards": 2
+    },
+    {
+      "cache_access": "windows",
+      "codec_threads": 3,
+      "missing": 7364,
+      "mode": "prepared-windows2",
+      "records": 75946,
+      "seconds": 15.605044738855213,
+      "shards": 2
+    },
+    {
+      "cache_access": "windows",
+      "codec_threads": 1,
+      "missing": 7364,
+      "mode": "prepared-windows4",
+      "records": 75946,
+      "seconds": 17.5001798318699,
+      "shards": 4
+    },
+    {
+      "cache_access": null,
+      "codec_threads": null,
+      "missing": null,
+      "mode": "direct-125",
+      "records": 75946,
+      "seconds": 8.989721052814275,
+      "shards": null
+    }
+  ],
+  "scratch": "/mnt/data/tmp/adaptive-hts125-xgj74im0",
+  "started": 1794072265.5504131,
+  "state": "complete"
+}

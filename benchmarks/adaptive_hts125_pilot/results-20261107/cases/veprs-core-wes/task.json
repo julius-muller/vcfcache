@@ -1,0 +1,115 @@
+{
+  "annotation_asset_group": "veprs",
+  "annotation_assets": [
+    {
+      "path": "/usr/local/bin/bcftools",
+      "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de"
+    },
+    {
+      "path": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00139.GRCh38.small_variants.vcf.gz.tbi",
+      "sha256": "e217d2fe7bb75e0ad15430dad82ef6b45094e8963f35d0c7846079d01e4bae6a"
+    }
+  ],
+  "assay": "wes",
+  "assembly": "GRCh38",
+  "baseline": {
+    "approval_evidence": [
+      {
+        "path": "/results/performance-sprint/reference-audit-20261027/references.jsonl",
+        "sha256": "26d74ce886418fccf6c1b98c8b0bfbd3e8b35af303fba3334344c32ffb9c509f"
+      },
+      {
+        "path": "/results/performance-sprint/reference-audit-v2-20261027/references.jsonl",
+        "sha256": "51958a14de47deffb25694487ebddabbcc201d8705a638c2823c7a3490b4f231"
+      },
+      {
+        "path": "/results/deployment/manuscript-final-20261027T191111Z-fe197f34d/benchmarks/performance_sprint/reference-request-v2-20261027.json",
+        "sha256": "58db4e885a6e184e141e03ad66aff30dce7a79156618961a5366d416f4f2bb1b"
+      },
+      {
+        "path": "/results/manuscript-final/20261027T191111Z-fe197f34d/campaign/manifest.json",
+        "sha256": "8e3ac0048bacacff15c0ef5a58c94d53b376e80974f976ff1e37931b3acf1b8d"
+      },
+      {
+        "path": "/results/manuscript-final/20261028T210624Z-787a3081a/campaign/manifest.json",
+        "sha256": "b61263e413931c02a82bbad5dae8f8ff83b3c23128fab4b8b74c68ed38045f24"
+      }
+    ],
+    "cpus": 8,
+    "direct_reuse": {
+      "attempt": "/results/manuscript-final/20261027T191111Z-fe197f34d/campaign/attempts/a002/veprs-core-KPGP-00139-wes",
+      "command_sha256": "ed1f7ebfcc1a1bbbe4e27ea923a6d0ffa07cae91f958e49c8e5f74f702008cec",
+      "files": {
+        "direct.bcf": "09eaaeb0fb29a229ec40ecbaf68edcfa470a3bf5200041daf2712c54cfa0bebb",
+        "direct.bcf.csi": "24a3e60acab894e990f0ef9c3377d0c0c06ad952b70c9711322536b4ccb64894",
+        "direct/resources.json": "0a1b595393f8899863e4fdfb8f994c56b961da813670f161bdb4f5a49a2b49c2"
+      },
+      "job_id": "1856"
+    },
+    "direct_seconds": 11.750639341014903,
+    "kind": "new_paired_reference",
+    "known_limit": "Clinical CSQ discrepancies are timing-only evidence, never a validated speedup claim",
+    "reason": "New pinned vep-rs configuration on the matched assay cohort; no compatible historical 8-CPU direct measurement exists",
+    "reuse_decision": "new_direct_required"
+  },
+  "cache": {
+    "canonical_directory": "/results/manuscript-final/20261027T191111Z-fe197f34d/cache-overlays/veprs_core/cache/veprs_core",
+    "directory": "/results/manuscript-final/20261027T191111Z-fe197f34d/cache-overlays/veprs_core/cache/veprs_core",
+    "files": {
+      "annotation.yaml": "a1176c0fa332b4e9a2e9b3fd864a5738a2ae12e880b7c8fda52090bc576dd57b",
+      "params.snapshot.yaml": "1f20f37210745878b45b382fd1cdabd54c8d991435c2353daa6449e5178b8397",
+      "vcfcache_annotated.bcf": "e69f74bdcfc7014292621436829ff361c2fd16e4fb41a312a29d04781c078002",
+      "vcfcache_annotated.bcf.csi": "1169ecaa7e324b121ebabbdd166d9598658b2d46cfa00f85367892814a02809d"
+    },
+    "original_directory": "/results/manuscript-final/20261027T191111Z-fe197f34d/cache-overlays/veprs_core/cache/veprs_core",
+    "storage": "shared"
+  },
+  "cohort": "kpgp",
+  "cpus": 8,
+  "engine": "adaptive",
+  "environment": {},
+  "family": "veprs_extension",
+  "historical_cached_seconds": 24.783203463011887,
+  "id": "veprs-core-KPGP-00139-wes",
+  "input": {
+    "path": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00139.GRCh38.small_variants.vcf.gz",
+    "records": 75946,
+    "sha256": "336d2e35d43a7d8bd7da5e1655c9157a916d88289466617c8e48250fd3f2577c"
+  },
+  "level": "core",
+  "original_annotation_assets": [
+    {
+      "path": "/usr/local/bin/bcftools",
+      "sha256": "2dd357b4166823edf9d42ffcb24580aa53e92b2e679dd1298c5ba21a607071de"
+    },
+    {
+      "path": "/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/KPGP-00139.GRCh38.small_variants.vcf.gz.tbi",
+      "sha256": "e217d2fe7bb75e0ad15430dad82ef6b45094e8963f35d0c7846079d01e4bae6a"
+    }
+  ],
+  "parameters": {
+    "annotation_tool_cmd": "/results/veprs/dist/vep",
+    "bcftools_cmd": "bcftools",
+    "genome_build": "GRCh38",
+    "optional_checks": {},
+    "threads": 8,
+    "tool_version_command": "/results/veprs/dist/vep --version",
+    "transcript_cache": "/results/veprs/json_cache/GRCh38_native_20261023"
+  },
+  "preprocess": {
+    "bed": {
+      "path": "/results/richness/regions/twist_human_core_exome_hg38.chr1-22-X.pad125.merged.bed",
+      "sha256": "f007730dc6165a7ca74ea62f4b889d7b4e90be9e52583da56417ffc37f8833e3"
+    }
+  },
+  "previous_result": {
+    "path": "/results/manuscript-final/20261027T191111Z-fe197f34d/campaign/attempts/a002/veprs-core-KPGP-00139-wes/state.json",
+    "sha256": "ebf22472e41480c9ab44b86f2be3961a3e2242181fa3eba103a44c915a813329",
+    "state": "complete"
+  },
+  "sample": "KPGP-00139",
+  "strategy": "gnomad_af_0.01",
+  "submission_priority": 0,
+  "tool": "veprs",
+  "wall_minutes": 120
+}

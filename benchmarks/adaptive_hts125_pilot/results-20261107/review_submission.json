@@ -1,0 +1,19 @@
+{
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--partition=benchmark",
+    "--ntasks=1",
+    "--cpus-per-task=1",
+    "--mem=3000M",
+    "--time=00:10:00",
+    "--chdir=/tmp",
+    "--exclude=sl-w5",
+    "--dependency=afterany:2801:2802:2803:2804:2805",
+    "--job-name=adaptive-hts125-review",
+    "--output=/results/adaptive-hts125-20261107/logs/review-%j.out",
+    "--wrap",
+    "PYTHONPATH=/results/deployment/adaptive-hts125-20261107 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.adaptive_hts125_pilot.run collect /results/adaptive-hts125-20261107"
+  ],
+  "job_id": "2806"
+}
