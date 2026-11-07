@@ -976,6 +976,15 @@ class VCFAnnotator(VCFDatabase):
         }
 
         last_stats = getattr(self.nx_workflow, "last_run_stats", {}) or {}
+        for key in (
+            "engine",
+            "shards",
+            "cache_access",
+            "pilot_prepared",
+            "pilot_codec_threads_per_shard",
+        ):
+            if key in last_stats:
+                stats[key] = last_stats[key]
         stats["variant_counts"]["dropped_variants"] = last_stats.get("dropped_variants")
         stats["variant_counts"]["missing_variants"] = last_stats.get("missing_variants")
         stats["variant_counts"]["missing_annotated"] = last_stats.get(

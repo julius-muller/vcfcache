@@ -18,6 +18,7 @@ larger inputs use whole-contig regions and keep the sharding and compression
 benefits only.
 """
 
+import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -128,8 +129,20 @@ def write_regions(
         rows = []
         for contig, length in contigs:
             if windowed:
+                previous = None
                 for block in sorted(blocks.get(contig, ())):
-                    rows.append(f"{contig}\t{block * WINDOW}\t{(block + 1) * WINDOW}")
+                    start, end = block * WINDOW, (block + 1) * WINDOW
+                    if os.environ.get("VCFCACHE_PILOT_MERGE_WINDOWS", "0") == "1":
+                        if previous is not None and start == previous[1]:
+                            previous[1] = end
+                            continue
+                        if previous is not None:
+                            rows.append(f"{contig}\t{previous[0]}\t{previous[1]}")
+                        previous = [start, end]
+                    else:
+                        rows.append(f"{contig}\t{start}\t{end}")
+                if previous is not None:
+                    rows.append(f"{contig}\t{previous[0]}\t{previous[1]}")
             else:
                 # Three BED columns throughout: bcftools cannot parse a bare
                 # contig name from a regions file.
@@ -171,10 +184,24 @@ def run_adaptive(
     bcftools = manager.params_file_content["bcftools_cmd"]
     tag = manager.nfa_config_content["must_contain_info_tag"]
     threads = manager.params_file_content.get("threads", 1)
+    prepared = os.environ.get("VCFCACHE_PILOT_PREPARED", "0")
+    if prepared not in {"0", "1"}:
+        raise ValueError("VCFCACHE_PILOT_PREPARED must be 0 or 1")
+    lookup = os.environ.get("VCFCACHE_PILOT_LOOKUP", "auto")
+    if lookup not in {"auto", "contigs", "windows"}:
+        raise ValueError("VCFCACHE_PILOT_LOOKUP must be auto, contigs or windows")
+    budget = os.environ.get("VCFCACHE_PILOT_THREAD_BUDGET", "0")
+    if budget not in {"0", "1"} or threads < 1 or workers < 0:
+        raise ValueError("Invalid thread budget or worker count")
+    # Experiment only: the immutable pilot manifest verifies biallelic, star-
+    # free, duplicate-free inputs outside timing. Not a generic input fast path.
+    matching = "--pair-logic exact " if prepared == "1" else ""
 
     # Step 0: identical to the legacy path, and the index it writes is what
     # lets every later step address shards without reading the records again.
-    if skip_split_multiallelic:
+    if prepared == "1":
+        manager.logger.info("Step 0/4: Reusing preflight-verified prepared input")
+    elif skip_split_multiallelic:
         manager.logger.info("Step 0/4: Removing spanning deletion alleles (ALT=*)")
         filtered_input = work_task / f"{sample_name}_no_span_del.bcf"
         filter_cmd = f"{bcftools} view -e 'ALT=\"*\"' {input_bcf} -o {filtered_input} -Ob -W --threads {threads}"
@@ -197,12 +224,18 @@ def run_adaptive(
     occupied = index_stats(bcftools, Path(input_bcf))
     shards = plan_shards(occupied, workers or threads or 1)
     windowed = bool(shards) and bool(input_count) and input_count <= max_windows
+    if lookup != "auto":
+        windowed = bool(shards) and bool(input_count) and lookup == "windows"
     # An empty input has no occupied contig to shard; one unrestricted pass
     # keeps the remaining steps and the recorded statistics well defined.
     regions: List[Optional[Path]] = list(
         write_regions(bcftools, Path(input_bcf), shards, work_task, windowed)
     ) or [None]
     shard_threads = max(1, threads // len(regions))
+    if budget == "1":
+        if len(regions) > threads:
+            raise ValueError("Concurrent shard main processes exceed CPU budget")
+        shard_threads = max(0, threads // len(regions) - 1)
     manager.logger.info(
         f"Adaptive engine: {len(regions)} shard(s); "
         f"cache access={'merged windows' if windowed else 'whole contigs'}"
@@ -239,7 +272,7 @@ def run_adaptive(
     run_shards(
         "cache annotation",
         lambda number: (
-            f"{bcftools} annotate {restrict(number)}-a {db_bcf} {input_bcf} -c INFO "
+            f"{bcftools} annotate {matching}{restrict(number)}-a {db_bcf} {input_bcf} -c INFO "
             f"-o {dirs[number]}/step1.bcf -Ob1 -W --threads {shard_threads}"
         ),
     )
@@ -303,7 +336,7 @@ def run_adaptive(
         run_shards(
             "annotation merge",
             lambda number: (
-                f"{bcftools} annotate {restrict(number)}-a {step3_bcf} "
+                f"{bcftools} annotate {matching}{restrict(number)}-a {step3_bcf} "
                 f"{dirs[number]}/step1.bcf -c INFO "
                 f"-o {dirs[number]}/step4.bcf -Ob1 -W --threads {shard_threads}"
             ),
@@ -353,6 +386,8 @@ def run_adaptive(
         "engine": "adaptive",
         "shards": len(regions),
         "cache_access": "windows" if windowed else "contigs",
+        "pilot_prepared": prepared == "1",
+        "pilot_codec_threads_per_shard": shard_threads,
     }
     manager.logger.info(f"Annotation complete: {output_bcf}")
 

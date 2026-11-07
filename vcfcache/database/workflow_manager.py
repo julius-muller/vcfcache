@@ -772,7 +772,12 @@ class WorkflowManager(WorkflowBase):
         threads = self.params_file_content.get("threads", 1)
 
         # Step 0: Split multiallelic variants and remove spanning deletions (ALT=*)
-        if skip_split_multiallelic:
+        prepared = os.environ.get("VCFCACHE_PILOT_PREPARED", "0")
+        if prepared not in {"0", "1"}:
+            raise ValueError("VCFCACHE_PILOT_PREPARED must be 0 or 1")
+        if prepared == "1":
+            self.logger.info("Step 0/4: Reusing preflight-verified prepared input")
+        elif skip_split_multiallelic:
             self.logger.info(
                 "Skipping multiallelic variant splitting (--skip-split-multiallelic flag set)"
             )
