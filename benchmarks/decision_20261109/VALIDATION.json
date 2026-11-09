@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "sheets": [
+    "Panel",
+    "WES",
+    "WGS"
+  ],
+  "configurations": 98,
+  "exported_timing_rows": 1664,
+  "summary_cells": 313,
+  "png_figures": 15,
+  "checks": [
+    "identical row order",
+    "numeric runtime cells",
+    "true missing cells",
+    "expandable detail columns",
+    "15 distinct assay-specific/overall PNGs",
+    "no subfolders",
+    "fallback labels",
+    "p95 support",
+    "source/workbook hashes",
+    "known cohort reference medians",
+    "independent per-sample/node runtime and speedup recomputation"
+  ]
+}
