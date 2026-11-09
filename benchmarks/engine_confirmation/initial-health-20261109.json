@@ -1,0 +1,185 @@
+{
+  "checked_unix": 1794241500.2426379,
+  "root": "/mnt/data/slurm-results/engine-confirmation-20261109-62a9fdb98",
+  "cases": [
+    {
+      "case": "fastvep-wes-KPGP-00139",
+      "node": "sl-w6",
+      "job_id": "2847",
+      "state": "running",
+      "phase": "r02-rust",
+      "timed_cells": 5,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-rust",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-direct",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-python",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r02-direct",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r02-python",
+          "records": 75946,
+          "allowed_cpus": 8
+        }
+      ]
+    },
+    {
+      "case": "fastvep-wgs-KPGP-00139",
+      "node": "sl-w2",
+      "job_id": "2843",
+      "state": "running",
+      "phase": "r01-rust",
+      "timed_cells": 1,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-python",
+          "records": 4634658,
+          "allowed_cpus": 8
+        }
+      ]
+    },
+    {
+      "case": "fastvep-wgs-LP6005519-DNA_A06",
+      "node": "sl-w4",
+      "job_id": "2845",
+      "state": "running",
+      "phase": "r01-direct",
+      "timed_cells": 0,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": []
+    },
+    {
+      "case": "veprs-wes-KPGP-00139",
+      "node": "sl-w5",
+      "job_id": "2846",
+      "state": "complete",
+      "phase": "untimed_strict_audits",
+      "timed_cells": 9,
+      "audits_passed": 8,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-python",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-rust",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-direct",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r02-rust",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r02-direct",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r02-python",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r03-direct",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r03-python",
+          "records": 75946,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r03-rust",
+          "records": 75946,
+          "allowed_cpus": 8
+        }
+      ]
+    },
+    {
+      "case": "veprs-wgs-KPGP-00139",
+      "node": "sl-w1",
+      "job_id": "2842",
+      "state": "running",
+      "phase": "r02-python",
+      "timed_cells": 3,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-direct",
+          "records": 4634658,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-python",
+          "records": 4634658,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-rust",
+          "records": 4634658,
+          "allowed_cpus": 8
+        }
+      ]
+    },
+    {
+      "case": "veprs-wgs-LP6005519-DNA_A06",
+      "node": "sl-w3",
+      "job_id": "2844",
+      "state": "running",
+      "phase": "r02-direct",
+      "timed_cells": 3,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-rust",
+          "records": 4858092,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-direct",
+          "records": 4858092,
+          "allowed_cpus": 8
+        },
+        {
+          "cell": "r01-python",
+          "records": 4858092,
+          "allowed_cpus": 8
+        }
+      ]
+    }
+  ],
+  "accepted_first_block": "veprs-wes-KPGP-00139",
+  "automatic_review_job": "2848",
+  "full_cohort_submitted": false
+}

@@ -43,6 +43,11 @@ payloads are copied **byte-identically to private local scratch** before timing,
 and outputs/intermediates also stay local. This removes concurrent NFS cache
 lookup as an engine confound, but changes storage relative to historical shared
 cache campaigns. It is explicitly a confirmation under local-cache conditions.
+Annotator databases retain their frozen recipe locations: for example,
+fastVEP's supplementary annotation directory is still on `/results` (NFS).
+This does not eliminate every source of shared-storage contention; it isolates
+the cache payload location and records the remaining recipe paths. Repeats and
+counterbalanced order reduce, but cannot rule out, time-varying contention.
 No OS page-cache flushing or cold-cache claim is made. Full output hashes and
 semantic audits run only after all timings; timed statistics are light.
 
@@ -86,6 +91,13 @@ on all six nodes. Initial launch observation showed all six jobs running in
 asset preflight; that alone does not establish successful timings or audits.
 The full node is reserved exclusively (Slurm may display 16 allocated CPUs),
 while every timed condition must report exactly eight allowed CPUs.
+
+Initial health check subsequently confirmed **vep-rs core WES completed all
+nine timings and all eight strict comparisons passed**. The other five blocks
+were still running, with no recorded failures. See
+[initial-health-20261109.json](initial-health-20261109.json). This is a launch
+health receipt, not the final pilot conclusion; use the shared `REVIEW.json`
+and `RESULTS.md` after review job 2848 finishes.
 
 ```bash
 # On the controller, as appuser, using the frozen deployed runner:
