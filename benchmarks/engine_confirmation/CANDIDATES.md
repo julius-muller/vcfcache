@@ -71,6 +71,19 @@ receipts. A three-hour per-block cap is only a safety limit; expected completion
 is approximately 1–2 hours including audits. Early-finished WES workers may be
 idle because this is a bounded pilot, not a request to generate additional work.
 
+## Accepted launch
+
+Jobs **2849–2854** follow the worker/case order above; after-any review is
+**2855**. The exact result root is
+`/results/engine-candidates-20261109-976e8613f` on workers and
+`/mnt/data/slurm-results/engine-candidates-20261109-976e8613f` on the controller.
+The frozen runner commit is `976e8613f`; later documentation commits do not
+modify that deployment. [candidate-launch-20261109.json](candidate-launch-20261109.json)
+records the manifest digest, candidate flags, backend/tool identities,
+successful six-node preflight, sbatch commands and accepted job IDs.
+Initial observation showed all six blocks running, with no recorded failures;
+this is not yet a claim that their timed results or semantic audits passed.
+
 ## Execution and later review
 
 Controller paths start `/mnt/data/slurm-results/engine-candidates-20261109-...`;

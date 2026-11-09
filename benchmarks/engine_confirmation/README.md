@@ -1,5 +1,8 @@
 # Bounded same-worker engine confirmation
 
+The subsequent prepared-input/window/resident comparison is documented
+separately in [CANDIDATES.md](CANDIDATES.md); it does not replace this first run.
+
 This is the small decision pilot authorized on 9 November 2026, **not a rerun
 of the manuscript cohort**. It tests whether the apparent Python/Rust gap
 survives fresh controls on the upgraded cluster. It does not change defaults,

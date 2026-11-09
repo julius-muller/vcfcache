@@ -1,0 +1,372 @@
+{
+  "checked_unix": 1794254298.5604985,
+  "controller_root": "/mnt/data/slurm-results/engine-candidates-20261109-976e8613f",
+  "worker_root": "/results/engine-candidates-20261109-976e8613f",
+  "runner_commit": "976e8613f",
+  "profile": "candidates",
+  "manifest_sha256": "179acf8f22f278938559de880cd6d9bb2a93b188f61b98eddd013a77221101dd",
+  "design": "Prespecified best-candidate subset; three rotated repeats; shared prepared-input eligibility; exact biallelic matching; fixed eight CPUs and external/linked HTSlib 1.25; local cache/scratch; no native WGS or silent fallback; no OS cache flushing",
+  "timed_invocations": 96,
+  "planned_audits": 90,
+  "cases": [
+    {
+      "id": "veprs-wes-KPGP-00139",
+      "modes": [
+        "direct",
+        "python-windows2",
+        "rust-native-w4-c0",
+        "rust-native-w4-c4",
+        "rust-native-w8-c0",
+        "rust-native-coalesced-w4-c4"
+      ],
+      "node": "sl-w1",
+      "offset": 0,
+      "task_id": "veprs-core-KPGP-00139-wes"
+    },
+    {
+      "id": "fastvep-wes-KPGP-00139",
+      "modes": [
+        "direct",
+        "python-windows2",
+        "rust-native-w4-c0",
+        "rust-native-w4-c4",
+        "rust-native-w8-c0",
+        "rust-native-coalesced-w4-c4"
+      ],
+      "node": "sl-w2",
+      "offset": 1,
+      "task_id": "8c8ad0da4f62e0ed"
+    },
+    {
+      "id": "veprs-wes-LP6005592-DNA_C05",
+      "modes": [
+        "direct",
+        "python-windows2",
+        "rust-native-w4-c0",
+        "rust-native-w4-c4",
+        "rust-native-w8-c0",
+        "rust-native-coalesced-w4-c4"
+      ],
+      "node": "sl-w3",
+      "offset": 2,
+      "task_id": "veprs-core-LP6005592-DNA-C05-wes"
+    },
+    {
+      "id": "fastvep-wes-LP6005592-DNA_C05",
+      "modes": [
+        "direct",
+        "python-windows2",
+        "rust-native-w4-c0",
+        "rust-native-w4-c4",
+        "rust-native-w8-c0",
+        "rust-native-coalesced-w4-c4"
+      ],
+      "node": "sl-w4",
+      "offset": 3,
+      "task_id": "f5683a0cf820cb33"
+    },
+    {
+      "id": "veprs-wgs-KPGP-00139",
+      "modes": [
+        "direct",
+        "python-auto",
+        "python-contigs2",
+        "rust-adaptive"
+      ],
+      "node": "sl-w5",
+      "offset": 4,
+      "task_id": "veprs-core-KPGP-00139-wgs"
+    },
+    {
+      "id": "fastvep-wgs-KPGP-00139",
+      "modes": [
+        "direct",
+        "python-auto",
+        "python-contigs2",
+        "rust-adaptive"
+      ],
+      "node": "sl-w6",
+      "offset": 5,
+      "task_id": "d702ab9dadc95b29"
+    }
+  ],
+  "configurations": {
+    "direct": {
+      "backend": "python",
+      "engine": "legacy",
+      "prepared": true
+    },
+    "python-auto": {
+      "backend": "python",
+      "engine": "adaptive",
+      "lookup": "auto",
+      "prepared": true,
+      "thread_budget": true
+    },
+    "python-contigs2": {
+      "backend": "python",
+      "engine": "adaptive",
+      "lookup": "contigs",
+      "prepared": true,
+      "thread_budget": true,
+      "workers": 2
+    },
+    "python-windows2": {
+      "backend": "python",
+      "engine": "adaptive",
+      "lookup": "windows",
+      "prepared": true,
+      "thread_budget": true,
+      "workers": 2
+    },
+    "rust-adaptive": {
+      "backend": "rust",
+      "engine": "adaptive",
+      "prepared": true
+    },
+    "rust-native-coalesced-w4-c4": {
+      "backend": "rust",
+      "coalesced": true,
+      "codec": 4,
+      "engine": "native",
+      "prepared": true,
+      "workers": 4
+    },
+    "rust-native-w4-c0": {
+      "backend": "rust",
+      "codec": 0,
+      "engine": "native",
+      "prepared": true,
+      "workers": 4
+    },
+    "rust-native-w4-c4": {
+      "backend": "rust",
+      "codec": 4,
+      "engine": "native",
+      "prepared": true,
+      "workers": 4
+    },
+    "rust-native-w8-c0": {
+      "backend": "rust",
+      "codec": 0,
+      "engine": "native",
+      "prepared": true,
+      "workers": 8
+    }
+  },
+  "backend_commits": {
+    "python": "b9633e72dba1a40dd6909200a58f7430a16a1fcf",
+    "rust": "533dcd360"
+  },
+  "tools": {
+    "bcftools": {
+      "path": "/results/input-preserving-20261105-tools/bin/bcftools",
+      "sha256": "6d7cad345f312351cd3562cca5d00f91793f06e817c26e4edbac543dbc912f90",
+      "version": "bcftools 1.25\nUsing htslib 1.25\nCopyright (C) 2026 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n"
+    },
+    "helper": {
+      "info": {
+        "helper_version": "0.8.4",
+        "htslib_features": "build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib",
+        "htslib_version": "1.25",
+        "libdeflate": true
+      },
+      "path": "/results/rust-hts125-20261107-tools/vcfcache-engine-latest",
+      "sha256": "df207b4ac1259ae54b95aae7f308da21ece22c2face04d11dd04647ba890d2a5"
+    }
+  },
+  "submissions": [
+    {
+      "case": "veprs-wes-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w1",
+        "--job-name=confirm-veprs-wes-KPGP-00139",
+        "--output=/results/engine-candidates-20261109-976e8613f/logs/veprs-wes-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-candidates-20261109-976e8613f /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-candidates-20261109-976e8613f --case veprs-wes-KPGP-00139"
+      ],
+      "job_id": "2849",
+      "node": "sl-w1"
+    },
+    {
+      "case": "fastvep-wes-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w2",
+        "--job-name=confirm-fastvep-wes-KPGP-00139",
+        "--output=/results/engine-candidates-20261109-976e8613f/logs/fastvep-wes-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-candidates-20261109-976e8613f /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-candidates-20261109-976e8613f --case fastvep-wes-KPGP-00139"
+      ],
+      "job_id": "2850",
+      "node": "sl-w2"
+    },
+    {
+      "case": "veprs-wes-LP6005592-DNA_C05",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w3",
+        "--job-name=confirm-veprs-wes-LP6005592-DNA_C05",
+        "--output=/results/engine-candidates-20261109-976e8613f/logs/veprs-wes-LP6005592-DNA_C05-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-candidates-20261109-976e8613f /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-candidates-20261109-976e8613f --case veprs-wes-LP6005592-DNA_C05"
+      ],
+      "job_id": "2851",
+      "node": "sl-w3"
+    },
+    {
+      "case": "fastvep-wes-LP6005592-DNA_C05",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w4",
+        "--job-name=confirm-fastvep-wes-LP6005592-DNA_C05",
+        "--output=/results/engine-candidates-20261109-976e8613f/logs/fastvep-wes-LP6005592-DNA_C05-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-candidates-20261109-976e8613f /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-candidates-20261109-976e8613f --case fastvep-wes-LP6005592-DNA_C05"
+      ],
+      "job_id": "2852",
+      "node": "sl-w4"
+    },
+    {
+      "case": "veprs-wgs-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w5",
+        "--job-name=confirm-veprs-wgs-KPGP-00139",
+        "--output=/results/engine-candidates-20261109-976e8613f/logs/veprs-wgs-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-candidates-20261109-976e8613f /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-candidates-20261109-976e8613f --case veprs-wgs-KPGP-00139"
+      ],
+      "job_id": "2853",
+      "node": "sl-w5"
+    },
+    {
+      "case": "fastvep-wgs-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w6",
+        "--job-name=confirm-fastvep-wgs-KPGP-00139",
+        "--output=/results/engine-candidates-20261109-976e8613f/logs/fastvep-wgs-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-candidates-20261109-976e8613f /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-candidates-20261109-976e8613f --case fastvep-wgs-KPGP-00139"
+      ],
+      "job_id": "2854",
+      "node": "sl-w6"
+    }
+  ],
+  "review": {
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--ntasks=1",
+      "--cpus-per-task=1",
+      "--mem=3000M",
+      "--time=00:15:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w1",
+      "--dependency=afterany:2849:2850:2851:2852:2853:2854",
+      "--job-name=confirm-review",
+      "--output=/results/engine-candidates-20261109-976e8613f/logs/review-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/engine-candidates-20261109-976e8613f /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run collect /results/engine-candidates-20261109-976e8613f --terminal"
+    ],
+    "job_id": "2855"
+  },
+  "preflight": {
+    "checked_unix": 1794254176.3535612,
+    "nodes": [
+      {
+        "node": "sl-w1",
+        "exit_code": 0,
+        "stdout": "7.0.0-43-generic\n1.5.5\n{\"helper_version\":\"0.8.4\",\"htslib_features\":\"build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib\",\"htslib_version\":\"1.25\",\"libdeflate\":true}\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w2",
+        "exit_code": 0,
+        "stdout": "7.0.0-43-generic\n1.5.5\n{\"helper_version\":\"0.8.4\",\"htslib_features\":\"build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib\",\"htslib_version\":\"1.25\",\"libdeflate\":true}\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w3",
+        "exit_code": 0,
+        "stdout": "7.0.0-43-generic\n1.5.5\n{\"helper_version\":\"0.8.4\",\"htslib_features\":\"build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib\",\"htslib_version\":\"1.25\",\"libdeflate\":true}\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w4",
+        "exit_code": 0,
+        "stdout": "7.0.0-43-generic\n1.5.5\n{\"helper_version\":\"0.8.4\",\"htslib_features\":\"build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib\",\"htslib_version\":\"1.25\",\"libdeflate\":true}\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w5",
+        "exit_code": 0,
+        "stdout": "7.0.0-43-generic\n1.5.5\n{\"helper_version\":\"0.8.4\",\"htslib_features\":\"build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib\",\"htslib_version\":\"1.25\",\"libdeflate\":true}\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w6",
+        "exit_code": 0,
+        "stdout": "7.0.0-43-generic\n1.5.5\n{\"helper_version\":\"0.8.4\",\"htslib_features\":\"build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib\",\"htslib_version\":\"1.25\",\"libdeflate\":true}\n",
+        "stderr": ""
+      }
+    ]
+  }
+}
