@@ -1,8 +1,10 @@
 """Regression checks for the bounded confirmation pilot, not annotation engines."""
 
+import io
 import json
 from collections import Counter
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -91,3 +93,92 @@ def test_submission_refuses_duplicates_without_sbatch(tmp_path, monkeypatch):
     )
     with pytest.raises(RuntimeError, match="already attempted"):
         run.submit(root)
+
+
+def test_candidate_matrix_is_bounded_and_has_no_native_wgs():
+    total = 0
+    for _, _, _, assay, _ in run.CANDIDATE_SELECTION:
+        modes = run.candidate_modes(assay)
+        total += 3 * len(modes)
+        assert modes[0] == "direct"
+        assert all(run.CANDIDATES[m]["prepared"] for m in modes)
+        for rep in range(1, 4):
+            assert sorted(run.order_for(rep, 0, modes)) == sorted(modes)
+        if assay == "wgs":
+            assert all(run.CANDIDATES[m]["engine"] != "native" for m in modes)
+    assert total == 96
+
+
+@pytest.mark.parametrize("mode", list(run.CANDIDATES))
+def test_explicit_candidate_configuration(mode):
+    spec = run.CANDIDATES[mode]
+    data = dict(
+        configurations=run.CANDIDATES,
+        backends={b: dict(path="/frozen/" + b) for b in ("python", "rust")},
+        tools=dict(helper=dict(path="/frozen/helper")),
+    )
+    command = run.command_for(
+        mode, *map(Path, ["cache", "in", "out", "params", "stats"]), spec
+    )
+    assert command[command.index("--engine") + 1] == spec["engine"]
+    env = run.environment_for(data, mode, Path("/tools/bcftools"))
+    assert env["VCFCACHE_PILOT_PREPARED"] == "1"
+    assert env["PYTHONPATH"] == "/frozen/" + spec["backend"]
+    if spec["engine"] == "native":
+        assert "--engine-memory-mb" in command
+        assert int(env["VCFCACHE_EXPERIMENT_CODEC_THREADS"]) + spec["workers"] <= 8
+    if spec.get("coalesced"):
+        assert env["VCFCACHE_EXPERIMENT_COALESCE_CHUNKS"] == "1"
+
+
+@pytest.mark.parametrize(
+    "records,raises",
+    [
+        ("chr1\t1\tA\tG\t.\n", False),
+        ("chr1\t1\tA\tG,C\t.\n", True),
+        ("chr1\t1\tA\t*\t.\n", True),
+        ("chr1\t1\tA\tG\tannotation\n", True),
+        ("chr1\t1\tA\tG\t.\nchr1\t1\tA\tG\t.\n", True),
+    ],
+)
+def test_prepared_domain_is_checked_not_transformed(monkeypatch, records, raises):
+    monkeypatch.setattr(
+        run.subprocess,
+        "check_output",
+        lambda *a, **k: "##INFO=<ID=CSQ,Number=.,Type=String>\n",
+    )
+    monkeypatch.setattr(
+        run.subprocess,
+        "Popen",
+        lambda *a, **k: SimpleNamespace(
+            stdout=io.StringIO(records), wait=lambda: 0, poll=lambda: 0
+        ),
+    )
+    if raises:
+        with pytest.raises(ValueError):
+            run.preflight_prepared("bcftools", Path("in.bcf"), "CSQ")
+    else:
+        assert run.preflight_prepared("bcftools", Path("in.bcf"), "CSQ")["records"] == 1
+
+
+def test_candidate_review_keeps_all_configurations(tmp_path):
+    root = tmp_path / "root"
+    case = dict(id="veprs-wes-demo", node="sl-w1", modes=run.candidate_modes("wes"))
+    freeze_minimal(root, [case])
+    doc = json.loads((root / "manifest.json").read_text())
+    doc["profile"] = "candidates"
+    write_json_atomic(root / "manifest.json", doc)
+    (root / "READY").write_text(sha256sum(root / "manifest.json") + "\n")
+    folder = root / "cases" / case["id"]
+    folder.mkdir(parents=True)
+    rows = [
+        dict(cell="r01-" + m, mode=m, repetition=1, seconds=10.0 + i)
+        for i, m in enumerate(case["modes"])
+    ]
+    write_json_atomic(
+        folder / "state.json", dict(state="running", rows=rows, audits={})
+    )
+    run.collect(root)
+    text = (root / "RESULTS.md").read_text()
+    assert all(m in text for m in case["modes"])
+    assert json.loads((root / "REVIEW.json").read_text())["accepted_cases"] == 0
