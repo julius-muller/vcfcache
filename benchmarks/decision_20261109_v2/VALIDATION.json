@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "sheets": [
+    "Panel",
+    "WES",
+    "WGS"
+  ],
+  "configurations": 98,
+  "exported_timing_rows": 876,
+  "summary_cells": 266,
+  "png_figures": 15,
+  "checks": [
+    "sl-w5 excluded from cached runs AND direct denominators",
+    "unknown worker proofs excluded",
+    "88 common Intel-only cohort pairs",
+    "SnpEff WGS four pairs with no hardware-class bimodality",
+    "v1 files unchanged",
+    "all original timings preserved numerically",
+    "identical row order",
+    "numeric runtime cells",
+    "true missing cells",
+    "expandable detail columns",
+    "15 distinct assay-specific/overall PNGs",
+    "no subfolders",
+    "fallback labels",
+    "p95 support",
+    "source/workbook hashes",
+    "filtered cohort reference medians",
+    "independent per-sample/node runtime and speedup recomputation"
+  ]
+}
