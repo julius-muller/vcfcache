@@ -75,6 +75,18 @@ Worker-visible results use `/results/engine-confirmation-20261109-*`; the
 controller exposes the same tree at `/mnt/data/slurm-results/`. Exact launch
 receipts are saved alongside this README after submission.
 
+Accepted launch: **jobs 2842–2847**, one block on each worker in the table,
+with automatic after-any review **2848**. The result root is
+`/results/engine-confirmation-20261109-62a9fdb98` (controller:
+`/mnt/data/slurm-results/engine-confirmation-20261109-62a9fdb98`). Frozen runner
+source is `62a9fdb98`; later documentation commits do not alter timed sources.
+[launch-20261109.json](launch-20261109.json) binds the manifest SHA-256,
+submission commands/IDs, tool binaries, backend commits and successful imports
+on all six nodes. Initial launch observation showed all six jobs running in
+asset preflight; that alone does not establish successful timings or audits.
+The full node is reserved exclusively (Slurm may display 16 allocated CPUs),
+while every timed condition must report exactly eight allowed CPUs.
+
 ```bash
 # On the controller, as appuser, using the frozen deployed runner:
 PYTHONPATH=DEPLOYMENT PYTHON -m benchmarks.engine_confirmation.run collect RESULT_ROOT

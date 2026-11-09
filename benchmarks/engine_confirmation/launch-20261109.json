@@ -1,0 +1,262 @@
+{
+  "checked_unix": 1794241135.538357,
+  "controller_root": "/mnt/data/slurm-results/engine-confirmation-20261109-62a9fdb98",
+  "worker_root": "/results/engine-confirmation-20261109-62a9fdb98",
+  "runner_commit": "62a9fdb98",
+  "manifest_sha256": "fa401f4a0d0a4f0979617888dc93d0f70ec996b4514b85f055b95dd9213cc4ee",
+  "design": "Same-worker fresh direct; three Latin-square repeats; unchanged default preprocessing in all arms; shared version 1.25; private node-local cache and scratch; no OS cache flushing",
+  "timed_invocations": 54,
+  "cases": [
+    {
+      "id": "veprs-wgs-KPGP-00139",
+      "node": "sl-w1",
+      "offset": 0,
+      "task_id": "veprs-core-KPGP-00139-wgs"
+    },
+    {
+      "id": "fastvep-wgs-KPGP-00139",
+      "node": "sl-w2",
+      "offset": 1,
+      "task_id": "d702ab9dadc95b29"
+    },
+    {
+      "id": "veprs-wgs-LP6005519-DNA_A06",
+      "node": "sl-w3",
+      "offset": 2,
+      "task_id": "veprs-core-LP6005519-DNA-A06-wgs"
+    },
+    {
+      "id": "fastvep-wgs-LP6005519-DNA_A06",
+      "node": "sl-w4",
+      "offset": 0,
+      "task_id": "766b37ccf9e76695"
+    },
+    {
+      "id": "veprs-wes-KPGP-00139",
+      "node": "sl-w5",
+      "offset": 1,
+      "task_id": "veprs-core-KPGP-00139-wes"
+    },
+    {
+      "id": "fastvep-wes-KPGP-00139",
+      "node": "sl-w6",
+      "offset": 2,
+      "task_id": "8c8ad0da4f62e0ed"
+    }
+  ],
+  "backend_commits": {
+    "python": "b9633e72dba1a40dd6909200a58f7430a16a1fcf",
+    "rust": "533dcd360"
+  },
+  "tools": {
+    "bcftools": {
+      "path": "/results/input-preserving-20261105-tools/bin/bcftools",
+      "sha256": "6d7cad345f312351cd3562cca5d00f91793f06e817c26e4edbac543dbc912f90",
+      "version": "bcftools 1.25\nUsing htslib 1.25\nCopyright (C) 2026 Genome Research Ltd.\nLicense Expat: The MIT/Expat license\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n"
+    },
+    "helper": {
+      "info": {
+        "helper_version": "0.8.4",
+        "htslib_features": "build=Makefile libcurl=no S3=no GCS=no libdeflate=yes lzma=no bzip2=no plugins=no htscodecs=rust-htslib",
+        "htslib_version": "1.25",
+        "libdeflate": true
+      },
+      "path": "/results/rust-hts125-20261107-tools/vcfcache-engine-latest",
+      "sha256": "df207b4ac1259ae54b95aae7f308da21ece22c2face04d11dd04647ba890d2a5"
+    }
+  },
+  "submissions": [
+    {
+      "case": "veprs-wgs-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w1",
+        "--job-name=confirm-veprs-wgs-KPGP-00139",
+        "--output=/results/engine-confirmation-20261109-62a9fdb98/logs/veprs-wgs-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-confirmation-20261109-62a9fdb98 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-confirmation-20261109-62a9fdb98 --case veprs-wgs-KPGP-00139"
+      ],
+      "job_id": "2842",
+      "node": "sl-w1"
+    },
+    {
+      "case": "fastvep-wgs-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w2",
+        "--job-name=confirm-fastvep-wgs-KPGP-00139",
+        "--output=/results/engine-confirmation-20261109-62a9fdb98/logs/fastvep-wgs-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-confirmation-20261109-62a9fdb98 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-confirmation-20261109-62a9fdb98 --case fastvep-wgs-KPGP-00139"
+      ],
+      "job_id": "2843",
+      "node": "sl-w2"
+    },
+    {
+      "case": "veprs-wgs-LP6005519-DNA_A06",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w3",
+        "--job-name=confirm-veprs-wgs-LP6005519-DNA_A06",
+        "--output=/results/engine-confirmation-20261109-62a9fdb98/logs/veprs-wgs-LP6005519-DNA_A06-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-confirmation-20261109-62a9fdb98 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-confirmation-20261109-62a9fdb98 --case veprs-wgs-LP6005519-DNA_A06"
+      ],
+      "job_id": "2844",
+      "node": "sl-w3"
+    },
+    {
+      "case": "fastvep-wgs-LP6005519-DNA_A06",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w4",
+        "--job-name=confirm-fastvep-wgs-LP6005519-DNA_A06",
+        "--output=/results/engine-confirmation-20261109-62a9fdb98/logs/fastvep-wgs-LP6005519-DNA_A06-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-confirmation-20261109-62a9fdb98 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-confirmation-20261109-62a9fdb98 --case fastvep-wgs-LP6005519-DNA_A06"
+      ],
+      "job_id": "2845",
+      "node": "sl-w4"
+    },
+    {
+      "case": "veprs-wes-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w5",
+        "--job-name=confirm-veprs-wes-KPGP-00139",
+        "--output=/results/engine-confirmation-20261109-62a9fdb98/logs/veprs-wes-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-confirmation-20261109-62a9fdb98 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-confirmation-20261109-62a9fdb98 --case veprs-wes-KPGP-00139"
+      ],
+      "job_id": "2846",
+      "node": "sl-w5"
+    },
+    {
+      "case": "fastvep-wes-KPGP-00139",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--partition=benchmark",
+        "--exclusive",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=8",
+        "--mem=28000M",
+        "--time=03:00:00",
+        "--chdir=/tmp",
+        "--nodelist=sl-w6",
+        "--job-name=confirm-fastvep-wes-KPGP-00139",
+        "--output=/results/engine-confirmation-20261109-62a9fdb98/logs/fastvep-wes-KPGP-00139-%j.out",
+        "--wrap",
+        "PYTHONPATH=/results/deployment/engine-confirmation-20261109-62a9fdb98 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run run /results/engine-confirmation-20261109-62a9fdb98 --case fastvep-wes-KPGP-00139"
+      ],
+      "job_id": "2847",
+      "node": "sl-w6"
+    }
+  ],
+  "review": {
+    "command": [
+      "sbatch",
+      "--parsable",
+      "--partition=benchmark",
+      "--ntasks=1",
+      "--cpus-per-task=1",
+      "--mem=3000M",
+      "--time=00:15:00",
+      "--chdir=/tmp",
+      "--nodelist=sl-w1",
+      "--dependency=afterany:2842:2843:2844:2845:2846:2847",
+      "--job-name=confirm-review",
+      "--output=/results/engine-confirmation-20261109-62a9fdb98/logs/review-%j.out",
+      "--wrap",
+      "PYTHONPATH=/results/deployment/engine-confirmation-20261109-62a9fdb98 /results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python -m benchmarks.engine_confirmation.run collect /results/engine-confirmation-20261109-62a9fdb98 --terminal"
+    ],
+    "job_id": "2848"
+  },
+  "preflight": {
+    "checked_unix": 1794241058.4979925,
+    "nodes": [
+      {
+        "node": "sl-w1",
+        "exit_code": 0,
+        "stdout": "/results/deployment/adaptive-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n/results/deployment/rust-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n4933b6c4a8521fb3aa93856701e30b3ac2626d3c47ceb22965a3b0b422e85b44  /home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w2",
+        "exit_code": 0,
+        "stdout": "/results/deployment/adaptive-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n/results/deployment/rust-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n4933b6c4a8521fb3aa93856701e30b3ac2626d3c47ceb22965a3b0b422e85b44  /home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w3",
+        "exit_code": 0,
+        "stdout": "/results/deployment/adaptive-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n/results/deployment/rust-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n4933b6c4a8521fb3aa93856701e30b3ac2626d3c47ceb22965a3b0b422e85b44  /home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w4",
+        "exit_code": 0,
+        "stdout": "/results/deployment/adaptive-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n/results/deployment/rust-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n4933b6c4a8521fb3aa93856701e30b3ac2626d3c47ceb22965a3b0b422e85b44  /home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w5",
+        "exit_code": 0,
+        "stdout": "/results/deployment/adaptive-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n/results/deployment/rust-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n4933b6c4a8521fb3aa93856701e30b3ac2626d3c47ceb22965a3b0b422e85b44  /home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12\n",
+        "stderr": ""
+      },
+      {
+        "node": "sl-w6",
+        "exit_code": 0,
+        "stdout": "/results/deployment/adaptive-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n/results/deployment/rust-hts125-20261107/vcfcache/__init__.py\n6.0.3 0.24.1\n4933b6c4a8521fb3aa93856701e30b3ac2626d3c47ceb22965a3b0b422e85b44  /home/appuser/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12\n",
+        "stderr": ""
+      }
+    ]
+  }
+}
