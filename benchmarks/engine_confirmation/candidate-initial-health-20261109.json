@@ -1,0 +1,416 @@
+{
+  "checked_unix": 1794254646.291341,
+  "root": "/mnt/data/slurm-results/engine-candidates-20261109-976e8613f",
+  "cases": [
+    {
+      "case": "fastvep-wes-KPGP-00139",
+      "node": "sl-w2",
+      "job_id": "2850",
+      "state": "running",
+      "phase": "r02-rust-native-coalesced-w4-c4",
+      "timed_cells": 7,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-python-windows2",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r01-rust-native-w4-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-w8-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-coalesced-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-direct",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r02-rust-native-w8-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        }
+      ]
+    },
+    {
+      "case": "fastvep-wes-LP6005592-DNA_C05",
+      "node": "sl-w4",
+      "job_id": "2852",
+      "state": "running",
+      "phase": "r02-direct",
+      "timed_cells": 6,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-rust-native-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-w8-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-coalesced-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-direct",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r01-python-windows2",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r01-rust-native-w4-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        }
+      ]
+    },
+    {
+      "case": "fastvep-wgs-KPGP-00139",
+      "node": "sl-w6",
+      "job_id": "2854",
+      "state": "running",
+      "phase": "r01-rust-adaptive",
+      "timed_cells": 2,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-python-auto",
+          "records": 4634658,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r01-python-contigs2",
+          "records": 4634658,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        }
+      ]
+    },
+    {
+      "case": "veprs-wes-KPGP-00139",
+      "node": "sl-w1",
+      "job_id": "2849",
+      "state": "complete",
+      "phase": "untimed_strict_audits",
+      "timed_cells": 18,
+      "audits_passed": 17,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-direct",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r01-python-windows2",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r01-rust-native-w4-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-w8-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-coalesced-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r02-rust-native-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r02-rust-native-w8-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r02-rust-native-coalesced-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r02-direct",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r02-python-windows2",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r02-rust-native-w4-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-rust-native-coalesced-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-direct",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r03-python-windows2",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r03-rust-native-w4-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-rust-native-w4-c4",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-rust-native-w8-c0",
+          "records": 75946,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        }
+      ]
+    },
+    {
+      "case": "veprs-wes-LP6005592-DNA_C05",
+      "node": "sl-w3",
+      "job_id": "2851",
+      "state": "running",
+      "phase": "untimed_strict_audits",
+      "timed_cells": 18,
+      "audits_passed": 13,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-rust-native-w4-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-w8-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-rust-native-coalesced-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r01-direct",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r01-python-windows2",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r02-rust-native-coalesced-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r02-direct",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r02-python-windows2",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r02-rust-native-w4-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r02-rust-native-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r02-rust-native-w8-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-python-windows2",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r03-rust-native-w4-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-rust-native-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-rust-native-w8-c0",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-rust-native-coalesced-w4-c4",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "native"
+        },
+        {
+          "cell": "r03-direct",
+          "records": 108539,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        }
+      ]
+    },
+    {
+      "case": "veprs-wgs-KPGP-00139",
+      "node": "sl-w5",
+      "job_id": "2853",
+      "state": "running",
+      "phase": "r02-rust-adaptive",
+      "timed_cells": 5,
+      "audits_passed": 0,
+      "error": null,
+      "completed_cells": [
+        {
+          "cell": "r01-direct",
+          "records": 4634658,
+          "allowed_cpus": 8,
+          "effective_engine": "legacy"
+        },
+        {
+          "cell": "r01-python-auto",
+          "records": 4634658,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r01-python-contigs2",
+          "records": 4634658,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r01-rust-adaptive",
+          "records": 4634658,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        },
+        {
+          "cell": "r02-python-contigs2",
+          "records": 4634658,
+          "allowed_cpus": 8,
+          "effective_engine": "adaptive"
+        }
+      ]
+    }
+  ],
+  "automatic_review_job": "2855",
+  "full_cohort_submitted": false
+}

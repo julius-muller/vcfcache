@@ -84,6 +84,15 @@ successful six-node preflight, sbatch commands and accepted job IDs.
 Initial observation showed all six blocks running, with no recorded failures;
 this is not yet a claim that their timed results or semantic audits passed.
 
+The subsequent launch health check confirmed the KPGP vep-rs WES block completed
+all **18 timings and 17 strict comparisons**, including every cached candidate.
+The lower-hit vep-rs WES block finished its timings and entered audit. Requested
+native worker/decoder counts, coalescing activation, prepared-input reuse and
+absence of fallback were checked on completed cells. See
+[candidate-initial-health-20261109.json](candidate-initial-health-20261109.json).
+Other blocks were still running; this receipt is not the final performance
+conclusion. Review job 2855 produces the final accepted tables and archive.
+
 ## Execution and later review
 
 Controller paths start `/mnt/data/slurm-results/engine-candidates-20261109-...`;
