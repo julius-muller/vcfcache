@@ -747,7 +747,11 @@ def export(path, rows):
     columns = list(dict.fromkeys(k for row in rows for k in row))
     with path.open("w") as stream:
         writer = csv.DictWriter(
-            stream, fieldnames=columns, delimiter="\t", lineterminator="\n"
+            stream,
+            fieldnames=columns,
+            delimiter="\t",
+            lineterminator="\n",
+            quoting=csv.QUOTE_NONNUMERIC,
         )
         writer.writeheader()
         writer.writerows(rows)
