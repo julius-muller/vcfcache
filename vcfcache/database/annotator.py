@@ -979,6 +979,7 @@ class VCFAnnotator(VCFDatabase):
             "bypassed_shards",
             "cache_access",
             "output_level",
+            "hit_marker",
         ):
             if key in last_stats:
                 stats[key] = last_stats[key]

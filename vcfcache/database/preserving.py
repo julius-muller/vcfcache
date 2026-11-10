@@ -293,12 +293,18 @@ def run(manager, cache=None):
             result = run_recipe(manager, work, command, source, staged)
             check_recipe(manager, work, source, staged, tag, bcftools)
         else:
-            for path in (source, cache):
-                header = subprocess.check_output(
-                    [bcftools, "view", "-h", str(path)], text=True
-                )
+            headers = [
+                subprocess.check_output([bcftools, "view", "-h", str(path)], text=True)
+                for path in (source, cache)
+            ]
+            for path, header in zip((source, cache), headers, strict=True):
                 if f"##INFO=<ID={HIT}," in header:
                     raise ValueError(f"Reserved INFO/{HIT} already exists in {path}")
+            # An input that already declares the tag may carry annotation the
+            # cache did not supply; only then must hits be marked explicitly.
+            # Otherwise an empty tag identifies a miss, which saves the marker
+            # and its removal on every record.
+            marked = f"##INFO=<ID={tag}," in headers[0]
             # A header-only cache gives bypassed shards the same header as
             # every other shard without reading any cache record.
             blank = work / "blank_cache.bcf"
@@ -317,7 +323,8 @@ def run(manager, cache=None):
                 folders.append(folder)
             regions = [""] * len(folders)
             bypassed = [False] * len(folders)
-            selection = f"-i 'INFO/{HIT}!=1 || INFO/{tag}=\"\"'"
+            mark = f"-m +{HIT} " if marked else ""
+            strip = f"-x INFO/{HIT} " if marked else ""
 
             def lookup(number):
                 """Overlay exact cache hits on one shard and select its misses."""
@@ -342,15 +349,23 @@ def run(manager, cache=None):
                 # allele-indexed annotation values.
                 command(
                     f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
-                    f"-i 'N_ALT=1' -k -m +{HIT} -a {quoted(lookup_cache)} "
+                    f"-i 'N_ALT=1' -k {mark}-a {quoted(lookup_cache)} "
                     f"{quoted(source)} -c INFO -o overlay.bcf -Ob1 -W --threads 1",
                     folder,
                 )
-                command(
-                    f"{tool} view --no-version {selection} overlay.bcf -Ou | "
-                    f"{tool} annotate --no-version -x INFO/{HIT} -o misses.bcf -Ob",
-                    folder,
-                )
+                if marked:
+                    command(
+                        f"{tool} view --no-version -i 'INFO/{HIT}!=1 || INFO/{tag}=\"\"' "
+                        f"overlay.bcf -Ou | {tool} annotate --no-version {strip}"
+                        "-o misses.bcf -Ob",
+                        folder,
+                    )
+                else:
+                    command(
+                        f"{tool} view --no-version -i 'INFO/{tag}=\"\"' overlay.bcf "
+                        "-o misses.bcf -Ob --threads 1",
+                        folder,
+                    )
                 return count(bcftools, folder / "overlay.bcf")
 
             manager.logger.info(
@@ -387,17 +402,24 @@ def run(manager, cache=None):
             manager.logger.info("Step 4/4: Overlay annotations; retain every record")
 
             def merge(number):
-                """Add recipe annotations to one shard and drop the marker."""
+                """Add recipe annotations to one shard and drop any marker."""
                 overlay = (
                     f"{regions[number]}--pair-logic exact -a {quoted(annotated)} -c INFO "
                     if missing
                     else ""
                 )
-                command(
-                    f"{tool} annotate --no-version {overlay}-x INFO/{HIT} overlay.bcf "
-                    f"-o final.bcf -Ob{level} --threads 1",
-                    folders[number],
-                )
+                if overlay or strip:
+                    command(
+                        f"{tool} annotate --no-version {overlay}{strip}overlay.bcf "
+                        f"-o final.bcf -Ob{level} --threads 1",
+                        folders[number],
+                    )
+                else:
+                    command(
+                        f"{tool} view --no-version overlay.bcf -o final.bcf "
+                        f"-Ob{level} --threads 1",
+                        folders[number],
+                    )
 
             try:
                 with ThreadPoolExecutor(max_workers=threads) as pool:
@@ -419,6 +441,7 @@ def run(manager, cache=None):
                 "bypassed_shards": sum(bypassed),
                 "cache_access": "windows" if windowed else "contigs",
                 "output_level": level,
+                "hit_marker": marked,
             }
         if count(bcftools, staged) != total:
             raise RuntimeError("Final output record count differs from input")

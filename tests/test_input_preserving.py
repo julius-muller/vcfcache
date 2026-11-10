@@ -372,3 +372,42 @@ def test_cached_run_rejects_changed_recipe_output(tmp_path, inputs):
     with pytest.raises(RuntimeError, match="changed variant identity"):
         run.run("annotate", db_bcf=cache)
     assert run.output_file.read_bytes() == b"previous deliverable"
+
+
+@pytest.mark.parametrize("ratio", [0, 10**9])
+@pytest.mark.parametrize("subset", ["all", "hits"])
+def test_untagged_input_needs_no_hit_marker(
+    tmp_path, unusual, monkeypatch, ratio, subset
+):
+    """An input that never declared the tag cannot hide annotation of its own."""
+    _, cache = unusual
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", ratio)
+    header = "\n".join(
+        line for line in WIDE.splitlines() if "MOCK_ANNO" not in line
+    ).replace("##FORMAT", "##contig=<ID=chrUn,length=1000>\n##FORMAT", 1)
+    keep = [
+        (n, row)
+        for n, row in enumerate(UNUSUAL)
+        if row[4] == "."
+        and (subset == "all" or row[:2] in {("chr1", 10), ("chr2", 10)})
+    ]
+    source = bcf(
+        tmp_path,
+        "untagged",
+        [
+            f"{c}\t{p}\tid{n}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:{n}"
+            for n, (c, p, r, a, _) in keep
+        ],
+        header + "\n",
+    )
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    assert records(cached.output_file) == records(direct.output_file)
+    stats = cached.last_run_stats
+    assert stats["hit_marker"] is False
+    assert stats["missing_variants"] == (len(keep) - 3 if subset == "all" else 0)
+    assert HIT.encode() not in subprocess.check_output(
+        ["bcftools", "view", "-h", str(cached.output_file)]
+    )
