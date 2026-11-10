@@ -202,8 +202,8 @@ def inspect_keys(bcftools, source, bed, windowed):
     return False, rows
 
 
-def run_recipe(manager, work, command, recipe_input, annotated, tag, bcftools):
-    """Run the annotation recipe once and refuse output that altered records."""
+def run_recipe(manager, work, command, recipe_input, annotated):
+    """Run the annotation recipe once; its output is checked by check_recipe."""
     auxiliary = manager.output_dir / "auxiliary"
     auxiliary.mkdir(exist_ok=True)
     recipe = manager._substitute_variables(
@@ -224,6 +224,11 @@ def run_recipe(manager, work, command, recipe_input, annotated, tag, bcftools):
             shutil.copyfile(path, manager.output_dir / output)
     if not any(auxiliary.iterdir()):
         auxiliary.rmdir()
+    return result
+
+
+def check_recipe(manager, work, recipe_input, annotated, tag, bcftools):
+    """Refuse recipe output that lacks the tag or altered any record."""
     try:
         validation_start = time.monotonic()
         manager._validate_info_tag(annotated, tag)
@@ -239,7 +244,6 @@ def run_recipe(manager, work, command, recipe_input, annotated, tag, bcftools):
                     Path(str(annotated) + ".csi"), work / "failed_recipe.bcf.csi"
                 )
         raise
-    return result
 
 
 def run(manager, cache=None):
@@ -286,7 +290,8 @@ def run(manager, cache=None):
         staged = Path(temporary) / "output.bcf"
         if not cache:
             manager.logger.info(f"Annotating {total} unchanged records")
-            result = run_recipe(manager, work, command, source, staged, tag, bcftools)
+            result = run_recipe(manager, work, command, source, staged)
+            check_recipe(manager, work, source, staged, tag, bcftools)
         else:
             for path in (source, cache):
                 header = subprocess.check_output(
@@ -369,10 +374,15 @@ def run(manager, cache=None):
             )
             missing = count(bcftools, recipe_input)
             annotated = work / "recipe.bcf"
+            # The recipe output is checked while the shards are merged; nothing
+            # is published before that check has passed.
+            checker = ThreadPoolExecutor(max_workers=1)
+            checked = None
             if missing:
                 manager.logger.info(f"Step 3/4: Annotating {missing} unchanged records")
-                run_recipe(
-                    manager, work, command, recipe_input, annotated, tag, bcftools
+                run_recipe(manager, work, command, recipe_input, annotated)
+                checked = checker.submit(
+                    check_recipe, manager, work, recipe_input, annotated, tag, bcftools
                 )
             manager.logger.info("Step 4/4: Overlay annotations; retain every record")
 
@@ -389,8 +399,14 @@ def run(manager, cache=None):
                     folders[number],
                 )
 
-            with ThreadPoolExecutor(max_workers=threads) as pool:
-                list(pool.map(merge, range(len(folders))))
+            try:
+                with ThreadPoolExecutor(max_workers=threads) as pool:
+                    list(pool.map(merge, range(len(folders))))
+            finally:
+                # A recipe that altered records explains a failed merge best.
+                checker.shutdown(wait=True)
+                if checked:
+                    checked.result()
             # Gather by BGZF block copy: shards are coordinate-disjoint and in
             # index order, so nothing is decoded or recompressed here.
             parts = " ".join(quoted(folder / "final.bcf") for folder in folders)

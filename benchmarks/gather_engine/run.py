@@ -157,12 +157,13 @@ def cell(deployment, scratch, evidence, name, arm, assay, cache, source, binary)
     command += ["-a", str(cache), "-i", str(source), "-o", str(output)]
     command += ["-y", str(params), "--statistics", "light", "--stats-dir", str(stats)]
     command += ["--preserve-unannotated", "-v"]
-    if arm == "plain":
-        command += ["--engine", "legacy", "--uncached"]
-    elif arm == "direct":
+    if arm == "direct":
         command += ["--uncached"]
-    elif arm == "pilot":
-        command += ["--engine", "adaptive"]
+    elif arm in {"plain", "pilot"}:
+        # The trusted-input switch also keeps the reference deployment's
+        # uncached path from normalizing: `plain` is the recipe and nothing else.
+        command += ["--engine", "legacy", "--uncached"] if arm == "plain" else []
+        command += ["--engine", "adaptive"] if arm == "pilot" else []
         sparse = assay != "wgs"
         environment.update(
             VCFCACHE_PILOT_REGION_MODE="off",

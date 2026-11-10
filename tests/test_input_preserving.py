@@ -361,3 +361,14 @@ def test_shards_keep_index_order_and_respect_the_limit():
     # Small contigs share a shard, so shards carry comparable record counts.
     assert preserving.plan_shards(occupied, 99)[1] == [("chr2", 100), ("chr3", 100)]
     assert preserving.plan_shards([], 8) == []
+
+
+def test_cached_run_rejects_changed_recipe_output(tmp_path, inputs):
+    """The recipe check runs beside the merge, yet nothing may be published."""
+    source, cache = inputs
+    recipe = "${params.bcftools_cmd} annotate --set-id CHANGED ${INPUT_BCF} -Ob -o ${OUTPUT_BCF} -W"
+    run = manager(tmp_path / "run", source, recipe=recipe)
+    run.output_file.write_bytes(b"previous deliverable")
+    with pytest.raises(RuntimeError, match="changed variant identity"):
+        run.run("annotate", db_bcf=cache)
+    assert run.output_file.read_bytes() == b"previous deliverable"
