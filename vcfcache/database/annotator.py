@@ -832,6 +832,7 @@ class VCFAnnotator(VCFDatabase):
         convert_parquet: bool = False,
         preserve_unannotated: bool = True,
         md5_all: bool = False,
+        output_level: int = 1,
     ) -> None:
         """Run annotation workflow on input VCF file.
 
@@ -840,6 +841,7 @@ class VCFAnnotator(VCFDatabase):
             convert_parquet: Whether to convert output to Parquet format
             preserve_unannotated: Deprecated no-op; all input records are retained
             md5_all: Compute full MD5 of all variants (no header) and store in stats
+            output_level: BGZF compression level of cached output (0-9)
 
         Returns:
             Path to output file (BCF or Parquet)
@@ -857,6 +859,7 @@ class VCFAnnotator(VCFDatabase):
         try:
             if not uncached:
                 self._log_contig_overlap()
+            self.nx_workflow.output_level = output_level
 
             # Run the workflow in database mode
             self.nx_workflow.run(
@@ -969,7 +972,14 @@ class VCFAnnotator(VCFDatabase):
         }
 
         last_stats = getattr(self.nx_workflow, "last_run_stats", {}) or {}
-        for key in ("input_preprocessing", "cache_matching", "region_mode"):
+        for key in (
+            "input_preprocessing",
+            "cache_matching",
+            "shards",
+            "bypassed_shards",
+            "cache_access",
+            "output_level",
+        ):
             if key in last_stats:
                 stats[key] = last_stats[key]
         stats["variant_counts"]["dropped_variants"] = last_stats.get("dropped_variants")

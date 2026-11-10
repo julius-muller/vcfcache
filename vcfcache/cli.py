@@ -722,6 +722,19 @@ def main() -> None:
         help="(optional) Skip cache, annotate all variants directly. For benchmarking only (default: False)",
     )
     vcf_parser.add_argument(
+        "--output-compression-level",
+        dest="output_level",
+        type=int,
+        choices=range(10),
+        default=1,
+        metavar="0-9",
+        help=(
+            "(optional) BGZF compression level of cached output (default: 1, fastest). "
+            "Higher levels give smaller files and slower runs. With --uncached the "
+            "annotation recipe sets the level."
+        ),
+    )
+    vcf_parser.add_argument(
         "--preserve-unannotated",
         action="store_true",
         default=False,
@@ -1230,6 +1243,7 @@ def main() -> None:
                 convert_parquet=args.parquet,
                 preserve_unannotated=preserve_unannotated,
                 md5_all=args.md5_all,
+                output_level=args.output_level,
             )
 
             # Show detailed timing if --debug is enabled
