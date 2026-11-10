@@ -78,7 +78,7 @@ def plan(root, deployment, commit, smoke):
             assay=task["assay"],
             sample=task["sample"],
             input=task["input"],
-            bed=task.get("preprocess", {}).get("bed", {}).get("path"),
+            bed=((task.get("preprocess") or {}).get("bed") or {}).get("path"),
             cache=task["cache"]["directory"],
             parameters=task["parameters"],
             environment=task["environment"],
