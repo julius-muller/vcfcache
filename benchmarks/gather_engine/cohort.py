@@ -271,7 +271,9 @@ def submit(root, deployment, commit, units, after=None, **extra):
     )
 
 
-def retry(old, root, deployment, commit, repeatability, only=None, overrides=None):
+def retry(
+    old, root, deployment, commit, repeatability, only=None, overrides=None, rerun=None
+):
     """Rerun failed cells of a finished cohort, plus plain-repeat controls.
 
     Each failed cell is rerun unchanged in a new unit. For every tool/assay
@@ -282,11 +284,11 @@ def retry(old, root, deployment, commit, repeatability, only=None, overrides=Non
     units = []
     for definition in data["units"]:
         path = Path(head(old), "units", definition["id"], "state.json")
-        state = json.loads(path.read_text()) if path.exists() else None
-        if state is None:
-            continue
-        failed = {f["group"] for f in state["failures"]}
-        cells = [c for c in definition["cells"] if group_name(c) in failed]
+        state = json.loads(path.read_text()) if path.exists() else dict(audits=[])
+        # Every cell without a completed comparison: failed, cut short or never
+        # started.
+        done = {group_name(a) for a in state["audits"]}
+        cells = [c for c in definition["cells"] if group_name(c) not in done]
         if only and only not in definition["id"]:
             continue
         # "tool,level:parameter=value" replaces one recipe parameter, for both
@@ -300,7 +302,19 @@ def retry(old, root, deployment, commit, repeatability, only=None, overrides=Non
                     c["parameters"] = dict(c["parameters"], **{name: value})
                     c.setdefault("overrides", {})[name] = value
         if cells:
-            units.append(dict(id="R-" + definition["id"], tier="A", cells=cells))
+            units.append(
+                dict(id="R-" + definition["id"], tier=definition["tier"], cells=cells)
+            )
+    for kind in rerun or []:
+        # "tool,level,assembly,assay": every cell of that kind again, unchanged.
+        tool, level, assembly, assay = kind.split(",")
+        units += [
+            dict(id=f"X-{tool}-{assay}-{c['sample']}", tier="A", cells=[c])
+            for u in data["units"]
+            for c in u["cells"]
+            if (c["tool"], c["level"], c["assembly"], c["assay"])
+            == (tool, level, assembly, assay)
+        ]
     for spec in repeatability or []:
         kind, count = spec.rsplit(":", 1)
         tool, level, assembly, assay = kind.split(",")
@@ -329,6 +343,91 @@ def record_digest(path):
     if process.wait():
         raise RuntimeError(f"Cannot read {path}")
     return digest
+
+
+def loci(path):
+    """Yield (CHROM, POS) and the record lines of each locus, in file order."""
+    process = subprocess.Popen(
+        [BCFTOOLS, "view", "-H", "--threads", "4", str(path)], stdout=subprocess.PIPE
+    )
+    assert process.stdout is not None
+    key, lines = None, []
+    with process.stdout:
+        for line in process.stdout:
+            first = line.find(b"\t")
+            current = line[: line.find(b"\t", first + 1)]
+            if current != key:
+                if lines:
+                    yield key, lines
+                key, lines = current, []
+            lines.append(line)
+    if lines:
+        yield key, lines
+    if process.wait():
+        raise RuntimeError(f"Cannot read {path}")
+
+
+def canonical(line, unordered):
+    """One record with INFO tags and annotation entries in sorted order.
+
+    With ``unordered`` the ``&``-joined values inside every ``|`` field are
+    sorted too: annotators emit some of these lists (protein domains, existing
+    variant identifiers) in an order that varies between identical runs.
+    """
+    columns = line.rstrip(b"\n").split(b"\t")
+    tags = []
+    for tag in columns[7].split(b";"):
+        name, _, value = tag.partition(b"=")
+        entries = value.split(b",")
+        if unordered:
+            entries = [
+                b"|".join(b"&".join(sorted(f.split(b"&"))) for f in e.split(b"|"))
+                for e in entries
+            ]
+        tags.append(name + b"=" + b",".join(sorted(entries)))
+    return (*columns[:7], tuple(sorted(tags)), *columns[8:])
+
+
+def mismatch_report(candidate, reference, destination, limit=500):
+    """Classify records that differ and keep them in full for later review.
+
+    Returns the number of loci whose records differ after sorting INFO tags
+    and annotation entries, and the number that still differ once ``&``-joined
+    value lists are compared as sets.
+    """
+    import gzip
+
+    ordered = unordered = kept = 0
+    with gzip.open(destination, "wt") as stream:
+        for (key_a, a), (key_b, b) in zip(
+            loci(candidate), loci(reference), strict=True
+        ):
+            if key_a != key_b:
+                return dict(report_error="locus sequence differs")
+            if sorted(a) == sorted(b):
+                continue
+            strict = sorted(canonical(x, False) for x in a) != sorted(
+                canonical(x, False) for x in b
+            )
+            loose = sorted(canonical(x, True) for x in a) != sorted(
+                canonical(x, True) for x in b
+            )
+            ordered += strict
+            unordered += loose
+            if strict and kept < limit:
+                kept += 1
+                stream.write(
+                    json.dumps(
+                        dict(
+                            locus=key_a.decode(),
+                            differs_as_sets=loose,
+                            candidate=[x.decode() for x in a],
+                            reference=[x.decode() for x in b],
+                        )
+                    )
+                    + "\n"
+                )
+    return dict(report_loci=ordered, report_loci_as_sets=unordered)
 
 
 def timed(deployment, scratch, evidence, name, arm, cell, source):
@@ -542,6 +641,13 @@ def unit(root, identifier):
                 comparison = strict_semantic_compare(candidate, outputs[("plain", 1)])
                 write_json_atomic(evidence / f"{group}-against_plain.json", comparison)
                 digest = record_digest(candidate)
+                report = {}
+                if not comparison.get("semantic_pass"):
+                    report = mismatch_report(
+                        candidate,
+                        outputs[("plain", 1)],
+                        evidence / f"{group}-mismatches.jsonl.gz",
+                    )
                 state["audits"].append(
                     dict(
                         tool=cell["tool"],
@@ -551,6 +657,7 @@ def unit(root, identifier):
                         sample=cell["sample"],
                         semantic_pass=comparison.get("semantic_pass"),
                         mismatches=comparison.get("record_mismatches"),
+                        **report,
                         records_equal_plain=digest
                         == record_digest(outputs[("plain", 1)]),
                         other_runs_identical=all(
@@ -730,6 +837,7 @@ def main():
     parser.add_argument("--repeatability", nargs="*")
     parser.add_argument("--only")
     parser.add_argument("--override", nargs="*")
+    parser.add_argument("--rerun", nargs="*")
     args = parser.parse_args()
     if args.action == "plan":
         plan(args.root, args.deployment, args.commit, args.smoke, args.after)
@@ -744,6 +852,7 @@ def main():
             args.repeatability,
             args.only,
             args.override,
+            args.rerun,
         )
     elif args.action == "gate":
         gate(Path(head(args.root)) if not args.root.exists() else args.root)
