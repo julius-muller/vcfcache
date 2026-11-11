@@ -271,7 +271,7 @@ def submit(root, deployment, commit, units, after=None, **extra):
     )
 
 
-def retry(old, root, deployment, commit, repeatability):
+def retry(old, root, deployment, commit, repeatability, only=None, overrides=None):
     """Rerun failed cells of a finished cohort, plus plain-repeat controls.
 
     Each failed cell is rerun unchanged in a new unit. For every tool/assay
@@ -287,6 +287,18 @@ def retry(old, root, deployment, commit, repeatability):
             continue
         failed = {f["group"] for f in state["failures"]}
         cells = [c for c in definition["cells"] if group_name(c) in failed]
+        if only and only not in definition["id"]:
+            continue
+        # "tool,level:parameter=value" replaces one recipe parameter, for both
+        # the plain and the cached arm of the retried cells.
+        for spec in overrides or []:
+            kind, assignment = spec.split(":", 1)
+            name, value = assignment.split("=", 1)
+            for c in cells:
+                if f"{c['tool']},{c['level']}" == kind:
+                    assert name in c["parameters"], name
+                    c["parameters"] = dict(c["parameters"], **{name: value})
+                    c.setdefault("overrides", {})[name] = value
         if cells:
             units.append(dict(id="R-" + definition["id"], tier="A", cells=cells))
     for spec in repeatability or []:
@@ -716,6 +728,8 @@ def main():
     parser.add_argument("--after")
     parser.add_argument("--retry-of", type=Path)
     parser.add_argument("--repeatability", nargs="*")
+    parser.add_argument("--only")
+    parser.add_argument("--override", nargs="*")
     args = parser.parse_args()
     if args.action == "plan":
         plan(args.root, args.deployment, args.commit, args.smoke, args.after)
@@ -723,7 +737,13 @@ def main():
         unit(args.root, args.unit)
     elif args.action == "retry":
         retry(
-            args.retry_of, args.root, args.deployment, args.commit, args.repeatability
+            args.retry_of,
+            args.root,
+            args.deployment,
+            args.commit,
+            args.repeatability,
+            args.only,
+            args.override,
         )
     elif args.action == "gate":
         gate(Path(head(args.root)) if not args.root.exists() else args.root)
