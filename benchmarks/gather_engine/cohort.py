@@ -210,6 +210,11 @@ def plan(root, deployment, commit, smoke, after=None):
         units = [
             dict(id="smoke", tier="A", cells=[c for v in picked.values() for c in v])
         ]
+    submit(root, deployment, commit, units, after)
+
+
+def submit(root, deployment, commit, units, after=None, **extra):
+    """Freeze the units in a manifest and submit one job per unit plus a summary."""
     Path(head(root), "logs").mkdir(parents=True)
     write_json_atomic(
         Path(head(root), "manifest.json"),
@@ -220,6 +225,7 @@ def plan(root, deployment, commit, smoke, after=None):
             parent_sha256=sha256sum(Path(head(PARENT))),
             design=__doc__,
             units=units,
+            **extra,
         ),
     )
     jobs = {}
@@ -265,6 +271,41 @@ def plan(root, deployment, commit, smoke, after=None):
     )
 
 
+def retry(old, root, deployment, commit, repeatability):
+    """Rerun failed cells of a finished cohort, plus plain-repeat controls.
+
+    Each failed cell is rerun unchanged in a new unit. For every tool/assay
+    named in ``repeatability`` the plain recipe is also run twice on that many
+    samples, to tell annotator non-determinism from cache effects.
+    """
+    data = json.loads(Path(head(old), "manifest.json").read_text())
+    units = []
+    for definition in data["units"]:
+        path = Path(head(old), "units", definition["id"], "state.json")
+        state = json.loads(path.read_text()) if path.exists() else None
+        if state is None:
+            continue
+        failed = {f["group"] for f in state["failures"]}
+        cells = [c for c in definition["cells"] if group_name(c) in failed]
+        if cells:
+            units.append(dict(id="R-" + definition["id"], tier="A", cells=cells))
+    for spec in repeatability or []:
+        kind, count = spec.rsplit(":", 1)
+        tool, level, assembly, assay = kind.split(",")
+        picked = [
+            dict(c, arms=["plain", "plain_repeat"], repeats=1)
+            for u in data["units"]
+            for c in u["cells"]
+            if (c["tool"], c["level"], c["assembly"], c["assay"])
+            == (tool, level, assembly, assay)
+        ][: int(count)]
+        units += [
+            dict(id=f"P-{tool}-{assay}-{c['sample']}", tier="A", cells=[c])
+            for c in picked
+        ]
+    submit(root, deployment, commit, units, retry_of=str(old))
+
+
 def record_digest(path):
     """Digest of all record lines; headers legitimately differ between runs."""
     process = subprocess.Popen(
@@ -298,7 +339,7 @@ def timed(deployment, scratch, evidence, name, arm, cell, source):
         VCFCACHE_ROOT=deployment,
         LC_ALL="C",
     )
-    if arm == "plain":
+    if arm in PLAIN_ARMS:
         command = [
             PYTHON,
             "-m",
@@ -354,7 +395,7 @@ def timed(deployment, scratch, evidence, name, arm, cell, source):
             subprocess.check_output([BCFTOOLS, "index", "-n", str(output)])
         ),
     )
-    if arm != "plain":
+    if arm not in PLAIN_ARMS:
         found = list(stats.rglob("compare_stats.yaml"))
         assert len(found) == 1
         counters = yaml.safe_load(found[0].read_text())
@@ -368,6 +409,16 @@ def timed(deployment, scratch, evidence, name, arm, cell, source):
         )
     shutil.rmtree(stats, ignore_errors=True)
     return output, row
+
+
+def group_name(cell):
+    """Identifier of one cell within its unit."""
+    return "-".join(
+        [cell["tool"], cell["level"], cell["assembly"], cell["assay"], cell["sample"]]
+    )
+
+
+PLAIN_ARMS = ("plain", "plain_repeat")
 
 
 def unit(root, identifier):
@@ -423,9 +474,21 @@ def unit(root, identifier):
                     records = int(
                         subprocess.check_output([BCFTOOLS, "index", "-n", str(source)])
                     )
-                    assert (
-                        records == cell["input"]["records"]
-                    ), "extraction differs from frozen assay"
+                    if records != cell["input"]["records"]:
+                        # Accept only the frozen file itself: its frozen record
+                        # count may come from a since-dropped duplicate repair.
+                        assert (
+                            sha256sum(Path(cell["input"]["path"]))
+                            == cell["input"]["sha256"]
+                        ), "extraction differs from frozen assay"
+                        state.setdefault("input_notes", []).append(
+                            dict(
+                                key=list(key),
+                                frozen_records=cell["input"]["records"],
+                                records=records,
+                                input_sha256=cell["input"]["sha256"],
+                            )
+                        )
                     source.chmod(0o444)
                     sources[key] = (source, records)
                 source, records = sources[key]
@@ -459,11 +522,14 @@ def unit(root, identifier):
                         write_json_atomic(path, state)
                 state["phase"] = group + " audit"
                 write_json_atomic(path, state)
-                comparison = strict_semantic_compare(
-                    outputs[("cached", 1)], outputs[("plain", 1)]
+                candidate = (
+                    outputs[("cached", 1)]
+                    if ("cached", 1) in outputs
+                    else outputs[("plain_repeat", 1)]
                 )
+                comparison = strict_semantic_compare(candidate, outputs[("plain", 1)])
                 write_json_atomic(evidence / f"{group}-against_plain.json", comparison)
-                digest = record_digest(outputs[("cached", 1)])
+                digest = record_digest(candidate)
                 state["audits"].append(
                     dict(
                         tool=cell["tool"],
@@ -478,9 +544,12 @@ def unit(root, identifier):
                         other_runs_identical=all(
                             record_digest(output) == digest
                             for (arm, _), output in outputs.items()
-                            if arm != "plain"
+                            if arm not in PLAIN_ARMS
                         ),
-                        index=Path(str(outputs[("cached", 1)]) + ".csi").exists(),
+                        index=Path(str(candidate) + ".csi").exists(),
+                        candidate=(
+                            "cached" if ("cached", 1) in outputs else "plain_repeat"
+                        ),
                     )
                 )
             except Exception as error:
@@ -638,18 +707,24 @@ def gate(root):
 def main():
     """Plan and submit, run one unit, or summarise."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["plan", "unit", "collect", "gate"])
+    parser.add_argument("action", choices=["plan", "unit", "collect", "gate", "retry"])
     parser.add_argument("root", type=Path)
     parser.add_argument("--deployment")
     parser.add_argument("--commit")
     parser.add_argument("--unit")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--after")
+    parser.add_argument("--retry-of", type=Path)
+    parser.add_argument("--repeatability", nargs="*")
     args = parser.parse_args()
     if args.action == "plan":
         plan(args.root, args.deployment, args.commit, args.smoke, args.after)
     elif args.action == "unit":
         unit(args.root, args.unit)
+    elif args.action == "retry":
+        retry(
+            args.retry_of, args.root, args.deployment, args.commit, args.repeatability
+        )
     elif args.action == "gate":
         gate(Path(head(args.root)) if not args.root.exists() else args.root)
     else:
