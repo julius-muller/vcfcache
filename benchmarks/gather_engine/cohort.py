@@ -7,6 +7,10 @@ eight-CPU step at a time. System bcftools, no wrappers, no engine switches.
     plain      the recipe alone (benchmarks/gather_engine/plain.py)
     cached     vcfcache annotate at the recipe's own output compression level
     cached_l1  vcfcache annotate at its default level 1 (fast groups only)
+    exome      WES only: the same cache restricted to the exome capture BED
+
+Tool versions: Ensembl VEP 116.3, fastVEP 0.5.0, vep-rs 0.5.0, snpEff as in
+the parent manifest.
 
 Tier A: all twelve samples of every group whose plain run is short.
 Tier B: four samples of the three WGS groups whose plain run takes hours.
@@ -57,14 +61,68 @@ GROUPS = [
 LONG = 3000
 TIER_B_SAMPLES = 4
 ASSAY_ORDER = ["panel", "wes", "wgs"]
+VEP116 = (
+    "apptainer exec -B /mnt/data:/mnt/data /mnt/data/apps/ensembl-vep/116/vep.sif vep"
+)
+FASTVEP_OLD = "/mnt/data/apps/fastvep/0.3.0-publication"
+FASTVEP = "/mnt/data/apps/fastvep/0.5.0"
+EXOME_CACHES = "/results/exome-caches"
+EXOME_BEDS = dict(
+    GRCh38="/results/richness/regions/twist_human_core_exome_hg38.chr1-22-X.pad125.merged.bed",
+    GRCh37="/results/richness/regions/twist_human_core_exome_hg19.chr1-22-X.pad125.merged_GRCh37.bed",
+)
+
+
+def upgraded(cell):
+    """Point a parent-manifest cell at the current tool release and its cache."""
+    tool, level, assembly = cell["tool"], cell["level"], cell["assembly"]
+    if tool == "vep":
+        cell["cache"] = (
+            f"/results/vep116/caches/gnomad_v4.1_{assembly}_joint_af001"
+            "/cache/vep116.3_everything"
+        )
+        cell["parameters"] = dict(
+            cell["parameters"],
+            annotation_tool_cmd=VEP116,
+            tool_version_command=VEP116 + " | awk '/ensembl-vep/ {print $NF}'",
+            vep_cache="/mnt/data/apps/ensembl-vep/116/cachedir",
+        )
+    elif tool == "fastvep":
+        name = f"fastvep050_{level}_{assembly.lower()}_af001"
+        cell["cache"] = f"/results/fastvep05/caches/{name}/cache/{name}"
+        cell["parameters"] = {
+            key: (
+                value.replace(FASTVEP_OLD, FASTVEP) if isinstance(value, str) else value
+            )
+            for key, value in cell["parameters"].items()
+        }
+        assert FASTVEP_OLD not in json.dumps(cell["parameters"])
+    elif tool == "veprs":
+        name = f"veprs05_{level}"
+        cell.update(
+            cache=f"/results/veprs05/caches/{name}/cache/{name}",
+            parameters=VEPRS_PARAMETERS,
+            environment={},
+            expected=(
+                dict(core=60, clinical=800)[level] if cell["assay"] == "wgs" else 60
+            ),
+        )
+    if cell["assay"] == "wes":
+        name = Path(cell["cache"]).name + "_twist"
+        cell["exome_cache"] = f"{EXOME_CACHES}/{name}/cache/{name}"
+        cell["exome_bed"] = cell["bed"] or EXOME_BEDS[assembly]
+    return cell
 
 
 def head(path):
-    """Controller spelling of a worker-visible shared path."""
+    """Controller spelling of a worker-visible shared path; unchanged on workers."""
+    # Workers mount the share at /results; only the controller lacks it.
+    if Path("/results").is_dir():
+        return str(path)
     return str(path).replace("/results/", "/mnt/data/slurm-results/", 1)
 
 
-def plan(root, deployment, commit, smoke):
+def plan(root, deployment, commit, smoke, after=None):
     """Freeze the design and submit every unit plus a final summary job."""
     parent = json.loads(Path(head(PARENT)).read_text())
     cells = []
@@ -84,18 +142,7 @@ def plan(root, deployment, commit, smoke):
             environment=task["environment"],
             expected=task["baseline"]["direct_seconds"],
         )
-        if task["tool"] == "veprs":
-            name = f"veprs05_{task['level']}"
-            cell.update(
-                cache=f"/results/veprs05/caches/{name}/cache/{name}",
-                parameters=VEPRS_PARAMETERS,
-                environment={},
-                expected=(
-                    dict(core=60, clinical=800)[task["level"]]
-                    if task["assay"] == "wgs"
-                    else 60
-                ),
-            )
+        upgraded(cell)
         recipe = yaml.safe_load(
             Path(head(cell["cache"]), "annotation.yaml").read_text()
         )
@@ -108,6 +155,11 @@ def plan(root, deployment, commit, smoke):
         cell["arms"] = ["plain", "cached"]
         if cell["recipe_level"] != 1 and cell["expected"] < 1000:
             cell["arms"].append("cached_l1")
+        if "exome_cache" in cell:
+            cell["exome_sha256"] = sha256sum(
+                Path(head(cell["exome_cache"]), "vcfcache_annotated.bcf.csi")
+            )
+            cell["arms"].append("exome")
         cells.append(cell)
     units = []
     short = [c for c in cells if c["expected"] < LONG]
@@ -143,13 +195,17 @@ def plan(root, deployment, commit, smoke):
                 )
             )
     if smoke:
-        # Panel cells of one sample per assembly: every tool and recipe once.
+        # One sample per assembly: every panel cell (each tool and recipe
+        # once) and the short WES cells, which also exercise the exome caches.
         picked = {}
         for candidate in units:
             assembly = candidate["id"].split("-")[1]
             if candidate["tier"] == "A" and assembly not in picked:
                 picked[assembly] = [
-                    c for c in candidate["cells"] if c["assay"] == "panel"
+                    c
+                    for c in candidate["cells"]
+                    if c["assay"] == "panel"
+                    or (c["assay"] == "wes" and c["expected"] < 120)
                 ]
         units = [
             dict(id="smoke", tier="A", cells=[c for v in picked.values() for c in v])
@@ -174,6 +230,8 @@ def plan(root, deployment, commit, smoke):
         command += ["--nodes=1", "--ntasks=1", "--cpus-per-task=8", "--mem=28000M"]
         command += ["--time=" + ("08:00:00" if unit["tier"] == "B" else "05:00:00")]
         command += ["--chdir=/tmp", f"--nice={order}", "--job-name=" + unit["id"][:40]]
+        if after:
+            command.append("--dependency=afterok:" + after)
         command += [f"--output={root}/logs/{unit['id']}-%j.out"]
         command += [
             "--wrap",
@@ -252,8 +310,9 @@ def timed(deployment, scratch, evidence, name, arm, cell, source):
         command += ["--params", str(params), "--work", str(stats)]
     else:
         level = 1 if arm == "cached_l1" else cell["recipe_level"]
+        cache = cell["exome_cache"] if arm == "exome" else cell["cache"]
         command = [PYTHON, "-c", "from vcfcache.cli import main; main()", "annotate"]
-        command += ["-a", cell["cache"], "-i", str(source), "-o", str(output)]
+        command += ["-a", cache, "-i", str(source), "-o", str(output)]
         command += [
             "-y",
             str(params),
@@ -482,12 +541,14 @@ def collect(root):
         "Same-node plain control for every sample; eight CPUs; system bcftools.",
         "Speedup is the median over samples of plain / cached (per-sample means",
         "over repeats). `cached` writes the recipe's compression level,",
-        "`level 1` is the vcfcache default. Strict comparisons are untimed.",
+        "`level 1` is the vcfcache default. `Exome cache` (WES only) uses the",
+        "same cache restricted to the capture BED. Strict comparisons are untimed;",
+        "`Lines equal` also requires every cached run, exome included, to match.",
         "",
         f"Units: {count}. Failures: {len(failures)}.",
         "",
-        "| Tool | Recipe | Assembly | Assay | Samples | Plain s | Cached s | Speedup | Range | Faster | Level 1 | Strict pass | Lines equal |",
-        "|---|---|---|---|---:|---:|---:|---:|---|---:|---:|---:|---:|",
+        "| Tool | Recipe | Assembly | Assay | Samples | Plain s | Cached s | Speedup | Range | Faster | Level 1 | Exome cache | Strict pass | Lines equal |",
+        "|---|---|---|---|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|",
     ]
     kinds = sorted(
         {
@@ -501,7 +562,7 @@ def collect(root):
         own = [
             r for r in rows if (r["tool"], r["level"], r["assembly"], r["assay"]) == key
         ]
-        ratios, fast, plain, cached = [], [], [], []
+        ratios, fast, plain, cached, exome = [], [], [], [], []
         for sample in sorted({r["sample"] for r in own}):
             mean = {
                 arm: statistics.mean(
@@ -517,6 +578,8 @@ def collect(root):
                 cached.append(mean["cached"])
             if "plain" in mean and "cached_l1" in mean:
                 fast.append(mean["plain"] / mean["cached_l1"])
+            if "plain" in mean and "exome" in mean:
+                exome.append(mean["plain"] / mean["exome"])
         checked = [
             a
             for a in audits
@@ -530,6 +593,8 @@ def collect(root):
             f"{statistics.median(ratios):.2f}x | {min(ratios):.2f}-{max(ratios):.2f}x | "
             f"{sum(r > 1 for r in ratios)}/{len(ratios)} | "
             + (f"{statistics.median(fast):.2f}x" if fast else "-")
+            + " | "
+            + (f"{statistics.median(exome):.2f}x" if exome else "-")
             + f" | {sum(bool(a['semantic_pass']) for a in checked)}/{len(checked)} | "
             f"{sum(bool(a['records_equal_plain']) for a in checked)}/{len(checked)} |"
         )
@@ -542,20 +607,51 @@ def collect(root):
     print("\n".join(report))
 
 
+def gate(root):
+    """Fail unless every unit finished without failures and every audit passed."""
+    data = json.loads((root / "manifest.json").read_text())
+    problems = []
+    for definition in data["units"]:
+        path = root / "units" / definition["id"] / "state.json"
+        state = json.loads(path.read_text()) if path.exists() else dict(state="missing")
+        if state["state"] != "complete":
+            problems.append(f"{definition['id']}: {state['state']}")
+            continue
+        expected = sum(1 for _ in definition["cells"])
+        problems += [f"{f['group']}: {f['error'][:200]}" for f in state["failures"]]
+        problems += [
+            f"{a['tool']} {a['level']} {a['assembly']} {a['assay']}: comparison failed"
+            for a in state["audits"]
+            if not (a["semantic_pass"] and a["other_runs_identical"] and a["index"])
+        ]
+        if len(state["audits"]) != expected:
+            problems.append(
+                f"{definition['id']}: {len(state['audits'])}/{expected} audits"
+            )
+    collect(root)
+    if problems:
+        print("GATE FAILED\n" + "\n".join(problems))
+        raise SystemExit(1)
+    print("GATE PASSED")
+
+
 def main():
     """Plan and submit, run one unit, or summarise."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["plan", "unit", "collect"])
+    parser.add_argument("action", choices=["plan", "unit", "collect", "gate"])
     parser.add_argument("root", type=Path)
     parser.add_argument("--deployment")
     parser.add_argument("--commit")
     parser.add_argument("--unit")
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--after")
     args = parser.parse_args()
     if args.action == "plan":
-        plan(args.root, args.deployment, args.commit, args.smoke)
+        plan(args.root, args.deployment, args.commit, args.smoke, args.after)
     elif args.action == "unit":
         unit(args.root, args.unit)
+    elif args.action == "gate":
+        gate(Path(head(args.root)) if not args.root.exists() else args.root)
     else:
         collect(Path(head(args.root)) if not args.root.exists() else args.root)
 
