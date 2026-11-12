@@ -29,8 +29,13 @@ WINDOW = 16384
 # Window lookups pay per-window index seeks; they win once the cache holds far
 # more records than the input (measured: wins at 250x, loses at 4x).
 WINDOW_RATIO = 20
-# Upper bound on shards; contigs are grouped into shards of comparable size.
-SHARDS_PER_THREAD = 4
+# The input is cut into SHARDS_PER_THREAD * threads shards of equal record
+# count, regardless of contig boundaries; more shards than cores lets the pool
+# absorb uneven cache density. Small inputs use fewer, larger shards.
+SHARDS_PER_THREAD = 2
+MIN_SHARD = 5000
+# Every SAMPLE-th record's position is kept to place the cuts.
+SAMPLE = 1024
 UNBOUNDED = 2**31 - 1
 CHUNK = 1 << 24
 IDENTITY = "%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%FORMAT\n"
@@ -108,30 +113,8 @@ def index_stats(bcftools, path):
     return occupied
 
 
-def plan_shards(occupied, limit):
-    """Group contigs, in index order, into shards of comparable record count.
-
-    Every shard is a contiguous run of contigs, so the shard outputs
-    concatenate into a correctly sorted file without decoding any record.
-    """
-    if not occupied:
-        return []
-    number = min(max(1, limit), len(occupied))
-    target = sum(records for _, _, records in occupied) / number
-    shards, current, load = [], [], 0
-    for index, (contig, length, records) in enumerate(occupied):
-        current.append((contig, length))
-        load += records
-        if load >= target and index < len(occupied) - 1 and len(shards) + 1 < number:
-            shards.append(current)
-            current, load = [], 0
-    if current:
-        shards.append(current)
-    return shards
-
-
-def inspect_keys(bcftools, source, bed, windowed):
-    r"""Find positions holding duplicate variant keys and, optionally, windows.
+def scan_contig(bcftools, source, contig, windowed):
+    """Read one contig's variant keys once, at C speed.
 
     bcftools pairs records one-to-one: of two identical input keys only the
     first would take a cached annotation, and the recipe result of the second
@@ -140,16 +123,16 @@ def inspect_keys(bcftools, source, bed, windowed):
     Keys compare without case, as bcftools compares alleles.
 
     Returns:
-        (duplicates, rows): "CHROM\tPOS" lines of positions with duplicate
-        keys in file order, and merged BED windows or None unless windowed.
+        dict with the record count, (index, POS) of every SAMPLE-th record,
+        positions holding duplicate keys, and occupied windows when windowed.
     """
-    blocks: dict = {}
-    order = []
+    samples = []
     duplicates: dict = {}
+    blocks: set = set()
+    seen = 0
     with tempfile.TemporaryFile() as errors:
         process = subprocess.Popen(
-            [bcftools, "query", "-f", KEY, "-R", str(bed), "--regions-overlap", "0"]
-            + [str(source)],
+            [bcftools, "query", "-f", KEY, "-r", contig, str(source)],
             stdout=subprocess.PIPE,
             stderr=errors,
         )
@@ -157,21 +140,20 @@ def inspect_keys(bcftools, source, bed, windowed):
         tail = b""
 
         def scan(lines):
-            """Record duplicate positions and windows of whole loci."""
+            """Count, sample, and record duplicates and windows of whole loci."""
+            nonlocal seen
+            for j in range((-seen) % SAMPLE, len(lines), SAMPLE):
+                samples.append((seen + j, int(lines[j].split(b"\t", 2)[1])))
+            seen += len(lines)
             keys = [line.upper() for line in lines]
             if len(set(keys)) != len(keys):
-                seen = Counter(keys)
+                counts = Counter(keys)
                 for key, line in zip(keys, lines, strict=True):
-                    # Position from the original line: contig names keep case.
-                    if seen[key] > 1:
-                        duplicates[b"\t".join(line.split(b"\t", 2)[:2])] = None
+                    if counts[key] > 1:
+                        duplicates[int(line.split(b"\t", 2)[1])] = None
             if windowed:
                 for line in lines:
-                    contig, position = line.split(b"\t", 2)[:2]
-                    if contig not in blocks:
-                        blocks[contig] = set()
-                        order.append(contig)
-                    blocks[contig].add((int(position) - 1) // WINDOW)
+                    blocks.add((int(line.split(b"\t", 2)[1]) - 1) // WINDOW)
 
         with process.stdout:
             while chunk := process.stdout.read(CHUNK):
@@ -194,23 +176,99 @@ def inspect_keys(bcftools, source, bed, windowed):
             errors.seek(0)
             raise RuntimeError(errors.read().decode(errors="replace"))
     # Insertion order is file order, so the positions are already sorted.
-    found = [key.decode() for key in duplicates]
-    if not windowed:
-        return found, None
-    rows = []
+    return dict(
+        records=seen,
+        samples=samples,
+        duplicates=list(duplicates),
+        blocks=blocks if windowed else None,
+    )
+
+
+def plan_ranges(order, scans, parts):
+    """Cut the input into about equal record counts, between positions.
+
+    A cut falls before a sampled record's POS, so records sharing a position
+    always stay in one shard. Shards may span contigs; bcftools reads regions
+    in the order they are listed, which here is file order.
+
+    Returns:
+        Shards, each a list of (contig, first POS, last POS) in file order.
+    """
+    total = sum(scans[c]["records"] for c in order)
+    if not total:
+        return []
+    parts = max(1, min(parts, total))
+    cuts = set()
+    offset = 0
+    targets = [round(k * total / parts) for k in range(1, parts)]
     for contig in order:
+        records = scans[contig]["records"]
+        for target in targets:
+            if offset <= target < offset + records:
+                local = target - offset
+                chosen = None
+                for index, position in scans[contig]["samples"]:
+                    if index > local:
+                        break
+                    chosen = (index, position)
+                if chosen is None or chosen[0] == 0:
+                    cuts.add((contig, 1))
+                else:
+                    cuts.add((contig, chosen[1]))
+        offset += records
+    shards: list = [[]]
+    for contig in order:
+        starts = sorted(p for c, p in cuts if c == contig)
+        if starts and starts[0] == 1 and shards[-1]:
+            shards.append([])
+        bounds = [p for p in starts if p > 1]
+        first = 1
+        for position in bounds:
+            shards[-1].append((contig, first, position - 1))
+            shards.append([])
+            first = position
+        shards[-1].append((contig, first, UNBOUNDED))
+    return [shard for shard in shards if shard]
+
+
+def shard_rows(shard, scans):
+    """BED rows of one shard: whole ranges, or its windows clipped to them."""
+    rows = []
+    for contig, first, last in shard:
+        blocks = scans[contig]["blocks"]
+        if blocks is None:
+            rows.append(f"{contig}\t{first - 1}\t{last}")
+            continue
         previous = None
-        for block in sorted(blocks[contig]):
-            start, end = block * WINDOW, (block + 1) * WINDOW
-            if previous and start == previous[1]:
-                previous[1] = end
+        for block in sorted(blocks):
+            start = max(block * WINDOW, first - 1)
+            end = min((block + 1) * WINDOW, last)
+            if start >= end:
+                continue
+            if previous and start <= previous[1]:
+                previous[1] = max(previous[1], end)
                 continue
             if previous:
-                rows.append(f"{contig.decode()}\t{previous[0]}\t{previous[1]}")
+                rows.append(f"{contig}\t{previous[0]}\t{previous[1]}")
             previous = [start, end]
         if previous:
-            rows.append(f"{contig.decode()}\t{previous[0]}\t{previous[1]}")
-    return found, rows
+            rows.append(f"{contig}\t{previous[0]}\t{previous[1]}")
+    return rows
+
+
+def shard_duplicates(shard, scans):
+    """Return CHROM-tab-POS lines of the duplicate positions in one shard."""
+    return [
+        f"{contig}\t{position}"
+        for contig, first, last in shard
+        for position in scans[contig]["duplicates"]
+        if first <= position <= last
+    ]
+
+
+def contig_order(bcftools, source):
+    """Occupied contigs in the order the output must follow."""
+    return [contig for contig, _, _ in index_stats(bcftools, source)]
 
 
 def run_recipe(manager, work, command, recipe_input, annotated):
@@ -316,18 +374,40 @@ def run(manager, cache=None):
             # Otherwise an empty tag identifies a miss, which saves the marker
             # and its removal on every record.
             marked = f"##INFO=<ID={tag}," in headers[0]
-            shards = plan_shards(
-                index_stats(bcftools, source), SHARDS_PER_THREAD * threads
-            )
             windowed = bool(total) and count(bcftools, cache) > WINDOW_RATIO * total
+            # One parallel pass over the input's keys places equal-record cuts
+            # and finds duplicate positions and, for small inputs, windows.
+            order = contig_order(bcftools, source)
+            scan_start = time.monotonic()
+            with ThreadPoolExecutor(max_workers=threads) as pool:
+                scans = dict(
+                    zip(
+                        order,
+                        pool.map(
+                            lambda c: scan_contig(bcftools, source, c, windowed),
+                            order,
+                        ),
+                        strict=True,
+                    )
+                )
+            if sum(s["records"] for s in scans.values()) != total:
+                raise RuntimeError("Key scan read a different number of records")
+            parts = min(SHARDS_PER_THREAD * threads, -(-total // MIN_SHARD))
+            shards = plan_ranges(order, scans, parts)
+            manager.logger.info(
+                f"Key scan of {len(order)} contig(s) and planning of {len(shards)} "
+                f"shard(s) completed in {time.monotonic() - scan_start:.3f}s"
+            )
             folders = []
             for number in range(max(1, len(shards))):
                 folder = work / f"shard-{number}"
                 folder.mkdir(exist_ok=True)
                 folders.append(folder)
             regions = [""] * len(folders)
-            # Positions with duplicate keys, per shard; see inspect_keys.
-            duplicates: list = [[] for _ in folders]
+            # Positions with duplicate keys, per shard; see scan_contig.
+            duplicates: list = [shard_duplicates(shard, scans) for shard in shards] or [
+                []
+            ]
             mark = f"-m +{HIT} " if marked else ""
             strip = f"-x INFO/{HIT} " if marked else ""
 
@@ -335,16 +415,9 @@ def run(manager, cache=None):
                 """Overlay exact cache hits on one shard and select its misses."""
                 folder = folders[number]
                 if shards:
-                    bed = folder / "contigs.bed"
-                    bed.write_text(
-                        "".join(f"{c}\t0\t{length}\n" for c, length in shards[number])
-                    )
-                    duplicates[number], rows = inspect_keys(
-                        bcftools, source, bed, windowed
-                    )
-                    if rows:
-                        bed = folder / "windows.bed"
-                        bed.write_text("".join(f"{row}\n" for row in rows))
+                    bed = folder / "regions.bed"
+                    rows = shard_rows(shards[number], scans)
+                    bed.write_text("".join(f"{row}\n" for row in rows))
                     regions[number] = f"-R {quoted(bed)} --regions-overlap 0 "
                 # Exact compares allele SETS, not ALT order. Route every
                 # multiallelic record to the recipe rather than reusing

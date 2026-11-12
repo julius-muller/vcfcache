@@ -295,13 +295,18 @@ def unusual(tmp_path):
 
 
 @pytest.mark.parametrize("ratio", [0, 10**9])
-@pytest.mark.parametrize("per_thread", [4, 1])
+@pytest.mark.parametrize("per_thread", [None, 1, 8])
 def test_unusual_input_equals_direct_annotation(
     tmp_path, unusual, monkeypatch, ratio, per_thread
 ):
+    """Identical records whether the input is one shard or cut everywhere."""
     source, cache = unusual
     monkeypatch.setattr(preserving, "WINDOW_RATIO", ratio)
-    monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", per_thread)
+    if per_thread:
+        # Cut at every sampled record, inside contigs and next to duplicates.
+        monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+        monkeypatch.setattr(preserving, "SAMPLE", 1)
+        monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", per_thread)
     direct = manager(tmp_path / "direct", source)
     direct.run("annotate-nocache")
     cached = manager(tmp_path / "cached", source)
@@ -309,31 +314,30 @@ def test_unusual_input_equals_direct_annotation(
     assert records(cached.output_file) == records(direct.output_file)
     assert identity("bcftools", source) == identity("bcftools", cached.output_file)
     stats = cached.last_run_stats
-    assert stats["shards"] == (4 if per_thread == 4 else 2)
+    # 17 records at 15 distinct positions: with a cut tried at every record,
+    # the two duplicated positions each stay in one shard.
+    assert stats["shards"] == {None: 1, 1: 2, 8: 15}[per_thread]
     assert stats["duplicate_sites"] == 2
-    if per_thread == 4:
-        # Hits: chr1:10, chr1:45, chr2:10, the lower-case chr2:20 and chr3:90,
-        # which shares its contig with duplicates but not their position.
-        assert stats["missing_variants"] == len(UNUSUAL) - 5
+    # Hits: chr1:10, chr1:45, chr2:10, the lower-case chr2:20 and chr3:90,
+    # which shares its contig with duplicates but not their position.
+    assert stats["missing_variants"] == len(UNUSUAL) - 5
     assert (cached.output_file.parent / "result.bcf.csi").exists()
 
 
-def test_duplicates_are_found_across_read_chunks(tmp_path, unusual, monkeypatch):
+def test_key_scan_is_the_same_for_every_read_size(unusual, monkeypatch):
     source, _ = unusual
-    bed = tmp_path / "all.bed"
-    bed.write_text("".join(f"{c}\t0\t1000\n" for c in ("chr1", "chr2", "chr3")))
-    clean = tmp_path / "clean.bed"
-    clean.write_text("chr1\t0\t1000\nchr2\t0\t1000\n")
+    monkeypatch.setattr(preserving, "SAMPLE", 2)
     for size in (1 << 24, 16, 1):
         monkeypatch.setattr(preserving, "CHUNK", size)
-        assert preserving.inspect_keys("bcftools", source, bed, False) == (
-            ["chr3\t60", "chr3\t80"],
-            None,
+        chr3 = preserving.scan_contig("bcftools", source, "chr3", False)
+        assert chr3 == dict(
+            records=5,
+            samples=[(0, 60), (2, 80), (4, 90)],
+            duplicates=[60, 80],
+            blocks=None,
         )
-        assert preserving.inspect_keys("bcftools", source, clean, True) == (
-            [],
-            ["chr1\t0\t16384", "chr2\t0\t16384"],
-        )
+        chr1 = preserving.scan_contig("bcftools", source, "chr1", True)
+        assert (chr1["records"], chr1["duplicates"], chr1["blocks"]) == (6, [], {0})
 
 
 @pytest.mark.parametrize("level", [0, 1, 9])
@@ -357,15 +361,59 @@ def test_invalid_output_level_is_rejected(tmp_path, inputs):
         run.run("annotate", db_bcf=cache)
 
 
-def test_shards_keep_index_order_and_respect_the_limit():
-    occupied = [("chr1", 100, 50), ("chr2", 100, 5), ("chr3", 100, 40), ("chrX", 9, 5)]
-    for limit in (1, 2, 3, 4, 99):
-        shards = preserving.plan_shards(occupied, limit)
-        assert len(shards) <= min(limit, len(occupied))
-        assert [c for shard in shards for c, _ in shard] == [c for c, _, _ in occupied]
-    # Small contigs share a shard, so shards carry comparable record counts.
-    assert preserving.plan_shards(occupied, 99)[1] == [("chr2", 100), ("chr3", 100)]
-    assert preserving.plan_shards([], 8) == []
+def scans_of(**contigs):
+    """Synthetic scans: one sample per record at the given positions."""
+    return {
+        c: dict(
+            records=len(p),
+            samples=list(enumerate(p)),
+            duplicates=[],
+            blocks=None,
+        )
+        for c, p in contigs.items()
+    }
+
+
+def test_shards_have_equal_records_and_cut_only_between_positions():
+    U = preserving.UNBOUNDED
+    scans = scans_of(chr1=[10, 20, 20, 20, 30, 40], chr2=[5, 6], chr3=[7, 8, 9, 10])
+    order = ["chr1", "chr2", "chr3"]
+    assert preserving.plan_ranges(order, scans, 1) == [
+        [("chr1", 1, U), ("chr2", 1, U), ("chr3", 1, U)]
+    ]
+    # Twelve records in three parts; the middle shard spans chr1 and chr2.
+    assert preserving.plan_ranges(order, scans, 3) == [
+        [("chr1", 1, 29)],
+        [("chr1", 30, U), ("chr2", 1, U)],
+        [("chr3", 1, U)],
+    ]
+    # A cut that would fall inside the group at chr1:20 moves before it.
+    assert preserving.plan_ranges(["chr1"], scans, 2) == [
+        [("chr1", 1, 19)],
+        [("chr1", 20, U)],
+    ]
+    shards = preserving.plan_ranges(order, scans, 12)
+    covered = [(c, a, b) for shard in shards for c, a, b in shard]
+    assert [c for c, _, _ in covered] == sorted(
+        [c for c, _, _ in covered], key=order.index
+    )
+    # Every position, the group at chr1:20 included, falls in exactly one range.
+    for contig, positions in (("chr1", scans["chr1"]["samples"]),):
+        for _, position in positions:
+            assert sum(c == contig and a <= position <= b for c, a, b in covered) == 1
+    assert preserving.plan_ranges(["chr1"], scans_of(chr1=[]), 4) == []
+
+
+def test_windows_are_clipped_to_shard_ranges():
+    scans = {
+        "chr1": dict(records=3, samples=[], duplicates=[16380, 16390], blocks={0, 1})
+    }
+    first = [("chr1", 1, 16384)]
+    second = [("chr1", 16385, preserving.UNBOUNDED)]
+    assert preserving.shard_rows(first, scans) == ["chr1\t0\t16384"]
+    assert preserving.shard_rows(second, scans) == ["chr1\t16384\t32768"]
+    assert preserving.shard_duplicates(first, scans) == ["chr1\t16380"]
+    assert preserving.shard_duplicates(second, scans) == ["chr1\t16390"]
 
 
 def test_cached_run_rejects_changed_recipe_output(tmp_path, inputs):
@@ -431,15 +479,23 @@ PER_RECORD = r"""${params.bcftools_cmd} view ${INPUT_BCF} -Ov | awk -F '\t' -v O
 """
 
 
+@pytest.mark.parametrize("cuts", [False, True])
 @pytest.mark.parametrize("declared", [True, False])
 @pytest.mark.parametrize("skip", ["none", "f", "h"])
-def test_duplicate_positions_never_keep_cached_values(tmp_path, declared, skip):
+def test_duplicate_positions_never_keep_cached_values(
+    tmp_path, monkeypatch, declared, skip, cuts
+):
     """Every record at a duplicate position gets its own recipe result.
 
     The cache holds WRONG for each duplicated key; the recipe writes a value
     derived from each record's ID and, with ``skip``, writes nothing for one
-    record that the cache would otherwise have answered.
+    record that the cache would otherwise have answered. With ``cuts`` a shard
+    boundary is attempted at every record.
     """
+    if cuts:
+        monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+        monkeypatch.setattr(preserving, "SAMPLE", 1)
+        monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 8)
     header = (
         HEADER
         if declared
