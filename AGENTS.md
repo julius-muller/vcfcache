@@ -23,6 +23,10 @@
 ## Docs
 - `WIKI.md` is canonical for alias/manifest schema, Zenodo pull/push, Docker usage, cache layout. README mirrors high-level usage.
 
+## Known annotator issues (do not investigate)
+- Ensembl VEP reports `HGNC_ID` inconsistently for a few genes: the field is filled or empty for the same variant depending on which other variants are in the run. This is a known upstream bug (https://github.com/Ensembl/ensembl-vep/issues/1959), still present in 116.3; a fix exists but is unmerged (https://github.com/Ensembl/ensembl-vep/pull/2056).
+- Cached-versus-direct comparisons for VEP therefore show a handful of `HGNC_ID`-only differences (seen for FGF7P3, GUSBP5, PRAMENP, NMRAL2P, LINC03025). Ignore them: they are not a vcfcache defect and need no further analysis. Report them as this known VEP bug.
+
 ## Git workflow
 - After completing and verifying requested repository changes, commit them and push the current branch unless the user explicitly asks not to.
 - Author commits as `Julius Müller <julius.mueller@dkfz-heidelberg.de>` rather than with the VM's default `ubuntu` identity.
