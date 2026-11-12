@@ -216,6 +216,8 @@ def plan(root, deployment, commit, smoke, after=None):
 def submit(root, deployment, commit, units, after=None, **extra):
     """Freeze the units in a manifest and submit one job per unit plus a summary."""
     Path(head(root), "logs").mkdir(parents=True)
+    # Created here, once: units starting together would race to create it.
+    Path(head(root), "units").mkdir()
     write_json_atomic(
         Path(head(root), "manifest.json"),
         dict(
