@@ -30,7 +30,8 @@ wait
 gzip -t clinvar.vcf.gz variant_summary.txt.gz rmsk.txt.gz
 [ "$(md5sum clinvar.vcf.gz | cut -d' ' -f1)" = "$(cut -d' ' -f1 clinvar.vcf.gz.md5)" ]
 [ "$(md5sum GCF_000001405.40.gz | cut -d' ' -f1)" = "$(cut -d' ' -f1 GCF_000001405.40.gz.md5)" ]
-zcat clinvar.vcf.gz | grep -m1 -q '^##INFO=<ID=AF_EXAC'
+# Header only: grep -q closing the pipe early would fail under pipefail.
+bcftools view -h clinvar.vcf.gz | grep '^##INFO=<ID=AF_EXAC' > /dev/null
 unzip -tq revel-v1.3_all_chromosomes.zip
 sha256sum * > SHA256SUMS
 touch DOWNLOADED; log "downloads complete"
