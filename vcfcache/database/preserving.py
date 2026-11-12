@@ -19,7 +19,6 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -37,7 +36,6 @@ MIN_SHARD = 5000
 # Every SAMPLE-th record's position is kept to place the cuts.
 SAMPLE = 1024
 UNBOUNDED = 2**31 - 1
-CHUNK = 1 << 24
 IDENTITY = "%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%FORMAT\n"
 
 
@@ -113,73 +111,64 @@ def index_stats(bcftools, path):
     return occupied
 
 
+# One awk process per contig does the per-record work at C speed and in
+# parallel; Python only reads its few result lines. Within a locus, a key seen
+# twice marks the position. Keys compare without case, as bcftools compares
+# alleles.
+SCAN = r"""
+{
+  if ($2 != locus) { delete seen; locus = $2 }
+  key = toupper($3 "\t" $4)
+  if ((key in seen) && !(locus in dup)) { dup[locus] = 1; print "D\t" locus }
+  seen[key] = 1
+  if ((NR - 1) % sample == 0) print "S\t" (NR - 1) "\t" $2
+  if (windowed) { b = int(($2 - 1) / window); if (!(b in block)) { block[b] = 1; print "B\t" b } }
+}
+END { print "N\t" NR }
+"""
+
+
 def scan_contig(bcftools, source, contig, windowed):
-    """Read one contig's variant keys once, at C speed.
+    """Read one contig's variant keys once.
 
     bcftools pairs records one-to-one: of two identical input keys only the
     first would take a cached annotation, and the recipe result of the second
     would later be paired with the first. Every record at such a position is
     therefore annotated by the recipe; all other records still use the cache.
-    Keys compare without case, as bcftools compares alleles.
 
     Returns:
         dict with the record count, (index, POS) of every SAMPLE-th record,
         positions holding duplicate keys, and occupied windows when windowed.
     """
-    samples = []
-    duplicates: dict = {}
-    blocks: set = set()
-    seen = 0
-    with tempfile.TemporaryFile() as errors:
-        process = subprocess.Popen(
-            [bcftools, "query", "-f", KEY, "-r", contig, str(source)],
-            stdout=subprocess.PIPE,
-            stderr=errors,
-        )
-        assert process.stdout is not None
-        tail = b""
-
-        def scan(lines):
-            """Count, sample, and record duplicates and windows of whole loci."""
-            nonlocal seen
-            for j in range((-seen) % SAMPLE, len(lines), SAMPLE):
-                samples.append((seen + j, int(lines[j].split(b"\t", 2)[1])))
-            seen += len(lines)
-            keys = [line.upper() for line in lines]
-            if len(set(keys)) != len(keys):
-                counts = Counter(keys)
-                for key, line in zip(keys, lines, strict=True):
-                    if counts[key] > 1:
-                        duplicates[int(line.split(b"\t", 2)[1])] = None
-            if windowed:
-                for line in lines:
-                    blocks.add((int(line.split(b"\t", 2)[1]) - 1) // WINDOW)
-
-        with process.stdout:
-            while chunk := process.stdout.read(CHUNK):
-                data = tail + chunk
-                cut = data.rfind(b"\n")
-                if cut < 0:
-                    tail = data
-                    continue
-                lines = data[:cut].split(b"\n")
-                # Keys of the last locus may continue in the next chunk.
-                locus = b"\t".join(lines[-1].split(b"\t", 2)[:2]) + b"\t"
-                keep = len(lines)
-                while keep and lines[keep - 1].startswith(locus):
-                    keep -= 1
-                scan(lines[:keep])
-                tail = b"".join(line + b"\n" for line in lines[keep:]) + data[cut + 1 :]
-        if tail.strip():
-            scan(tail.rstrip(b"\n").split(b"\n"))
-        if process.wait():
-            errors.seek(0)
-            raise RuntimeError(errors.read().decode(errors="replace"))
-    # Insertion order is file order, so the positions are already sorted.
+    query = shlex.join([bcftools, "query", "-f", KEY, "-r", contig, str(source)])
+    awk = shlex.join(
+        ["awk", "-F", "\t", "-v", f"sample={SAMPLE}", "-v", f"window={WINDOW}"]
+        + ["-v", f"windowed={int(windowed)}", SCAN]
+    )
+    result = subprocess.run(
+        ["bash", "-c", f"set -o pipefail; {query} | {awk}"],
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode:
+        raise RuntimeError(result.stderr.decode(errors="replace"))
+    samples, duplicates, blocks, records = [], [], set(), None
+    for line in result.stdout.split(b"\n"):
+        fields = line.split(b"\t")
+        if fields[0] == b"S":
+            samples.append((int(fields[1]), int(fields[2])))
+        elif fields[0] == b"D":
+            duplicates.append(int(fields[1]))
+        elif fields[0] == b"B":
+            blocks.add(int(fields[1]))
+        elif fields[0] == b"N":
+            records = int(fields[1])
+    if records is None:
+        raise RuntimeError(f"Key scan of {contig} in {source} returned no count")
     return dict(
-        records=seen,
+        records=records,
         samples=samples,
-        duplicates=list(duplicates),
+        duplicates=duplicates,
         blocks=blocks if windowed else None,
     )
 

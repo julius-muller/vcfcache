@@ -324,20 +324,20 @@ def test_unusual_input_equals_direct_annotation(
     assert (cached.output_file.parent / "result.bcf.csi").exists()
 
 
-def test_key_scan_is_the_same_for_every_read_size(unusual, monkeypatch):
+def test_key_scan_finds_duplicates_samples_and_windows(unusual, monkeypatch):
     source, _ = unusual
     monkeypatch.setattr(preserving, "SAMPLE", 2)
-    for size in (1 << 24, 16, 1):
-        monkeypatch.setattr(preserving, "CHUNK", size)
-        chr3 = preserving.scan_contig("bcftools", source, "chr3", False)
-        assert chr3 == dict(
-            records=5,
-            samples=[(0, 60), (2, 80), (4, 90)],
-            duplicates=[60, 80],
-            blocks=None,
-        )
-        chr1 = preserving.scan_contig("bcftools", source, "chr1", True)
-        assert (chr1["records"], chr1["duplicates"], chr1["blocks"]) == (6, [], {0})
+    chr3 = preserving.scan_contig("bcftools", source, "chr3", False)
+    assert chr3 == dict(
+        records=5,
+        samples=[(0, 60), (2, 80), (4, 90)],
+        duplicates=[60, 80],
+        blocks=None,
+    )
+    chr1 = preserving.scan_contig("bcftools", source, "chr1", True)
+    assert (chr1["records"], chr1["duplicates"], chr1["blocks"]) == (6, [], {0})
+    # chr2:20 holds a lower-case key; no other key there, so no duplicate.
+    assert preserving.scan_contig("bcftools", source, "chr2", False)["duplicates"] == []
 
 
 @pytest.mark.parametrize("level", [0, 1, 9])
