@@ -272,7 +272,15 @@ def submit(root, deployment, commit, units, after=None, **extra):
 
 
 def retry(
-    old, root, deployment, commit, repeatability, only=None, overrides=None, rerun=None
+    old,
+    root,
+    deployment,
+    commit,
+    repeatability,
+    only=None,
+    overrides=None,
+    rerun=None,
+    repeat_override=None,
 ):
     """Rerun failed cells of a finished cohort, plus plain-repeat controls.
 
@@ -319,7 +327,18 @@ def retry(
         kind, count = spec.rsplit(":", 1)
         tool, level, assembly, assay = kind.split(",")
         picked = [
-            dict(c, arms=["plain", "plain_repeat"], repeats=1)
+            dict(
+                c,
+                arms=["plain", "plain_repeat"],
+                repeats=1,
+                # "name=value" recipe parameters changed for the repeat only,
+                # e.g. a different buffer size, to expose annotator output
+                # that depends on which other records share a batch.
+                repeat_parameters={
+                    k: int(v) if v.isdigit() else v
+                    for k, v in (x.split("=", 1) for x in repeat_override or [])
+                },
+            )
             for u in data["units"]
             for c in u["cells"]
             if (c["tool"], c["level"], c["assembly"], c["assay"])
@@ -440,7 +459,12 @@ def timed(deployment, scratch, evidence, name, arm, cell, source):
     (scratch / "tmp").mkdir(exist_ok=True)
     params.write_text(
         yaml.safe_dump(
-            dict(cell["parameters"], threads=8, temp_dir=str(scratch / "tmp"))
+            dict(
+                cell["parameters"],
+                **(cell.get("repeat_parameters", {}) if arm == "plain_repeat" else {}),
+                threads=8,
+                temp_dir=str(scratch / "tmp"),
+            )
         )
     )
     environment = dict(
@@ -838,6 +862,7 @@ def main():
     parser.add_argument("--only")
     parser.add_argument("--override", nargs="*")
     parser.add_argument("--rerun", nargs="*")
+    parser.add_argument("--repeat-override", nargs="*")
     args = parser.parse_args()
     if args.action == "plan":
         plan(args.root, args.deployment, args.commit, args.smoke, args.after)
@@ -853,6 +878,7 @@ def main():
             args.only,
             args.override,
             args.rerun,
+            args.repeat_override,
         )
     elif args.action == "gate":
         gate(Path(head(args.root)) if not args.root.exists() else args.root)
