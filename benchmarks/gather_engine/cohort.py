@@ -283,6 +283,7 @@ def retry(
     overrides=None,
     rerun=None,
     repeat_override=None,
+    samples=None,
 ):
     """Rerun failed cells of a finished cohort, plus plain-repeat controls.
 
@@ -319,11 +320,16 @@ def retry(
         # "tool,level,assembly,assay": every cell of that kind again, unchanged.
         tool, level, assembly, assay = kind.split(",")
         units += [
-            dict(id=f"X-{tool}-{assay}-{c['sample']}", tier="A", cells=[c])
+            dict(
+                id=f"X-{tool}-{level}-{assembly}-{assay}-{c['sample']}",
+                tier="B" if c["expected"] >= LONG else "A",
+                cells=[c],
+            )
             for u in data["units"]
             for c in u["cells"]
             if (c["tool"], c["level"], c["assembly"], c["assay"])
             == (tool, level, assembly, assay)
+            and (not samples or c["sample"] in samples)
         ]
     for spec in repeatability or []:
         kind, count = spec.rsplit(":", 1)
@@ -539,7 +545,8 @@ def timed(deployment, scratch, evidence, name, arm, cell, source):
         row.update(
             missing=counters["variant_counts"].get("missing_variants"),
             shards=counters.get("shards"),
-            bypassed_shards=counters.get("bypassed_shards"),
+            duplicate_sites=counters.get("duplicate_sites"),
+            duplicate_clean_base=counters.get("duplicate_clean_base"),
             cache_access=counters.get("cache_access"),
             hit_marker=counters.get("hit_marker"),
             output_level=counters.get("output_level"),
@@ -865,6 +872,7 @@ def main():
     parser.add_argument("--override", nargs="*")
     parser.add_argument("--rerun", nargs="*")
     parser.add_argument("--repeat-override", nargs="*")
+    parser.add_argument("--samples", nargs="*")
     args = parser.parse_args()
     if args.action == "plan":
         plan(args.root, args.deployment, args.commit, args.smoke, args.after)
@@ -881,6 +889,7 @@ def main():
             args.override,
             args.rerun,
             args.repeat_override,
+            args.samples,
         )
     elif args.action == "gate":
         gate(Path(head(args.root)) if not args.root.exists() else args.root)

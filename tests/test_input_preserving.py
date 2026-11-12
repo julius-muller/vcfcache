@@ -136,7 +136,7 @@ def test_empty_inputs_and_empty_cache(tmp_path, inputs, empty):
     assert run.last_run_stats["output_variants"] == (0 if empty == "input" else 7)
 
 
-def test_duplicate_keys_bypass_the_cache_and_equal_direct(tmp_path, inputs):
+def test_duplicate_keys_go_to_the_recipe_and_equal_direct(tmp_path, inputs):
     _, cache = inputs
     source = bcf(tmp_path, "duplicates", ROWS)
     direct = manager(tmp_path / "direct", source)
@@ -146,8 +146,9 @@ def test_duplicate_keys_bypass_the_cache_and_equal_direct(tmp_path, inputs):
     assert identity("bcftools", source) == identity("bcftools", run.output_file)
     assert records(run.output_file) == records(direct.output_file)
     assert run.last_run_stats["output_variants"] == 8
-    assert run.last_run_stats["bypassed_shards"] == 1
-    assert run.last_run_stats["missing_variants"] == 8
+    assert run.last_run_stats["duplicate_sites"] == 1
+    # The hit at chr1:10 still uses the cache; both copies at chr1:60 do not.
+    assert run.last_run_stats["missing_variants"] == 7
 
 
 def test_all_hits_skip_recipe(tmp_path, inputs):
@@ -309,10 +310,11 @@ def test_unusual_input_equals_direct_annotation(
     assert identity("bcftools", source) == identity("bcftools", cached.output_file)
     stats = cached.last_run_stats
     assert stats["shards"] == (4 if per_thread == 4 else 2)
-    assert stats["bypassed_shards"] == 1
+    assert stats["duplicate_sites"] == 2
     if per_thread == 4:
-        # Hits: chr1:10, chr1:45, chr2:10 and the lower-case chr2:20 only.
-        assert stats["missing_variants"] == len(UNUSUAL) - 4
+        # Hits: chr1:10, chr1:45, chr2:10, the lower-case chr2:20 and chr3:90,
+        # which shares its contig with duplicates but not their position.
+        assert stats["missing_variants"] == len(UNUSUAL) - 5
     assert (cached.output_file.parent / "result.bcf.csi").exists()
 
 
@@ -324,9 +326,12 @@ def test_duplicates_are_found_across_read_chunks(tmp_path, unusual, monkeypatch)
     clean.write_text("chr1\t0\t1000\nchr2\t0\t1000\n")
     for size in (1 << 24, 16, 1):
         monkeypatch.setattr(preserving, "CHUNK", size)
-        assert preserving.inspect_keys("bcftools", source, bed, False) == (True, None)
+        assert preserving.inspect_keys("bcftools", source, bed, False) == (
+            ["chr3\t60", "chr3\t80"],
+            None,
+        )
         assert preserving.inspect_keys("bcftools", source, clean, True) == (
-            False,
+            [],
             ["chr1\t0\t16384", "chr2\t0\t16384"],
         )
 
@@ -407,7 +412,90 @@ def test_untagged_input_needs_no_hit_marker(
     assert records(cached.output_file) == records(direct.output_file)
     stats = cached.last_run_stats
     assert stats["hit_marker"] is False
-    assert stats["missing_variants"] == (len(keep) - 3 if subset == "all" else 0)
+    assert stats["missing_variants"] == (len(keep) - 4 if subset == "all" else 0)
     assert HIT.encode() not in subprocess.check_output(
         ["bcftools", "view", "-h", str(cached.output_file)]
     )
+
+
+# Annotation that differs per record (from its ID), so a value paired with the
+# wrong copy of a duplicated key, or a cached value left in place, is visible.
+PER_RECORD = r"""${params.bcftools_cmd} view ${INPUT_BCF} -Ov | awk -F '\t' -v OFS='\t' '
+  BEGIN { while ((getline id < "skip.txt") > 0) skip[id] = 1 }
+  /^##INFO=<ID=MOCK_ANNO,/ { declared = 1 }
+  /^#CHROM/ && !declared {
+    print "##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description=\"Test annotation\">" }
+  /^#/ { print; next }
+  { if (!($3 in skip)) $8 = ($8 == "." ? "" : $8 ";") "MOCK_ANNO=v_" $3; print }
+' | ${params.bcftools_cmd} view -Ob -o ${OUTPUT_BCF} -W
+"""
+
+
+@pytest.mark.parametrize("declared", [True, False])
+@pytest.mark.parametrize("skip", ["none", "f", "h"])
+def test_duplicate_positions_never_keep_cached_values(tmp_path, declared, skip):
+    """Every record at a duplicate position gets its own recipe result.
+
+    The cache holds WRONG for each duplicated key; the recipe writes a value
+    derived from each record's ID and, with ``skip``, writes nothing for one
+    record that the cache would otherwise have answered.
+    """
+    header = (
+        HEADER
+        if declared
+        else HEADER.replace(
+            '##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description="Test annotation">\n',
+            "",
+        )
+    )
+    rows = [
+        ("chr1", 10, "a", "A", "C"),
+        ("chr1", 60, "f", "A", "C"),
+        ("chr1", 60, "g", "A", "C"),
+        ("chr1", 60, "h", "A", "G"),
+        ("chr1", 70, "x", "A", "T"),
+        ("chr1", 70, "y", "A", "T"),
+        ("chr1", 80, "z", "G", "T"),
+    ]
+    source = bcf(
+        tmp_path,
+        "dups",
+        [
+            f"{c}\t{p}\t{i}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:9"
+            for c, p, i, r, a in rows
+        ],
+        header,
+    )
+    cache = bcf(
+        tmp_path,
+        "dup_cache",
+        [
+            "chr1\t60\t.\tA\tC\t.\t.\tMOCK_ANNO=WRONG",
+            "chr1\t60\t.\tA\tG\t.\t.\tMOCK_ANNO=WRONG",
+            "chr1\t70\t.\tA\tT\t.\t.\tMOCK_ANNO=WRONG",
+        ],
+        SITES.replace("chr2", "chrA").replace("chr3", "chrB"),
+    )
+    runs = {}
+    for name, step in (("direct", "annotate-nocache"), ("cached", "annotate")):
+        run = manager(tmp_path / name, source, recipe=PER_RECORD)
+        (run.output_dir / "work" / "annotate").mkdir(parents=True)
+        (run.output_dir / "work" / "annotate-nocache").mkdir(parents=True)
+        for folder in ("annotate", "annotate-nocache"):
+            (run.output_dir / "work" / folder / "skip.txt").write_text(
+                ("" if skip == "none" else skip) + "\n"
+            )
+        run.run(step, db_bcf=cache)
+        runs[name] = run
+    cached, direct = (records(runs[n].output_file) for n in ("cached", "direct"))
+    # bcftools annotate may reorder records that share a position (a known,
+    # documented property); content and the order of positions must match.
+    assert sorted(cached.splitlines()) == sorted(direct.splitlines())
+    assert [line.split(b"\t")[:2] for line in cached.splitlines()] == [
+        line.split(b"\t")[:2] for line in direct.splitlines()
+    ]
+    assert b"WRONG" not in cached
+    stats = runs["cached"].last_run_stats
+    assert stats["duplicate_sites"] == 2
+    # f and h sit at a duplicate position and would hold a cached WRONG.
+    assert stats["duplicate_clean_base"] == (skip in ("f", "h"))

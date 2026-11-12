@@ -203,7 +203,7 @@ def cell(deployment, scratch, evidence, name, arm, assay, cache, source, binary)
         output_records=counters["variant_counts"]["total_output"],
         missing=counters["variant_counts"].get("missing_variants"),
         shards=counters.get("shards"),
-        bypassed_shards=counters.get("bypassed_shards"),
+        duplicate_sites=counters.get("duplicate_sites"),
         cache_access=counters.get("cache_access"),
     )
 
@@ -323,7 +323,7 @@ def collect(root):
         "Speedup is plain / arm. `plain` is the recipe alone, `direct` is",
         "--uncached on this branch, `pilot` is the trusted-input pilot engine.",
         "",
-        "| Node | Sample | Recipe | Input | Plain s | Direct | Pilot | Cached s | Cached | Misses | Shards (bypassed) | Access | Equal to plain | Repeat identical |",
+        "| Node | Sample | Recipe | Input | Plain s | Direct | Pilot | Cached s | Cached | Misses | Shards (duplicate sites) | Access | Equal to plain | Repeat identical |",
         "|---|---|---|---|---:|---:|---:|---:|---:|---:|---|---|---|---|",
     ]
     failures = []
@@ -348,7 +348,7 @@ def collect(root):
                 f"| {state['node']} | {state['sample']} | {recipe} | {assay} | "
                 f"{mean['plain']:.1f} | {ratio(mean, 'direct')} | {ratio(mean, 'pilot')} | "
                 f"{mean['cached']:.1f} | {ratio(mean, 'cached')} | {last['missing']} | "
-                f"{last['shards']} ({last['bypassed_shards']}) | {last['cache_access']} | "
+                f"{last['shards']} ({last['duplicate_sites']}) | {last['cache_access']} | "
                 f"{audit.get('records_equal_plain', 'pending')} / strict "
                 f"{audit.get('semantic_pass', 'pending')} | "
                 f"{audit.get('repeat_identical', 'pending')} |"

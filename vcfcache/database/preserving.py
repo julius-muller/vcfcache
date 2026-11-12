@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -130,20 +131,21 @@ def plan_shards(occupied, limit):
 
 
 def inspect_keys(bcftools, source, bed, windowed):
-    """Find duplicate variant keys and, optionally, the occupied windows.
+    r"""Find positions holding duplicate variant keys and, optionally, windows.
 
     bcftools pairs records one-to-one: of two identical input keys only the
     first would take a cached annotation, and the recipe result of the second
-    would later be paired with the first. A shard holding such keys bypasses
-    the cache. Keys compare without case, as bcftools compares alleles.
+    would later be paired with the first. Every record at such a position is
+    therefore annotated by the recipe; all other records still use the cache.
+    Keys compare without case, as bcftools compares alleles.
 
     Returns:
-        (duplicate, rows) where rows are merged BED windows, or None unless
-        windowed and duplicate-free.
+        (duplicates, rows): "CHROM\tPOS" lines of positions with duplicate
+        keys in file order, and merged BED windows or None unless windowed.
     """
     blocks: dict = {}
     order = []
-    duplicate = False
+    duplicates: dict = {}
     with tempfile.TemporaryFile() as errors:
         process = subprocess.Popen(
             [bcftools, "query", "-f", KEY, "-R", str(bed), "--regions-overlap", "0"]
@@ -153,6 +155,24 @@ def inspect_keys(bcftools, source, bed, windowed):
         )
         assert process.stdout is not None
         tail = b""
+
+        def scan(lines):
+            """Record duplicate positions and windows of whole loci."""
+            keys = [line.upper() for line in lines]
+            if len(set(keys)) != len(keys):
+                seen = Counter(keys)
+                for key, line in zip(keys, lines, strict=True):
+                    # Position from the original line: contig names keep case.
+                    if seen[key] > 1:
+                        duplicates[b"\t".join(line.split(b"\t", 2)[:2])] = None
+            if windowed:
+                for line in lines:
+                    contig, position = line.split(b"\t", 2)[:2]
+                    if contig not in blocks:
+                        blocks[contig] = set()
+                        order.append(contig)
+                    blocks[contig].add((int(position) - 1) // WINDOW)
+
         with process.stdout:
             while chunk := process.stdout.read(CHUNK):
                 data = tail + chunk
@@ -161,31 +181,22 @@ def inspect_keys(bcftools, source, bed, windowed):
                     tail = data
                     continue
                 lines = data[:cut].split(b"\n")
-                if len(set(data[:cut].upper().split(b"\n"))) != len(lines):
-                    duplicate = True
-                    break
-                if windowed:
-                    for line in lines:
-                        contig, position = line.split(b"\t", 2)[:2]
-                        if contig not in blocks:
-                            blocks[contig] = set()
-                            order.append(contig)
-                        blocks[contig].add((int(position) - 1) // WINDOW)
                 # Keys of the last locus may continue in the next chunk.
                 locus = b"\t".join(lines[-1].split(b"\t", 2)[:2]) + b"\t"
                 keep = len(lines)
                 while keep and lines[keep - 1].startswith(locus):
                     keep -= 1
+                scan(lines[:keep])
                 tail = b"".join(line + b"\n" for line in lines[keep:]) + data[cut + 1 :]
-        if duplicate:
-            process.kill()
-            process.wait()
-            return True, None
+        if tail.strip():
+            scan(tail.rstrip(b"\n").split(b"\n"))
         if process.wait():
             errors.seek(0)
             raise RuntimeError(errors.read().decode(errors="replace"))
+    # Insertion order is file order, so the positions are already sorted.
+    found = [key.decode() for key in duplicates]
     if not windowed:
-        return False, None
+        return found, None
     rows = []
     for contig in order:
         previous = None
@@ -199,7 +210,7 @@ def inspect_keys(bcftools, source, bed, windowed):
             previous = [start, end]
         if previous:
             rows.append(f"{contig.decode()}\t{previous[0]}\t{previous[1]}")
-    return False, rows
+    return found, rows
 
 
 def run_recipe(manager, work, command, recipe_input, annotated):
@@ -305,13 +316,6 @@ def run(manager, cache=None):
             # Otherwise an empty tag identifies a miss, which saves the marker
             # and its removal on every record.
             marked = f"##INFO=<ID={tag}," in headers[0]
-            # A header-only cache gives bypassed shards the same header as
-            # every other shard without reading any cache record.
-            blank = work / "blank_cache.bcf"
-            command(
-                f"{tool} view --no-version -h {quoted(cache)} | "
-                f"{tool} view --no-version -Ob -W -o {quoted(blank)}"
-            )
             shards = plan_shards(
                 index_stats(bcftools, source), SHARDS_PER_THREAD * threads
             )
@@ -322,47 +326,62 @@ def run(manager, cache=None):
                 folder.mkdir(exist_ok=True)
                 folders.append(folder)
             regions = [""] * len(folders)
-            bypassed = [False] * len(folders)
+            # Positions with duplicate keys, per shard; see inspect_keys.
+            duplicates: list = [[] for _ in folders]
             mark = f"-m +{HIT} " if marked else ""
             strip = f"-x INFO/{HIT} " if marked else ""
 
             def lookup(number):
                 """Overlay exact cache hits on one shard and select its misses."""
                 folder = folders[number]
-                lookup_cache = cache
                 if shards:
                     bed = folder / "contigs.bed"
                     bed.write_text(
                         "".join(f"{c}\t0\t{length}\n" for c, length in shards[number])
                     )
-                    bypassed[number], rows = inspect_keys(
+                    duplicates[number], rows = inspect_keys(
                         bcftools, source, bed, windowed
                     )
                     if rows:
                         bed = folder / "windows.bed"
                         bed.write_text("".join(f"{row}\n" for row in rows))
                     regions[number] = f"-R {quoted(bed)} --regions-overlap 0 "
-                    if bypassed[number]:
-                        lookup_cache = blank
                 # Exact compares allele SETS, not ALT order. Route every
                 # multiallelic record to the recipe rather than reusing
                 # allele-indexed annotation values.
                 command(
                     f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
-                    f"-i 'N_ALT=1' -k {mark}-a {quoted(lookup_cache)} "
+                    f"-i 'N_ALT=1' -k {mark}-a {quoted(cache)} "
                     f"{quoted(source)} -c INFO -o overlay.bcf -Ob1 -W --threads 1",
                     folder,
                 )
+                # Without duplicates the misses are written directly; with
+                # them, the misses elsewhere and every record at a duplicate
+                # position (taken from the input, never from the overlay) are
+                # merged by position.
+                dups = folder / "duplicates.tsv"
+                if duplicates[number]:
+                    dups.write_text("".join(f"{row}\n" for row in duplicates[number]))
+                elsewhere = f"-T ^{quoted(dups)} " if duplicates[number] else ""
+                target = "elsewhere.bcf -W" if duplicates[number] else "misses.bcf"
                 if marked:
                     command(
-                        f"{tool} view --no-version -i 'INFO/{HIT}!=1 || INFO/{tag}=\"\"' "
-                        f"overlay.bcf -Ou | {tool} annotate --no-version {strip}"
-                        "-o misses.bcf -Ob",
+                        f"{tool} view --no-version {elsewhere}"
+                        f"-i 'INFO/{HIT}!=1 || INFO/{tag}=\"\"' overlay.bcf -Ou | "
+                        f"{tool} annotate --no-version {strip}-o {target} -Ob",
                         folder,
                     )
                 else:
                     command(
-                        f"{tool} view --no-version -i 'INFO/{tag}=\"\"' overlay.bcf "
+                        f"{tool} view --no-version {elsewhere}-i 'INFO/{tag}=\"\"' "
+                        f"overlay.bcf -o {target} -Ob --threads 1",
+                        folder,
+                    )
+                if duplicates[number]:
+                    command(
+                        f"{tool} view --no-version -R {quoted(dups)} --regions-overlap 0 "
+                        f"{quoted(source)} -o duplicated.bcf -Ob -W --threads 1 && "
+                        f"{tool} concat --no-version -a elsewhere.bcf duplicated.bcf "
                         "-o misses.bcf -Ob --threads 1",
                         folder,
                     )
@@ -375,10 +394,11 @@ def run(manager, cache=None):
             with ThreadPoolExecutor(max_workers=threads) as pool:
                 if sum(pool.map(lookup, range(len(folders)))) != total:
                     raise RuntimeError("Cache overlay changed input record count")
-            if any(bypassed):
+            sites = sum(len(d) for d in duplicates)
+            if sites:
                 manager.logger.warning(
-                    f"Duplicate variant keys: {sum(bypassed)} shard(s) bypass the "
-                    "cache so that every occurrence is annotated by the recipe"
+                    f"Duplicate variant keys at {sites} position(s): every record "
+                    "there is annotated by the recipe"
                 )
             manager.logger.info("Step 2/4: Select actual misses, not pre-existing tags")
             recipe_input = work / "misses.bcf"
@@ -399,6 +419,28 @@ def run(manager, cache=None):
                 checked = checker.submit(
                     check_recipe, manager, work, recipe_input, annotated, tag, bcftools
                 )
+            # At a duplicate position the overlay may hold a cached value that
+            # the merge only replaces where the recipe wrote the tag. Should
+            # the recipe leave such a record without it, merge onto a base
+            # that holds the input's own records there instead.
+            clean = False
+            if sites and missing:
+                every = work / "duplicates.tsv"
+                every.write_text("".join(f"{row}\n" for d in duplicates for row in d))
+                if checked:
+                    checked.result()
+                untagged = subprocess.run(
+                    [bcftools, "view", "-H", "-R", str(every), "--regions-overlap", "0"]
+                    + ["-i", f'INFO/{tag}=""', str(annotated)],
+                    capture_output=True,
+                    check=True,
+                ).stdout
+                clean = bool(untagged.strip())
+                if clean:
+                    manager.logger.info(
+                        "Recipe left records at duplicate positions without "
+                        f"INFO/{tag}; merging onto the input's own records there"
+                    )
             manager.logger.info("Step 4/4: Overlay annotations; retain every record")
 
             def merge(number):
@@ -408,9 +450,19 @@ def run(manager, cache=None):
                     if missing
                     else ""
                 )
+                base = "overlay.bcf"
+                if clean and duplicates[number]:
+                    base = "base.bcf"
+                    command(
+                        f"{tool} view --no-version -T ^duplicates.tsv overlay.bcf "
+                        "-o kept.bcf -Ob1 -W --threads 1 && "
+                        f"{tool} concat --no-version -a kept.bcf duplicated.bcf "
+                        "-o base.bcf -Ob1 -W --threads 1",
+                        folders[number],
+                    )
                 if overlay or strip:
                     command(
-                        f"{tool} annotate --no-version {overlay}{strip}overlay.bcf "
+                        f"{tool} annotate --no-version {overlay}{strip}{base} "
                         f"-o final.bcf -Ob{level} --threads 1",
                         folders[number],
                     )
@@ -438,7 +490,8 @@ def run(manager, cache=None):
             )
             stats = {
                 "shards": len(folders),
-                "bypassed_shards": sum(bypassed),
+                "duplicate_sites": sites,
+                "duplicate_clean_base": clean,
                 "cache_access": "windows" if windowed else "contigs",
                 "output_level": level,
                 "hit_marker": marked,
