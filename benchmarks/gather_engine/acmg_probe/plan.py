@@ -63,6 +63,23 @@ def main():
                 )
             )
         units.append(dict(id=f"probe-{sample}", tier="A", cells=cells))
+    # Genome-wide controls against the cohort's per-contig sharding results.
+    units.append(
+        dict(
+            id="regression-KPGP-00128",
+            tier="A",
+            cells=[
+                dict(c, arms=["plain", "cached"], repeats=2)
+                for u in data["units"]
+                for c in u["cells"]
+                if (c["assembly"], c["assay"], c["sample"])
+                == ("GRCh38", "wgs", "KPGP-00128")
+                and (c["tool"], c["level"])
+                in {("veprs", "core"), ("fastvep", "clinical")}
+            ],
+        )
+    )
+    assert len(units[-1]["cells"]) == 2
     cohort.submit(args.root, args.deployment, args.commit, units, probe=PROBE)
 
 
