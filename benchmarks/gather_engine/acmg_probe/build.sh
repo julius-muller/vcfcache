@@ -24,7 +24,9 @@ if [ ! -e $STACK/DONE ]; then
   python3 $D/scripts/clingen_gdv_to_oga.py $S/clingen_gene_validity.csv $W/clingen_gdv.tsv
   b --source omim -i $W/clingen_gdv.tsv -o $STACK/omim
   # The probe annotates chr1 only, so per-chromosome sources are built for chr1.
-  unzip -p $S/revel-v1.3_all_chromosomes.zip revel_with_transcript_ids | awk -F, 'NR==1 || $1=="1"' > $W/revel_chr1.csv
+  # Workers have no unzip; stream the single member with Python.
+  python3 -c 'import shutil,sys,zipfile; shutil.copyfileobj(zipfile.ZipFile(sys.argv[1]).open("revel_with_transcript_ids"), sys.stdout.buffer, 1 << 24)' \
+    $S/revel-v1.3_all_chromosomes.zip | awk -F, 'NR==1 || $1=="1"' > $W/revel_chr1.csv
   b --source revel -i $W/revel_chr1.csv -o $STACK/revel_chr1
   python3 $D/scripts/repeatmasker_to_bed.py $S/rmsk.txt.gz > $W/repeatmasker.bed
   b --source custom_bed --name repeatmasker -i $W/repeatmasker.bed -o $STACK/repeatmasker
