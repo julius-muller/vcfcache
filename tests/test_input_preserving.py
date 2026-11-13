@@ -316,7 +316,12 @@ def test_unusual_input_equals_direct_annotation(
     stats = cached.last_run_stats
     # 17 records at 15 distinct positions: with a cut tried at every record,
     # the two duplicated positions each stay in one shard.
-    assert stats["shards"] == {None: 1, 1: 2, 8: 15}[per_thread]
+    if ratio:
+        # Not windowed: planned from the index, whose whole test file sits in
+        # one compressed block, so no cut can be placed inside it.
+        assert stats["planning"] == "index" if per_thread else stats["shards"] == 1
+    else:
+        assert stats["shards"] == {None: 1, 1: 2, 8: 15}[per_thread]
     assert stats["duplicate_sites"] == 2
     # Hits: chr1:10, chr1:45, chr2:10, the lower-case chr2:20 and chr3:90,
     # which shares its contig with duplicates but not their position.
@@ -385,6 +390,13 @@ def test_shards_have_equal_records_and_cut_only_between_positions():
     assert preserving.plan_ranges(order, scans, 3) == [
         [("chr1", 1, 29)],
         [("chr1", 30, U), ("chr2", 1, U)],
+        [("chr3", 1, U)],
+    ]
+    # A file whose contigs are not in header order: every contig on its own.
+    assert preserving.plan_ranges(order, scans, 3, span=False) == [
+        [("chr1", 1, 29)],
+        [("chr1", 30, U)],
+        [("chr2", 1, U)],
         [("chr3", 1, U)],
     ]
     # A cut that would fall inside the group at chr1:20 moves before it.
@@ -555,3 +567,71 @@ def test_duplicate_positions_never_keep_cached_values(
     assert stats["duplicate_sites"] == 2
     # f and h sit at a duplicate position and would hold a cached WRONG.
     assert stats["duplicate_clean_base"] == (skip in ("f", "h"))
+
+
+@pytest.mark.parametrize("index", ["csi", "tbi", "bcf"])
+def test_index_planning_keeps_file_order_and_cuts_large_inputs(
+    tmp_path, monkeypatch, index
+):
+    """A file whose contigs are not in header order, large enough for cuts.
+
+    Records come out in the file's own order, cuts fall inside contigs, and
+    duplicates on either side of a cut still go to the recipe.
+    """
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", 10**9)
+    monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+    monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 4)
+    header = HEADER.replace(
+        "##contig=<ID=chr1,length=1000>",
+        "##contig=<ID=chr1,length=50000000>\n##contig=<ID=chr2,length=50000000>",
+    )
+    rows = []
+    for contig in ("chr2", "chr1"):  # file order differs from header order
+        for n, position in enumerate(range(100, 40_000_000, 2_000)):
+            rows.append(
+                f"{contig}\t{position}\tr{contig}{n}\tA\tC\t50\tPASS\t.\tGT:DP\t0/1:{n % 90}"
+            )
+            if n % 997 == 0:  # an exact duplicate now and then
+                rows.append(rows[-1].replace(f"r{contig}{n}", f"d{contig}{n}"))
+    vcf = tmp_path / "big.vcf"
+    vcf.write_text(header + "\n".join(rows) + "\n")
+    if index == "bcf":
+        source = tmp_path / "big.bcf"
+        subprocess.run(
+            ["bcftools", "view", str(vcf), "-Ob", "-o", str(source), "-W"], check=True
+        )
+    else:
+        source = tmp_path / "big.vcf.gz"
+        subprocess.run(
+            ["bcftools", "view", str(vcf), "-Oz", "-o", str(source)], check=True
+        )
+        subprocess.run(
+            ["bcftools", "index", "-t" if index == "tbi" else "-c", str(source)],
+            check=True,
+        )
+    cache = bcf(
+        tmp_path,
+        "big_cache",
+        [
+            line.split("\t", 5)[0]
+            + "\t"
+            + line.split("\t", 5)[1]
+            + "\t.\tA\tC\t.\t.\tMOCK_ANNO=test"
+            for line in rows[::3]
+        ],
+        header.replace("\tFORMAT\tSAMPLE", ""),
+    )
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    stats = cached.last_run_stats
+    assert stats["planning"] == "index"
+    assert stats["shards"] > 2
+    assert stats["duplicate_sites"] > 0
+    out = records(cached.output_file)
+    assert out.split(b"\n", 1)[0].startswith(b"chr2\t")
+    assert sorted(out.splitlines()) == sorted(records(direct.output_file).splitlines())
+    assert [l.split(b"\t")[:2] for l in out.splitlines()] == [
+        l.split(b"\t")[:2] for l in records(direct.output_file).splitlines()
+    ]
