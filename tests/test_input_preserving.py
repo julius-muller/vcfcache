@@ -628,6 +628,16 @@ def test_index_planning_keeps_file_order_and_cuts_large_inputs(
     stats = cached.last_run_stats
     assert stats["planning"] == "index"
     assert stats["shards"] > 2
+    # The joined shard indexes must answer exactly as bcftools' own index.
+    assert stats["joined_index"]
+    own = tmp_path / "reindexed.bcf"
+    own.write_bytes(cached.output_file.read_bytes())
+    subprocess.run(["bcftools", "index", str(own)], check=True)
+    for region in ("chr2", "chr1", "chr2:1-15000000", "chr1:20000000-39000000"):
+        query = ["bcftools", "view", "-H", "-r", region]
+        assert subprocess.check_output(query + [str(cached.output_file)]) == (
+            subprocess.check_output(query + [str(own)])
+        )
     assert stats["duplicate_sites"] > 0
     out = records(cached.output_file)
     assert out.split(b"\n", 1)[0].startswith(b"chr2\t")

@@ -14,6 +14,7 @@ when the cache is much larger than the input, and to whole contigs otherwise.
 import gzip
 import hashlib
 import os
+import re
 import shlex
 import shutil
 import struct
@@ -21,6 +22,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import zlib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -452,6 +454,168 @@ def scan_result(process):
     return rows, records
 
 
+BGZF_EOF = bytes.fromhex("1f8b08040000000000ff0600424302001b0003000000000000000000")
+
+
+def bgzf_blocks(data):
+    """(offset, compressed size, uncompressed size) of every BGZF block."""
+    blocks, offset = [], 0
+    while offset < len(data):
+        size = struct.unpack_from("<H", data, offset + 16)[0] + 1
+        blocks.append(
+            (offset, size, struct.unpack_from("<I", data, offset + size - 4)[0])
+        )
+        offset += size
+    return blocks
+
+
+def bgzf_compress(data, level=6):
+    """BGZF-compress bytes, ending with the EOF block, as htslib expects."""
+    out = bytearray()
+    for start in range(0, len(data), 0xFF00):
+        chunk = data[start : start + 0xFF00]
+        deflate = zlib.compressobj(level, zlib.DEFLATED, -15)
+        body = deflate.compress(chunk) + deflate.flush()
+        out += b"\x1f\x8b\x08\x04\x00\x00\x00\x00\x00\xff\x06\x00BC\x02\x00"
+        out += struct.pack("<H", len(body) + 25) + body
+        out += struct.pack("<II", zlib.crc32(chunk), len(chunk))
+    return bytes(out + BGZF_EOF)
+
+
+def read_csi(path):
+    """Parse a CSI index fully: (min_shift, depth, aux, refs, n_no_coor).
+
+    refs is a list, one per reference, of {bin: [loffset, [(beg, end), ...]]}.
+    """
+    data = gzip.open(path).read()
+    if data[:4] != b"CSI\x01":
+        raise ValueError(f"Not a CSI index: {path}")
+    min_shift, depth, l_aux = struct.unpack_from("<3i", data, 4)
+    offset = 16
+    aux = data[offset : offset + l_aux]
+    offset += l_aux
+    (n_ref,) = struct.unpack_from("<i", data, offset)
+    offset += 4
+    refs = []
+    for _ in range(n_ref):
+        (n_bin,) = struct.unpack_from("<i", data, offset)
+        offset += 4
+        bins = {}
+        for _ in range(n_bin):
+            bin_, loffset, n_chunk = struct.unpack_from("<IQi", data, offset)
+            offset += 16
+            chunks = [
+                struct.unpack_from("<QQ", data, offset + 16 * i) for i in range(n_chunk)
+            ]
+            offset += 16 * n_chunk
+            bins[bin_] = [loffset, chunks]
+        refs.append(bins)
+    n_no_coor = (
+        struct.unpack_from("<Q", data, offset)[0] if offset + 8 <= len(data) else None
+    )
+    return min_shift, depth, aux, refs, n_no_coor
+
+
+def gather(parts, staged):
+    """Join shard BCFs by block copy and join their CSI indexes arithmetically.
+
+    Each shard was written with its own index; the joined index shifts every
+    file offset by where that shard's records land in the joined file, so the
+    output is never read again. Returns False, writing nothing, whenever the
+    shards do not have the expected shape; the caller then uses bcftools.
+    """
+    pieces, indexes, header = [], [], None
+    for part in parts:
+        data = part.read_bytes()
+        if not data.endswith(BGZF_EOF) or data[:4] != b"\x1f\x8b\x08\x04":
+            return False
+        blocks = bgzf_blocks(data)
+        first = zlib.decompress(data[18 : blocks[0][1] - 8], -15)
+        if first[:5] != b"BCF\x02\x02":
+            return False
+        length = 9 + struct.unpack_from("<I", first, 5)[0]
+        # The header must fill whole blocks so records start on a boundary.
+        seen, end, text = 0, 0, b""
+        for offset, size, usize in blocks:
+            if seen >= length:
+                break
+            text += zlib.decompress(data[offset + 18 : offset + size - 8], -15)
+            seen += usize
+            end = offset + size
+        if seen != length:
+            return False
+        if header is None:
+            header = (data[:end], text)
+        elif text != header[1]:
+            return False
+        pieces.append((data, end))
+        indexes.append(read_csi(Path(f"{part}.csi")))
+    if len({(i[0], i[1], i[2]) for i in indexes}) != 1:
+        return False
+    min_shift, depth, aux = indexes[0][:3]
+    meta_bin = ((1 << ((depth + 1) * 3)) - 1) // 7 + 1
+    n_ref = max(len(i[3]) for i in indexes)
+    joined: list = [{} for _ in range(n_ref)]
+    no_coor = 0
+    base = len(header[0])
+    for (data, end), (_, _, _, refs, n_no_coor) in zip(pieces, indexes, strict=True):
+        delta = base - end
+
+        def shift(virtual, delta=delta):
+            return (((virtual >> 16) + delta) << 16) | (virtual & 0xFFFF)
+
+        for tid, bins in enumerate(refs):
+            for bin_, (loffset, chunks) in bins.items():
+                target = joined[tid].get(bin_)
+                if bin_ == meta_bin:
+                    (beg, fin), (mapped, unmapped) = chunks
+                    if target is None:
+                        joined[tid][bin_] = [
+                            loffset,
+                            [(shift(beg), shift(fin)), (mapped, unmapped)],
+                        ]
+                    else:
+                        (b0, _), (m0, u0) = target[1]
+                        target[1] = [(b0, shift(fin)), (m0 + mapped, u0 + unmapped)]
+                    continue
+                moved = [(shift(a), shift(b)) for a, b in chunks]
+                if target is None:
+                    joined[tid][bin_] = [shift(loffset), moved]
+                else:
+                    target[0] = min(target[0], shift(loffset))
+                    target[1].extend(moved)
+        no_coor += n_no_coor or 0
+        base += len(data) - end - len(BGZF_EOF)
+    index = bytearray(b"CSI\x01" + struct.pack("<3i", min_shift, depth, len(aux)) + aux)
+    index += struct.pack("<i", n_ref)
+    for bins in joined:
+        index += struct.pack("<i", len(bins))
+        for bin_ in sorted(bins):
+            loffset, chunks = bins[bin_]
+            index += struct.pack("<IQi", bin_, loffset, len(chunks))
+            for a, b in chunks:
+                index += struct.pack("<QQ", a, b)
+    if any(i[4] is not None for i in indexes):
+        index += struct.pack("<Q", no_coor)
+    with open(staged, "wb") as out:
+        out.write(header[0])
+        for data, end in pieces:
+            out.write(memoryview(data)[end : len(data) - len(BGZF_EOF)])
+        out.write(BGZF_EOF)
+    Path(f"{staged}.csi").write_bytes(bgzf_compress(bytes(index)))
+    return True
+
+
+# A recipe that reads its input once, as `bcftools view ${INPUT_BCF}`, can
+# take the misses from a pipe; it then starts while the cache lookup runs.
+STREAM = re.compile(r"view\s+\\?\$\{INPUT_BCF\}")
+
+
+def streamable(recipe):
+    """Whether the recipe reads ${INPUT_BCF} exactly once, through bcftools view."""
+    return recipe.count("INPUT_BCF") == 1 and bool(STREAM.search(recipe))
+
+
 def run_recipe(manager, work, command, recipe_input, annotated):
     """Run the annotation recipe once; its output is checked by check_recipe."""
     auxiliary = manager.output_dir / "auxiliary"
@@ -749,13 +913,13 @@ def run(manager, cache=None):
                 if overlay or strip:
                     command(
                         f"{tool} annotate --no-version {overlay}{strip}{base} "
-                        f"-o final.bcf -Ob{level} --threads {shard_threads}",
+                        f"-o final.bcf -Ob{level} -W --threads {shard_threads}",
                         folders[number],
                     )
                 else:
                     command(
                         f"{tool} view --no-version overlay.bcf -o final.bcf "
-                        f"-Ob{level} --threads {shard_threads}",
+                        f"-Ob{level} -W --threads {shard_threads}",
                         folders[number],
                     )
 
@@ -768,15 +932,27 @@ def run(manager, cache=None):
                 if checked:
                     checked.result()
             # Gather by BGZF block copy: shards are coordinate-disjoint and in
-            # index order, so nothing is decoded or recompressed here.
-            parts = " ".join(quoted(folder / "final.bcf") for folder in folders)
-            result = command(
-                f"{tool} concat --no-version --naive {parts} -o {quoted(staged)} && "
-                f"{tool} index -f --threads {threads} {quoted(staged)}"
+            # file order, so nothing is decoded or recompressed here. Their
+            # indexes, written while each shard was compressed, are joined too.
+            gather_start = time.monotonic()
+            joined = gather([folder / "final.bcf" for folder in folders], staged)
+            if joined:
+                result = subprocess.CompletedProcess(["gather"], 0)
+            else:
+                parts = " ".join(quoted(folder / "final.bcf") for folder in folders)
+                result = command(
+                    f"{tool} concat --no-version --naive {parts} -o {quoted(staged)} && "
+                    f"{tool} index -f --threads {threads} {quoted(staged)}"
+                )
+            manager.logger.info(
+                f"Gathered {len(folders)} shard(s) "
+                f"{'with joined indexes' if joined else 'and indexed the output'} "
+                f"in {time.monotonic() - gather_start:.3f}s"
             )
             stats = {
                 "shards": len(folders),
                 "duplicate_sites": sites,
+                "joined_index": joined,
                 "planning": planning if shards else None,
                 "duplicate_clean_base": clean,
                 "cache_access": "windows" if windowed else "contigs",
