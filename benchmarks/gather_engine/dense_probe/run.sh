@@ -114,7 +114,7 @@ vc() {  # stack out [--uncached]
     -i full.bcf -o $2 -y p.yaml --statistics light --stats-dir st -v --debug ${3:-} > log_vc.txt 2>&1
 }
 # The misses of a cached run are the same records for every stack.
-vc base warm.bcf; cp $(find st -name misses.bcf | head -1) misses.bcf; bcftools index -f misses.bcf
+vc base warm.bcf; cp $(find st -path '*/annotate/misses.bcf') misses.bcf; bcftools index -f misses.bcf
 bcftools view full.bcf -Ov -o full.vcf; bcftools view misses.bcf -Ov -o misses.vcf
 log "misses $(bcftools index -n misses.bcf)"
 $PY - > $OUT/chunks.json <<PY
@@ -146,8 +146,8 @@ grep -m3 "FV_MOCKDB=" o.vcf | cut -c1-300 > $OUT/example_records.txt; grep "^##I
 : > $OUT/vcfcache.tsv
 for rep in 1 2 3; do for s in $STACKS; do for mode in cached --uncached; do
   t=$(date +%s.%N); vc $s out.bcf $([ $mode = cached ] || echo $mode); e=$(echo "$(date +%s.%N) - $t" | bc)
-  # Second digest: INFO tags sorted within a record and records sorted, since
-  # bcftools annotate can swap a hit and a miss that share a position.
-  echo -e "$s\t$mode\t$rep\t$e\t$(bcftools view -H out.bcf | md5sum | cut -c1-12)\t$(bcftools view -H out.bcf | awk -F'\t' -v OFS='\t' '{n=split($8,t,";"); asort(t); x=t[1]; for(i=2;i<=n;i++) x=x ";" t[i]; $8=x; print}' | LC_ALL=C sort | md5sum | cut -c1-12)" | tee -a $OUT/vcfcache.tsv
+  # Digests: bytes as written; INFO tags sorted within each record (a cached
+  # record lists its tags in the cache's order), records in file order.
+  echo -e "$s\t$mode\t$rep\t$e\t$(bcftools view -H out.bcf | md5sum | cut -c1-12)\t$(bcftools view -H out.bcf | awk -F'\t' -v OFS='\t' '{n=split($8,t,";"); asort(t); x=t[1]; for(i=2;i<=n;i++) x=x ";" t[i]; $8=x; print}' | md5sum | cut -c1-12)" | tee -a $OUT/vcfcache.tsv
 done; done; done
 log DONE

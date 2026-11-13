@@ -977,7 +977,7 @@ class VCFAnnotator(VCFDatabase):
             "cache_matching",
             "shards",
             "duplicate_sites",
-            "duplicate_clean_base",
+            "exposed_sites",
             "cache_access",
             "output_level",
             "hit_marker",

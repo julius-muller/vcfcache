@@ -338,6 +338,7 @@ def test_key_scan_finds_duplicates_samples_and_windows(unusual, monkeypatch):
         records=5,
         samples=[(0, 60), (2, 80), (4, 90)],
         duplicates=[60, 80],
+        shared=[60, 80],
         blocks=None,
     )
     chr1 = preserving.scan_contig("bcftools", source, "chr1", True)
@@ -374,6 +375,7 @@ def scans_of(**contigs):
             records=len(p),
             samples=list(enumerate(p)),
             duplicates=[],
+            shared=[],
             blocks=None,
         )
         for c, p in contigs.items()
@@ -557,19 +559,83 @@ def test_duplicate_positions_never_keep_cached_values(
         run.run(step, db_bcf=cache)
         runs[name] = run
     cached, direct = (records(runs[n].output_file) for n in ("cached", "direct"))
-    # bcftools annotate may reorder records that share a position (a known,
-    # documented property); content and the order of positions must match.
-    assert sorted(cached.splitlines()) == sorted(direct.splitlines())
-    assert [line.split(b"\t")[:2] for line in cached.splitlines()] == [
-        line.split(b"\t")[:2] for line in direct.splitlines()
-    ]
+    assert cached == direct
     assert b"WRONG" not in cached
     stats = runs["cached"].last_run_stats
     # This recipe reads its input once through bcftools view: it streams.
     assert stats["recipe_streamed"]
     assert stats["duplicate_sites"] == 2
-    # f and h sit at a duplicate position and would hold a cached WRONG.
-    assert stats["duplicate_clean_base"] == (skip in ("f", "h"))
+    assert stats["exposed_sites"] == 2
+
+
+@pytest.mark.parametrize("cuts", [False, True])
+@pytest.mark.parametrize("declared", [True, False])
+def test_records_sharing_a_position_keep_their_order(
+    tmp_path, monkeypatch, declared, cuts
+):
+    """Hits and misses at one position stay in input order.
+
+    bcftools annotate writes the records of a position that match its
+    annotation file before those that do not, in the cache lookup and again
+    when recipe results are merged. Every pattern of hit (h) and miss (m) is
+    covered, with ALT alleles in an order no sort would produce.
+    """
+    if cuts:
+        monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+        monkeypatch.setattr(preserving, "SAMPLE", 1)
+        monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 8)
+    header = (
+        HEADER
+        if declared
+        else HEADER.replace(
+            '##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description="Test annotation">\n',
+            "",
+        )
+    )
+    alts = ["CTTT", "CT", "CTTTT", "CTT"]
+    patterns = ["hm", "mh", "mhm", "hmh", "hmhm", "mhmh", "hhh", "mm", "h", "m"]
+    rows, hits = [], []
+    for number, pattern in enumerate(patterns):
+        for alt, kind in zip(alts, pattern, strict=False):
+            row = ("chr1", 100 + 10 * number, f"r{len(rows)}", "C", alt)
+            rows.append(row)
+            if kind == "h":
+                hits.append(row)
+    source = bcf(
+        tmp_path,
+        "shared",
+        [
+            f"{c}\t{p}\t{i}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:9"
+            for c, p, i, r, a in rows
+        ],
+        header,
+    )
+    # The cache is sorted by allele, as a normalized cache is.
+    cache = bcf(
+        tmp_path,
+        "shared_cache",
+        [
+            f"{c}\t{p}\t.\t{r}\t{a}\t.\t.\tMOCK_ANNO=v_{i}"
+            for c, p, i, r, a in sorted(hits, key=lambda h: (h[1], h[4]))
+        ],
+        SITES,
+    )
+    runs = {}
+    for name, step in (("direct", "annotate-nocache"), ("cached", "annotate")):
+        run = manager(tmp_path / name, source, recipe=PER_RECORD)
+        for folder in ("annotate", "annotate-nocache"):
+            (run.output_dir / "work" / folder).mkdir(parents=True)
+            (run.output_dir / "work" / folder / "skip.txt").write_text("\n")
+        run.run(step, db_bcf=cache)
+        runs[name] = run
+    cached, direct = (records(runs[n].output_file) for n in ("cached", "direct"))
+    assert cached == direct
+    stats = runs["cached"].last_run_stats
+    assert stats["missing_variants"] == sum(p.count("m") for p in patterns)
+    # Shared positions with a miss: all but "hhh" and the single records.
+    assert stats["exposed_sites"] == 7
+    # Rebuilt and untouched shards carry one header, so their indexes join.
+    assert stats["joined_index"]
 
 
 @pytest.mark.parametrize("index", ["csi", "tbi", "bcf"])
@@ -644,10 +710,7 @@ def test_index_planning_keeps_file_order_and_cuts_large_inputs(
     assert stats["duplicate_sites"] > 0
     out = records(cached.output_file)
     assert out.split(b"\n", 1)[0].startswith(b"chr2\t")
-    assert sorted(out.splitlines()) == sorted(records(direct.output_file).splitlines())
-    assert [row.split(b"\t")[:2] for row in out.splitlines()] == [
-        row.split(b"\t")[:2] for row in records(direct.output_file).splitlines()
-    ]
+    assert out == records(direct.output_file)
 
 
 STREAMING = (

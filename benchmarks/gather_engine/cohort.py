@@ -546,7 +546,7 @@ def timed(deployment, scratch, evidence, name, arm, cell, source):
             missing=counters["variant_counts"].get("missing_variants"),
             shards=counters.get("shards"),
             duplicate_sites=counters.get("duplicate_sites"),
-            duplicate_clean_base=counters.get("duplicate_clean_base"),
+            exposed_sites=counters.get("exposed_sites"),
             cache_access=counters.get("cache_access"),
             hit_marker=counters.get("hit_marker"),
             output_level=counters.get("output_level"),

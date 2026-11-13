@@ -11,6 +11,7 @@ it has been annotated. Cache access is restricted to windows around the input
 when the cache is much larger than the input, and to whole contigs otherwise.
 """
 
+import bisect
 import errno
 import gzip
 import hashlib
@@ -123,7 +124,8 @@ def index_stats(bcftools, path):
 # alleles.
 SCAN = r"""
 {
-  if ($1 "\t" $2 != locus) { delete seen; locus = $1 "\t" $2 }
+  if ($1 "\t" $2 != locus) { delete seen; locus = $1 "\t" $2; n = 0 }
+  if (++n == 2) print "M\t" $2 "\t" $1
   key = toupper($3 "\t" $4)
   if ((key in seen) && !(locus in dup)) { dup[locus] = 1; print "D\t" $2 "\t" $1 }
   seen[key] = 1
@@ -144,7 +146,8 @@ def scan_contig(bcftools, source, contig, windowed):
 
     Returns:
         dict with the record count, (index, POS) of every SAMPLE-th record,
-        positions holding duplicate keys, and occupied windows when windowed.
+        positions holding duplicate keys, positions holding more than one
+        record, and occupied windows when windowed.
     """
     query = shlex.join([bcftools, "query", "-f", KEY, "-r", contig, str(source)])
     awk = shlex.join(
@@ -158,13 +161,15 @@ def scan_contig(bcftools, source, contig, windowed):
     )
     if result.returncode:
         raise RuntimeError(result.stderr.decode(errors="replace"))
-    samples, duplicates, blocks, records = [], [], set(), None
+    samples, duplicates, shared, blocks, records = [], [], [], set(), None
     for line in result.stdout.split(b"\n"):
         fields = line.split(b"\t")
         if fields[0] == b"S":
             samples.append((int(fields[1]), int(fields[2])))
         elif fields[0] == b"D":
             duplicates.append(int(fields[1]))
+        elif fields[0] == b"M":
+            shared.append(int(fields[1]))
         elif fields[0] == b"B":
             blocks.add(int(fields[1]))
         elif fields[0] == b"N":
@@ -175,6 +180,7 @@ def scan_contig(bcftools, source, contig, windowed):
         records=records,
         samples=samples,
         duplicates=duplicates,
+        shared=shared,
         blocks=blocks if windowed else None,
     )
 
@@ -253,14 +259,39 @@ def shard_rows(shard, scans):
     return rows
 
 
-def shard_duplicates(shard, scans):
-    """Return CHROM-tab-POS lines of the duplicate positions in one shard."""
+def shard_duplicates(shard, scans, kind="duplicates"):
+    """Return CHROM-tab-POS lines of the duplicate positions in one shard.
+
+    With kind="shared": of the positions that hold more than one record.
+    """
     return [
         f"{contig}\t{position}"
         for contig, first, last in shard
-        for position in scans[contig]["duplicates"]
+        for position in scans[contig][kind]
         if first <= position <= last
     ]
+
+
+def without(rows, positions):
+    """BED rows with the given CHROM-tab-POS positions (ascending) cut out."""
+    cuts: dict = {}
+    for row in positions:
+        contig, position = row.split("\t")
+        cuts.setdefault(contig, []).append(int(position))
+    out = []
+    for row in rows:
+        contig, start, end = row.split("\t")
+        start, end = int(start), int(end)
+        at = cuts.get(contig, [])
+        index = bisect.bisect_right(at, start)
+        while index < len(at) and at[index] <= end:
+            if at[index] - 1 > start:
+                out.append(f"{contig}\t{start}\t{at[index] - 1}")
+            start = at[index]
+            index += 1
+        if start < end:
+            out.append(f"{contig}\t{start}\t{end}")
+    return out
 
 
 def contig_order(bcftools, source, stats):
@@ -440,20 +471,25 @@ def duplicate_scan(bcftools, source, bed):
 
 
 def scan_result(process):
-    """Return the duplicate positions (CHROM-tab-POS) and record count of a scan."""
+    """Return a scan's duplicate positions, shared positions and record count.
+
+    Positions are CHROM-tab-POS lines; shared ones hold more than one record.
+    """
     out, err = process.communicate()
     if process.returncode:
         raise RuntimeError(err.decode(errors="replace"))
-    rows, records = [], None
+    rows, shared, records = [], [], None
     for line in out.split(b"\n"):
         fields = line.split(b"\t")
         if fields[0] == b"D":
             rows.append(f"{fields[2].decode()}\t{fields[1].decode()}")
+        elif fields[0] == b"M":
+            shared.append(f"{fields[2].decode()}\t{fields[1].decode()}")
         elif fields[0] == b"N":
             records = int(fields[1])
     if records is None:
         raise RuntimeError("Shard key scan returned no count")
-    return rows, records
+    return rows, shared, records
 
 
 BGZF_EOF = bytes.fromhex("1f8b08040000000000ff0600424302001b0003000000000000000000")
@@ -961,6 +997,18 @@ def run(manager, cache=None):
                 if scans is not None
                 else [[] for _ in shards]
             ) or [[]]
+            # Positions that hold more than one record, and of those the ones
+            # with a miss: bcftools writes the records of a position that
+            # match an annotation file before those that do not, so a hit and
+            # a miss sharing a position could change places. Such positions
+            # are rebuilt from the input's own records; see merge.
+            shared: list = (
+                [shard_duplicates(shard, scans, "shared") for shard in shards]
+                if scans is not None
+                else [[] for _ in shards]
+            ) or [[]]
+            exposed: list = [[] for _ in folders]
+            rows_of: list = [[] for _ in folders]
             scanned = [0] * len(folders)
             mark = f"-m +{HIT} " if marked else ""
             strip = f"-x INFO/{HIT} " if marked else ""
@@ -1033,6 +1081,7 @@ def run(manager, cache=None):
                         rows = [f"{c}\t{a - 1}\t{b}" for c, a, b in shards[number]]
                     else:
                         rows = shard_rows(shards[number], scans)
+                    rows_of[number] = rows
                     bed.write_text("".join(f"{row}\n" for row in rows))
                     regions[number] = f"-R {quoted(bed)} --regions-overlap 0 "
                     if scans is None:
@@ -1048,7 +1097,9 @@ def run(manager, cache=None):
                     folder,
                 )
                 if scan:
-                    duplicates[number], scanned[number] = scan_result(scan)
+                    duplicates[number], shared[number], scanned[number] = scan_result(
+                        scan
+                    )
                 # Without duplicates the misses are written directly; with
                 # them, the misses elsewhere and every record at a duplicate
                 # position (taken from the input, never from the overlay) are
@@ -1079,6 +1130,15 @@ def run(manager, cache=None):
                         "-o misses.bcf -Ob --threads 1",
                         folder,
                     )
+                if shared[number]:
+                    missed = set(
+                        subprocess.check_output(
+                            [bcftools, "query", "-f", "%CHROM\t%POS\n"]
+                            + [str(folder / "misses.bcf")],
+                            text=True,
+                        ).splitlines()
+                    )
+                    exposed[number] = [r for r in shared[number] if r in missed]
                 return count(bcftools, folder / "overlay.bcf")
 
             manager.logger.info(
@@ -1135,28 +1195,6 @@ def run(manager, cache=None):
                 checked = checker.submit(
                     check_recipe, manager, work, recipe_input, annotated, tag, bcftools
                 )
-            # At a duplicate position the overlay may hold a cached value that
-            # the merge only replaces where the recipe wrote the tag. Should
-            # the recipe leave such a record without it, merge onto a base
-            # that holds the input's own records there instead.
-            clean = False
-            if sites and missing:
-                every = work / "duplicates.tsv"
-                every.write_text("".join(f"{row}\n" for d in duplicates for row in d))
-                if checked:
-                    checked.result()
-                untagged = subprocess.run(
-                    [bcftools, "view", "-H", "-R", str(every), "--regions-overlap", "0"]
-                    + ["-i", f'INFO/{tag}=""', str(annotated)],
-                    capture_output=True,
-                    check=True,
-                ).stdout
-                clean = bool(untagged.strip())
-                if clean:
-                    manager.logger.info(
-                        "Recipe left records at duplicate positions without "
-                        f"INFO/{tag}; merging onto the input's own records there"
-                    )
             manager.logger.info("Step 4/4: Overlay annotations; retain every record")
 
             parsed: list = [None] * len(folders)
@@ -1168,27 +1206,67 @@ def run(manager, cache=None):
                     if missing
                     else ""
                 )
-                base = "overlay.bcf"
-                if clean and duplicates[number]:
-                    base = "base.bcf"
-                    command(
-                        f"{tool} view --no-version -T ^duplicates.tsv overlay.bcf "
-                        "-o kept.bcf -Ob1 -W --threads 1 && "
-                        f"{tool} concat --no-version -a kept.bcf duplicated.bcf "
-                        "-o base.bcf -Ob1 -W --threads 1",
-                        folders[number],
+                folder = folders[number]
+                if exposed[number]:
+                    # Every record at an exposed position is taken from the
+                    # input, in input order, and annotated from a file that
+                    # holds all of them (cache hits and recipe results), so
+                    # none changes place. A hit at a duplicate position is
+                    # not used: the recipe annotated every record there.
+                    (folder / "exposed.tsv").write_text(
+                        "".join(f"{row}\n" for row in exposed[number])
                     )
-                if overlay or strip:
+                    holes = without(rows_of[number], exposed[number])
+                    (folder / "holes.bed").write_text(
+                        "".join(f"{row}\n" for row in holes)
+                    )
+                    at = "-R exposed.tsv --regions-overlap 0 "
+                    miss = (
+                        f'INFO/{HIT}!=1 || INFO/{tag}=""'
+                        if marked
+                        else f'INFO/{tag}=""'
+                    )
+                    used = "-T ^duplicates.tsv " if duplicates[number] else ""
                     command(
-                        f"{tool} annotate --no-version {overlay}{strip}{base} "
+                        f"{tool} view --no-version {at}{quoted(source)} "
+                        "-o own.bcf -Ob -W && "
+                        f"{tool} view --no-version {at}{used}-e '{miss}' overlay.bcf "
+                        f"-Ou | {tool} annotate --no-version {strip}-o hits.bcf -Ob -W && "
+                        f"{tool} view --no-version {at}{quoted(annotated)} "
+                        "-o fresh.bcf -Ob -W && "
+                        f"{tool} concat --no-version -a hits.bcf fresh.bcf "
+                        "-o both.bcf -Ob -W && "
+                        f"{tool} annotate --no-version --pair-logic exact -a both.bcf "
+                        "-c INFO own.bcf -o exposed.bcf -Ob -W",
+                        folder,
+                    )
+                    if holes:
+                        command(
+                            f"{tool} annotate --no-version -R holes.bed "
+                            f"--regions-overlap 0 --pair-logic exact "
+                            f"-a {quoted(annotated)} -c INFO {strip}overlay.bcf "
+                            f"-o main.bcf -Ob0 -W --threads {shard_threads} && "
+                            f"{tool} concat --no-version -a main.bcf exposed.bcf "
+                            f"-o final.bcf -Ob{level} -W --threads {shard_threads}",
+                            folder,
+                        )
+                    else:
+                        command(
+                            f"{tool} view --no-version exposed.bcf -o final.bcf "
+                            f"-Ob{level} -W --threads {shard_threads}",
+                            folder,
+                        )
+                elif overlay or strip:
+                    command(
+                        f"{tool} annotate --no-version {overlay}{strip}overlay.bcf "
                         f"-o final.bcf -Ob{level} -W --threads {shard_threads}",
-                        folders[number],
+                        folder,
                     )
                 else:
                     command(
                         f"{tool} view --no-version overlay.bcf -o final.bcf "
                         f"-Ob{level} -W --threads {shard_threads}",
-                        folders[number],
+                        folder,
                     )
                 # Read while other shards still run; gathering then only joins.
                 try:
@@ -1239,7 +1317,7 @@ def run(manager, cache=None):
                 "joined_index": joined,
                 "recipe_streamed": stream,
                 "planning": planning if shards else None,
-                "duplicate_clean_base": clean,
+                "exposed_sites": sum(len(e) for e in exposed),
                 "cache_access": "windows" if windowed else "contigs",
                 "output_level": level,
                 "hit_marker": marked,
