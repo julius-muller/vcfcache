@@ -495,6 +495,9 @@ def bgzf_compress(data, level=6, threads=1):
         return b"".join(pool.map(block, starts)) + BGZF_EOF
 
 
+# Errors that make a joined index unusable; bcftools then indexes instead.
+INDEX_ERRORS = (OSError, EOFError, ValueError, OverflowError, struct.error, zlib.error)
+
 # One virtual-offset field moved by one compressed byte, as a little-endian
 # 64-bit lane: (1 << 16) is the compressed-offset unit of a virtual offset.
 LANE = (1 << 16).to_bytes(8, "little")
@@ -622,16 +625,18 @@ def bcf_header(path):
     return data[:end], text
 
 
-def gather(parts, staged, threads=1):
+def gather(parts, staged, threads=1, indexes=None):
     """Join shard BCFs by block copy and join their CSI indexes arithmetically.
 
     Each shard was written with its own index; the joined index moves every
     file offset by where that shard's records land in the joined file, so the
     output is never read again. Returns False, writing nothing, whenever the
     shards do not have the expected shape; the caller then uses bcftools.
+    indexes may hold already parsed shard indexes (None where not parsed).
     """
-    headers, indexes = [], []
-    for part in parts:
+    headers, parsed = [], indexes or [None] * len(parts)
+    indexes = []
+    for part, csi in zip(parts, parsed, strict=True):
         with open(part, "rb") as stream:
             stream.seek(-len(BGZF_EOF), os.SEEK_END)
             if stream.read() != BGZF_EOF:
@@ -640,7 +645,7 @@ def gather(parts, staged, threads=1):
         if header is None or (headers and header[1] != headers[0][1]):
             return False
         headers.append(header)
-        indexes.append(Csi(Path(f"{part}.csi")))
+        indexes.append(csi or Csi(Path(f"{part}.csi")))
     first = indexes[0]
     if len({(i.min_shift, i.depth, i.aux, len(i.refs)) for i in indexes}) != 1:
         return False
@@ -1154,6 +1159,8 @@ def run(manager, cache=None):
                     )
             manager.logger.info("Step 4/4: Overlay annotations; retain every record")
 
+            parsed: list = [None] * len(folders)
+
             def merge(number):
                 """Add recipe annotations to one shard and drop any marker."""
                 overlay = (
@@ -1183,6 +1190,11 @@ def run(manager, cache=None):
                         f"-Ob{level} -W --threads {shard_threads}",
                         folders[number],
                     )
+                # Read while other shards still run; gathering then only joins.
+                try:
+                    parsed[number] = Csi(folders[number] / "final.bcf.csi")
+                except INDEX_ERRORS:
+                    parsed[number] = None
 
             try:
                 with ThreadPoolExecutor(max_workers=threads) as pool:
@@ -1198,15 +1210,12 @@ def run(manager, cache=None):
             gather_start = time.monotonic()
             try:
                 joined = gather(
-                    [folder / "final.bcf" for folder in folders], staged, threads
+                    [folder / "final.bcf" for folder in folders],
+                    staged,
+                    threads,
+                    parsed,
                 )
-            except (
-                OSError,
-                ValueError,
-                OverflowError,
-                struct.error,
-                zlib.error,
-            ) as error:
+            except INDEX_ERRORS as error:
                 manager.logger.warning(
                     f"Joining shard indexes failed ({error}); indexing"
                 )
