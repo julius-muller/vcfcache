@@ -30,10 +30,10 @@ WINDOW = 16384
 # Window lookups pay per-window index seeks; they win once the cache holds far
 # more records than the input (measured: wins at 250x, loses at 4x).
 WINDOW_RATIO = 20
-# The input is cut into SHARDS_PER_THREAD * threads shards of equal record
-# count, regardless of contig boundaries; more shards than cores lets the pool
-# absorb uneven cache density. Small inputs use fewer, larger shards.
-SHARDS_PER_THREAD = 2
+# The input is cut into one shard per core, of equal record count. Measured on
+# a genome and an exome (vep-rs core, 8 cores): 8 shards were as fast as or
+# faster than 16 or 24, and faster than 4. Small inputs use fewer, larger shards.
+SHARDS_PER_THREAD = 1
 MIN_SHARD = 5000
 # Every SAMPLE-th record's position is kept to place the cuts.
 SAMPLE = 1024
