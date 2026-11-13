@@ -506,9 +506,9 @@ def read_csi(path):
         for _ in range(n_bin):
             bin_, loffset, n_chunk = struct.unpack_from("<IQi", data, offset)
             offset += 16
-            chunks = [
-                struct.unpack_from("<QQ", data, offset + 16 * i) for i in range(n_chunk)
-            ]
+            chunks = list(
+                struct.iter_unpack("<QQ", data[offset : offset + 16 * n_chunk])
+            )
             offset += 16 * n_chunk
             bins[bin_] = [loffset, chunks]
         refs.append(bins)
@@ -516,6 +516,62 @@ def read_csi(path):
         struct.unpack_from("<Q", data, offset)[0] if offset + 8 <= len(data) else None
     )
     return min_shift, depth, aux, refs, n_no_coor
+
+
+def copy_range(source, target, start, length):
+    """Append bytes [start, start + length) of one open file to another."""
+    while length > 0:
+        try:
+            copied = os.copy_file_range(source.fileno(), target.fileno(), length, start)
+        except (AttributeError, OSError):
+            copied = None
+        if copied is None:
+            # No kernel copy here: copy through a buffer instead.
+            source.seek(start)
+            while length:
+                block = source.read(min(length, 1 << 24))
+                if not block:
+                    raise RuntimeError("Shard ended early")
+                target.write(block)
+                length -= len(block)
+            return
+        if copied == 0:
+            raise RuntimeError("Shard ended early")
+        start += copied
+        length -= copied
+
+
+def bcf_header(path):
+    """Header blocks of a bcftools BCF and its decompressed text, or None.
+
+    bcftools writes the header into its own BGZF blocks, so records start on
+    a block boundary; anything else is reported as None.
+    """
+    with open(path, "rb") as stream:
+        data = stream.read(1 << 20)
+        while True:
+            text, seen, end, length = b"", 0, 0, None
+            complete = False
+            for offset, size, usize in bgzf_blocks(data):
+                if offset + size > len(data):
+                    break
+                text += zlib.decompress(data[offset + 18 : offset + size - 8], -15)
+                seen += usize
+                end = offset + size
+                if length is None and len(text) >= 9:
+                    length = 9 + struct.unpack_from("<I", text, 5)[0]
+                if length is not None and seen >= length:
+                    complete = True
+                    break
+            if complete:
+                break
+            more = stream.read(1 << 22)
+            if not more:
+                return None
+            data += more
+    if text[:5] != b"BCF\x02\x02" or seen != length:
+        return None
+    return data[:end], text
 
 
 def gather(parts, staged):
@@ -526,31 +582,16 @@ def gather(parts, staged):
     output is never read again. Returns False, writing nothing, whenever the
     shards do not have the expected shape; the caller then uses bcftools.
     """
-    pieces, indexes, header = [], [], None
+    headers, indexes = [], []
     for part in parts:
-        data = part.read_bytes()
-        if not data.endswith(BGZF_EOF) or data[:4] != b"\x1f\x8b\x08\x04":
+        with open(part, "rb") as stream:
+            stream.seek(-len(BGZF_EOF), os.SEEK_END)
+            if stream.read() != BGZF_EOF:
+                return False
+        header = bcf_header(part)
+        if header is None or (headers and header[1] != headers[0][1]):
             return False
-        blocks = bgzf_blocks(data)
-        first = zlib.decompress(data[18 : blocks[0][1] - 8], -15)
-        if first[:5] != b"BCF\x02\x02":
-            return False
-        length = 9 + struct.unpack_from("<I", first, 5)[0]
-        # The header must fill whole blocks so records start on a boundary.
-        seen, end, text = 0, 0, b""
-        for offset, size, usize in blocks:
-            if seen >= length:
-                break
-            text += zlib.decompress(data[offset + 18 : offset + size - 8], -15)
-            seen += usize
-            end = offset + size
-        if seen != length:
-            return False
-        if header is None:
-            header = (data[:end], text)
-        elif text != header[1]:
-            return False
-        pieces.append((data, end))
+        headers.append(header)
         indexes.append(read_csi(Path(f"{part}.csi")))
     if len({(i[0], i[1], i[2]) for i in indexes}) != 1:
         return False
@@ -559,35 +600,42 @@ def gather(parts, staged):
     n_ref = max(len(i[3]) for i in indexes)
     joined: list = [{} for _ in range(n_ref)]
     no_coor = 0
-    base = len(header[0])
-    for (data, end), (_, _, _, refs, n_no_coor) in zip(pieces, indexes, strict=True):
-        delta = base - end
-
-        def shift(virtual, delta=delta):
-            return (((virtual >> 16) + delta) << 16) | (virtual & 0xFFFF)
-
+    base = len(headers[0][0])
+    spans = []
+    for part, (raw, _), (_, _, _, refs, n_no_coor) in zip(
+        parts, headers, indexes, strict=True
+    ):
+        end = len(raw)
+        length = part.stat().st_size - end - len(BGZF_EOF)
+        spans.append((end, length))
+        # Moving a block by delta bytes adds delta to the compressed part of
+        # every virtual offset in it.
+        shift = (base - end) << 16
         for tid, bins in enumerate(refs):
             for bin_, (loffset, chunks) in bins.items():
                 target = joined[tid].get(bin_)
                 if bin_ == meta_bin:
-                    (beg, fin), (mapped, unmapped) = chunks
+                    (beg, fin), counts = chunks
                     if target is None:
                         joined[tid][bin_] = [
                             loffset,
-                            [(shift(beg), shift(fin)), (mapped, unmapped)],
+                            [(beg + shift, fin + shift), counts],
                         ]
                     else:
-                        (b0, _), (m0, u0) = target[1]
-                        target[1] = [(b0, shift(fin)), (m0 + mapped, u0 + unmapped)]
+                        (first, _), (mapped, unmapped) = target[1]
+                        target[1] = [
+                            (first, fin + shift),
+                            (mapped + counts[0], unmapped + counts[1]),
+                        ]
                     continue
-                moved = [(shift(a), shift(b)) for a, b in chunks]
+                moved = [(a + shift, b + shift) for a, b in chunks]
                 if target is None:
-                    joined[tid][bin_] = [shift(loffset), moved]
+                    joined[tid][bin_] = [loffset + shift, moved]
                 else:
-                    target[0] = min(target[0], shift(loffset))
+                    target[0] = min(target[0], loffset + shift)
                     target[1].extend(moved)
         no_coor += n_no_coor or 0
-        base += len(data) - end - len(BGZF_EOF)
+        base += length
     index = bytearray(b"CSI\x01" + struct.pack("<3i", min_shift, depth, len(aux)) + aux)
     index += struct.pack("<i", n_ref)
     for bins in joined:
@@ -595,14 +643,15 @@ def gather(parts, staged):
         for bin_ in sorted(bins):
             loffset, chunks = bins[bin_]
             index += struct.pack("<IQi", bin_, loffset, len(chunks))
-            for a, b in chunks:
-                index += struct.pack("<QQ", a, b)
+            index += b"".join(struct.pack("<QQ", a, b) for a, b in chunks)
     if any(i[4] is not None for i in indexes):
         index += struct.pack("<Q", no_coor)
     with open(staged, "wb") as out:
-        out.write(header[0])
-        for data, end in pieces:
-            out.write(memoryview(data)[end : len(data) - len(BGZF_EOF)])
+        out.write(headers[0][0])
+        out.flush()
+        for part, (end, length) in zip(parts, spans, strict=True):
+            with open(part, "rb") as source:
+                copy_range(source, out, end, length)
         out.write(BGZF_EOF)
     Path(f"{staged}.csi").write_bytes(bgzf_compress(bytes(index)))
     return True
