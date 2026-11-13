@@ -558,7 +558,9 @@ def run(manager, cache=None):
             windowed = bool(total) and count(bcftools, cache) > WINDOW_RATIO * total
             # One parallel pass over the input's keys places equal-record cuts
             # and finds duplicate positions and, for small inputs, windows.
-            parts = min(SHARDS_PER_THREAD * threads, -(-total // MIN_SHARD))
+            parts = max(
+                1, min(int(SHARDS_PER_THREAD * threads), -(-total // MIN_SHARD))
+            )
             plan_start = time.monotonic()
             # Large inputs are cut from the index alone, in file order, and
             # each shard's duplicate scan runs beside its cache lookup. Small
