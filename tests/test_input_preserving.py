@@ -671,3 +671,28 @@ def test_streaming_recipe_with_all_hits_and_with_failure(tmp_path, inputs):
     with pytest.raises(RuntimeError):
         run.run("annotate", db_bcf=cache)
     assert run.output_file.read_bytes() == b"previous deliverable"
+
+
+def test_gather_handles_shards_larger_than_one_read_buffer(tmp_path):
+    """Shards of several megabytes join, and the joined index answers queries."""
+    header = "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=90000000>\n"
+    header += '##INFO=<ID=T,Number=1,Type=String,Description="t">\n'
+    header += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n"
+    rows = [f"chr1\t{p}\t.\tA\tC\t.\t.\tT=y{p}" for p in range(100, 80_000_000, 400)]
+    vcf = tmp_path / "large.vcf"
+    vcf.write_text(header + "\n".join(rows) + "\n")
+    parts = []
+    for n, (a, b) in enumerate(((1, 40_000_000), (40_000_001, 90_000_000))):
+        part = tmp_path / f"part{n}.bcf"
+        subprocess.run(
+            ["bcftools", "view", "--no-version", "-i", f"POS>={a} && POS<={b}"]
+            + [str(vcf), "-Ob", "-W", "-o", str(part)],
+            check=True,
+        )
+        assert part.stat().st_size > 1 << 20
+        parts.append(part)
+    joined = tmp_path / "joined.bcf"
+    assert preserving.gather(parts, joined)
+    assert records(joined) == records(vcf)
+    region = ["bcftools", "view", "-H", "-r", "chr1:39999000-40001000", str(joined)]
+    assert subprocess.check_output(region).count(b"\n") == 5

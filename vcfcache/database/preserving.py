@@ -460,10 +460,12 @@ BGZF_EOF = bytes.fromhex("1f8b08040000000000ff0600424302001b00030000000000000000
 
 
 def bgzf_blocks(data):
-    """(offset, compressed size, uncompressed size) of every BGZF block."""
+    """(offset, compressed size, uncompressed size) of every complete block."""
     blocks, offset = [], 0
-    while offset < len(data):
+    while offset + 18 <= len(data):
         size = struct.unpack_from("<H", data, offset + 16)[0] + 1
+        if offset + size > len(data):
+            break
         blocks.append(
             (offset, size, struct.unpack_from("<I", data, offset + size - 4)[0])
         )
@@ -1116,7 +1118,13 @@ def run(manager, cache=None):
             # file order, so nothing is decoded or recompressed here. Their
             # indexes, written while each shard was compressed, are joined too.
             gather_start = time.monotonic()
-            joined = gather([folder / "final.bcf" for folder in folders], staged)
+            try:
+                joined = gather([folder / "final.bcf" for folder in folders], staged)
+            except (OSError, ValueError, struct.error, zlib.error) as error:
+                manager.logger.warning(
+                    f"Joining shard indexes failed ({error}); indexing"
+                )
+                joined = False
             if joined:
                 result = subprocess.CompletedProcess(["gather"], 0)
             else:
