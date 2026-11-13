@@ -473,51 +473,97 @@ def bgzf_blocks(data):
     return blocks
 
 
-def bgzf_compress(data, level=6):
+def bgzf_compress(data, level=6, threads=1):
     """BGZF-compress bytes, ending with the EOF block, as htslib expects."""
-    out = bytearray()
-    for start in range(0, len(data), 0xFF00):
+
+    def block(start):
         chunk = data[start : start + 0xFF00]
         deflate = zlib.compressobj(level, zlib.DEFLATED, -15)
         body = deflate.compress(chunk) + deflate.flush()
-        out += b"\x1f\x8b\x08\x04\x00\x00\x00\x00\x00\xff\x06\x00BC\x02\x00"
-        out += struct.pack("<H", len(body) + 25) + body
-        out += struct.pack("<II", zlib.crc32(chunk), len(chunk))
-    return bytes(out + BGZF_EOF)
-
-
-def read_csi(path):
-    """Parse a CSI index fully: (min_shift, depth, aux, refs, n_no_coor).
-
-    refs is a list, one per reference, of {bin: [loffset, [(beg, end), ...]]}.
-    """
-    data = gzip.open(path).read()
-    if data[:4] != b"CSI\x01":
-        raise ValueError(f"Not a CSI index: {path}")
-    min_shift, depth, l_aux = struct.unpack_from("<3i", data, 4)
-    offset = 16
-    aux = data[offset : offset + l_aux]
-    offset += l_aux
-    (n_ref,) = struct.unpack_from("<i", data, offset)
-    offset += 4
-    refs = []
-    for _ in range(n_ref):
-        (n_bin,) = struct.unpack_from("<i", data, offset)
-        offset += 4
-        bins = {}
-        for _ in range(n_bin):
-            bin_, loffset, n_chunk = struct.unpack_from("<IQi", data, offset)
-            offset += 16
-            chunks = list(
-                struct.iter_unpack("<QQ", data[offset : offset + 16 * n_chunk])
+        return b"".join(
+            (
+                b"\x1f\x8b\x08\x04\x00\x00\x00\x00\x00\xff\x06\x00BC\x02\x00",
+                struct.pack("<H", len(body) + 25),
+                body,
+                struct.pack("<II", zlib.crc32(chunk), len(chunk)),
             )
-            offset += 16 * n_chunk
-            bins[bin_] = [loffset, chunks]
-        refs.append(bins)
-    n_no_coor = (
-        struct.unpack_from("<Q", data, offset)[0] if offset + 8 <= len(data) else None
-    )
-    return min_shift, depth, aux, refs, n_no_coor
+        )
+
+    starts = range(0, len(data), 0xFF00)
+    # zlib releases the GIL, so blocks compress in parallel.
+    with ThreadPoolExecutor(max_workers=max(1, threads)) as pool:
+        return b"".join(pool.map(block, starts)) + BGZF_EOF
+
+
+# One virtual-offset field moved by one compressed byte, as a little-endian
+# 64-bit lane: (1 << 16) is the compressed-offset unit of a virtual offset.
+LANE = (1 << 16).to_bytes(8, "little")
+
+
+class Csi:
+    """A CSI index kept as raw bytes, with every virtual-offset field marked.
+
+    refs[tid] = (start, end, bins): the byte range of that reference's bin
+    records and {bin: (record offset, n_chunk)}. mask has LANE at every bin
+    loffset and chunk offset (never at the meta bin), so moving all offsets
+    of a byte range by delta compressed bytes is a single integer addition.
+    """
+
+    def __init__(self, path):
+        data = gzip.open(path).read()
+        if data[:4] != b"CSI\x01":
+            raise ValueError(f"Not a CSI index: {path}")
+        self.min_shift, self.depth, l_aux = struct.unpack_from("<3i", data, 4)
+        self.aux = data[16 : 16 + l_aux]
+        self.meta = ((1 << ((self.depth + 1) * 3)) - 1) // 7 + 1
+        offset = 16 + l_aux
+        (n_ref,) = struct.unpack_from("<i", data, offset)
+        offset += 4
+        mask = bytearray(len(data))
+        unpack = struct.Struct("<IQi").unpack_from
+        self.refs = []
+        for _ in range(n_ref):
+            (n_bin,) = struct.unpack_from("<i", data, offset)
+            offset += 4
+            start = offset
+            bins = {}
+            for _ in range(n_bin):
+                bin_, _, n_chunk = unpack(data, offset)
+                bins[bin_] = (offset, n_chunk)
+                if bin_ != self.meta:
+                    mask[offset + 4 : offset + 12] = LANE
+                    mask[offset + 16 : offset + 16 + 16 * n_chunk] = LANE * (
+                        2 * n_chunk
+                    )
+                offset += 16 + 16 * n_chunk
+            self.refs.append((start, offset, bins))
+        if offset > len(data):
+            raise ValueError(f"Truncated CSI index: {path}")
+        self.n_no_coor = (
+            struct.unpack_from("<Q", data, offset)[0]
+            if offset + 8 <= len(data)
+            else None
+        )
+        self.data, self.mask = data, bytes(mask)
+
+    def moved(self, start, end, delta):
+        """Bytes [start, end) with every virtual offset moved by delta bytes."""
+        value = int.from_bytes(self.data[start:end], "little")
+        lanes = int.from_bytes(self.mask[start:end], "little")
+        # Each lane holds a value below 2**64 before and after the move, so
+        # no carry or borrow crosses a lane boundary.
+        return (value + delta * lanes).to_bytes(end - start, "little")
+
+    def record(self, bin_):
+        """(loffset, [(beg, end), ...]) of one bin of a reference's bins."""
+        offset, n_chunk = bin_
+        loffset = struct.unpack_from("<Q", self.data, offset + 4)[0]
+        chunks = list(
+            struct.iter_unpack(
+                "<QQ", self.data[offset + 16 : offset + 16 + 16 * n_chunk]
+            )
+        )
+        return loffset, chunks
 
 
 def copy_range(source, target, start, length):
@@ -576,10 +622,10 @@ def bcf_header(path):
     return data[:end], text
 
 
-def gather(parts, staged):
+def gather(parts, staged, threads=1):
     """Join shard BCFs by block copy and join their CSI indexes arithmetically.
 
-    Each shard was written with its own index; the joined index shifts every
+    Each shard was written with its own index; the joined index moves every
     file offset by where that shard's records land in the joined file, so the
     output is never read again. Returns False, writing nothing, whenever the
     shards do not have the expected shape; the caller then uses bcftools.
@@ -594,68 +640,100 @@ def gather(parts, staged):
         if header is None or (headers and header[1] != headers[0][1]):
             return False
         headers.append(header)
-        indexes.append(read_csi(Path(f"{part}.csi")))
-    if len({(i[0], i[1], i[2]) for i in indexes}) != 1:
+        indexes.append(Csi(Path(f"{part}.csi")))
+    first = indexes[0]
+    if len({(i.min_shift, i.depth, i.aux, len(i.refs)) for i in indexes}) != 1:
         return False
-    min_shift, depth, aux = indexes[0][:3]
-    meta_bin = ((1 << ((depth + 1) * 3)) - 1) // 7 + 1
-    n_ref = max(len(i[3]) for i in indexes)
-    joined: list = [{} for _ in range(n_ref)]
-    no_coor = 0
+    spans, deltas = [], []
     base = len(headers[0][0])
-    spans = []
-    for part, (raw, _), (_, _, _, refs, n_no_coor) in zip(
-        parts, headers, indexes, strict=True
-    ):
+    for part, (raw, _) in zip(parts, headers, strict=True):
         end = len(raw)
         length = part.stat().st_size - end - len(BGZF_EOF)
+        if length < 0:
+            return False
         spans.append((end, length))
         # Moving a block by delta bytes adds delta to the compressed part of
         # every virtual offset in it.
-        shift = (base - end) << 16
-        for tid, bins in enumerate(refs):
-            for bin_, (loffset, chunks) in bins.items():
-                target = joined[tid].get(bin_)
-                if bin_ == meta_bin:
-                    (beg, fin), counts = chunks
-                    if target is None:
-                        joined[tid][bin_] = [
-                            loffset,
-                            [(beg + shift, fin + shift), counts],
-                        ]
-                    else:
-                        (first, _), (mapped, unmapped) = target[1]
-                        target[1] = [
-                            (first, fin + shift),
-                            (mapped + counts[0], unmapped + counts[1]),
-                        ]
-                    continue
-                moved = [(a + shift, b + shift) for a, b in chunks]
-                if target is None:
-                    joined[tid][bin_] = [loffset + shift, moved]
-                else:
-                    target[0] = min(target[0], loffset + shift)
-                    target[1].extend(moved)
-        no_coor += n_no_coor or 0
+        deltas.append(base - end)
         base += length
-    index = bytearray(b"CSI\x01" + struct.pack("<3i", min_shift, depth, len(aux)) + aux)
-    index += struct.pack("<i", n_ref)
-    for bins in joined:
-        index += struct.pack("<i", len(bins))
-        for bin_ in sorted(bins):
-            loffset, chunks = bins[bin_]
-            index += struct.pack("<IQi", bin_, loffset, len(chunks))
-            index += b"".join(struct.pack("<QQ", a, b) for a, b in chunks)
-    if any(i[4] is not None for i in indexes):
-        index += struct.pack("<Q", no_coor)
-    with open(staged, "wb") as out:
-        out.write(headers[0][0])
-        out.flush()
-        for part, (end, length) in zip(parts, spans, strict=True):
-            with open(part, "rb") as source:
-                copy_range(source, out, end, length)
-        out.write(BGZF_EOF)
-    Path(f"{staged}.csi").write_bytes(bgzf_compress(bytes(index)))
+
+    def copy():
+        with open(staged, "wb") as out:
+            out.write(headers[0][0])
+            out.flush()
+            for part, (end, length) in zip(parts, spans, strict=True):
+                with open(part, "rb") as source:
+                    copy_range(source, out, end, length)
+            out.write(BGZF_EOF)
+
+    pack = struct.Struct("<IQi").pack
+    index = [
+        b"CSI\x01",
+        struct.pack("<3i", first.min_shift, first.depth, len(first.aux)),
+        first.aux,
+        struct.pack("<i", len(first.refs)),
+    ]
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        copying = pool.submit(copy)
+        for tid in range(len(first.refs)):
+            holders = [
+                (i, d) for i, d in zip(indexes, deltas, strict=True) if i.refs[tid][2]
+            ]
+            # A reference split between shards shares only the bins around
+            # each cut, one per level at most, plus the meta bin. Those are
+            # merged here; all other bin records are moved as raw bytes.
+            shared, seen = {first.meta}, set()
+            if len(holders) > 1:
+                for i, _ in holders:
+                    keys = i.refs[tid][2].keys()
+                    shared.update(keys & seen)
+                    seen.update(keys)
+            pieces, merged, n_bin = [], {}, 0
+            for i, delta in holders:
+                start, end, bins = i.refs[tid]
+                cuts = sorted((bins[b], b) for b in shared if b in bins)
+                n_bin += len(bins) - len(cuts)
+                position = start
+                for (offset, n_chunk), bin_ in cuts:
+                    if offset > position:
+                        pieces.append(i.moved(position, offset, delta))
+                    position = offset + 16 + 16 * n_chunk
+                    loffset, chunks = i.record((offset, n_chunk))
+                    shift = delta << 16
+                    target = merged.get(bin_)
+                    if bin_ == first.meta:
+                        (beg, fin), counts = chunks
+                        if target is None:
+                            merged[bin_] = [
+                                loffset,
+                                [(beg + shift, fin + shift), counts],
+                            ]
+                        else:
+                            (begin, _), (mapped, unmapped) = target[1]
+                            target[1] = [
+                                (begin, fin + shift),
+                                (mapped + counts[0], unmapped + counts[1]),
+                            ]
+                        continue
+                    moved = [(a + shift, b + shift) for a, b in chunks]
+                    if target is None:
+                        merged[bin_] = [loffset + shift, moved]
+                    else:
+                        target[0] = min(target[0], loffset + shift)
+                        target[1].extend(moved)
+                if end > position:
+                    pieces.append(i.moved(position, end, delta))
+            index.append(struct.pack("<i", n_bin + len(merged)))
+            index += pieces
+            for bin_, (loffset, chunks) in merged.items():
+                index.append(pack(bin_, loffset, len(chunks)))
+                index += [struct.pack("<QQ", a, b) for a, b in chunks]
+        if any(i.n_no_coor is not None for i in indexes):
+            index.append(struct.pack("<Q", sum(i.n_no_coor or 0 for i in indexes)))
+        compressed = bgzf_compress(b"".join(index), threads=threads)
+        copying.result()
+    # Written after the data, so the index is never older than the file.
+    Path(f"{staged}.csi").write_bytes(compressed)
     return True
 
 
@@ -1119,8 +1197,16 @@ def run(manager, cache=None):
             # indexes, written while each shard was compressed, are joined too.
             gather_start = time.monotonic()
             try:
-                joined = gather([folder / "final.bcf" for folder in folders], staged)
-            except (OSError, ValueError, struct.error, zlib.error) as error:
+                joined = gather(
+                    [folder / "final.bcf" for folder in folders], staged, threads
+                )
+            except (
+                OSError,
+                ValueError,
+                OverflowError,
+                struct.error,
+                zlib.error,
+            ) as error:
                 manager.logger.warning(
                     f"Joining shard indexes failed ({error}); indexing"
                 )

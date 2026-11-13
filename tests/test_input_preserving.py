@@ -645,8 +645,8 @@ def test_index_planning_keeps_file_order_and_cuts_large_inputs(
     out = records(cached.output_file)
     assert out.split(b"\n", 1)[0].startswith(b"chr2\t")
     assert sorted(out.splitlines()) == sorted(records(direct.output_file).splitlines())
-    assert [l.split(b"\t")[:2] for l in out.splitlines()] == [
-        l.split(b"\t")[:2] for l in records(direct.output_file).splitlines()
+    assert [row.split(b"\t")[:2] for row in out.splitlines()] == [
+        row.split(b"\t")[:2] for row in records(direct.output_file).splitlines()
     ]
 
 
@@ -701,3 +701,29 @@ def test_gather_handles_shards_larger_than_one_read_buffer(tmp_path):
     assert records(joined) == records(vcf)
     region = ["bcftools", "view", "-H", "-r", "chr1:39999000-40001000", str(joined)]
     assert subprocess.check_output(region).count(b"\n") == 5
+    # The joined index answers every region like an index bcftools builds.
+    reference = tmp_path / "reference.bcf"
+    subprocess.run(
+        [
+            "bcftools",
+            "view",
+            "--no-version",
+            str(vcf),
+            "-Ob",
+            "-W",
+            "-o",
+            str(reference),
+        ],
+        check=True,
+    )
+    stats = ["bcftools", "index", "-s"]
+    assert subprocess.check_output(stats + [str(joined)]) == (
+        subprocess.check_output(stats + [str(reference)])
+    )
+    for _ in range(40):
+        a = noise.randrange(1, 80_000_000)
+        b = a + noise.choice((1, 400, 20_000, 3_000_000))
+        query = ["bcftools", "query", "-f", "%POS\n", "-r", f"chr1:{a}-{b}"]
+        assert subprocess.check_output(query + [str(joined)]) == (
+            subprocess.check_output(query + [str(reference)])
+        )
