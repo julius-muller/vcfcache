@@ -11,6 +11,7 @@ it has been annotated. Cache access is restricted to windows around the input
 when the cache is much larger than the input, and to whole contigs otherwise.
 """
 
+import errno
 import gzip
 import hashlib
 import os
@@ -21,6 +22,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import zlib
 from concurrent.futures import ThreadPoolExecutor
@@ -616,6 +618,58 @@ def streamable(recipe):
     return recipe.count("INPUT_BCF") == 1 and bool(STREAM.search(recipe))
 
 
+def start_recipe(manager, work, recipe_input, annotated):
+    """Start the recipe in the background, reading from ``recipe_input``."""
+    auxiliary = manager.output_dir / "auxiliary"
+    auxiliary.mkdir(exist_ok=True)
+    recipe = manager._substitute_variables(
+        manager.nfa_config_content["annotation_cmd"],
+        extra_vars={
+            "INPUT_BCF": str(recipe_input),
+            "OUTPUT_BCF": str(annotated),
+            "AUXILIARY_DIR": str(auxiliary),
+        },
+    )
+    (work / "recipe.sh").write_text(f"#!/bin/bash\nset -euo pipefail\n\n{recipe}\n")
+    manager.logger.debug(f"Command (started early): {recipe}")
+    logs = [(work / "stdout.txt").open("wb"), (work / "stderr.txt").open("wb")]
+    process = subprocess.Popen(
+        ["bash", "-c", "set -euo pipefail\n" + recipe],
+        cwd=work,
+        stdout=logs[0],
+        stderr=logs[1],
+    )
+    return dict(
+        process=process,
+        recipe=recipe,
+        logs=logs,
+        auxiliary=auxiliary,
+        started=time.monotonic(),
+    )
+
+
+def finish_recipe(manager, work, started):
+    """Wait for a recipe started by start_recipe; return its exit status."""
+    status = started["process"].wait()
+    for log in started["logs"]:
+        log.close()
+    manager.logger.info(
+        f"Recipe finished {time.monotonic() - started['started']:.3f}s after its "
+        f"early start, exit status {status}"
+    )
+    for filename, output in (
+        ("stdout.txt", "annotation_tool.log"),
+        ("stderr.txt", "annotation_tool_err.log"),
+    ):
+        path = work / filename
+        if path.exists() and path.stat().st_size:
+            shutil.copyfile(path, manager.output_dir / output)
+    auxiliary = started["auxiliary"]
+    if auxiliary.exists() and not any(auxiliary.iterdir()):
+        auxiliary.rmdir()
+    return status
+
+
 def run_recipe(manager, work, command, recipe_input, annotated):
     """Run the annotation recipe once; its output is checked by check_recipe."""
     auxiliary = manager.output_dir / "auxiliary"
@@ -776,8 +830,66 @@ def run(manager, cache=None):
             scanned = [0] * len(folders)
             mark = f"-m +{HIT} " if marked else ""
             strip = f"-x INFO/{HIT} " if marked else ""
+            annotated = work / "recipe.bcf"
+            # A recipe that streams its input starts now: it loads its own
+            # data while the cache lookup runs, then reads each shard's misses
+            # from a pipe as soon as that shard and those before it are done.
+            stream = bool(shards) and streamable(
+                manager.nfa_config_content["annotation_cmd"]
+            )
+            ready = [threading.Event() for _ in folders]
+            failed = threading.Event()
+            feed_errors: list = []
+            started = None
+            fifo = work / "misses.fifo"
+
+            def feed():
+                """Write every shard's misses, in order, into the recipe's pipe."""
+                try:
+                    descriptor = None
+                    while descriptor is None:
+                        try:
+                            descriptor = os.open(fifo, os.O_WRONLY | os.O_NONBLOCK)
+                        except OSError as error:
+                            if error.errno != errno.ENXIO:
+                                raise
+                            if started["process"].poll() is not None or failed.is_set():
+                                return
+                            time.sleep(0.02)
+                    os.set_blocking(descriptor, True)
+                    with os.fdopen(descriptor, "wb") as pipe:
+                        for number, folder in enumerate(folders):
+                            ready[number].wait()
+                            if failed.is_set():
+                                return
+                            subprocess.run(
+                                [bcftools, "view", "--no-version"]
+                                + (["-H"] if number else [])
+                                + [str(folder / "misses.bcf")],
+                                stdout=pipe,
+                                check=True,
+                            )
+                except BaseException as error:  # reported after the lookup
+                    feed_errors.append(error)
+
+            if stream:
+                fifo.unlink(missing_ok=True)
+                os.mkfifo(fifo)
+                started = start_recipe(manager, work, fifo, annotated)
+                feeder = threading.Thread(target=feed, daemon=True)
+                feeder.start()
 
             def lookup(number):
+                """Overlay exact cache hits on one shard; signal its misses."""
+                try:
+                    return select(number)
+                except BaseException:
+                    failed.set()
+                    raise
+                finally:
+                    ready[number].set()
+
+            def select(number):
                 """Overlay exact cache hits on one shard and select its misses."""
                 folder = folders[number]
                 scan = None
@@ -839,9 +951,16 @@ def run(manager, cache=None):
                 f"Step 1/4: Exact biallelic cache overlay in {len(folders)} shard(s), "
                 f"cache access by {'windows' if windowed else 'contigs'}; input unchanged"
             )
-            with ThreadPoolExecutor(max_workers=threads) as pool:
-                if sum(pool.map(lookup, range(len(folders)))) != total:
-                    raise RuntimeError("Cache overlay changed input record count")
+            try:
+                with ThreadPoolExecutor(max_workers=threads) as pool:
+                    if sum(pool.map(lookup, range(len(folders)))) != total:
+                        raise RuntimeError("Cache overlay changed input record count")
+            except BaseException:
+                failed.set()
+                if started:
+                    started["process"].kill()
+                    finish_recipe(manager, work, started)
+                raise
             if scans is None and shards and sum(scanned) != total:
                 raise RuntimeError("Shard key scans read a different number of records")
             sites = sum(len(d) for d in duplicates)
@@ -858,14 +977,27 @@ def run(manager, cache=None):
                 f"{tool} index -f {quoted(recipe_input)}"
             )
             missing = count(bcftools, recipe_input)
-            annotated = work / "recipe.bcf"
             # The recipe output is checked while the shards are merged; nothing
             # is published before that check has passed.
             checker = ThreadPoolExecutor(max_workers=1)
             checked = None
-            if missing:
+            if started:
+                manager.logger.info(
+                    f"Step 3/4: Annotating {missing} unchanged records (started early)"
+                )
+                feeder.join()
+                status = finish_recipe(manager, work, started)
+                fifo.unlink(missing_ok=True)
+                if feed_errors:
+                    raise RuntimeError(
+                        f"Streaming misses to the recipe failed: {feed_errors[0]}"
+                    )
+                if missing and status:
+                    raise subprocess.CalledProcessError(status, started["recipe"])
+            elif missing:
                 manager.logger.info(f"Step 3/4: Annotating {missing} unchanged records")
                 run_recipe(manager, work, command, recipe_input, annotated)
+            if missing:
                 checked = checker.submit(
                     check_recipe, manager, work, recipe_input, annotated, tag, bcftools
                 )
@@ -953,6 +1085,7 @@ def run(manager, cache=None):
                 "shards": len(folders),
                 "duplicate_sites": sites,
                 "joined_index": joined,
+                "recipe_streamed": stream,
                 "planning": planning if shards else None,
                 "duplicate_clean_base": clean,
                 "cache_access": "windows" if windowed else "contigs",

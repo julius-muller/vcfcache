@@ -564,6 +564,8 @@ def test_duplicate_positions_never_keep_cached_values(
     ]
     assert b"WRONG" not in cached
     stats = runs["cached"].last_run_stats
+    # This recipe reads its input once through bcftools view: it streams.
+    assert stats["recipe_streamed"]
     assert stats["duplicate_sites"] == 2
     # f and h sit at a duplicate position and would hold a cached WRONG.
     assert stats["duplicate_clean_base"] == (skip in ("f", "h"))
@@ -645,3 +647,27 @@ def test_index_planning_keeps_file_order_and_cuts_large_inputs(
     assert [l.split(b"\t")[:2] for l in out.splitlines()] == [
         l.split(b"\t")[:2] for l in records(direct.output_file).splitlines()
     ]
+
+
+STREAMING = (
+    "${params.bcftools_cmd} view ${INPUT_BCF} -Ov | sed 's/^\\(chr[^\\t]*\\t[^\\t]*\\t[^\\t]*'"
+    "'\\t[^\\t]*\\t[^\\t]*\\t[^\\t]*\\t[^\\t]*\\t\\)\\.\\t/\\1MOCK_ANNO=s\\t/' | "
+    "${params.bcftools_cmd} view -Ob -o ${OUTPUT_BCF} -W"
+)
+
+
+def test_streaming_recipe_with_all_hits_and_with_failure(tmp_path, inputs):
+    """An early-started recipe: no misses at all, and a recipe that fails."""
+    _, cache = inputs
+    source = bcf(tmp_path, "hits", [ROWS[0], ROWS[5]])
+    run = manager(tmp_path / "hits_run", source, recipe=STREAMING)
+    run.run("annotate", db_bcf=cache)
+    assert run.last_run_stats["recipe_streamed"]
+    assert run.last_run_stats["missing_variants"] == 0
+    source, _ = inputs
+    failing = "${params.bcftools_cmd} view ${INPUT_BCF} -Ov > /dev/null; exit 3"
+    run = manager(tmp_path / "failing", source, recipe=failing)
+    run.output_file.write_bytes(b"previous deliverable")
+    with pytest.raises(RuntimeError):
+        run.run("annotate", db_bcf=cache)
+    assert run.output_file.read_bytes() == b"previous deliverable"
