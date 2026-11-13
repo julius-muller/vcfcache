@@ -1,6 +1,7 @@
 """Real bcftools checks for the immutable-record annotation contract."""
 
 import hashlib
+import random
 import subprocess
 
 import pytest
@@ -678,7 +679,11 @@ def test_gather_handles_shards_larger_than_one_read_buffer(tmp_path):
     header = "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=90000000>\n"
     header += '##INFO=<ID=T,Number=1,Type=String,Description="t">\n'
     header += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n"
-    rows = [f"chr1\t{p}\t.\tA\tC\t.\t.\tT=y{p}" for p in range(100, 80_000_000, 400)]
+    noise = random.Random(7)
+    rows = [
+        f"chr1\t{p}\t.\tA\tC\t.\t.\tT={noise.getrandbits(160):040x}"
+        for p in range(100, 80_000_000, 400)
+    ]
     vcf = tmp_path / "large.vcf"
     vcf.write_text(header + "\n".join(rows) + "\n")
     parts = []
