@@ -259,14 +259,14 @@ def shard_duplicates(shard, scans):
     ]
 
 
-def contig_order(bcftools, source):
+def contig_order(bcftools, source, stats):
     """Occupied contigs in the order of the header's contig lines.
 
     This is the order bcftools uses when it merges by position, and the
     fallback output order. The index's own order is not used: tabix numbers
     contigs in file order.
     """
-    occupied = {contig for contig, _, _ in index_stats(bcftools, source)}
+    occupied = {contig for contig, _, _ in stats}
     header = subprocess.check_output([bcftools, "view", "-h", str(source)], text=True)
     declared = [
         line.split("ID=", 1)[1].split(",")[0].rstrip(">")
@@ -275,11 +275,11 @@ def contig_order(bcftools, source):
     ]
     order = [contig for contig in declared if contig in occupied]
     # Contigs used but not declared follow in index order.
-    order += [c for c, _, _ in index_stats(bcftools, source) if c not in set(order)]
+    order += [c for c, _, _ in stats if c not in set(order)]
     return order
 
 
-def read_index(bcftools, source):
+def read_index(bcftools, source, stats):
     """Contigs in file order with the file offsets of their 16 kb windows.
 
     Reads the input's CSI or TBI index only, no record. Each reference's
@@ -340,20 +340,24 @@ def read_index(bcftools, source):
             ]
         meta_bin = ((1 << ((depth + 1) * 3)) - 1) // 7 + 1
         first_leaf = ((1 << (depth * 3)) - 1) // 7
+        head = struct.Struct("<Ii" if tbi else "<IQi")
+        pair = struct.Struct("<QQ")
         refs = []
         for tid in range(n_ref):
             (n_bin,) = take("<i")
             meta, windows = None, {}
             for _ in range(n_bin):
-                if tbi:
-                    bin_, n_chunk = take("<Ii")
-                else:
-                    bin_, _, n_chunk = take("<IQi")
-                chunks = [take("<QQ") for _ in range(n_chunk)]
+                fields = head.unpack_from(data, offset)
+                offset += head.size
+                bin_, n_chunk = fields[0], fields[-1]
                 if bin_ == meta_bin:
-                    meta = chunks
-                elif bin_ >= first_leaf and chunks:
-                    windows[bin_ - first_leaf] = min(c[0] for c in chunks) >> 16
+                    meta = [
+                        pair.unpack_from(data, offset + 16 * i) for i in range(n_chunk)
+                    ]
+                elif bin_ >= first_leaf and n_chunk:
+                    # Chunks are sorted, so the first starts the window.
+                    windows[bin_ - first_leaf] = pair.unpack_from(data, offset)[0] >> 16
+                offset += 16 * n_chunk
             if tbi:
                 (n_intv,) = take("<i")
                 offset += 8 * n_intv
@@ -369,7 +373,7 @@ def read_index(bcftools, source):
                 )
     except (OSError, struct.error, IndexError, EOFError):
         return None
-    expected = {c: n for c, _, n in index_stats(bcftools, source)}
+    expected = {c: n for c, _, n in stats}
     if min_shift != 14 or {c: n for c, n, *_ in refs} != expected:
         return None
     return sorted(refs, key=lambda ref: ref[2])
@@ -559,8 +563,9 @@ def run(manager, cache=None):
             # Large inputs are cut from the index alone, in file order, and
             # each shard's duplicate scan runs beside its cache lookup. Small
             # inputs need their windows first, so they are scanned up front.
-            refs = read_index(bcftools, source) if total else None
-            header = contig_order(bcftools, source)
+            stats_ = index_stats(bcftools, source)
+            refs = read_index(bcftools, source, stats_) if total else None
+            header = contig_order(bcftools, source, stats_)
             # File order, from the index; header order when it cannot be read.
             order = [r[0] for r in refs] if refs else header
             span = order == header
