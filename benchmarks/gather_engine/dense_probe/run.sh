@@ -69,10 +69,12 @@ mkdir -p $R/sa/base; ln -f /results/fastvep05/acmg/sa/stack/clinvar.osa2 $R/sa/b
 sab() {  # source name bits
   local o=$R/sa/build/$2_$3; [ -e $o.osa2 ] && return
   local t=$(date +%s); /usr/bin/time -f "sa-build $2 bits $3: %e s, peak %M KB" $FV sa-build --no-progress --assembly GRCh38 --source $1 \
-    $([ $1 = custom_vcf ] && echo --name $2) -i $R/$2.vcf.gz -o $o.tmp --chunk-bits $3 && mv $o.tmp.osa2 $o.osa2
+    $([ $1 = custom_vcf ] && echo --name $2) -i $R/$2.vcf.gz -o $R/sa/build/tmp_$2_$3 --chunk-bits $3 && mv $R/sa/build/tmp_$2_$3.osa2 $o.osa2
 }
 mkdir -p $R/sa/build
-for bits in 16 12; do sab spliceai spliceai $bits & sab custom_vcf mockdb $bits & wait; done
+# custom_vcf builds in memory (about 170 bytes a record: 120 M records were
+# killed at 20 GB), so the region is sized for it; the SpliceAI parser streams.
+for bits in 16 12; do sab spliceai spliceai $bits & sab custom_vcf mockdb $bits & wait; test -e $R/sa/build/mockdb_$bits.osa2 -a -e $R/sa/build/spliceai_$bits.osa2; done
 for bits in 16 12; do for st in D1 D2; do
   S=$R/sa/${st}_$bits; mkdir -p $S; cp -l -f $R/sa/base/clinvar.osa2 $S/; cp -l -f $R/sa/build/spliceai_$bits.osa2 $S/spliceai.osa2
   [ $st = D1 ] || cp -l -f $R/sa/build/mockdb_$bits.osa2 $S/mockdb.osa2
