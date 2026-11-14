@@ -638,6 +638,52 @@ def test_records_sharing_a_position_keep_their_order(
     assert stats["joined_index"]
 
 
+def test_shards_with_different_headers_are_recoded(tmp_path, monkeypatch):
+    """Blocks are copied only when every shard numbers its tags alike."""
+    monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+    monkeypatch.setattr(preserving, "SAMPLE", 1)
+    monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 8)
+    # Windowed access plans from a key scan, which can cut this small file.
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", 0)
+    monkeypatch.setattr(preserving, "dictionary", lambda tool, path: str(path))
+    rows = [(f"chr{1 + n // 4}", 100 + 10 * n, f"r{n}", "C", "T") for n in range(8)]
+    source = bcf(
+        tmp_path,
+        "mixed",
+        [
+            f"{c}\t{p}\t{i}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:9"
+            for c, p, i, r, a in rows
+        ],
+        WIDE,
+    )
+    cache = bcf(
+        tmp_path,
+        "mixed_cache",
+        [
+            f"{c}\t{p}\t.\t{r}\t{a}\t.\t.\tMOCK_ANNO=v_{i}"
+            for c, p, i, r, a in rows[::2]
+        ],
+        SITES,
+    )
+    runs = {}
+    for name, step in (("direct", "annotate-nocache"), ("cached", "annotate")):
+        run = manager(tmp_path / name, source, recipe=PER_RECORD)
+        for folder in ("annotate", "annotate-nocache"):
+            (run.output_dir / "work" / folder).mkdir(parents=True)
+            (run.output_dir / "work" / folder / "skip.txt").write_text("\n")
+        run.run(step, db_bcf=cache)
+        runs[name] = run
+    cached, direct = (records(runs[n].output_file) for n in ("cached", "direct"))
+    assert cached == direct
+    stats = runs["cached"].last_run_stats
+    assert stats["shards"] > 1 and not stats["joined_index"]
+    subprocess.run(
+        ["bcftools", "view", "-H", "-r", "chr2:150", runs["cached"].output_file],
+        check=True,
+        capture_output=True,
+    )
+
+
 @pytest.mark.parametrize("index", ["csi", "tbi", "bcf"])
 def test_index_planning_keeps_file_order_and_cuts_large_inputs(
     tmp_path, monkeypatch, index
