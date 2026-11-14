@@ -41,42 +41,6 @@ SHARDS_PER_THREAD = 1
 MIN_SHARD = 5000
 # Compression of each shard's intermediate file of cache hits.
 HITS_LEVEL = 1
-# Holds the lookup's first records while the shard's key scan still runs, so
-# neither waits for the other; at most BUFFER bytes, then the lookup waits.
-BUFFER = 256 << 20
-RELAY = """
-import collections, os, sys, threading
-limit, held, parts, done = int(sys.argv[1]), 0, collections.deque(), False
-state = threading.Condition()
-def pump():
-    global held, done
-    while True:
-        part = os.read(0, 1 << 20)
-        with state:
-            while part and held >= limit:
-                state.wait()
-            if part:
-                parts.append(part)
-                held += len(part)
-            else:
-                done = True
-            state.notify_all()
-        if not part:
-            return
-threading.Thread(target=pump, daemon=True).start()
-while True:
-    with state:
-        while not parts and not done:
-            state.wait()
-        if not parts:
-            break
-        part = parts.popleft()
-        held -= len(part)
-        state.notify_all()
-    view = memoryview(part)
-    while view:
-        view = view[os.write(1, view):]
-"""
 # Every SAMPLE-th record's position is kept to place the cuts.
 SAMPLE = 1024
 UNBOUNDED = 2**31 - 1
@@ -1117,63 +1081,49 @@ def run(manager, cache=None):
 
                 # Positions with more than one record are kept apart from the
                 # other hits: which of them hold a miss is known only later.
-                # Without an earlier scan they are found while the lookup
-                # runs; the hits wait in the relay until they are known.
                 if scans is None and shards:
                     query = shlex.join(
-                        [bcftools, "query", "-f", KEY, "-R", "regions.bed"]
+                        [bcftools, "query", "-f", KEY, "-R", str(bed)]
                         + ["--regions-overlap", "0", str(source)]
                     )
                     awk = shlex.join(
                         ["awk", "-F", "\t", "-v", f"sample={UNBOUNDED}"]
                         + ["-v", f"window={WINDOW}", "-v", "windowed=0", SCAN]
                     )
-                    pick = shlex.quote('$1 == "M" { print $3 "\t" $2 }')
-                    scan = (
-                        f"{{ {query} | {awk} > scan.txt && "
-                        f"awk -F '\t' {pick} scan.txt > shared.tsv && "
-                        "touch scan.done || touch scan.failed; } &\n"
+                    duplicates[number], shared[number], scanned[number] = parse_scan(
+                        subprocess.run(
+                            ["bash", "-c", f"set -o pipefail; {query} | {awk}"],
+                            check=True,
+                            capture_output=True,
+                        ).stdout
                     )
-                else:
+                near = bool(shared[number])
+                if near:
                     (folder / "shared.tsv").write_text(
                         "".join(f"{row}\n" for row in shared[number])
                     )
-                    scan = "touch scan.done\n"
+                pipes = "m.fifo n.fifo" if near else "m.fifo"
                 # Exact compares allele SETS, not ALT order. Route every
                 # multiallelic record to the recipe rather than reusing
                 # allele-indexed annotation values. The lookup is read once,
                 # by one reader for the misses and one or two for the hits.
                 missed = leg(f"-i '{miss}'", "m.fifo", "misses.bcf -Ob")
                 beside = leg(f"-T shared.tsv -e '{miss}'", "n.fifo", "near.bcf -Ob -W")
-                out = f"hits.bcf -Ob{HITS_LEVEL} -W --threads {shard_threads}"
-                apart = leg(f"-T ^shared.tsv -e '{miss}'", "-", out)
-                alone = leg(f"-e '{miss}'", "-", out)
+                alone = leg(
+                    f"{'-T ^shared.tsv ' if near else ''}-e '{miss}'",
+                    "-",
+                    f"hits.bcf -Ob{HITS_LEVEL} -W --threads {shard_threads}",
+                )
                 command(
-                    "rm -f m.fifo n.fifo scan.done scan.failed && mkfifo m.fifo n.fifo\n"
-                    + scan
-                    + f"{{ {missed}; }} & M=$!\n"
-                    f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
+                    f"rm -f {pipes} && mkfifo {pipes}\n"
+                    f"{{ {missed}; }} & M=$!\n"
+                    + (f"{{ {beside}; }} & N=$!\n" if near else "")
+                    + f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
                     f"-i 'N_ALT=1' -k {mark}-a {quoted(cache)} "
-                    f"{quoted(source)} -c INFO -Ou | tee m.fifo | "
-                    f"{quoted(sys.executable)} {quoted(relay)} {BUFFER} | {{\n"
-                    "  while [ ! -e scan.done ]; do\n"
-                    "    [ ! -e scan.failed ] || exit 1; sleep 0.02\n"
-                    "  done\n"
-                    "  if [ -s shared.tsv ]; then\n"
-                    f"    {{ {beside}; }} & N=$!\n"
-                    f"    tee n.fifo | {apart}\n"
-                    "    wait $N\n"
-                    "  else\n"
-                    f"    {alone}\n"
-                    "  fi\n"
-                    "}\n"
-                    "wait $M\nrm -f m.fifo n.fifo",
+                    f"{quoted(source)} -c INFO -Ou | tee {pipes} | {alone}\n"
+                    "wait $M" + ("; wait $N" if near else "") + f"\nrm -f {pipes}",
                     folder,
                 )
-                if scans is None and shards:
-                    duplicates[number], shared[number], scanned[number] = parse_scan(
-                        (folder / "scan.txt").read_bytes()
-                    )
                 # With duplicates, the misses elsewhere and every record at a
                 # duplicate position (taken from the input, never from the
                 # lookup) are merged by position.
@@ -1208,8 +1158,6 @@ def run(manager, cache=None):
                 f"Step 1/4: Exact biallelic cache overlay in {len(folders)} shard(s), "
                 f"cache access by {'windows' if windowed else 'contigs'}; input unchanged"
             )
-            relay = work / "relay.py"
-            relay.write_text(RELAY)
             prepared: list = [None] * len(folders)
             pool = ThreadPoolExecutor(max_workers=threads)
             try:
