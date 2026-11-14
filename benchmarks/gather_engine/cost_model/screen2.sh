@@ -15,7 +15,7 @@ FV=/mnt/data/apps/fastvep/0.5.0
 SA=/results/fastvep05/acmg/sa
 S2=/mnt/data/tmp/spliceai2/GRCh38
 BASE="--transcript-cache $FV/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache --fasta $FV/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa --no-progress --hgvs"
-: > $OUT/runs.tsv
+[ -n "${SKIP_A:-}" ] || : > $OUT/runs.tsv
 run() {  # part stack input flags...
   local part=$1 s=$2 i=$3; shift 3
   local s0=$(date +%s.%N)
@@ -26,7 +26,8 @@ run() {  # part stack input flags...
 thin() {  # in out k
   { bcftools view -h $1; bcftools view -H $1 | awk -v k=$3 'NR % k == 0'; } | bcftools view -Ob1 -W -o $2
 }
-# ---- A
+# ---- A (skipped when SKIP_A is set)
+if [ -z "${SKIP_A:-}" ]; then
 bcftools view $SRC -r chr1 -Ob1 -W --threads 8 -o c1.bcf
 thin c1.bcf wide4.bcf 4
 bcftools view c1.bcf -r chr1:1-62000000 -Ob1 -W -o narrow.bcf
@@ -35,6 +36,7 @@ for rep in 1 2; do
     run A ${s%%:*} wide4.bcf ${s#*:}; run A ${s%%:*} narrow.bcf ${s#*:}
   done
 done
+fi
 # ---- B
 names=$(zcat $S2/snv/chr21.tsv.gz | head -1 | cut -f6-)
 {
@@ -49,7 +51,7 @@ conv() {  # kind
       print $1 "\t" $2 "\t.\t" $3 "\t" $4 "\t.\t.\t" s }'
 }
 s0=$(date +%s)
-{ cat hdr.txt; { conv snv; conv indel; } | sort -t$'\t' -k2,2n -S 4G --stable; } | bgzip -@8 > sai2.vcf.gz
+{ cat hdr.txt; { conv snv; conv indel; } | sort -t$'\t' -k2,2n -S 4G --stable; } | bcftools view -Oz1 --threads 8 -o sai2.vcf.gz
 echo "converted $(( $(date +%s) - s0 ))s size $(stat -c %s sai2.vcf.gz) records $(zcat sai2.vcf.gz | grep -vc '^#')" | tee $OUT/build.txt
 few="spliceai2_summary_score,donor_gain_delta_score_0,donor_loss_delta_score_0,acceptor_gain_delta_score_0,acceptor_loss_delta_score_0"
 mkdir -p sa_all sa_few

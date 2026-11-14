@@ -2,14 +2,16 @@
 # Stage 0 anchors on one node: fastVEP 0.5.0 on a whole genome, cached and
 # uncached; fastVEP alone on the full input and on the misses; vcfcache's own
 # cost on inputs that are all cache hits; miss rates against two blueprints.
-# Usage: stage0.sh <deployment> [sample]
+# Usage: stage0.sh <deployment> [sample]; CACHE, FLAGS and TAG in the
+# environment select another cache, its fastVEP flags and the result folder.
 set -uo pipefail
 DEP=$1; SAMPLE=${2:-KPGP-00128}
 PY=/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python
-OUT=/results/fastvep05/cost_model/stage0; mkdir -p $OUT
-W=/mnt/data/tmp/stage0; rm -rf $W; mkdir -p $W; cd $W
+OUT=/results/fastvep05/cost_model/${TAG:-stage0}; mkdir -p $OUT
+W=/mnt/data/tmp/${TAG:-stage0}; rm -rf $W; mkdir -p $W; cd $W
 SRC=/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp/$SAMPLE.GRCh38.small_variants.vcf.gz
-CD=/results/fastvep05/caches/fastvep050_clinical_grch38_af001/cache/fastvep050_clinical_grch38_af001
+CD=${CACHE:-/results/fastvep05/caches/fastvep050_clinical_grch38_af001/cache/fastvep050_clinical_grch38_af001}
+FLAGS=${FLAGS:---sa-dir /results/richness/sa/clinical_GRCh38}
 BP=/mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints
 FV=/mnt/data/apps/fastvep/0.5.0
 bcftools view $SRC -Ob1 -W --threads 8 -o wgs.bcf
@@ -23,12 +25,14 @@ vc() {  # label input [--uncached]
   env PYTHONPATH=$DEP $PY -c "from vcfcache.cli import main; main()" annotate -a $CD -i $2 -o out.bcf \
     -y p.yaml --statistics light --stats-dir st -v ${3:-} > log.txt 2>&1 || { echo "FAILED $1"; tail -5 log.txt; return; }
   local e=$(echo "$(now) - $s" | bc)
+  [ "$1" = wgs ] && [ -n "${3:-}" ] && [ ! -e dig.unc ] && bcftools view -H out.bcf | awk -F'\t' 'BEGIN{OFS="\t"} {n=split($8,a,";"); asort(a); s=a[1]; for(i=2;i<=n;i++) s=s";"a[i]; $8=s; print}' | md5sum | cut -c1-12 > dig.unc
+  [ "$1" = wgs ] && [ -z "${3:-}" ] && [ ! -e dig.c ] && bcftools view -H out.bcf | awk -F'\t' 'BEGIN{OFS="\t"} {n=split($8,a,";"); asort(a); s=a[1]; for(i=2;i<=n;i++) s=s";"a[i]; $8=s; print}' | md5sum | cut -c1-12 > dig.c
   local miss=$(grep -ho "missing_variants: [0-9]*" -r st | head -1 | cut -d' ' -f2)
   printf "vcfcache\t%s\t%s\t%s\t%s\t%s\n" "$1" "${3:-cached}" "$(bcftools index -n $2)" "${miss:-NA}" "$e" | tee -a $OUT/runs.tsv
 }
 fv() {  # label input : fastVEP alone, same pipeline as the cache recipe
   local s=$(now)
-  /usr/bin/time -f "%U %S %M" -o t.txt bash -c "bcftools view $2 -Ov | env RAYON_NUM_THREADS=8 $FV/bin/fastvep annotate --input - --output - --output-format vcf --transcript-cache $FV/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache --fasta $FV/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa --hgvs --no-progress --sa-dir /results/richness/sa/clinical_GRCh38 2> err.txt | bcftools view -Ob -o d.bcf -W --threads 8"
+  /usr/bin/time -f "%U %S %M" -o t.txt bash -c "bcftools view $2 -Ov | env RAYON_NUM_THREADS=8 $FV/bin/fastvep annotate --input - --output - --output-format vcf --transcript-cache $FV/data/GRCh38/Homo_sapiens.GRCh38.fastvep.cache --fasta $FV/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa --hgvs --no-progress $FLAGS 2> err.txt | bcftools view -Ob -o d.bcf -W --threads 8"
   local e=$(echo "$(now) - $s" | bc)
   printf "fastvep\t%s\talone\t%s\t%s\t%s\t%s\n" "$1" "$(bcftools index -n $2)" "$(cat t.txt | tr ' ' ',')" "$e" "$(bcftools index -n d.bcf)" | tee -a $OUT/runs.tsv
 }
@@ -36,7 +40,8 @@ fv() {  # label input : fastVEP alone, same pipeline as the cache recipe
 # 1. anchor
 for rep in 1 2 3; do vc wgs wgs.bcf; vc wgs wgs.bcf --uncached; done
 # misses of this cache, from the last cached run's work files
-vc wgs wgs.bcf; cp $(find st -name misses.bcf -path '*/annotate/misses.bcf' | head -1) misses.bcf; bcftools index -f misses.bcf
+bcftools isec -n=1 -w1 -c none wgs.bcf $CD/vcfcache_annotated.bcf -Ob -o misses.bcf 2> isec.err; bcftools index -f misses.bcf
+echo "digest cached $(cat dig.c) uncached $(cat dig.unc)" | tee -a $OUT/missrate.txt
 # 2. fastVEP alone: full input, misses only
 for rep in 1 2; do fv full wgs.bcf; fv misses misses.bcf; done
 # 3. vcfcache alone: inputs made of cache hits only, at four sizes
