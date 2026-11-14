@@ -41,6 +41,42 @@ SHARDS_PER_THREAD = 1
 MIN_SHARD = 5000
 # Compression of each shard's intermediate file of cache hits.
 HITS_LEVEL = 1
+# Holds the lookup's first records while the shard's key scan still runs, so
+# neither waits for the other; at most BUFFER bytes, then the lookup waits.
+BUFFER = 256 << 20
+RELAY = """
+import collections, os, sys, threading
+limit, held, parts, done = int(sys.argv[1]), 0, collections.deque(), False
+state = threading.Condition()
+def pump():
+    global held, done
+    while True:
+        part = os.read(0, 1 << 20)
+        with state:
+            while part and held >= limit:
+                state.wait()
+            if part:
+                parts.append(part)
+                held += len(part)
+            else:
+                done = True
+            state.notify_all()
+        if not part:
+            return
+threading.Thread(target=pump, daemon=True).start()
+while True:
+    with state:
+        while not parts and not done:
+            state.wait()
+        if not parts:
+            break
+        part = parts.popleft()
+        held -= len(part)
+        state.notify_all()
+    view = memoryview(part)
+    while view:
+        view = view[os.write(1, view):]
+"""
 # Every SAMPLE-th record's position is kept to place the cuts.
 SAMPLE = 1024
 UNBOUNDED = 2**31 - 1
@@ -444,31 +480,8 @@ def plan_from_index(refs, parts, span=True):
     return [shard for shard in shards if shard]
 
 
-def duplicate_scan(bcftools, source, bed):
-    """Start a key scan of one shard; its result is read with scan_result."""
-    query = shlex.join(
-        [bcftools, "query", "-f", KEY, "-R", str(bed), "--regions-overlap", "0"]
-        + [str(source)]
-    )
-    awk = shlex.join(
-        ["awk", "-F", "\t", "-v", f"sample={UNBOUNDED}", "-v", f"window={WINDOW}"]
-        + ["-v", "windowed=0", SCAN]
-    )
-    return subprocess.Popen(
-        ["bash", "-c", f"set -o pipefail; {query} | {awk}"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-
-
-def scan_result(process):
-    """Return a scan's duplicate positions, shared positions and record count.
-
-    Positions are CHROM-tab-POS lines; shared ones hold more than one record.
-    """
-    out, err = process.communicate()
-    if process.returncode:
-        raise RuntimeError(err.decode(errors="replace"))
+def parse_scan(out):
+    """Duplicate positions, shared positions and record count of scan output."""
     rows, shared, records = [], [], None
     for line in out.split(b"\n"):
         fields = line.split(b"\t")
@@ -1054,12 +1067,31 @@ def run(manager, cache=None):
             def lookup(number):
                 """Overlay exact cache hits on one shard; signal its misses."""
                 try:
-                    return select(number)
+                    select(number)
+                    # Queued behind the lookups still waiting for a core.
+                    prepared[number] = pool.submit(prepare, number)
                 except BaseException:
                     failed.set()
                     raise
                 finally:
                     ready[number].set()
+
+            def prepare(number):
+                """Write what merge needs that the recipe does not produce."""
+                folder = folders[number]
+                if not exposed[number]:
+                    return
+                at = "-R exposed.tsv --regions-overlap 0 "
+                used = "-T ^duplicates.tsv " if duplicates[number] else ""
+                command(
+                    f"{tool} view --no-version -T ^exposed.tsv near.bcf "
+                    "-o rest.bcf -Ob -W && "
+                    f"{tool} view --no-version {at}{quoted(source)} "
+                    "-o own.bcf -Ob -W && "
+                    f"{tool} view --no-version {at}{used}near.bcf "
+                    "-o cached.bcf -Ob -W",
+                    folder,
+                )
 
             def select(number):
                 """Overlay exact cache hits on one shard and select its misses."""
@@ -1072,10 +1104,6 @@ def run(manager, cache=None):
                         rows = shard_rows(shards[number], scans)
                     bed.write_text("".join(f"{row}\n" for row in rows))
                     regions[number] = f"-R {quoted(bed)} --regions-overlap 0 "
-                    if scans is None:
-                        duplicates[number], shared[number], scanned[number] = (
-                            scan_result(duplicate_scan(bcftools, source, bed))
-                        )
                 miss = f'INFO/{HIT}!=1 || INFO/{tag}=""' if marked else f'INFO/{tag}=""'
 
                 def leg(chosen, origin, out):
@@ -1087,45 +1115,75 @@ def run(manager, cache=None):
                         )
                     return f"{tool} view --no-version {chosen} {origin} -o {out}"
 
-                dups = folder / "duplicates.tsv"
-                if duplicates[number]:
-                    dups.write_text("".join(f"{row}\n" for row in duplicates[number]))
-                elsewhere = f"-T ^{quoted(dups)} " if duplicates[number] else ""
-                target = "elsewhere.bcf -W" if duplicates[number] else "misses.bcf"
                 # Positions with more than one record are kept apart from the
                 # other hits: which of them hold a miss is known only later.
-                near = bool(shared[number])
-                if near:
+                # Without an earlier scan they are found while the lookup
+                # runs; the hits wait in the relay until they are known.
+                if scans is None and shards:
+                    query = shlex.join(
+                        [bcftools, "query", "-f", KEY, "-R", "regions.bed"]
+                        + ["--regions-overlap", "0", str(source)]
+                    )
+                    awk = shlex.join(
+                        ["awk", "-F", "\t", "-v", f"sample={UNBOUNDED}"]
+                        + ["-v", f"window={WINDOW}", "-v", "windowed=0", SCAN]
+                    )
+                    pick = shlex.quote('$1 == "M" { print $3 "\t" $2 }')
+                    scan = (
+                        f"{{ {query} | {awk} > scan.txt && "
+                        f"awk -F '\t' {pick} scan.txt > shared.tsv && "
+                        "touch scan.done || touch scan.failed; } &\n"
+                    )
+                else:
                     (folder / "shared.tsv").write_text(
                         "".join(f"{row}\n" for row in shared[number])
                     )
-                pipes = "m.fifo n.fifo" if near else "m.fifo"
+                    scan = "touch scan.done\n"
                 # Exact compares allele SETS, not ALT order. Route every
                 # multiallelic record to the recipe rather than reusing
                 # allele-indexed annotation values. The lookup is read once,
                 # by one reader for the misses and one or two for the hits.
-                missed = leg(f"{elsewhere}-i '{miss}'", "m.fifo", f"{target} -Ob")
+                missed = leg(f"-i '{miss}'", "m.fifo", "misses.bcf -Ob")
                 beside = leg(f"-T shared.tsv -e '{miss}'", "n.fifo", "near.bcf -Ob -W")
-                alone = leg(
-                    f"{'-T ^shared.tsv ' if near else ''}-e '{miss}'",
-                    "-",
-                    f"hits.bcf -Ob{HITS_LEVEL} -W --threads {shard_threads}",
-                )
+                out = f"hits.bcf -Ob{HITS_LEVEL} -W --threads {shard_threads}"
+                apart = leg(f"-T ^shared.tsv -e '{miss}'", "-", out)
+                alone = leg(f"-e '{miss}'", "-", out)
                 command(
-                    f"rm -f {pipes} && mkfifo {pipes}\n"
-                    f"{{ {missed}; }} & M=$!\n"
-                    + (f"{{ {beside}; }} & N=$!\n" if near else "")
-                    + f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
+                    "rm -f m.fifo n.fifo scan.done scan.failed && mkfifo m.fifo n.fifo\n"
+                    + scan
+                    + f"{{ {missed}; }} & M=$!\n"
+                    f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
                     f"-i 'N_ALT=1' -k {mark}-a {quoted(cache)} "
-                    f"{quoted(source)} -c INFO -Ou | tee {pipes} | {alone}\n"
-                    "wait $M" + ("; wait $N" if near else "") + f"\nrm -f {pipes}",
+                    f"{quoted(source)} -c INFO -Ou | tee m.fifo | "
+                    f"{quoted(sys.executable)} {quoted(relay)} {BUFFER} | {{\n"
+                    "  while [ ! -e scan.done ]; do\n"
+                    "    [ ! -e scan.failed ] || exit 1; sleep 0.02\n"
+                    "  done\n"
+                    "  if [ -s shared.tsv ]; then\n"
+                    f"    {{ {beside}; }} & N=$!\n"
+                    f"    tee n.fifo | {apart}\n"
+                    "    wait $N\n"
+                    "  else\n"
+                    f"    {alone}\n"
+                    "  fi\n"
+                    "}\n"
+                    "wait $M\nrm -f m.fifo n.fifo",
                     folder,
                 )
+                if scans is None and shards:
+                    duplicates[number], shared[number], scanned[number] = parse_scan(
+                        (folder / "scan.txt").read_bytes()
+                    )
                 # With duplicates, the misses elsewhere and every record at a
                 # duplicate position (taken from the input, never from the
                 # lookup) are merged by position.
                 if duplicates[number]:
+                    dups = folder / "duplicates.tsv"
+                    dups.write_text("".join(f"{row}\n" for row in duplicates[number]))
                     command(
+                        "mv misses.bcf missed.bcf && "
+                        f"{tool} view --no-version -T ^{quoted(dups)} missed.bcf "
+                        "-o elsewhere.bcf -Ob -W && "
                         f"{tool} view --no-version -R {quoted(dups)} --regions-overlap 0 "
                         f"{quoted(source)} -o duplicated.bcf -Ob -W --threads 1 && "
                         f"{tool} concat --no-version -a elsewhere.bcf duplicated.bcf "
@@ -1150,15 +1208,21 @@ def run(manager, cache=None):
                 f"Step 1/4: Exact biallelic cache overlay in {len(folders)} shard(s), "
                 f"cache access by {'windows' if windowed else 'contigs'}; input unchanged"
             )
+            relay = work / "relay.py"
+            relay.write_text(RELAY)
+            prepared: list = [None] * len(folders)
+            pool = ThreadPoolExecutor(max_workers=threads)
             try:
-                with ThreadPoolExecutor(max_workers=threads) as pool:
-                    list(pool.map(lookup, range(len(folders))))
+                list(pool.map(lookup, range(len(folders))))
             except BaseException:
                 failed.set()
+                pool.shutdown(wait=True, cancel_futures=True)
                 if started:
                     started["process"].kill()
                     finish_recipe(manager, work, started)
                 raise
+            # Merge inputs are still being prepared; merge waits for each.
+            pool.shutdown(wait=False)
             if scans is None and shards and sum(scanned) != total:
                 raise RuntimeError("Shard key scans read a different number of records")
             sites = sum(len(d) for d in duplicates)
@@ -1216,13 +1280,10 @@ def run(manager, cache=None):
                 used: the recipe annotated every record there.
                 """
                 folder = folders[number]
+                prepared[number].result()
                 files = ["hits.bcf"]
                 skip = "-T ^exposed.tsv " if exposed[number] else ""
-                if shared[number] and exposed[number]:
-                    command(
-                        f"{tool} view --no-version {skip}near.bcf -o rest.bcf -Ob -W",
-                        folder,
-                    )
+                if exposed[number]:
                     files.append("rest.bcf")
                 elif shared[number]:
                     files.append("near.bcf")
@@ -1235,12 +1296,7 @@ def run(manager, cache=None):
                     files.append("slice.bcf")
                 if exposed[number]:
                     at = "-R exposed.tsv --regions-overlap 0 "
-                    used = "-T ^duplicates.tsv " if duplicates[number] else ""
                     command(
-                        f"{tool} view --no-version {at}{quoted(source)} "
-                        "-o own.bcf -Ob -W && "
-                        f"{tool} view --no-version {at}{used}near.bcf "
-                        "-o cached.bcf -Ob -W && "
                         f"{tool} view --no-version {at}{quoted(annotated)} "
                         "-o fresh.bcf -Ob -W && "
                         f"{tool} concat --no-version -a cached.bcf fresh.bcf "
