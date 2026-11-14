@@ -999,7 +999,6 @@ def run(manager, cache=None):
                 else [[] for _ in shards]
             ) or [[]]
             exposed: list = [[] for _ in folders]
-            kept: list = [None] * len(folders)
             scanned = [0] * len(folders)
             mark = f"-m +{HIT} " if marked else ""
             strip = f"-x INFO/{HIT} " if marked else ""
@@ -1055,49 +1054,16 @@ def run(manager, cache=None):
             def lookup(number):
                 """Overlay exact cache hits on one shard; signal its misses."""
                 try:
-                    records = select(number)
-                    # Queued behind the lookups still waiting for a core.
-                    kept[number] = pool.submit(keep, number)
-                    return records
+                    return select(number)
                 except BaseException:
                     failed.set()
                     raise
                 finally:
                     ready[number].set()
 
-            def keep(number):
-                """Write one shard's cache hits, without the exposed positions.
-
-                This runs while the recipe annotates the misses, so that only
-                a merge by position is left to do afterwards.
-                """
-                folder = folders[number]
-                skip = ""
-                if exposed[number]:
-                    (folder / "exposed.tsv").write_text(
-                        "".join(f"{row}\n" for row in exposed[number])
-                    )
-                    skip = "-T ^exposed.tsv "
-                if marked:
-                    command(
-                        f"{tool} view --no-version {skip}"
-                        f"-e 'INFO/{HIT}!=1 || INFO/{tag}=\"\"' overlay.bcf -Ou | "
-                        f"{tool} annotate --no-version {strip}-o hits.bcf "
-                        f"-Ob{HITS_LEVEL} -W",
-                        folder,
-                    )
-                else:
-                    command(
-                        f"{tool} view --no-version {skip}-e 'INFO/{tag}=\"\"' "
-                        f"overlay.bcf -o hits.bcf -Ob{HITS_LEVEL} -W "
-                        f"--threads {shard_threads}",
-                        folder,
-                    )
-
             def select(number):
                 """Overlay exact cache hits on one shard and select its misses."""
                 folder = folders[number]
-                scan = None
                 if shards:
                     bed = folder / "regions.bed"
                     if scans is None:
@@ -1107,43 +1073,57 @@ def run(manager, cache=None):
                     bed.write_text("".join(f"{row}\n" for row in rows))
                     regions[number] = f"-R {quoted(bed)} --regions-overlap 0 "
                     if scans is None:
-                        scan = duplicate_scan(bcftools, source, bed)
-                # Exact compares allele SETS, not ALT order. Route every
-                # multiallelic record to the recipe rather than reusing
-                # allele-indexed annotation values.
-                command(
-                    f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
-                    f"-i 'N_ALT=1' -k {mark}-a {quoted(cache)} "
-                    f"{quoted(source)} -c INFO -o overlay.bcf -Ob1 -W "
-                    f"--threads {shard_threads}",
-                    folder,
-                )
-                if scan:
-                    duplicates[number], shared[number], scanned[number] = scan_result(
-                        scan
-                    )
-                # Without duplicates the misses are written directly; with
-                # them, the misses elsewhere and every record at a duplicate
-                # position (taken from the input, never from the overlay) are
-                # merged by position.
+                        duplicates[number], shared[number], scanned[number] = (
+                            scan_result(duplicate_scan(bcftools, source, bed))
+                        )
+                miss = f'INFO/{HIT}!=1 || INFO/{tag}=""' if marked else f'INFO/{tag}=""'
+
+                def leg(chosen, origin, out):
+                    """One reader of the lookup's records; drops the marker."""
+                    if marked:
+                        return (
+                            f"{tool} view --no-version {chosen} {origin} -Ou | "
+                            f"{tool} annotate --no-version {strip}-o {out}"
+                        )
+                    return f"{tool} view --no-version {chosen} {origin} -o {out}"
+
                 dups = folder / "duplicates.tsv"
                 if duplicates[number]:
                     dups.write_text("".join(f"{row}\n" for row in duplicates[number]))
                 elsewhere = f"-T ^{quoted(dups)} " if duplicates[number] else ""
                 target = "elsewhere.bcf -W" if duplicates[number] else "misses.bcf"
-                if marked:
-                    command(
-                        f"{tool} view --no-version {elsewhere}"
-                        f"-i 'INFO/{HIT}!=1 || INFO/{tag}=\"\"' overlay.bcf -Ou | "
-                        f"{tool} annotate --no-version {strip}-o {target} -Ob",
-                        folder,
+                # Positions with more than one record are kept apart from the
+                # other hits: which of them hold a miss is known only later.
+                near = bool(shared[number])
+                if near:
+                    (folder / "shared.tsv").write_text(
+                        "".join(f"{row}\n" for row in shared[number])
                     )
-                else:
-                    command(
-                        f"{tool} view --no-version {elsewhere}-i 'INFO/{tag}=\"\"' "
-                        f"overlay.bcf -o {target} -Ob --threads {shard_threads}",
-                        folder,
-                    )
+                pipes = "m.fifo n.fifo" if near else "m.fifo"
+                # Exact compares allele SETS, not ALT order. Route every
+                # multiallelic record to the recipe rather than reusing
+                # allele-indexed annotation values. The lookup is read once,
+                # by one reader for the misses and one or two for the hits.
+                missed = leg(f"{elsewhere}-i '{miss}'", "m.fifo", f"{target} -Ob")
+                beside = leg(f"-T shared.tsv -e '{miss}'", "n.fifo", "near.bcf -Ob -W")
+                alone = leg(
+                    f"{'-T ^shared.tsv ' if near else ''}-e '{miss}'",
+                    "-",
+                    f"hits.bcf -Ob{HITS_LEVEL} -W --threads {shard_threads}",
+                )
+                command(
+                    f"rm -f {pipes} && mkfifo {pipes}\n"
+                    f"{{ {missed}; }} & M=$!\n"
+                    + (f"{{ {beside}; }} & N=$!\n" if near else "")
+                    + f"{tool} annotate --no-version {regions[number]}--pair-logic exact "
+                    f"-i 'N_ALT=1' -k {mark}-a {quoted(cache)} "
+                    f"{quoted(source)} -c INFO -Ou | tee {pipes} | {alone}\n"
+                    "wait $M" + ("; wait $N" if near else "") + f"\nrm -f {pipes}",
+                    folder,
+                )
+                # With duplicates, the misses elsewhere and every record at a
+                # duplicate position (taken from the input, never from the
+                # lookup) are merged by position.
                 if duplicates[number]:
                     command(
                         f"{tool} view --no-version -R {quoted(dups)} --regions-overlap 0 "
@@ -1161,25 +1141,24 @@ def run(manager, cache=None):
                         ).splitlines()
                     )
                     exposed[number] = [r for r in shared[number] if r in missed]
-                return count(bcftools, folder / "overlay.bcf")
+                if exposed[number]:
+                    (folder / "exposed.tsv").write_text(
+                        "".join(f"{row}\n" for row in exposed[number])
+                    )
 
             manager.logger.info(
                 f"Step 1/4: Exact biallelic cache overlay in {len(folders)} shard(s), "
                 f"cache access by {'windows' if windowed else 'contigs'}; input unchanged"
             )
-            pool = ThreadPoolExecutor(max_workers=threads)
             try:
-                if sum(pool.map(lookup, range(len(folders)))) != total:
-                    raise RuntimeError("Cache overlay changed input record count")
+                with ThreadPoolExecutor(max_workers=threads) as pool:
+                    list(pool.map(lookup, range(len(folders))))
             except BaseException:
                 failed.set()
-                pool.shutdown(wait=True, cancel_futures=True)
                 if started:
                     started["process"].kill()
                     finish_recipe(manager, work, started)
                 raise
-            # The hit files are still being written; merge waits for each.
-            pool.shutdown(wait=False)
             if scans is None and shards and sum(scanned) != total:
                 raise RuntimeError("Shard key scans read a different number of records")
             sites = sum(len(d) for d in duplicates)
@@ -1237,9 +1216,16 @@ def run(manager, cache=None):
                 used: the recipe annotated every record there.
                 """
                 folder = folders[number]
-                kept[number].result()
                 files = ["hits.bcf"]
                 skip = "-T ^exposed.tsv " if exposed[number] else ""
+                if shared[number] and exposed[number]:
+                    command(
+                        f"{tool} view --no-version {skip}near.bcf -o rest.bcf -Ob -W",
+                        folder,
+                    )
+                    files.append("rest.bcf")
+                elif shared[number]:
+                    files.append("near.bcf")
                 if missing:
                     command(
                         f"{tool} view --no-version {regions[number]}{skip}"
@@ -1249,20 +1235,15 @@ def run(manager, cache=None):
                     files.append("slice.bcf")
                 if exposed[number]:
                     at = "-R exposed.tsv --regions-overlap 0 "
-                    miss = (
-                        f'INFO/{HIT}!=1 || INFO/{tag}=""'
-                        if marked
-                        else f'INFO/{tag}=""'
-                    )
                     used = "-T ^duplicates.tsv " if duplicates[number] else ""
                     command(
                         f"{tool} view --no-version {at}{quoted(source)} "
                         "-o own.bcf -Ob -W && "
-                        f"{tool} view --no-version {at}{used}-e '{miss}' overlay.bcf "
-                        f"-Ou | {tool} annotate --no-version {strip}-o near.bcf -Ob -W && "
+                        f"{tool} view --no-version {at}{used}near.bcf "
+                        "-o cached.bcf -Ob -W && "
                         f"{tool} view --no-version {at}{quoted(annotated)} "
                         "-o fresh.bcf -Ob -W && "
-                        f"{tool} concat --no-version -a near.bcf fresh.bcf "
+                        f"{tool} concat --no-version -a cached.bcf fresh.bcf "
                         "-o both.bcf -Ob -W && "
                         f"{tool} annotate --no-version --pair-logic exact -a both.bcf "
                         "-c INFO own.bcf -o exposed.bcf -Ob -W",
