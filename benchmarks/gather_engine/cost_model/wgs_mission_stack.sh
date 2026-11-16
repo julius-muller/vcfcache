@@ -29,9 +29,9 @@ dbsnp() {
   [ -n "$acc" ] || { echo "FAILED no dbSNP accession for chr$C"; return 1; }
   bcftools view -r $acc $S/GCF_000001405.40.gz -Oz -o $W/dbsnp.vcf.gz --threads 2 && both dbsnp $W/dbsnp.vcf.gz dbsnp_chr$C
 }
-save() {  # the shared disk sometimes answers "no such directory" on first use
+save() {  # a node can hold a stale "no such directory" for $OUT; listing the parents clears it
   for try in 1 2 3 4 5; do
-    ls $OUT/sa16 $OUT/sa12 > /dev/null 2>&1; cp $W/16/* $OUT/sa16/ && cp $W/12/* $OUT/sa12/ && return 0; sleep 20
+    ls $(dirname $OUT) $OUT $OUT/sa16 $OUT/sa12 > /dev/null 2>&1; cp $W/16/* $OUT/sa16/ && cp $W/12/* $OUT/sa12/ && return 0; sleep 20
   done; return 1
 }
 if [ -n "$ONLY" ]; then
