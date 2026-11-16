@@ -18,6 +18,7 @@ KP=/mnt/data/vcfcache_benchmarks/external_wgs/samples/GRCh38/kpgp
 BPD=/mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints
 OLD=/results/fastvep05/caches/fastvep050_clinical_grch38_af001
 MS=/results/fastvep05/mission
+ls /results/fastvep05 $MS > /dev/null 2>&1   # clears a stale "no such directory" on some nodes
 OUT=/results/fastvep05/cost_model/mission_wgs_$SAMPLE; mkdir -p $OUT
 R=/mnt/data/tmp/mission-wgs; mkdir -p $R/tmp; cd $R
 M16=$R/sa16; M12=$R/sa12; mkdir -p $M16 $M12
@@ -34,25 +35,32 @@ if [ ! -e $R/SOURCES ]; then
   touch $R/SOURCES
 fi
 
+# sources and the annotated blueprints are shared by all samples on a node; the rest is per sample
+W=$R/$SAMPLE; mkdir -p $W/tmp
 # ---- inputs and caches -----------------------------------------------------
 anno() {  # in.bcf out.bcf sa-dir threads
   bcftools view $1 -Ov | env RAYON_NUM_THREADS=$4 $FV annotate --input - --output - --output-format vcf \
     --transcript-cache $TC --fasta $FA --hgvs --no-progress --sa-dir $3 2> anno.err | bcftools view -Ob -o $2 -W --threads 8
 }
-blueprint() {  # af001 | af0001: annotate the gnomAD blueprint into c_<name>.bcf
+blueprint() {  # af001 | af0001: annotate the gnomAD blueprint once per node, link it into the sample directory
   local t=$1 s=$(date +%s)
   ln -sf $BPD/gnomad_v4.1_GRCh38_joint_$t/blueprint/vcfcache.bcf bp_$t.bcf; ln -sf $BPD/gnomad_v4.1_GRCh38_joint_$t/blueprint/vcfcache.bcf.csi bp_$t.bcf.csi
-  anno bp_$t.bcf c_$t.bcf $M16 16; log "cache $t: $(bcftools index -n c_$t.bcf) records, $(( $(date +%s) - s ))s, $(du -h c_$t.bcf | cut -f1)"
+  if [ ! -e $R/c_$t.bcf.csi ]; then
+    anno bp_$t.bcf $R/c_$t.part.bcf $M16 16 && mv $R/c_$t.part.bcf $R/c_$t.bcf && mv $R/c_$t.part.bcf.csi $R/c_$t.bcf.csi
+    log "cache $t: $(bcftools index -n $R/c_$t.bcf) records, $(( $(date +%s) - s ))s, $(du -h $R/c_$t.bcf | cut -f1)"
+  fi
+  ln -f $R/c_$t.bcf c_$t.bcf; ln -f $R/c_$t.bcf.csi c_$t.bcf.csi
 }
 mkcache() {  # name annotated.bcf sa-dir-for-misses
-  local ROOT=$R/caches/$1 C=$R/caches/$1/cache/$1
+  local ROOT=$W/caches/$1 C=$W/caches/$1/cache/$1
   rm -rf $ROOT; mkdir -p $C $ROOT/blueprint; cp -r $OLD/workflow $ROOT/
   sed -e "s#--sa-dir /results/richness/sa/clinical_GRCh38#--sa-dir $3#" $OLD/cache/$(basename $OLD)/annotation.yaml > $C/annotation.yaml
   grep -q -- "--sa-dir $3" $C/annotation.yaml || { echo "recipe not rewritten"; exit 1; }
-  sed "s#^temp_dir:.*#temp_dir: $R/tmp#" $OLD/cache/$(basename $OLD)/params.snapshot.yaml > $C/params.snapshot.yaml
+  sed "s#^temp_dir:.*#temp_dir: $W/tmp#" $OLD/cache/$(basename $OLD)/params.snapshot.yaml > $C/params.snapshot.yaml
   ln -f $2 $C/vcfcache_annotated.bcf; ln -f $2.csi $C/vcfcache_annotated.bcf.csi
 }
-if [ ! -e $R/CACHES ]; then
+cd $W
+if [ ! -e $W/CACHES ]; then
   bcftools view $KP/$SAMPLE.GRCh38.small_variants.vcf.gz -Ob1 -W --threads 8 -o in.bcf
   blueprint af001
   # cohort: biallelic sites of the other samples, and of this sample, not in the 0.1% blueprint
@@ -69,15 +77,15 @@ if [ ! -e $R/CACHES ]; then
     anno new_$k.bcf a_$k.bcf $M16 16
     bcftools concat -a c_af001.bcf a_$k.bcf -Ob -W -o c_$k.bcf --threads 8 2>/dev/null
   done
-  for k in af001 cohort rerun; do mkcache $k $R/c_$k.bcf $M16; mkcache ${k}_narrow $R/c_$k.bcf $M12; done
-  rm -f o*.bcf o*.bcf.csi; touch $R/CACHES
+  for k in af001 cohort rerun; do mkcache $k $W/c_$k.bcf $M16; mkcache ${k}_narrow $W/c_$k.bcf $M12; done
+  rm -f o*.bcf o*.bcf.csi; touch $W/CACHES
 fi
 
 # ---- runs ------------------------------------------------------------------
 N=$(bcftools index -n in.bcf)
 digest() { bcftools view -H $1 | awk -F'\t' 'BEGIN{OFS="\t"} {n=split($8,a,";"); asort(a); s=a[1]; for(i=2;i<=n;i++) s=s";"a[i]; $8=s; print}' | md5sum | cut -c1-12; }
 vc() {  # arm cache [--uncached]
-  local C=$R/caches/$2/cache/$2
+  local C=$W/caches/$2/cache/$2
   rm -rf st out.bcf*
   local s=$(date +%s.%N)
   env PYTHONPATH=$DEP $PY -c "from vcfcache.cli import main; main()" annotate -a $C -i in.bcf -o out.bcf \
@@ -95,8 +103,10 @@ done
 # fastVEP alone, for reference
 for i in 1 2; do s=$(date +%s.%N); anno in.bcf d.bcf $M16 8; echo "fastvep_alone $(echo "$(date +%s.%N) - $s" | bc)" | tee -a $OUT/runs.tsv; done
 echo MAIN DONE
-# the 0.01% blueprint last: least important, and its cache takes longest to build
-[ -e $R/c_af0001.bcf.csi ] || blueprint af0001
-mkcache af0001 $R/c_af0001.bcf $M16; mkcache af0001_narrow $R/c_af0001.bcf $M12
-for rep in 1 2 3; do vc af0001 af0001; vc af0001_narrow af0001_narrow; done
+# the 0.01% blueprint only on request (AF0001=1): least important, and its cache takes longest to build
+if [ "${AF0001:-0}" = 1 ]; then
+  blueprint af0001
+  mkcache af0001 $W/c_af0001.bcf $M16; mkcache af0001_narrow $W/c_af0001.bcf $M12
+  for rep in 1 2 3; do vc af0001 af0001; vc af0001_narrow af0001_narrow; done
+fi
 echo DONE
