@@ -39,6 +39,11 @@ anno() {  # in.bcf out.bcf sa-dir threads
   bcftools view $1 -Ov | env RAYON_NUM_THREADS=$4 $FV annotate --input - --output - --output-format vcf \
     --transcript-cache $TC --fasta $FA --hgvs --no-progress --sa-dir $3 2> anno.err | bcftools view -Ob -o $2 -W --threads 8
 }
+blueprint() {  # af001 | af0001: annotate the gnomAD blueprint into c_<name>.bcf
+  local t=$1 s=$(date +%s)
+  ln -sf $BPD/gnomad_v4.1_GRCh38_joint_$t/blueprint/vcfcache.bcf bp_$t.bcf; ln -sf $BPD/gnomad_v4.1_GRCh38_joint_$t/blueprint/vcfcache.bcf.csi bp_$t.bcf.csi
+  anno bp_$t.bcf c_$t.bcf $M16 16; log "cache $t: $(bcftools index -n c_$t.bcf) records, $(( $(date +%s) - s ))s, $(du -h c_$t.bcf | cut -f1)"
+}
 mkcache() {  # name annotated.bcf sa-dir-for-misses
   local ROOT=$R/caches/$1 C=$R/caches/$1/cache/$1
   rm -rf $ROOT; mkdir -p $C $ROOT/blueprint; cp -r $OLD/workflow $ROOT/
@@ -49,10 +54,7 @@ mkcache() {  # name annotated.bcf sa-dir-for-misses
 }
 if [ ! -e $R/CACHES ]; then
   bcftools view $KP/$SAMPLE.GRCh38.small_variants.vcf.gz -Ob1 -W --threads 8 -o in.bcf
-  for t in af001 af0001; do
-    ln -sf $BPD/gnomad_v4.1_GRCh38_joint_$t/blueprint/vcfcache.bcf bp_$t.bcf; ln -sf $BPD/gnomad_v4.1_GRCh38_joint_$t/blueprint/vcfcache.bcf.csi bp_$t.bcf.csi
-    s=$(date +%s); anno bp_$t.bcf c_$t.bcf $M16 16; log "cache $t: $(bcftools index -n c_$t.bcf) records, $(( $(date +%s) - s ))s, $(du -h c_$t.bcf | cut -f1)"
-  done
+  blueprint af001
   # cohort: biallelic sites of the other samples, and of this sample, not in the 0.1% blueprint
   sites() { bcftools view -G $1 -Ou | bcftools norm -m- -Ou 2>/dev/null | bcftools annotate -x INFO,ID,QUAL,FILTER -Ob -W -o $2; }
   n=0; for f in $KP/*.small_variants.vcf.gz; do
@@ -67,7 +69,7 @@ if [ ! -e $R/CACHES ]; then
     anno new_$k.bcf a_$k.bcf $M16 16
     bcftools concat -a c_af001.bcf a_$k.bcf -Ob -W -o c_$k.bcf --threads 8 2>/dev/null
   done
-  for k in af001 af0001 cohort rerun; do mkcache $k $R/c_$k.bcf $M16; mkcache ${k}_narrow $R/c_$k.bcf $M12; done
+  for k in af001 cohort rerun; do mkcache $k $R/c_$k.bcf $M16; mkcache ${k}_narrow $R/c_$k.bcf $M12; done
   rm -f o*.bcf o*.bcf.csi; touch $R/CACHES
 fi
 
@@ -88,8 +90,13 @@ vc() {  # arm cache [--uncached]
 : > $OUT/runs.tsv
 for rep in 1 2 3; do
   vc uncached af001 --uncached
-  for k in af001 af001_narrow af0001 af0001_narrow cohort cohort_narrow rerun; do vc $k $k; done
+  for k in af001 af001_narrow cohort cohort_narrow rerun; do vc $k $k; done
 done
 # fastVEP alone, for reference
 for i in 1 2; do s=$(date +%s.%N); anno in.bcf d.bcf $M16 8; echo "fastvep_alone $(echo "$(date +%s.%N) - $s" | bc)" | tee -a $OUT/runs.tsv; done
+echo MAIN DONE
+# the 0.01% blueprint last: least important, and its cache takes longest to build
+[ -e $R/c_af0001.bcf.csi ] || blueprint af0001
+mkcache af0001 $R/c_af0001.bcf $M16; mkcache af0001_narrow $R/c_af0001.bcf $M12
+for rep in 1 2 3; do vc af0001 af0001; vc af0001_narrow af0001_narrow; done
 echo DONE
