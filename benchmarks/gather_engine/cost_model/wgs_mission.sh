@@ -19,8 +19,10 @@ BPD=/mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints
 OLD=/results/fastvep05/caches/fastvep050_clinical_grch38_af001
 MS=/results/fastvep05/mission
 ls /results/fastvep05 $MS > /dev/null 2>&1   # clears a stale "no such directory" on some nodes
-OUT=/results/fastvep05/cost_model/mission_wgs_$SAMPLE; mkdir -p $OUT
-R=/mnt/data/tmp/mission-wgs; mkdir -p $R/tmp; cd $R
+# STACK2=1 adds the five sources of wgs_mission_stack2.sh (gnomAD genomes, 1000 Genomes, GERP, dbNSFP, ENCODE cCREs)
+MS2=/results/fastvep05/mission2
+OUT=/results/fastvep05/cost_model/mission${STACK2:+2}_wgs_$SAMPLE; mkdir -p $OUT
+R=/mnt/data/tmp/mission-wgs${STACK2:+2}; mkdir -p $R/tmp; cd $R
 M16=$R/sa16; M12=$R/sa12; mkdir -p $M16 $M12
 log() { echo "[$(date -Is)] $*"; }
 b() { local s=$(date +%s); $FV sa-build --no-progress --assembly GRCh38 "$@" > build.$$.log 2>&1 || { cat build.$$.log; return 1; }; log "sa-build $1 $2 ${*: -2} $(( $(date +%s) - s ))s"; }
@@ -30,6 +32,10 @@ echo "node $(hostname), fastvep $($FV --version)"
 if [ ! -e $R/SOURCES ]; then
   for c in $(seq 1 22) X Y; do test -e $MS/done/chr$c || { echo "sources of chr$c missing"; exit 1; }; done
   cp $MS/sa16/* $M16/ && cp $MS/sa12/* $M12/ || exit 1
+  if [ -n "${STACK2:-}" ]; then
+    for c in $(seq 1 22) X Y; do test -e $MS2/done/chr$c || { echo "further sources of chr$c missing"; exit 1; }; done
+    cp $MS2/sa16/* $M16/ && cp $MS2/sa12/* $M12/ || exit 1
+  fi
   [ $(ls $M16 | wc -l) = $(ls $M12 | wc -l) ] || { echo "source sets differ"; exit 1; }
   ls $M16 | sed 's/_chr.*//' | sort | uniq -c | tee $OUT/sources.txt; du -sh $M16 $M12 | tee -a $OUT/sources.txt
   touch $R/SOURCES
