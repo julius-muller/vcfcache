@@ -1,6 +1,6 @@
 #!/bin/bash
 # The mission pipeline on one whole genome: fastVEP 0.5.0 with eleven known
-# sources and two mock custom tracks, uncached against vcfcache with
+# sources (fifteen with STACK2=1) and two mock custom tracks, uncached against vcfcache with
 #   - the gnomAD AF >= 0.1% and AF >= 0.01% blueprints,
 #   - the misses annotated from the same sources stored in narrow blocks
 #     (the uncached baseline always uses the sources as fastVEP advises),
@@ -19,10 +19,14 @@ BPD=/mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints
 OLD=/results/fastvep05/caches/fastvep050_clinical_grch38_af001
 MS=/results/fastvep05/mission
 ls /results/fastvep05 $MS > /dev/null 2>&1   # clears a stale "no such directory" on some nodes
-# STACK2=1 adds the five sources of wgs_mission_stack2.sh (gnomAD genomes, 1000 Genomes, GERP, dbNSFP, ENCODE cCREs)
-MS2=/results/fastvep05/mission2
-OUT=/results/fastvep05/cost_model/mission${STACK2:+2}_wgs_$SAMPLE; mkdir -p $OUT
-R=/mnt/data/tmp/mission-wgs${STACK2:+2}; mkdir -p $R/tmp; cd $R
+# STACK2=1 adds four sources of wgs_mission_stack2.sh (1000 Genomes, GERP, dbNSFP, ENCODE cCREs).
+# fastVEP makes every custom_vcf file a source of its own (a second file with the same --name
+# becomes FV_<NAME>_2, ...), so a custom source must be ONE genome-wide file: the mock tracks
+# come from build_tracks1.sh, and gnomAD genomes (custom, built in 20 Mb pieces) is left out.
+MS2=/results/fastvep05/mission2; T1=$MS/tracks1
+OUT=/results/fastvep05/cost_model/mission${STACK2:+2}f_wgs_$SAMPLE; mkdir -p $OUT
+rm -rf /mnt/data/tmp/mission-wgs /mnt/data/tmp/mission-wgs2   # node-local copies of the earlier, flawed setup
+R=/mnt/data/tmp/mission-wgs${STACK2:+2}f; mkdir -p $R/tmp; cd $R
 M16=$R/sa16; M12=$R/sa12; mkdir -p $M16 $M12
 log() { echo "[$(date -Is)] $*"; }
 b() { local s=$(date +%s); $FV sa-build --no-progress --assembly GRCh38 "$@" > build.$$.log 2>&1 || { cat build.$$.log; return 1; }; log "sa-build $1 $2 ${*: -2} $(( $(date +%s) - s ))s"; }
@@ -31,10 +35,15 @@ echo "node $(hostname), fastvep $($FV --version)"
 # ---- sources: built per chromosome by wgs_mission_stack.sh; local copies ----
 if [ ! -e $R/SOURCES ]; then
   for c in $(seq 1 22) X Y; do test -e $MS/done/chr$c || { echo "sources of chr$c missing"; exit 1; }; done
-  cp $MS/sa16/* $M16/ && cp $MS/sa12/* $M12/ || exit 1
+  for b in 16 12; do
+    for f in $MS/sa$b/*; do case $(basename $f) in tracka_chr*|trackb_chr*) ;; *) cp $f $R/sa$b/ || exit 1;; esac; done
+    cp $T1/sa$b/track[ab].* $R/sa$b/ || exit 1
+  done
   if [ -n "${STACK2:-}" ]; then
     for c in $(seq 1 22) X Y; do test -e $MS2/done/chr$c || { echo "further sources of chr$c missing"; exit 1; }; done
-    cp $MS2/sa16/* $M16/ && cp $MS2/sa12/* $M12/ || exit 1
+    for b in 16 12; do
+      for f in $MS2/sa$b/*; do case $(basename $f) in gnomad_genomes_*) ;; *) cp $f $R/sa$b/ || exit 1;; esac; done
+    done
   fi
   [ $(ls $M16 | wc -l) = $(ls $M12 | wc -l) ] || { echo "source sets differ"; exit 1; }
   ls $M16 | sed 's/_chr.*//' | sort | uniq -c | tee $OUT/sources.txt; du -sh $M16 $M12 | tee -a $OUT/sources.txt
@@ -54,6 +63,7 @@ blueprint() {  # af001 | af0001: annotate the gnomAD blueprint once per node, li
   if [ ! -e $R/c_$t.bcf.csi ]; then
     anno bp_$t.bcf $R/c_$t.part.bcf $M16 16 && mv $R/c_$t.part.bcf $R/c_$t.bcf && mv $R/c_$t.part.bcf.csi $R/c_$t.bcf.csi
     log "cache $t: $(bcftools index -n $R/c_$t.bcf) records, $(( $(date +%s) - s ))s, $(du -h $R/c_$t.bcf | cut -f1)"
+    bcftools view -h $R/c_$t.bcf | grep -o '^##INFO=<ID=FV_[A-Z0-9_]*' | cut -d= -f3 | tee $OUT/fields.txt | grep -q '_[0-9][0-9]*$' && { echo "a source appears more than once"; exit 1; }
   fi
   ln -f $R/c_$t.bcf c_$t.bcf; ln -f $R/c_$t.bcf.csi c_$t.bcf.csi
 }
