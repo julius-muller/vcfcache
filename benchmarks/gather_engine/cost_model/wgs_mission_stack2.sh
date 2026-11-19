@@ -44,7 +44,7 @@ fail=0
 # 1000 Genomes 30x panel, sites only (no chrY panel)
 ( if [ $C != Y ]; then
     v=""; [ $C = X ] && v=".v2"
-    K=http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20220422_3202_phased_SNV_INDEL_SV/1kGP_high_coverage_Illumina.chr$C.filtered.SNV_INDEL_SV_phased_panel$v.vcf.gz
+    K=ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20220422_3202_phased_SNV_INDEL_SV/1kGP_high_coverage_Illumina.chr$C.filtered.SNV_INDEL_SV_phased_panel$v.vcf.gz
     L=$SRC/onekg/chr$C.sites.vcf.gz   # from dl_onekg.sh, when there (the FTP server can stall for hours)
     if [ -s $L ]; then ln -s $L kg.vcf.gz; else
       curl -fsSL --retry 10 --retry-delay 30 --speed-limit 20000 --speed-time 300 $K | bcftools view -G -Oz -o kg.vcf.gz || { echo "FAILED 1000 Genomes"; exit 1; }
