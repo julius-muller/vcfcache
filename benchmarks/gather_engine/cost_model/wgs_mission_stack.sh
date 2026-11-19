@@ -8,7 +8,9 @@ export PATH=/results/input-preserving-20261105-tools/bin:$PATH
 PY=/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python
 FVD=/mnt/data/apps/fastvep/0.5.0; FV=$FVD/bin/fastvep; FA=$FVD/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa
 A=/results/fastvep05/acmg; S=$A/sources
-OUT=/results/fastvep05/mission; mkdir -p $OUT/sa16 $OUT/sa12 $OUT/done
+# NB=<bits> builds the narrow copies at another width (default 12) into /results/fastvep05/mission<NB>/sa12
+NB=${NB:-12}
+OUT=/results/fastvep05/mission${NB#12}; mkdir -p $OUT/sa16 $OUT/sa12 $OUT/done
 # A chromosome marked done by the first version of this script lacks dbSNP.
 ONLY=""
 if [ -e $OUT/done/chr$C ]; then
@@ -21,7 +23,7 @@ fail=0
 b() { local s=$(date +%s); $FV sa-build --no-progress --assembly GRCh38 "$@" > $W/b.$BASHPID.log 2>&1 || { cat $W/b.$BASHPID.log; echo FAILED "$@"; return 1; }; log "sa-build $2 ${*: -1} $(( $(date +%s) - s ))s"; }
 both() {  # source input name [extra...]: build at 16 and 12 bits
   local src=$1 in=$2 name=$3; shift 3
-  b --source $src -i $in -o $W/16/$name "$@" --chunk-bits 16 && b --source $src -i $in -o $W/12/$name "$@" --chunk-bits 12
+  b --source $src -i $in -o $W/16/$name "$@" --chunk-bits 16 && b --source $src -i $in -o $W/12/$name "$@" --chunk-bits $NB
 }
 dbsnp() {
   local n=$(case $C in X) echo 23;; Y) echo 24;; *) echo $C;; esac)
@@ -44,7 +46,7 @@ if [ $C = 1 ]; then V=$S/gnomad.exomes.v4.1.sites.chr1.vcf.bgz; else
   log "downloaded $(du -h $V | cut -f1)"
 fi
 ( b --source gnomad -i $V -o $W/16/gnomad_chr$C --chunk-bits 16 ) & p1=$!
-( b --source gnomad -i $V -o $W/12/gnomad_chr$C --chunk-bits 12 ) & p2=$!
+( b --source gnomad -i $V -o $W/12/gnomad_chr$C --chunk-bits $NB ) & p2=$!
 ( python3 $A/scripts/extract_gnomad_scores.py --chrom $C --url $V --out-dir $W > $W/extract.log 2>&1 &&
   both spliceai $W/spliceai_chr$C.vcf spliceai_chr$C && both phylop $W/phylop_chr$C.tsv phylop_chr$C ) & p3=$!
 ( dbsnp || echo FAILED dbsnp
@@ -83,7 +85,7 @@ done
 if [ $C = 1 ]; then
   cp $A/sa/dense/*.oga $A/sa/dense/*.osi $W/16/; cp $A/sa/dense/*.oga $A/sa/dense/*.osi $W/12/
   b --source clinvar -i $S/clinvar.vcf.gz -o $W/16/clinvar || fail=1
-  b --source clinvar -i $S/clinvar.vcf.gz -o $W/12/clinvar --chunk-bits 12 || fail=1
+  b --source clinvar -i $S/clinvar.vcf.gz -o $W/12/clinvar --chunk-bits $NB || fail=1
 fi
 [ $fail = 0 ] || { echo "chr$C incomplete"; exit 1; }
 save && touch $OUT/done/chr$C || { echo "chr$C not saved"; exit 1; }

@@ -12,7 +12,10 @@ export PATH=/results/input-preserving-20261105-tools/bin:$PATH
 FV=/mnt/data/apps/fastvep/0.5.0/bin/fastvep
 SRC=/results/sources; TOOLS=/results/fastvep05/tools
 ls /results /results/fastvep05 $SRC > /dev/null 2>&1   # clears a stale "no such directory" on some nodes
-OUT=/results/fastvep05/mission2; mkdir -p $OUT/sa16 $OUT/sa12 $OUT/done
+# NB=<bits>: narrow copies at another width (default 12) into /results/fastvep05/mission2<NB>/sa12.
+# gnomAD genomes only with GG=1: as 20 Mb custom pieces it is not a valid fastVEP source (see AGENTS.md).
+NB=${NB:-12}; GG=${GG:-0}
+OUT=/results/fastvep05/mission2${NB#12}; mkdir -p $OUT/sa16 $OUT/sa12 $OUT/done
 [ -e $OUT/done/chr$C ] && exit 0
 W=$(mktemp -d /mnt/data/tmp/mission2-$C-XXXX); trap 'rm -rf $W' EXIT; cd $W; mkdir 16 12
 log() { echo "[$(date -Is)] chr$C $*"; }
@@ -20,12 +23,12 @@ b() { local s=$(date +%s); $FV sa-build --no-progress --assembly GRCh38 "$@" > $
 both() {  # source input name [extra...]: build at 16 and 12 bits, in parallel
   local src=$1 in=$2 name=$3; shift 3
   b --source $src -i $in -o $W/16/$name "$@" --chunk-bits 16 & local p=$!
-  b --source $src -i $in -o $W/12/$name "$@" --chunk-bits 12 || { wait $p; return 1; }
+  b --source $src -i $in -o $W/12/$name "$@" --chunk-bits $NB || { wait $p; return 1; }
   wait $p
 }
 fail=0
 # gnomAD genomes: download, keep the fields fastVEP's gnomad source keeps, split into 20 Mb pieces
-( G=https://storage.googleapis.com/gcp-public-data--gnomad/release/4.1/vcf/genomes/gnomad.genomes.v4.1.sites.chr$C.vcf.bgz
+[ $GG != 1 ] || ( G=https://storage.googleapis.com/gcp-public-data--gnomad/release/4.1/vcf/genomes/gnomad.genomes.v4.1.sites.chr$C.vcf.bgz
   curl -fsSL --retry 10 --retry-delay 30 -o gg.vcf.bgz $G && curl -fsSL --retry 10 -o gg.vcf.bgz.tbi $G.tbi || { echo "FAILED gnomAD genomes download"; exit 1; }
   log "gnomAD genomes downloaded $(du -h gg.vcf.bgz | cut -f1)"
   F="AF,AC,AN,nhomalt"; for p in afr amr asj eas fin mid nfe remaining sas; do F="$F,AF_$p"; done
@@ -57,7 +60,7 @@ if [ $C = 1 ]; then
   b --source custom_bed --name ENCODE_cCRE -i $SRC/encode/GRCh38-cCREs.bed -o $W/16/encode_ccre && cp $W/16/encode_ccre.osi $W/12/ || fail=1
 fi
 for p in $p1 $p2 $p3 $p4; do wait $p || fail=1; done
-ls $W/16/gnomad_genomes_chr${C}_p*.osa2 > /dev/null 2>&1 || { echo "missing gnomad_genomes"; fail=1; }
+[ $GG = 1 ] && { ls $W/16/gnomad_genomes_chr${C}_p*.osa2 > /dev/null 2>&1 || { echo "missing gnomad_genomes"; fail=1; } }
 for f in gerp $( [ $C != Y ] && echo onekg ); do
   [ -s $W/16/${f}_chr$C.osa2 ] && [ -s $W/12/${f}_chr$C.osa2 ] || { echo "missing $f"; fail=1; }
 done

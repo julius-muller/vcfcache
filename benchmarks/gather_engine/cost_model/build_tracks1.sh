@@ -9,7 +9,8 @@ export PATH=/results/input-preserving-20261105-tools/bin:$PATH
 PY=/results/deployment/vcfcache-native-pilot-20261023c/.venv/bin/python
 FVD=/mnt/data/apps/fastvep/0.5.0; FV=$FVD/bin/fastvep; FA=$FVD/data/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa
 ls /results/fastvep05/mission > /dev/null 2>&1
-OUT=/results/fastvep05/mission/tracks1; mkdir -p $OUT/sa16 $OUT/sa12
+BITS=${BITS:-16 12}   # chunk widths to build
+OUT=/results/fastvep05/mission/tracks1; for bits in $BITS; do mkdir -p $OUT/sa$bits; done
 W=$(mktemp -d /mnt/data/tmp/tracks1-XXXX); trap 'rm -rf $W' EXIT; cd $W
 log() { echo "[$(date -Is)] $*"; }
 $PY - $FA <<'PYE' | bgzip -@4 -l1 > mock.vcf.gz
@@ -41,12 +42,12 @@ with open(fa, "rb") as s:
                     out.write("chr%s\t%d\t.\t%s\t%s\t.\t.\tP=%.3f;Q=%.2f\n" % (c, pos, r, a, (h % 991) / 991, (h % 97) / 97))
 PYE
 log "mock track: $(zcat mock.vcf.gz | grep -vc '^#') rows, $(du -h mock.vcf.gz | cut -f1)"
-for t in a b; do for bits in 16 12; do
+for t in a b; do for bits in $BITS; do
   T=$(echo $t | tr a-z A-Z)
   /usr/bin/time -f "%e s, max RSS %M kB" -o t.txt $FV sa-build --no-progress --assembly GRCh38 --source custom_vcf -i mock.vcf.gz \
     -o $W/track${t}_$bits --name Track$T --chunk-bits $bits > b.log 2>&1 || { tail -5 b.log; cat t.txt; echo "FAILED track$t $bits"; exit 1; }
   log "track$t chunk-bits $bits: $(cat t.txt)"
   for f in $W/track${t}_$bits.*; do cp $f $OUT/sa$bits/track$t.${f#$W/track${t}_$bits.} || exit 1; done
 done; done
-ls -l $OUT/sa16 $OUT/sa12
+ls -l $OUT/sa*
 echo DONE
