@@ -24,7 +24,8 @@ ls /results/fastvep05 $MS > /dev/null 2>&1   # clears a stale "no such directory
 # becomes FV_<NAME>_2, ...), so a custom source must be ONE genome-wide file: the mock tracks
 # come from build_tracks1.sh, and gnomAD genomes (custom, built in 20 Mb pieces) is left out.
 MS2=/results/fastvep05/mission2; T1=$MS/tracks1
-OUT=/results/fastvep05/cost_model/mission${STACK2:+2}f_wgs_$SAMPLE; mkdir -p $OUT
+# N10=1 adds arms whose misses are annotated from 1 kb copies of the sources (NB=10 builds)
+OUT=/results/fastvep05/cost_model/mission${STACK2:+2}f${N10:+n10}_wgs_$SAMPLE; mkdir -p $OUT
 rm -rf /mnt/data/tmp/mission-wgs /mnt/data/tmp/mission-wgs2   # node-local copies of the earlier, flawed setup
 R=/mnt/data/tmp/mission-wgs${STACK2:+2}f; mkdir -p $R/tmp; cd $R
 M16=$R/sa16; M12=$R/sa12; mkdir -p $M16 $M12
@@ -48,6 +49,19 @@ if [ ! -e $R/SOURCES ]; then
   [ $(ls $M16 | wc -l) = $(ls $M12 | wc -l) ] || { echo "source sets differ"; exit 1; }
   ls $M16 | sed 's/_chr.*//' | sort | uniq -c | tee $OUT/sources.txt; du -sh $M16 $M12 | tee -a $OUT/sources.txt
   touch $R/SOURCES
+fi
+
+M10=$R/sa10
+if [ -n "${N10:-}" ] && [ ! -e $R/SOURCES10 ]; then
+  for c in $(seq 1 22) X Y; do test -e /results/fastvep05/mission10/done/chr$c || { echo "1 kb sources of chr$c missing"; exit 1; }
+    [ -z "${STACK2:-}" ] || test -e /results/fastvep05/mission210/done/chr$c || { echo "1 kb further sources of chr$c missing"; exit 1; }; done
+  mkdir -p $M10
+  for d in /results/fastvep05/mission10/sa12 ${STACK2:+/results/fastvep05/mission210/sa12}; do ls $d > /dev/null 2>&1
+    for f in $d/*; do case $(basename $f) in tracka_chr*|trackb_chr*|gnomad_genomes_*) ;; *) cp $f $M10/ || exit 1;; esac; done
+  done
+  cp $T1/sa10/track[ab].* $M10/ || exit 1
+  [ $(ls $M16 | wc -l) = $(ls $M10 | wc -l) ] || { echo "1 kb source set differs"; ls $M16 > a.txt; ls $M10 > b.txt; diff a.txt b.txt; exit 1; }
+  du -sh $M10 | tee -a $OUT/sources.txt; touch $R/SOURCES10
 fi
 
 # sources and the annotated blueprints are shared by all samples on a node; the rest is per sample
@@ -97,6 +111,11 @@ if [ ! -e $W/CACHES ]; then
   rm -f o*.bcf o*.bcf.csi; touch $W/CACHES
 fi
 
+if [ -n "${N10:-}" ] && [ ! -e $W/CACHES10 ]; then
+  for k in af001 cohort; do mkcache ${k}_n10 $W/c_$k.bcf $M10; done; touch $W/CACHES10
+fi
+ARMS="af001 af001_narrow cohort cohort_narrow rerun"; [ -n "${N10:-}" ] && ARMS="af001 af001_narrow af001_n10 cohort cohort_narrow cohort_n10 rerun"
+
 # ---- runs ------------------------------------------------------------------
 N=$(bcftools index -n in.bcf)
 digest() { bcftools view -H $1 | awk -F'\t' 'BEGIN{OFS="\t"} {n=split($8,a,";"); asort(a); s=a[1]; for(i=2;i<=n;i++) s=s";"a[i]; $8=s; print}' | md5sum | cut -c1-12; }
@@ -114,7 +133,7 @@ vc() {  # arm cache [--uncached]
 : > $OUT/runs.tsv
 for rep in 1 2 3; do
   vc uncached af001 --uncached
-  for k in af001 af001_narrow cohort cohort_narrow rerun; do vc $k $k; done
+  for k in $ARMS; do vc $k $k; done
 done
 # fastVEP alone, for reference
 for i in 1 2; do s=$(date +%s.%N); anno in.bcf d.bcf $M16 8; echo "fastvep_alone $(echo "$(date +%s.%N) - $s" | bc)" | tee -a $OUT/runs.tsv; done
