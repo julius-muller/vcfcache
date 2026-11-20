@@ -4,7 +4,10 @@
 # uncached against vcfcache with the gnomAD AF >= 0.1% blueprint, a cohort cache
 # (blueprint plus the other KPGP samples) and a rerun cache (sample included).
 # vep-rs reads tabix tables per variant, so there is no narrow-block variant.
-# Usage: wgs_mission_veprs.sh <deployment> [sample]
+# STACK2=1 adds 1000 Genomes (veprs_onekg_table.sh) and dbNSFP 5.4a read directly, twice: SIFT/PolyPhen,
+# and GERP/phyloP (vep-rs has no bigwig or region sources, so GERP is only where dbNSFP scores it and
+# ENCODE cCREs cannot be added). PREP=1 stops once the caches are built; a second run measures.
+# Usage: [STACK2=1] [PREP=1] wgs_mission_veprs.sh <deployment> [sample]
 set -uo pipefail
 DEP=$1; SAMPLE=${2:-KPGP-00128}
 export PATH=/results/input-preserving-20261105-tools/bin:$PATH
@@ -18,13 +21,18 @@ BP=/mnt/data/vcfcache_benchmarks/bundled_zenodo_blueprints/gnomad_v4.1_GRCh38_jo
 TPL=/results/veprs05/caches/veprs05_clinical
 MS=/results/veprs05/mission
 ls /results /results/veprs05 $MS > /dev/null 2>&1   # clears a stale "no such directory" on some nodes
-OUT=/results/veprs05/mission/wgs_$SAMPLE; mkdir -p $OUT
-R=/mnt/data/tmp/veprs-mission; mkdir -p $R; cd $R
+OUT=/results/veprs05/mission/wgs${STACK2:+2}_$SAMPLE; mkdir -p $OUT
+R=/mnt/data/tmp/veprs-mission${STACK2:+2}; mkdir -p $R; cd $R
 log() { echo "[$(date -Is)] $*"; }
 echo "node $(hostname), $($VR --version)"
 # ---- tables: node-local copies ------------------------------------------------
 test -e $MS/TABLES || { echo "tables missing"; exit 1; }
-if [ ! -e $R/TABLES ]; then cp -r $MS/tables $R/ && touch $R/TABLES || exit 1; fi
+[ -z "${STACK2:-}" ] || test -e $MS/ONEKG || { echo "1000 Genomes table missing"; exit 1; }
+DBN=/results/sources/dbnsfp/dbNSFP5.4a_grch38.gz
+if [ ! -e $R/TABLES ]; then cp -r $MS/tables $R/ || exit 1
+  if [ -n "${STACK2:-}" ]; then mkdir -m 700 -p $R/dbnsfp && cp $DBN $DBN.tbi $R/dbnsfp/ || exit 1; fi
+  touch $R/TABLES
+fi
 T=$R/tables
 G=""; for f in AF AC AN nhomalt AF_afr AF_amr AF_asj AF_eas AF_fin AF_mid AF_nfe AF_remaining AF_sas; do G="$G,gnomAD_$f"; done
 PL="--plugin dbNSFP,$T/clinvar.tsv.gz,CV_CLNSIG,CV_REVSTAT,CV_CLNDN --plugin dbNSFP,$T/gnomad.tsv.gz$G --plugin dbNSFP,$T/dbsnp.tsv.gz,dbSNP_RS"
@@ -32,6 +40,11 @@ PL="$PL --plugin REVEL,file=$D/new_tabbed_revel_grch38.tsv.gz --plugin AlphaMiss
 PL="$PL --plugin SpliceAI,snv=$T/spliceai_snv.vcf.gz,indel=$T/spliceai_indel.vcf.gz --plugin dbNSFP,$T/phylop.tsv.gz,PhyloP"
 PL="$PL --plugin dbNSFP,$T/trackA.tsv.gz,TrackA_P,TrackA_Q --plugin dbNSFP,$T/trackB.tsv.gz,TrackB_P,TrackB_Q"
 PL="$PL --plugin pLI,$D/pLI_values.txt --plugin LoFtool,$D/LoFtool_scores.txt --plugin GWAS,file=$D/gwas-catalog-download-associations-alt-full.tsv"
+if [ -n "${STACK2:-}" ]; then D5=$R/dbnsfp/$(basename $DBN)
+  PL="$PL --plugin dbNSFP,$T/onekg.tsv.gz,KG_AF,KG_AF_EAS,KG_AF_AMR,KG_AF_EUR,KG_AF_AFR,KG_AF_SAS"
+  PL="$PL --plugin dbNSFP,$D5,SIFT4G_score,SIFT4G_pred,Polyphen2_HDIV_score,Polyphen2_HDIV_pred,Polyphen2_HVAR_score,Polyphen2_HVAR_pred"
+  PL="$PL --plugin dbNSFP,$D5,GERP_92_mammals,phyloP100way_vertebrate"
+fi
 FLAGS="--hgvs --fasta $FA $PL"
 anno() {  # in.bcf out.bcf threads
   bcftools view $1 -Ov | $VR --assembly GRCh38 --json_cache $JC --fork $3 --vcf --no_stats --format vcf \
@@ -78,6 +91,7 @@ if [ ! -e $W/CACHES ]; then
   for k in af001 cohort rerun; do mkcache $k $W/c_$k.bcf; done
   rm -f o*.bcf o*.bcf.csi; touch $W/CACHES
 fi
+[ "${PREP:-0}" = 1 ] && { echo PREP DONE; exit 0; }
 # ---- runs ------------------------------------------------------------------
 N=$(bcftools index -n in.bcf)
 digest() { bcftools view -H $1 | awk -F'\t' 'BEGIN{OFS="\t"} {n=split($8,a,";"); asort(a); s=a[1]; for(i=2;i<=n;i++) s=s";"a[i]; $8=s; print}' | md5sum | cut -c1-12; }
@@ -97,5 +111,5 @@ for rep in 1 2 3; do
   vc uncached af001 --uncached
   for k in af001 cohort rerun; do vc $k $k; done
 done
-for i in 1 2; do s=$(date +%s.%N); anno in.bcf d.bcf 8; echo "veprs_alone $(echo "$(date +%s.%N) - $s" | bc)" | tee -a $OUT/runs.tsv; done
+for i in $([ -z "${STACK2:-}" ] && echo 1 2); do s=$(date +%s.%N); anno in.bcf d.bcf 8; echo "veprs_alone $(echo "$(date +%s.%N) - $s" | bc)" | tee -a $OUT/runs.tsv; done
 echo DONE
