@@ -418,29 +418,33 @@ def canonical(line, unordered):
 def mismatch_report(candidate, reference, destination, limit=500):
     """Classify records that differ and keep them in full for later review.
 
-    Returns the number of loci whose records differ after sorting INFO tags
-    and annotation entries, and the number that still differ once ``&``-joined
-    value lists are compared as sets.
+    Records are compared in file order, also within a locus. Returns the number
+    of loci whose records differ after sorting INFO tags and annotation entries
+    (record by record, in order), the number that still differ once records and
+    their ``&``-joined value lists are compared as sets, and the number whose
+    records are identical but come in another order.
     """
     import gzip
 
-    ordered = unordered = kept = 0
+    ordered = unordered = reordered = kept = 0
     with gzip.open(destination, "wt") as stream:
         for (key_a, a), (key_b, b) in zip(
             loci(candidate), loci(reference), strict=True
         ):
             if key_a != key_b:
                 return dict(report_error="locus sequence differs")
-            if sorted(a) == sorted(b):
+            if a == b:
                 continue
-            strict = sorted(canonical(x, False) for x in a) != sorted(
+            strict = [canonical(x, False) for x in a] != [
                 canonical(x, False) for x in b
-            )
+            ]
             loose = sorted(canonical(x, True) for x in a) != sorted(
                 canonical(x, True) for x in b
             )
+            moved = sorted(a) == sorted(b)
             ordered += strict
             unordered += loose
+            reordered += moved
             if strict and kept < limit:
                 kept += 1
                 stream.write(
@@ -448,13 +452,18 @@ def mismatch_report(candidate, reference, destination, limit=500):
                         dict(
                             locus=key_a.decode(),
                             differs_as_sets=loose,
+                            only_order_differs=moved,
                             candidate=[x.decode() for x in a],
                             reference=[x.decode() for x in b],
                         )
                     )
                     + "\n"
                 )
-    return dict(report_loci=ordered, report_loci_as_sets=unordered)
+    return dict(
+        report_loci=ordered,
+        report_loci_as_sets=unordered,
+        report_loci_reordered=reordered,
+    )
 
 
 def timed(deployment, scratch, evidence, name, arm, cell, source):
