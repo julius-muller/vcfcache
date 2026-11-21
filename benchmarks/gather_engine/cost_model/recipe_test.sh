@@ -32,11 +32,14 @@ echo "blueprint-init $(t vc blueprint-init -i bp22.bcf -o $W/bp -y params.yaml) 
 echo "cache-build $(t vc cache-build --db $W/bp -n fv -a $RC/annotation.yaml -y params.yaml) s"
 C=$(dirname $(find $W/bp -name vcfcache_annotated.bcf | head -1)); echo "cache $C"
 grep -c "sa_dir" $C/annotation.yaml > /dev/null && grep "sa-dir" $C/annotation.yaml
-echo "direct (uncached, 65 kb) $(t vc annotate -a $C -i in.bcf -o direct.bcf -y params.yaml --uncached --stats-dir st1) s"
-echo "cached, misses at 65 kb  $(t vc annotate -a $C -i in.bcf -o c65.bcf -y params.yaml --stats-dir st2) s"
-echo "cached, misses at 1 kb   $(t vc annotate -a $C -i in.bcf -o c1k.bcf -y params.annotate.yaml --stats-dir st3) s"
+# twice, so that the second round reads every source folder warm
+for rep in 1 2; do rm -rf st1 st2 st3 direct.bcf* c65.bcf* c1k.bcf*
+  echo "round $rep: direct (uncached, 65 kb) $(t vc annotate -a $C -i in.bcf -o direct.bcf -y params.yaml --uncached --stats-dir st1) s"
+  echo "round $rep: cached, misses at 65 kb  $(t vc annotate -a $C -i in.bcf -o c65.bcf -y params.yaml --stats-dir st2) s"
+  echo "round $rep: cached, misses at 1 kb   $(t vc annotate -a $C -i in.bcf -o c1k.bcf -y params.annotate.yaml --stats-dir st3) s"
+done
 grep -rho "missing_variants: [0-9]*" st3 | head -1
-grep -rh "sa-dir" st3 | grep -o "sa-dir [^ ]*" | head -1
+grep -rh "^sa_dir" st2 st3
 for f in direct c65 c1k; do echo "$f $(bcftools index -n $f.bcf) $(digest $f.bcf)"; done
 [ $(digest direct.bcf) = $(digest c1k.bcf) ] && [ $(digest direct.bcf) = $(digest c65.bcf) ] && echo "IDENTICAL" || echo "DIFFERENT"
 echo DONE

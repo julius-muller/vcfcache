@@ -1,0 +1,17 @@
+## * REQUIRED RESOURCES *
+genome_build: "GRCh38"
+annotation_tool_cmd: "fastvep"
+tool_version_command: "fastvep --version"
+bcftools_cmd: "bcftools"
+temp_dir: "/tmp"
+threads: 8
+
+## * fastVEP RESOURCES *
+rayon_threads: 8
+transcript_cache: "/data/fastvep/GRCh38/Homo_sapiens.GRCh38.fastvep.cache"
+fasta: "/data/fastvep/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa"
+# Annotation sources (.osa2/.osi) used to build the cache: fastVEP's advised 65 kb blocks
+# (sa-build --chunk-bits 16). See README.md.
+sa_dir: "/data/fastvep/sa/GRCh38_65kb"
+
+optional_checks: {}
