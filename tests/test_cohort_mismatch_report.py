@@ -3,6 +3,10 @@
 import gzip
 import json
 
+import pytest
+
+# The Docker test image ships vcfcache only, not the benchmarks package.
+pytest.importorskip("benchmarks")
 from benchmarks.gather_engine import cohort
 
 
@@ -63,3 +67,9 @@ def test_value_differences_are_reported(monkeypatch, tmp_path):
     )
     assert result == dict(report_loci=1, report_loci_as_sets=1, report_loci_reordered=0)
     assert kept[0]["differs_as_sets"] is True
+
+
+def test_different_locus_counts_are_reported_not_raised(monkeypatch, tmp_path):
+    recs = [_rec(10, "C", "X=1"), _rec(20, "T", "X=3")]
+    result, _ = _report(monkeypatch, tmp_path, recs, recs[:1])
+    assert result == dict(report_error="locus count differs")

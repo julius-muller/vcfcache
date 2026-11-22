@@ -25,7 +25,7 @@
 
 ## Mission (manuscript benchmark)
 - Goal: speed up the average annotation pipeline on WGS while output stays identical to direct annotation. The reference pipeline is an annotator with 10-20 well-known sources (gnomAD, dbSNP, ClinVar, REVEL, AlphaMissense, SpliceAI, conservation scores, ...) plus a few custom BED/bigWig-style tracks of about 100 million rows with a couple of columns each (e.g. in-house AI predictions).
-- The comparison is always against the annotator as its authors ship or recommend it. Never change an annotator setting to make it slower or to favour vcfcache (e.g. fastVEP source block width); only vcfcache's own side may be tuned.
+- The comparison is always against the annotator as its authors ship or recommend it. Never change an annotator setting to make it slower or to favour vcfcache: the direct (uncached) baseline always runs as advised (e.g. fastVEP sources at 65 kb, `--chunk-bits 16`). vcfcache's own side may be tuned, and so may the miss step of a cached run: there a second copy of the same sources in narrower blocks is allowed (decided with the user, 2026-11-19; the fastVEP 0.5 recipe uses 1 kb), because it reads the same data and its output is identical.
 - Out of scope: per-variant computation that few people run (e.g. fastVEP `--acmg`). Do not benchmark it.
 - fastVEP 0.5.0 on WGS is the hard case and decides the project; a substantial speedup means 3x or more.
 

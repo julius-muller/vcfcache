@@ -18,6 +18,7 @@ import os
 import re
 import shlex
 import shutil
+import signal
 import struct
 import subprocess
 import sys
@@ -59,6 +60,33 @@ def count(bcftools, path):
     return result
 
 
+def region(contig):
+    """A whole contig as a region; braces keep names such as HLA-A*01:01:01:01 intact."""
+    return f"{{{contig}}}"
+
+
+def file_order(bcftools, source):
+    """Contigs in the order their records appear in the file (one full pass)."""
+    seen: list = []
+    with subprocess.Popen(
+        [bcftools, "query", "-f", "%CHROM\n", str(source)],
+        stdout=subprocess.PIPE,
+        text=True,
+    ) as process:
+        assert process.stdout is not None
+        for line in process.stdout:
+            contig = line.rstrip("\n")
+            if seen and seen[-1] == contig:
+                continue
+            if contig in seen:
+                process.kill()
+                raise ValueError(f"Records of {contig} are not contiguous in {source}")
+            seen.append(contig)
+    if process.returncode:
+        raise subprocess.CalledProcessError(process.returncode, "bcftools query")
+    return seen
+
+
 def identity(bcftools, path):
     """Hash unchanged columns and all FORMAT data without transferring INFO text.
 
@@ -72,7 +100,7 @@ def identity(bcftools, path):
     contigs = sorted(line.split("\t")[0] for line in index.splitlines() if line)
     command = [bcftools, "query", "-f", IDENTITY]
     if contigs:
-        command += ["-r", ",".join(contigs)]
+        command += ["-r", ",".join(region(c) for c in contigs)]
     command.append(str(path))
     # A file-backed stderr avoids a pipe deadlock on malformed inputs.
     with tempfile.TemporaryFile() as errors:
@@ -150,7 +178,9 @@ def scan_contig(bcftools, source, contig, windowed):
         positions holding duplicate keys, positions holding more than one
         record, and occupied windows when windowed.
     """
-    query = shlex.join([bcftools, "query", "-f", KEY, "-r", contig, str(source)])
+    query = shlex.join(
+        [bcftools, "query", "-f", KEY, "-r", region(contig), str(source)]
+    )
     awk = shlex.join(
         ["awk", "-F", "\t", "-v", f"sample={SAMPLE}", "-v", f"window={WINDOW}"]
         + ["-v", f"windowed={int(windowed)}", SCAN]
@@ -589,6 +619,7 @@ def copy_range(source, target, start, length):
                     raise RuntimeError("Shard ended early")
                 target.write(block)
                 length -= len(block)
+            target.flush()
             return
         if copied == 0:
             raise RuntimeError("Shard ended early")
@@ -770,12 +801,19 @@ def start_recipe(manager, work, recipe_input, annotated):
     )
     (work / "recipe.sh").write_text(f"#!/bin/bash\nset -euo pipefail\n\n{recipe}\n")
     manager.logger.debug(f"Command (started early): {recipe}")
-    logs = [(work / "stdout.txt").open("wb"), (work / "stderr.txt").open("wb")]
+    # Its own log files: commands run in the same folder meanwhile rewrite
+    # stdout.txt and stderr.txt. Its own process group, so that stopping it
+    # also stops the annotator and the readers it started.
+    logs = [
+        (work / "recipe_stdout.txt").open("wb"),
+        (work / "recipe_stderr.txt").open("wb"),
+    ]
     process = subprocess.Popen(
         ["bash", "-c", "set -euo pipefail\n" + recipe],
         cwd=work,
         stdout=logs[0],
         stderr=logs[1],
+        start_new_session=True,
     )
     return dict(
         process=process,
@@ -796,8 +834,8 @@ def finish_recipe(manager, work, started):
         f"early start, exit status {status}"
     )
     for filename, output in (
-        ("stdout.txt", "annotation_tool.log"),
-        ("stderr.txt", "annotation_tool_err.log"),
+        ("recipe_stdout.txt", "annotation_tool.log"),
+        ("recipe_stderr.txt", "annotation_tool_err.log"),
     ):
         path = work / filename
         if path.exists() and path.stat().st_size:
@@ -806,6 +844,15 @@ def finish_recipe(manager, work, started):
     if auxiliary.exists() and not any(auxiliary.iterdir()):
         auxiliary.rmdir()
     return status
+
+
+def stop_recipe(manager, work, started):
+    """Stop a recipe started by start_recipe, with every process it started."""
+    try:
+        os.killpg(started["process"].pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    finish_recipe(manager, work, started)
 
 
 def run_recipe(manager, work, command, recipe_input, annotated):
@@ -909,7 +956,9 @@ def run(manager, cache=None):
             # An input that already declares the tag may carry annotation the
             # cache did not supply; only then must hits be marked explicitly.
             # Otherwise an empty tag identifies a miss, which saves the marker
-            # and its removal on every record.
+            # and its removal on every record. A VCF record that carries the
+            # tag without a header line cannot slip through as a hit: the
+            # lookup's bcftools annotate stops at undeclared INFO tags.
             marked = f"##INFO=<ID={tag}," in headers[0]
             windowed = bool(total) and count(bcftools, cache) > WINDOW_RATIO * total
             # One parallel pass over the input's keys places equal-record cuts
@@ -924,8 +973,14 @@ def run(manager, cache=None):
             stats_ = index_stats(bcftools, source)
             refs = read_index(bcftools, source, stats_) if total else None
             header = contig_order(bcftools, source, stats_)
-            # File order, from the index; header order when it cannot be read.
-            order = [r[0] for r in refs] if refs else header
+            # File order, from the index; from the records when it cannot be
+            # read (header order may differ from file order).
+            if refs:
+                order = [r[0] for r in refs]
+            elif total and len(header) > 1:
+                order = file_order(bcftools, source)
+            else:
+                order = header
             span = order == header
             scans = None
             if refs and not windowed and parts > 1:
@@ -1160,33 +1215,48 @@ def run(manager, cache=None):
             )
             prepared: list = [None] * len(folders)
             pool = ThreadPoolExecutor(max_workers=threads)
+
+            def abort():
+                """Release the feeder and stop an early-started recipe."""
+                failed.set()
+                for event in ready:
+                    event.set()
+                if started and started["process"].poll() is None:
+                    stop_recipe(manager, work, started)
+
             try:
                 list(pool.map(lookup, range(len(folders))))
             except BaseException:
                 failed.set()
                 pool.shutdown(wait=True, cancel_futures=True)
-                if started:
-                    started["process"].kill()
-                    finish_recipe(manager, work, started)
+                abort()
                 raise
             # Merge inputs are still being prepared; merge waits for each.
             pool.shutdown(wait=False)
-            if scans is None and shards and sum(scanned) != total:
-                raise RuntimeError("Shard key scans read a different number of records")
-            sites = sum(len(d) for d in duplicates)
-            if sites:
-                manager.logger.warning(
-                    f"Duplicate variant keys at {sites} position(s): every record "
-                    "there is annotated by the recipe"
-                )
-            manager.logger.info("Step 2/4: Select actual misses, not pre-existing tags")
             recipe_input = work / "misses.bcf"
-            parts = " ".join(quoted(folder / "misses.bcf") for folder in folders)
-            command(
-                f"{tool} concat --no-version --naive {parts} -o {quoted(recipe_input)} && "
-                f"{tool} index -f {quoted(recipe_input)}"
-            )
-            missing = count(bcftools, recipe_input)
+            try:
+                if scans is None and shards and sum(scanned) != total:
+                    raise RuntimeError(
+                        "Shard key scans read a different number of records"
+                    )
+                sites = sum(len(d) for d in duplicates)
+                if sites:
+                    manager.logger.warning(
+                        f"Duplicate variant keys at {sites} position(s): every record "
+                        "there is annotated by the recipe"
+                    )
+                manager.logger.info(
+                    "Step 2/4: Select actual misses, not pre-existing tags"
+                )
+                parts = " ".join(quoted(folder / "misses.bcf") for folder in folders)
+                command(
+                    f"{tool} concat --no-version --naive {parts} -o {quoted(recipe_input)} && "
+                    f"{tool} index -f {quoted(recipe_input)}"
+                )
+                missing = count(bcftools, recipe_input)
+            except BaseException:
+                abort()
+                raise
             # The recipe output is checked while the shards are merged; nothing
             # is published before that check has passed.
             checker = ThreadPoolExecutor(max_workers=1)

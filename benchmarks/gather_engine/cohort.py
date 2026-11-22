@@ -425,12 +425,17 @@ def mismatch_report(candidate, reference, destination, limit=500):
     records are identical but come in another order.
     """
     import gzip
+    import itertools
 
     ordered = unordered = reordered = kept = 0
     with gzip.open(destination, "wt") as stream:
-        for (key_a, a), (key_b, b) in zip(
-            loci(candidate), loci(reference), strict=True
+        end = object()
+        for pair_a, pair_b in itertools.zip_longest(
+            loci(candidate), loci(reference), fillvalue=end
         ):
+            if pair_a is end or pair_b is end:
+                return dict(report_error="locus count differs")
+            (key_a, a), (key_b, b) = pair_a, pair_b
             if key_a != key_b:
                 return dict(report_error="locus sequence differs")
             if a == b:

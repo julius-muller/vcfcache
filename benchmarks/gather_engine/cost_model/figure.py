@@ -42,6 +42,7 @@ ARMS = {
 
 
 def read(path: Path) -> tuple[dict[str, list[float]], dict[str, int], int, set[str]]:
+    """Times per arm, misses per arm, input size and output digests of one runs table."""
     times: dict[str, list[float]] = {}
     misses: dict[str, int] = {}
     n = 0
@@ -60,6 +61,7 @@ def read(path: Path) -> tuple[dict[str, list[float]], dict[str, int], int, set[s
 
 
 def rows() -> list[dict]:
+    """One row per annotator x stack x cache x miss-step width (medians over samples)."""
     out = []
     for annot, nsrc, prefix, _ in SETS:
         per = {}  # arm -> list of per-sample dicts
@@ -91,6 +93,7 @@ def rows() -> list[dict]:
 
 
 def write_tables(rs: list[dict]) -> None:
+    """Write results/cost_model_table.tsv and .md."""
     head = ["annotator", "sources", "cache", "miss_width", "samples", "direct_s", "rerun_s",
             "cached_s", "miss_pct", "speedup", "speedup_min", "speedup_max", "ideal_speedup",
             "share_of_ideal", "miss_cost_ratio"]
@@ -124,6 +127,7 @@ INK, INK2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
 
 
 def figure(rs: list[dict]) -> None:
+    """Write results/cost_model_figure.png and .pdf."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -209,7 +213,7 @@ def figure(rs: list[dict]) -> None:
     r = next(x for x in sel if x["cache"].startswith("rerun"))
     bars.append(("Rerun (all hits)", r["R"], 0, None, r["obs"]))
     y = list(range(len(bars)))[::-1]
-    for yi, (lab, rr, ann, c, obs) in zip(y, bars):
+    for yi, (_, rr, ann, c, obs) in zip(y, bars, strict=True):
         left = 0
         if rr:
             b.barh(yi, rr, color="#c9c8c2", height=0.62, edgecolor=SURFACE, linewidth=2)

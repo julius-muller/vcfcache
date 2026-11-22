@@ -836,3 +836,124 @@ def test_gather_handles_shards_larger_than_one_read_buffer(tmp_path):
         assert subprocess.check_output(query + [str(joined)]) == (
             subprocess.check_output(query + [str(reference)])
         )
+
+
+def test_vcf_input_with_undeclared_stale_tag_is_refused(tmp_path, inputs):
+    """A VCF record may carry the tag without a header line; it must never pass
+    as a cache hit. The lookup's bcftools annotate refuses such input, so the
+    run fails and publishes nothing."""
+    _, cache = inputs
+    header = HEADER.replace(
+        '##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description="Test annotation">\n',
+        "",
+    )
+    vcf = tmp_path / "stale.vcf"
+    vcf.write_text(header + ROWS[0] + "\n" + ROWS[3] + "\n")  # pos 40 is not cached
+    source = tmp_path / "stale.vcf.gz"
+    with source.open("wb") as out:
+        subprocess.run(["bgzip", "-c", str(vcf)], stdout=out, check=True)
+    subprocess.run(["tabix", "-p", "vcf", str(source)], check=True)
+    cached = manager(tmp_path / "cached", source)
+    with pytest.raises(Exception):
+        cached.run("annotate", db_bcf=cache)
+    assert not cached.output_file.exists()
+
+
+def test_contig_names_with_colons(tmp_path, inputs):
+    """GRCh38 HLA contigs (HLA-A*01:01:01:01) must not be parsed as regions."""
+    _, cache = inputs
+    header = HEADER.replace(
+        "##contig=<ID=chr1,length=1000>",
+        "##contig=<ID=chr1,length=1000>\n##contig=<ID=HLA-A*01:01:01:01,length=3503>",
+    )
+    rows = [ROWS[0], ROWS[3], "HLA-A*01:01:01:01\t10\th1\tC\tT\t50\tPASS\t.\tGT:DP\t0/1:9"]
+    source = bcf(tmp_path, "hla", rows, header)
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    assert records(cached.output_file) == records(direct.output_file)
+    assert b"HLA-A*01:01:01:01\t10" in records(cached.output_file)
+
+
+def test_unreadable_index_keeps_file_order(tmp_path, monkeypatch):
+    """Without a readable index, shards follow the file's order, not the header's."""
+    monkeypatch.setattr(preserving, "read_index", lambda *args: None)
+    monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+    monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 2)
+    header = HEADER.replace(
+        "##contig=<ID=chr1,length=1000>",
+        "##contig=<ID=chr1,length=1000>\n##contig=<ID=chr2,length=1000>",
+    )
+    rows = [
+        f"{c}\t{p}\t{c}_{p}\tA\tC\t50\tPASS\t.\tGT:DP\t0/1:9"
+        for c in ("chr2", "chr1")
+        for p in (10, 20, 30, 40)
+    ]
+    source = bcf(tmp_path, "order", rows, header)
+    assert preserving.file_order("bcftools", source) == ["chr2", "chr1"]
+    cache = bcf(
+        tmp_path,
+        "order_cache",
+        [r.replace("\t.\tGT:DP\t0/1:9", "\tMOCK_ANNO=test") for r in rows[::2]],
+        header.replace("\tFORMAT\tSAMPLE", ""),
+    )
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    assert records(cached.output_file).startswith(b"chr2\t")
+    assert records(cached.output_file) == records(direct.output_file)
+
+
+def test_copy_range_fallback_keeps_byte_order(tmp_path, monkeypatch):
+    """A buffered fallback copy is flushed before a later kernel copy appends."""
+    import os
+
+    source = tmp_path / "source.bin"
+    source.write_bytes(bytes(range(256)) * 64)
+    calls = []
+
+    def flaky(src, dst, count, offset_src):
+        """Fails once, then copies like the kernel: at the descriptor's offset."""
+        calls.append(count)
+        if len(calls) == 1:
+            raise OSError(22, "no kernel copy here")
+        return os.write(dst, os.pread(src, count, offset_src))
+
+    monkeypatch.setattr(os, "copy_file_range", flaky, raising=False)
+    target = tmp_path / "target.bin"
+    with source.open("rb") as src, target.open("wb") as dst:
+        preserving.copy_range(src, dst, 0, 1000)
+        preserving.copy_range(src, dst, 5000, 3000)
+    data = source.read_bytes()
+    assert target.read_bytes() == data[:1000] + data[5000:8000]
+
+
+def test_stopping_an_early_recipe_stops_its_children(tmp_path, inputs):
+    """stop_recipe ends the whole process group, not only the shell."""
+    source, _ = inputs
+    marker = f"sleep 61.{random.randrange(10**6)}"
+    run = manager(tmp_path / "stop", source, recipe=f"{marker} | cat > ${{OUTPUT_BCF}}")
+    work = tmp_path / "stop" / "work"
+    work.mkdir()
+    started = preserving.start_recipe(run, work, source, work / "out.bcf")
+    for _ in range(100):
+        if subprocess.run(["pgrep", "-f", marker], capture_output=True).returncode == 0:
+            break
+        __import__("time").sleep(0.05)
+    preserving.stop_recipe(run, work, started)
+    __import__("time").sleep(0.2)
+    assert subprocess.run(["pgrep", "-f", marker], capture_output=True).returncode == 1
+
+
+def test_streaming_recipe_keeps_its_own_log(tmp_path, inputs):
+    """Commands run beside an early recipe must not overwrite the recipe's log."""
+    source, cache = inputs
+    recipe = "echo recipe-note-on-stderr >&2; " + STREAMING
+    run = manager(tmp_path / "logs", source, recipe=recipe)
+    run.run("annotate", db_bcf=cache)
+    assert run.last_run_stats["recipe_streamed"]
+    assert run.last_run_stats["missing_variants"] > 0
+    log = (tmp_path / "logs" / "annotation_tool_err.log").read_text()
+    assert "recipe-note-on-stderr" in log
