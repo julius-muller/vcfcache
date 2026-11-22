@@ -930,8 +930,25 @@ def test_copy_range_fallback_keeps_byte_order(tmp_path, monkeypatch):
     assert target.read_bytes() == data[:1000] + data[5000:8000]
 
 
+def running(marker):
+    """Whether a process whose command line contains ``marker`` is alive."""
+    from pathlib import Path
+
+    for cmdline in Path("/proc").glob("[0-9]*/cmdline"):
+        try:
+            text = cmdline.read_bytes().replace(b"\0", b" ").decode(errors="replace")
+            state = (cmdline.parent / "stat").read_text().split(") ", 1)[1][0]
+        except (OSError, IndexError):
+            continue
+        if marker in text and state != "Z":
+            return True
+    return False
+
+
 def test_stopping_an_early_recipe_stops_its_children(tmp_path, inputs):
     """stop_recipe ends the whole process group, not only the shell."""
+    import time
+
     source, _ = inputs
     marker = f"sleep 61.{random.randrange(10**6)}"
     run = manager(tmp_path / "stop", source, recipe=f"{marker} | cat > ${{OUTPUT_BCF}}")
@@ -939,12 +956,16 @@ def test_stopping_an_early_recipe_stops_its_children(tmp_path, inputs):
     work.mkdir()
     started = preserving.start_recipe(run, work, source, work / "out.bcf")
     for _ in range(100):
-        if subprocess.run(["pgrep", "-f", marker], capture_output=True).returncode == 0:
+        if running(marker):
             break
-        __import__("time").sleep(0.05)
+        time.sleep(0.05)
+    assert running(marker)
     preserving.stop_recipe(run, work, started)
-    __import__("time").sleep(0.2)
-    assert subprocess.run(["pgrep", "-f", marker], capture_output=True).returncode == 1
+    for _ in range(40):
+        if not running(marker):
+            break
+        time.sleep(0.05)
+    assert not running(marker)
 
 
 def test_streaming_recipe_keeps_its_own_log(tmp_path, inputs):
