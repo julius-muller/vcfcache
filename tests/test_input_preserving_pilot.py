@@ -6,7 +6,7 @@ import subprocess
 import pytest
 
 # The Docker test image ships vcfcache only, not the benchmarks package.
-pytest.importorskip("benchmarks")
+pytest.importorskip("benchmarks.input_preserving_pilot.run")
 from benchmarks.input_preserving_pilot.run import INTEL, collect, wrapper
 from benchmarks.run_pilot import sha256sum
 

@@ -6,7 +6,7 @@ import json
 import pytest
 
 # The Docker test image ships vcfcache only, not the benchmarks package.
-pytest.importorskip("benchmarks")
+pytest.importorskip("benchmarks.gather_engine.cohort")
 from benchmarks.gather_engine import cohort
 
 
