@@ -1,11 +1,13 @@
 """Real bcftools checks for the immutable-record annotation contract."""
 
 import hashlib
+import random
 import subprocess
 
 import pytest
 import yaml
 
+from vcfcache.database import preserving
 from vcfcache.database.preserving import HIT, identity
 from vcfcache.database.workflow_manager import BcftoolsCommand, WorkflowManager
 
@@ -34,10 +36,10 @@ ${params.bcftools_cmd} annotate -a extra.tsv.gz -h extra.hdr -c CHROM,POS,INFO/M
 """
 
 
-def bcf(folder, name, rows):
+def bcf(folder, name, rows, header=HEADER):
     """Write test-only VCF then index its BCF representation."""
     vcf = folder / f"{name}.vcf"
-    vcf.write_text(HEADER + "\n".join(rows) + ("\n" if rows else ""))
+    vcf.write_text(header + "\n".join(rows) + ("\n" if rows else ""))
     output = folder / f"{name}.bcf"
     subprocess.run(
         ["bcftools", "view", str(vcf), "-Ob", "-o", str(output), "-W"], check=True
@@ -82,6 +84,11 @@ def manager(folder, source, recipe=RECIPE):
     )
 
 
+def records(path):
+    """Record lines only; headers legitimately differ between routes."""
+    return subprocess.check_output(["bcftools", "view", "-H", str(path)])
+
+
 @pytest.fixture
 def inputs(tmp_path):
     source = bcf(tmp_path, "input", [r for i, r in enumerate(ROWS) if i != 6])
@@ -95,25 +102,23 @@ def inputs(tmp_path):
     return source, bcf(tmp_path, "cache", rows)
 
 
-@pytest.mark.parametrize("regions", ["off", "windows"])
+@pytest.mark.parametrize("ratio", [0, 10**9])
 def test_exact_preserves_all_records_and_annotates_partial_hits(
-    tmp_path, inputs, monkeypatch, regions
+    tmp_path, inputs, monkeypatch, ratio
 ):
     source, cache = inputs
     before = hashlib.sha256(source.read_bytes()).hexdigest()
     direct = manager(tmp_path / "direct", source)
     direct.run("annotate-nocache")
-    monkeypatch.setenv("VCFCACHE_PILOT_REGION_MODE", regions)
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", ratio)
     cached = manager(tmp_path / "cached", source)
     cached.run("annotate", db_bcf=cache)
     assert identity("bcftools", source) == identity("bcftools", cached.output_file)
 
-    def records(path):
-        return subprocess.check_output(["bcftools", "view", "-H", str(path)])
-
     assert records(cached.output_file) == records(direct.output_file)
     assert cached.last_run_stats["input_variants"] == 7
     assert cached.last_run_stats["missing_variants"] == 5
+    assert cached.last_run_stats["cache_access"] == ("contigs" if ratio else "windows")
     assert HIT.encode() not in subprocess.check_output(
         ["bcftools", "view", "-h", str(cached.output_file)]
     )
@@ -132,14 +137,19 @@ def test_empty_inputs_and_empty_cache(tmp_path, inputs, empty):
     assert run.last_run_stats["output_variants"] == (0 if empty == "input" else 7)
 
 
-def test_duplicate_keys_are_preserved_using_direct_recipe(tmp_path, inputs):
+def test_duplicate_keys_go_to_the_recipe_and_equal_direct(tmp_path, inputs):
     _, cache = inputs
     source = bcf(tmp_path, "duplicates", ROWS)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
     run = manager(tmp_path / "run", source)
     run.run("annotate", db_bcf=cache)
     assert identity("bcftools", source) == identity("bcftools", run.output_file)
+    assert records(run.output_file) == records(direct.output_file)
     assert run.last_run_stats["output_variants"] == 8
-    assert run.last_run_stats["cache_matching"] == "bypassed-duplicate-keys"
+    assert run.last_run_stats["duplicate_sites"] == 1
+    # The hit at chr1:10 still uses the cache; both copies at chr1:60 do not.
+    assert run.last_run_stats["missing_variants"] == 7
 
 
 def test_all_hits_skip_recipe(tmp_path, inputs):
@@ -225,3 +235,746 @@ def test_output_cannot_overwrite_input(tmp_path, inputs):
     with pytest.raises(ValueError, match="overwrite the input"):
         run.run("annotate", db_bcf=cache)
     assert hashlib.sha256(source.read_bytes()).hexdigest() == digest
+
+
+WIDE = HEADER.replace(
+    "##contig=<ID=chr1,length=1000>",
+    "".join(f"##contig=<ID={c},length=1000>\n" for c in ("chr1", "chr2", "chr3"))[:-1],
+)
+SITES = WIDE.replace("\tFORMAT\tSAMPLE", "")
+UNUSUAL = [
+    ("chr1", 10, "A", "C", "."),  # plain hit
+    ("chr1", 20, "A", "C,G", "."),  # multiallelic; cache holds A>C
+    ("chr1", 30, "A", "*", "."),  # spanning deletion
+    ("chr1", 40, "T", "C", "MOCK_ANNO=old"),  # annotated already, not cached
+    ("chr1", 45, "T", "C", "MOCK_ANNO=old"),  # annotated already, cached
+    ("chr1", 70, "CAA", "CA", "."),  # indel absent from the cache
+    ("chr2", 10, "A", "C", "."),  # plain hit
+    ("chr2", 20, "a", "g", "."),  # lower case alleles, cached in upper case
+    ("chr2", 30, "A", "<DEL>", "."),  # symbolic allele
+    ("chr2", 40, "A", ".", "."),  # no alternate allele
+    ("chr2", 50, "A", "C", "."),  # cached without annotation
+    ("chr3", 60, "A", "C", "."),  # duplicate key: would be hit ...
+    ("chr3", 60, "A", "C", "."),  # ... then miss
+    ("chr3", 80, "G", "T", "."),  # duplicate key absent from the cache
+    ("chr3", 80, "G", "T", "."),
+    ("chr3", 90, "A", "C", "."),  # cached, but its shard bypasses the cache
+    ("chrUn", 5, "A", "C", "."),  # contig unknown to the cache
+]
+CACHED = [
+    ("chr1", 10, "A", "C", "MOCK_ANNO=test"),
+    ("chr1", 20, "A", "C", "MOCK_ANNO=WRONG"),
+    ("chr1", 45, "T", "C", "MOCK_ANNO=test"),
+    ("chr2", 10, "A", "C", "MOCK_ANNO=test"),
+    ("chr2", 20, "A", "G", "MOCK_ANNO=test"),
+    ("chr2", 50, "A", "C", "."),
+    ("chr3", 60, "A", "C", "MOCK_ANNO=test"),
+    ("chr3", 90, "A", "C", "MOCK_ANNO=test"),
+]
+
+
+@pytest.fixture
+def unusual(tmp_path):
+    """Every input irregularity the cache must hand to the recipe unchanged."""
+    header = WIDE.replace("##INFO", "##contig=<ID=chrUn,length=1000>\n##INFO", 1)
+    source = bcf(
+        tmp_path,
+        "unusual",
+        [
+            f"{c}\t{p}\tid{n}\t{r}\t{a}\t50\tPASS\t{i}\tGT:DP\t0/1:{n}"
+            for n, (c, p, r, a, i) in enumerate(UNUSUAL)
+        ],
+        header,
+    )
+    cache = bcf(
+        tmp_path,
+        "wide_cache",
+        [f"{c}\t{p}\t.\t{r}\t{a}\t.\t.\t{i}" for c, p, r, a, i in CACHED],
+        SITES,
+    )
+    return source, cache
+
+
+@pytest.mark.parametrize("ratio", [0, 10**9])
+@pytest.mark.parametrize("per_thread", [None, 1, 8])
+def test_unusual_input_equals_direct_annotation(
+    tmp_path, unusual, monkeypatch, ratio, per_thread
+):
+    """Identical records whether the input is one shard or cut everywhere."""
+    source, cache = unusual
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", ratio)
+    if per_thread:
+        # Cut at every sampled record, inside contigs and next to duplicates.
+        monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+        monkeypatch.setattr(preserving, "SAMPLE", 1)
+        monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", per_thread)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    assert records(cached.output_file) == records(direct.output_file)
+    assert identity("bcftools", source) == identity("bcftools", cached.output_file)
+    stats = cached.last_run_stats
+    # 17 records at 15 distinct positions: with a cut tried at every record,
+    # the two duplicated positions each stay in one shard.
+    if ratio:
+        # Not windowed: planned from the index, whose whole test file sits in
+        # one compressed block, so no cut can be placed inside it.
+        assert stats["planning"] == "index" if per_thread else stats["shards"] == 1
+    else:
+        assert stats["shards"] == {None: 1, 1: 2, 8: 15}[per_thread]
+    assert stats["duplicate_sites"] == 2
+    # Hits: chr1:10, chr1:45, chr2:10, the lower-case chr2:20 and chr3:90,
+    # which shares its contig with duplicates but not their position.
+    assert stats["missing_variants"] == len(UNUSUAL) - 5
+    assert (cached.output_file.parent / "result.bcf.csi").exists()
+
+
+def test_key_scan_finds_duplicates_samples_and_windows(unusual, monkeypatch):
+    source, _ = unusual
+    monkeypatch.setattr(preserving, "SAMPLE", 2)
+    chr3 = preserving.scan_contig("bcftools", source, "chr3", False)
+    assert chr3 == dict(
+        records=5,
+        samples=[(0, 60), (2, 80), (4, 90)],
+        duplicates=[60, 80],
+        shared=[60, 80],
+        blocks=None,
+    )
+    chr1 = preserving.scan_contig("bcftools", source, "chr1", True)
+    assert (chr1["records"], chr1["duplicates"], chr1["blocks"]) == (6, [], {0})
+    # chr2:20 holds a lower-case key; no other key there, so no duplicate.
+    assert preserving.scan_contig("bcftools", source, "chr2", False)["duplicates"] == []
+
+
+@pytest.mark.parametrize("level", [0, 1, 9])
+def test_output_level_changes_bytes_not_records(tmp_path, inputs, level):
+    source, cache = inputs
+    reference = manager(tmp_path / "reference", source)
+    reference.run("annotate", db_bcf=cache)
+    run = manager(tmp_path / "run", source)
+    run.output_level = level
+    run.run("annotate", db_bcf=cache)
+    assert records(run.output_file) == records(reference.output_file)
+    assert run.last_run_stats["output_level"] == level
+    assert reference.last_run_stats["output_level"] == 1
+
+
+def test_invalid_output_level_is_rejected(tmp_path, inputs):
+    source, cache = inputs
+    run = manager(tmp_path / "run", source)
+    run.output_level = 10
+    with pytest.raises(ValueError, match="compression level"):
+        run.run("annotate", db_bcf=cache)
+
+
+def scans_of(**contigs):
+    """Synthetic scans: one sample per record at the given positions."""
+    return {
+        c: dict(
+            records=len(p),
+            samples=list(enumerate(p)),
+            duplicates=[],
+            shared=[],
+            blocks=None,
+        )
+        for c, p in contigs.items()
+    }
+
+
+def test_shards_have_equal_records_and_cut_only_between_positions():
+    U = preserving.UNBOUNDED
+    scans = scans_of(chr1=[10, 20, 20, 20, 30, 40], chr2=[5, 6], chr3=[7, 8, 9, 10])
+    order = ["chr1", "chr2", "chr3"]
+    assert preserving.plan_ranges(order, scans, 1) == [
+        [("chr1", 1, U), ("chr2", 1, U), ("chr3", 1, U)]
+    ]
+    # Twelve records in three parts; the middle shard spans chr1 and chr2.
+    assert preserving.plan_ranges(order, scans, 3) == [
+        [("chr1", 1, 29)],
+        [("chr1", 30, U), ("chr2", 1, U)],
+        [("chr3", 1, U)],
+    ]
+    # A file whose contigs are not in header order: every contig on its own.
+    assert preserving.plan_ranges(order, scans, 3, span=False) == [
+        [("chr1", 1, 29)],
+        [("chr1", 30, U)],
+        [("chr2", 1, U)],
+        [("chr3", 1, U)],
+    ]
+    # A cut that would fall inside the group at chr1:20 moves before it.
+    assert preserving.plan_ranges(["chr1"], scans, 2) == [
+        [("chr1", 1, 19)],
+        [("chr1", 20, U)],
+    ]
+    shards = preserving.plan_ranges(order, scans, 12)
+    covered = [(c, a, b) for shard in shards for c, a, b in shard]
+    assert [c for c, _, _ in covered] == sorted(
+        [c for c, _, _ in covered], key=order.index
+    )
+    # Every position, the group at chr1:20 included, falls in exactly one range.
+    for contig, positions in (("chr1", scans["chr1"]["samples"]),):
+        for _, position in positions:
+            assert sum(c == contig and a <= position <= b for c, a, b in covered) == 1
+    assert preserving.plan_ranges(["chr1"], scans_of(chr1=[]), 4) == []
+
+
+def test_windows_are_clipped_to_shard_ranges():
+    scans = {
+        "chr1": dict(records=3, samples=[], duplicates=[16380, 16390], blocks={0, 1})
+    }
+    first = [("chr1", 1, 16384)]
+    second = [("chr1", 16385, preserving.UNBOUNDED)]
+    assert preserving.shard_rows(first, scans) == ["chr1\t0\t16384"]
+    assert preserving.shard_rows(second, scans) == ["chr1\t16384\t32768"]
+    assert preserving.shard_duplicates(first, scans) == ["chr1\t16380"]
+    assert preserving.shard_duplicates(second, scans) == ["chr1\t16390"]
+
+
+def test_cached_run_rejects_changed_recipe_output(tmp_path, inputs):
+    """The recipe check runs beside the merge, yet nothing may be published."""
+    source, cache = inputs
+    recipe = "${params.bcftools_cmd} annotate --set-id CHANGED ${INPUT_BCF} -Ob -o ${OUTPUT_BCF} -W"
+    run = manager(tmp_path / "run", source, recipe=recipe)
+    run.output_file.write_bytes(b"previous deliverable")
+    with pytest.raises(RuntimeError, match="changed variant identity"):
+        run.run("annotate", db_bcf=cache)
+    assert run.output_file.read_bytes() == b"previous deliverable"
+
+
+@pytest.mark.parametrize("ratio", [0, 10**9])
+@pytest.mark.parametrize("subset", ["all", "hits"])
+def test_untagged_input_needs_no_hit_marker(
+    tmp_path, unusual, monkeypatch, ratio, subset
+):
+    """An input that never declared the tag cannot hide annotation of its own."""
+    _, cache = unusual
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", ratio)
+    header = "\n".join(
+        line for line in WIDE.splitlines() if "MOCK_ANNO" not in line
+    ).replace("##FORMAT", "##contig=<ID=chrUn,length=1000>\n##FORMAT", 1)
+    keep = [
+        (n, row)
+        for n, row in enumerate(UNUSUAL)
+        if row[4] == "."
+        and (subset == "all" or row[:2] in {("chr1", 10), ("chr2", 10)})
+    ]
+    source = bcf(
+        tmp_path,
+        "untagged",
+        [
+            f"{c}\t{p}\tid{n}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:{n}"
+            for n, (c, p, r, a, _) in keep
+        ],
+        header + "\n",
+    )
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    assert records(cached.output_file) == records(direct.output_file)
+    stats = cached.last_run_stats
+    assert stats["hit_marker"] is False
+    assert stats["missing_variants"] == (len(keep) - 4 if subset == "all" else 0)
+    assert HIT.encode() not in subprocess.check_output(
+        ["bcftools", "view", "-h", str(cached.output_file)]
+    )
+
+
+# Annotation that differs per record (from its ID), so a value paired with the
+# wrong copy of a duplicated key, or a cached value left in place, is visible.
+PER_RECORD = r"""${params.bcftools_cmd} view ${INPUT_BCF} -Ov | awk -F '\t' -v OFS='\t' '
+  BEGIN { while ((getline id < "skip.txt") > 0) skip[id] = 1 }
+  /^##INFO=<ID=MOCK_ANNO,/ { declared = 1 }
+  /^#CHROM/ && !declared {
+    print "##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description=\"Test annotation\">" }
+  /^#/ { print; next }
+  { if (!($3 in skip)) $8 = ($8 == "." ? "" : $8 ";") "MOCK_ANNO=v_" $3; print }
+' | ${params.bcftools_cmd} view -Ob -o ${OUTPUT_BCF} -W
+"""
+
+
+@pytest.mark.parametrize("cuts", [False, True])
+@pytest.mark.parametrize("declared", [True, False])
+@pytest.mark.parametrize("skip", ["none", "f", "h"])
+def test_duplicate_positions_never_keep_cached_values(
+    tmp_path, monkeypatch, declared, skip, cuts
+):
+    """Every record at a duplicate position gets its own recipe result.
+
+    The cache holds WRONG for each duplicated key; the recipe writes a value
+    derived from each record's ID and, with ``skip``, writes nothing for one
+    record that the cache would otherwise have answered. With ``cuts`` a shard
+    boundary is attempted at every record.
+    """
+    if cuts:
+        monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+        monkeypatch.setattr(preserving, "SAMPLE", 1)
+        monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 8)
+    header = (
+        HEADER
+        if declared
+        else HEADER.replace(
+            '##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description="Test annotation">\n',
+            "",
+        )
+    )
+    rows = [
+        ("chr1", 10, "a", "A", "C"),
+        ("chr1", 60, "f", "A", "C"),
+        ("chr1", 60, "g", "A", "C"),
+        ("chr1", 60, "h", "A", "G"),
+        ("chr1", 70, "x", "A", "T"),
+        ("chr1", 70, "y", "A", "T"),
+        ("chr1", 80, "z", "G", "T"),
+    ]
+    source = bcf(
+        tmp_path,
+        "dups",
+        [
+            f"{c}\t{p}\t{i}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:9"
+            for c, p, i, r, a in rows
+        ],
+        header,
+    )
+    cache = bcf(
+        tmp_path,
+        "dup_cache",
+        [
+            "chr1\t60\t.\tA\tC\t.\t.\tMOCK_ANNO=WRONG",
+            "chr1\t60\t.\tA\tG\t.\t.\tMOCK_ANNO=WRONG",
+            "chr1\t70\t.\tA\tT\t.\t.\tMOCK_ANNO=WRONG",
+        ],
+        SITES.replace("chr2", "chrA").replace("chr3", "chrB"),
+    )
+    runs = {}
+    for name, step in (("direct", "annotate-nocache"), ("cached", "annotate")):
+        run = manager(tmp_path / name, source, recipe=PER_RECORD)
+        (run.output_dir / "work" / "annotate").mkdir(parents=True)
+        (run.output_dir / "work" / "annotate-nocache").mkdir(parents=True)
+        for folder in ("annotate", "annotate-nocache"):
+            (run.output_dir / "work" / folder / "skip.txt").write_text(
+                ("" if skip == "none" else skip) + "\n"
+            )
+        run.run(step, db_bcf=cache)
+        runs[name] = run
+    cached, direct = (records(runs[n].output_file) for n in ("cached", "direct"))
+    assert cached == direct
+    assert b"WRONG" not in cached
+    stats = runs["cached"].last_run_stats
+    # This recipe reads its input once through bcftools view: it streams.
+    assert stats["recipe_streamed"]
+    assert stats["duplicate_sites"] == 2
+    assert stats["exposed_sites"] == 2
+
+
+@pytest.mark.parametrize("cuts", [False, True])
+@pytest.mark.parametrize("declared", [True, False])
+def test_records_sharing_a_position_keep_their_order(
+    tmp_path, monkeypatch, declared, cuts
+):
+    """Hits and misses at one position stay in input order.
+
+    bcftools annotate writes the records of a position that match its
+    annotation file before those that do not, in the cache lookup and again
+    when recipe results are merged. Every pattern of hit (h) and miss (m) is
+    covered, with ALT alleles in an order no sort would produce.
+    """
+    if cuts:
+        monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+        monkeypatch.setattr(preserving, "SAMPLE", 1)
+        monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 8)
+    header = (
+        HEADER
+        if declared
+        else HEADER.replace(
+            '##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description="Test annotation">\n',
+            "",
+        )
+    )
+    alts = ["CTTT", "CT", "CTTTT", "CTT"]
+    patterns = ["hm", "mh", "mhm", "hmh", "hmhm", "mhmh", "hhh", "mm", "h", "m"]
+    rows, hits = [], []
+    for number, pattern in enumerate(patterns):
+        for alt, kind in zip(alts, pattern, strict=False):
+            row = ("chr1", 100 + 10 * number, f"r{len(rows)}", "C", alt)
+            rows.append(row)
+            if kind == "h":
+                hits.append(row)
+    source = bcf(
+        tmp_path,
+        "shared",
+        [
+            f"{c}\t{p}\t{i}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:9"
+            for c, p, i, r, a in rows
+        ],
+        header,
+    )
+    # The cache is sorted by allele, as a normalized cache is.
+    cache = bcf(
+        tmp_path,
+        "shared_cache",
+        [
+            f"{c}\t{p}\t.\t{r}\t{a}\t.\t.\tMOCK_ANNO=v_{i}"
+            for c, p, i, r, a in sorted(hits, key=lambda h: (h[1], h[4]))
+        ],
+        SITES,
+    )
+    runs = {}
+    for name, step in (("direct", "annotate-nocache"), ("cached", "annotate")):
+        run = manager(tmp_path / name, source, recipe=PER_RECORD)
+        for folder in ("annotate", "annotate-nocache"):
+            (run.output_dir / "work" / folder).mkdir(parents=True)
+            (run.output_dir / "work" / folder / "skip.txt").write_text("\n")
+        run.run(step, db_bcf=cache)
+        runs[name] = run
+    cached, direct = (records(runs[n].output_file) for n in ("cached", "direct"))
+    assert cached == direct
+    stats = runs["cached"].last_run_stats
+    assert stats["missing_variants"] == sum(p.count("m") for p in patterns)
+    # Shared positions with a miss: all but "hhh" and the single records.
+    assert stats["exposed_sites"] == 7
+    # Rebuilt and untouched shards carry one header, so their indexes join.
+    assert stats["joined_index"]
+
+
+def test_shards_with_different_headers_are_recoded(tmp_path, monkeypatch):
+    """Blocks are copied only when every shard numbers its tags alike."""
+    monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+    monkeypatch.setattr(preserving, "SAMPLE", 1)
+    monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 8)
+    # Windowed access plans from a key scan, which can cut this small file.
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", 0)
+    monkeypatch.setattr(preserving, "dictionary", lambda tool, path: str(path))
+    rows = [(f"chr{1 + n // 4}", 100 + 10 * n, f"r{n}", "C", "T") for n in range(8)]
+    source = bcf(
+        tmp_path,
+        "mixed",
+        [
+            f"{c}\t{p}\t{i}\t{r}\t{a}\t50\tPASS\t.\tGT:DP\t0/1:9"
+            for c, p, i, r, a in rows
+        ],
+        WIDE,
+    )
+    cache = bcf(
+        tmp_path,
+        "mixed_cache",
+        [
+            f"{c}\t{p}\t.\t{r}\t{a}\t.\t.\tMOCK_ANNO=v_{i}"
+            for c, p, i, r, a in rows[::2]
+        ],
+        SITES,
+    )
+    runs = {}
+    for name, step in (("direct", "annotate-nocache"), ("cached", "annotate")):
+        run = manager(tmp_path / name, source, recipe=PER_RECORD)
+        for folder in ("annotate", "annotate-nocache"):
+            (run.output_dir / "work" / folder).mkdir(parents=True)
+            (run.output_dir / "work" / folder / "skip.txt").write_text("\n")
+        run.run(step, db_bcf=cache)
+        runs[name] = run
+    cached, direct = (records(runs[n].output_file) for n in ("cached", "direct"))
+    assert cached == direct
+    stats = runs["cached"].last_run_stats
+    assert stats["shards"] > 1 and not stats["joined_index"]
+    subprocess.run(
+        ["bcftools", "view", "-H", "-r", "chr2:150", runs["cached"].output_file],
+        check=True,
+        capture_output=True,
+    )
+
+
+@pytest.mark.parametrize("index", ["csi", "tbi", "bcf"])
+def test_index_planning_keeps_file_order_and_cuts_large_inputs(
+    tmp_path, monkeypatch, index
+):
+    """A file whose contigs are not in header order, large enough for cuts.
+
+    Records come out in the file's own order, cuts fall inside contigs, and
+    duplicates on either side of a cut still go to the recipe.
+    """
+    monkeypatch.setattr(preserving, "WINDOW_RATIO", 10**9)
+    monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+    monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 4)
+    header = HEADER.replace(
+        "##contig=<ID=chr1,length=1000>",
+        "##contig=<ID=chr1,length=50000000>\n##contig=<ID=chr2,length=50000000>",
+    )
+    rows = []
+    for contig in ("chr2", "chr1"):  # file order differs from header order
+        for n, position in enumerate(range(100, 40_000_000, 2_000)):
+            rows.append(
+                f"{contig}\t{position}\tr{contig}{n}\tA\tC\t50\tPASS\t.\tGT:DP\t0/1:{n % 90}"
+            )
+            if n % 997 == 0:  # an exact duplicate now and then
+                rows.append(rows[-1].replace(f"r{contig}{n}", f"d{contig}{n}"))
+    vcf = tmp_path / "big.vcf"
+    vcf.write_text(header + "\n".join(rows) + "\n")
+    if index == "bcf":
+        source = tmp_path / "big.bcf"
+        subprocess.run(
+            ["bcftools", "view", str(vcf), "-Ob", "-o", str(source), "-W"], check=True
+        )
+    else:
+        source = tmp_path / "big.vcf.gz"
+        subprocess.run(
+            ["bcftools", "view", str(vcf), "-Oz", "-o", str(source)], check=True
+        )
+        subprocess.run(
+            ["bcftools", "index", "-t" if index == "tbi" else "-c", str(source)],
+            check=True,
+        )
+    cache = bcf(
+        tmp_path,
+        "big_cache",
+        [
+            line.split("\t", 5)[0]
+            + "\t"
+            + line.split("\t", 5)[1]
+            + "\t.\tA\tC\t.\t.\tMOCK_ANNO=test"
+            for line in rows[::3]
+        ],
+        header.replace("\tFORMAT\tSAMPLE", ""),
+    )
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    stats = cached.last_run_stats
+    assert stats["planning"] == "index"
+    assert stats["shards"] > 2
+    # The joined shard indexes must answer exactly as bcftools' own index.
+    assert stats["joined_index"]
+    own = tmp_path / "reindexed.bcf"
+    own.write_bytes(cached.output_file.read_bytes())
+    subprocess.run(["bcftools", "index", str(own)], check=True)
+    for region in ("chr2", "chr1", "chr2:1-15000000", "chr1:20000000-39000000"):
+        query = ["bcftools", "view", "-H", "-r", region]
+        assert subprocess.check_output(query + [str(cached.output_file)]) == (
+            subprocess.check_output(query + [str(own)])
+        )
+    assert stats["duplicate_sites"] > 0
+    out = records(cached.output_file)
+    assert out.split(b"\n", 1)[0].startswith(b"chr2\t")
+    assert out == records(direct.output_file)
+
+
+STREAMING = (
+    "${params.bcftools_cmd} view ${INPUT_BCF} -Ov | sed 's/^\\(chr[^\\t]*\\t[^\\t]*\\t[^\\t]*'"
+    "'\\t[^\\t]*\\t[^\\t]*\\t[^\\t]*\\t[^\\t]*\\t\\)\\.\\t/\\1MOCK_ANNO=s\\t/' | "
+    "${params.bcftools_cmd} view -Ob -o ${OUTPUT_BCF} -W"
+)
+
+
+def test_streaming_recipe_with_all_hits_and_with_failure(tmp_path, inputs):
+    """An early-started recipe: no misses at all, and a recipe that fails."""
+    _, cache = inputs
+    source = bcf(tmp_path, "hits", [ROWS[0], ROWS[5]])
+    run = manager(tmp_path / "hits_run", source, recipe=STREAMING)
+    run.run("annotate", db_bcf=cache)
+    assert run.last_run_stats["recipe_streamed"]
+    assert run.last_run_stats["missing_variants"] == 0
+    source, _ = inputs
+    failing = "${params.bcftools_cmd} view ${INPUT_BCF} -Ov > /dev/null; exit 3"
+    run = manager(tmp_path / "failing", source, recipe=failing)
+    run.output_file.write_bytes(b"previous deliverable")
+    with pytest.raises(RuntimeError):
+        run.run("annotate", db_bcf=cache)
+    assert run.output_file.read_bytes() == b"previous deliverable"
+
+
+def test_gather_handles_shards_larger_than_one_read_buffer(tmp_path):
+    """Shards of several megabytes join, and the joined index answers queries."""
+    header = "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=90000000>\n"
+    header += '##INFO=<ID=T,Number=1,Type=String,Description="t">\n'
+    header += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n"
+    noise = random.Random(7)
+    rows = [
+        f"chr1\t{p}\t.\tA\tC\t.\t.\tT={noise.getrandbits(160):040x}"
+        for p in range(100, 80_000_000, 400)
+    ]
+    vcf = tmp_path / "large.vcf"
+    vcf.write_text(header + "\n".join(rows) + "\n")
+    parts = []
+    for n, (a, b) in enumerate(((1, 40_000_000), (40_000_001, 90_000_000))):
+        part = tmp_path / f"part{n}.bcf"
+        subprocess.run(
+            ["bcftools", "view", "--no-version", "-i", f"POS>={a} && POS<={b}"]
+            + [str(vcf), "-Ob", "-W", "-o", str(part)],
+            check=True,
+        )
+        assert part.stat().st_size > 1 << 20
+        parts.append(part)
+    joined = tmp_path / "joined.bcf"
+    assert preserving.gather(parts, joined)
+    assert records(joined) == records(vcf)
+    region = ["bcftools", "view", "-H", "-r", "chr1:39999000-40001000", str(joined)]
+    assert subprocess.check_output(region).count(b"\n") == 5
+    # The joined index answers every region like an index bcftools builds.
+    reference = tmp_path / "reference.bcf"
+    subprocess.run(
+        [
+            "bcftools",
+            "view",
+            "--no-version",
+            str(vcf),
+            "-Ob",
+            "-W",
+            "-o",
+            str(reference),
+        ],
+        check=True,
+    )
+    stats = ["bcftools", "index", "-s"]
+    assert subprocess.check_output(stats + [str(joined)]) == (
+        subprocess.check_output(stats + [str(reference)])
+    )
+    for _ in range(40):
+        a = noise.randrange(1, 80_000_000)
+        b = a + noise.choice((1, 400, 20_000, 3_000_000))
+        query = ["bcftools", "query", "-f", "%POS\n", "-r", f"chr1:{a}-{b}"]
+        assert subprocess.check_output(query + [str(joined)]) == (
+            subprocess.check_output(query + [str(reference)])
+        )
+
+
+def test_vcf_input_with_undeclared_stale_tag_is_refused(tmp_path, inputs):
+    """A VCF record may carry the tag without a header line; it must never pass
+    as a cache hit. The lookup's bcftools annotate refuses such input, so the
+    run fails and publishes nothing."""
+    _, cache = inputs
+    header = HEADER.replace(
+        '##INFO=<ID=MOCK_ANNO,Number=1,Type=String,Description="Test annotation">\n',
+        "",
+    )
+    vcf = tmp_path / "stale.vcf"
+    vcf.write_text(header + ROWS[0] + "\n" + ROWS[3] + "\n")  # pos 40 is not cached
+    source = tmp_path / "stale.vcf.gz"
+    with source.open("wb") as out:
+        subprocess.run(["bgzip", "-c", str(vcf)], stdout=out, check=True)
+    subprocess.run(["tabix", "-p", "vcf", str(source)], check=True)
+    cached = manager(tmp_path / "cached", source)
+    with pytest.raises(Exception):
+        cached.run("annotate", db_bcf=cache)
+    assert not cached.output_file.exists()
+
+
+def test_contig_names_with_colons(tmp_path, inputs):
+    """GRCh38 HLA contigs (HLA-A*01:01:01:01) must not be parsed as regions."""
+    _, cache = inputs
+    header = HEADER.replace(
+        "##contig=<ID=chr1,length=1000>",
+        "##contig=<ID=chr1,length=1000>\n##contig=<ID=HLA-A*01:01:01:01,length=3503>",
+    )
+    rows = [ROWS[0], ROWS[3], "HLA-A*01:01:01:01\t10\th1\tC\tT\t50\tPASS\t.\tGT:DP\t0/1:9"]
+    source = bcf(tmp_path, "hla", rows, header)
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    assert records(cached.output_file) == records(direct.output_file)
+    assert b"HLA-A*01:01:01:01\t10" in records(cached.output_file)
+
+
+def test_unreadable_index_keeps_file_order(tmp_path, monkeypatch):
+    """Without a readable index, shards follow the file's order, not the header's."""
+    monkeypatch.setattr(preserving, "read_index", lambda *args: None)
+    monkeypatch.setattr(preserving, "MIN_SHARD", 1)
+    monkeypatch.setattr(preserving, "SHARDS_PER_THREAD", 2)
+    header = HEADER.replace(
+        "##contig=<ID=chr1,length=1000>",
+        "##contig=<ID=chr1,length=1000>\n##contig=<ID=chr2,length=1000>",
+    )
+    rows = [
+        f"{c}\t{p}\t{c}_{p}\tA\tC\t50\tPASS\t.\tGT:DP\t0/1:9"
+        for c in ("chr2", "chr1")
+        for p in (10, 20, 30, 40)
+    ]
+    source = bcf(tmp_path, "order", rows, header)
+    assert preserving.file_order("bcftools", source) == ["chr2", "chr1"]
+    cache = bcf(
+        tmp_path,
+        "order_cache",
+        [r.replace("\t.\tGT:DP\t0/1:9", "\tMOCK_ANNO=test") for r in rows[::2]],
+        header.replace("\tFORMAT\tSAMPLE", ""),
+    )
+    cached = manager(tmp_path / "cached", source)
+    cached.run("annotate", db_bcf=cache)
+    direct = manager(tmp_path / "direct", source)
+    direct.run("annotate-nocache")
+    assert records(cached.output_file).startswith(b"chr2\t")
+    assert records(cached.output_file) == records(direct.output_file)
+
+
+def test_copy_range_fallback_keeps_byte_order(tmp_path, monkeypatch):
+    """A buffered fallback copy is flushed before a later kernel copy appends."""
+    import os
+
+    source = tmp_path / "source.bin"
+    source.write_bytes(bytes(range(256)) * 64)
+    calls = []
+
+    def flaky(src, dst, count, offset_src):
+        """Fails once, then copies like the kernel: at the descriptor's offset."""
+        calls.append(count)
+        if len(calls) == 1:
+            raise OSError(22, "no kernel copy here")
+        return os.write(dst, os.pread(src, count, offset_src))
+
+    monkeypatch.setattr(os, "copy_file_range", flaky, raising=False)
+    target = tmp_path / "target.bin"
+    with source.open("rb") as src, target.open("wb") as dst:
+        preserving.copy_range(src, dst, 0, 1000)
+        preserving.copy_range(src, dst, 5000, 3000)
+    data = source.read_bytes()
+    assert target.read_bytes() == data[:1000] + data[5000:8000]
+
+
+def running(marker):
+    """Whether a process whose command line contains ``marker`` is alive."""
+    from pathlib import Path
+
+    for cmdline in Path("/proc").glob("[0-9]*/cmdline"):
+        try:
+            text = cmdline.read_bytes().replace(b"\0", b" ").decode(errors="replace")
+            state = (cmdline.parent / "stat").read_text().split(") ", 1)[1][0]
+        except (OSError, IndexError):
+            continue
+        if marker in text and state != "Z":
+            return True
+    return False
+
+
+def test_stopping_an_early_recipe_stops_its_children(tmp_path, inputs):
+    """stop_recipe ends the whole process group, not only the shell."""
+    import time
+
+    source, _ = inputs
+    marker = f"sleep 61.{random.randrange(10**6)}"
+    run = manager(tmp_path / "stop", source, recipe=f"{marker} | cat > ${{OUTPUT_BCF}}")
+    work = tmp_path / "stop" / "work"
+    work.mkdir()
+    started = preserving.start_recipe(run, work, source, work / "out.bcf")
+    for _ in range(100):
+        if running(marker):
+            break
+        time.sleep(0.05)
+    assert running(marker)
+    preserving.stop_recipe(run, work, started)
+    for _ in range(40):
+        if not running(marker):
+            break
+        time.sleep(0.05)
+    assert not running(marker)
+
+
+def test_streaming_recipe_keeps_its_own_log(tmp_path, inputs):
+    """Commands run beside an early recipe must not overwrite the recipe's log."""
+    source, cache = inputs
+    recipe = "echo recipe-note-on-stderr >&2; " + STREAMING
+    run = manager(tmp_path / "logs", source, recipe=recipe)
+    run.run("annotate", db_bcf=cache)
+    assert run.last_run_stats["recipe_streamed"]
+    assert run.last_run_stats["missing_variants"] > 0
+    log = (tmp_path / "logs" / "annotation_tool_err.log").read_text()
+    assert "recipe-note-on-stderr" in log

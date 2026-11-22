@@ -36,6 +36,9 @@ class WorkflowBase(ABC):
         params_file_content (Optional[dict]): Parsed content of the params file.
     """
 
+    # BGZF compression level of cached annotate output (0-9).
+    output_level: int = 1
+
     def __init__(
         self,
         input_file: Path,

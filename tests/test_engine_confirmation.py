@@ -8,6 +8,8 @@ from types import SimpleNamespace
 
 import pytest
 
+# The Docker test image ships vcfcache only, not the benchmarks package.
+pytest.importorskip("benchmarks.engine_confirmation")
 from benchmarks.engine_confirmation import run
 from benchmarks.run_pilot import sha256sum, write_json_atomic
 

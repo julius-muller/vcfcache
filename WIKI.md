@@ -569,6 +569,52 @@ However, **cache lookup time (t_lookup) and overhead (t_overhead) remain flat** 
 
 Therefore: **the more complex (and slow) the annotation pipeline, the more advantageous caching becomes**.
 
+### Annotators that read sources in blocks (fastVEP)
+
+The rule above holds when an annotator pays for its sources per variant, as
+Ensembl VEP and vep-rs do with tabix lookups. Some annotators instead read a
+source in blocks. fastVEP stores each source (`.osa2`) in blocks of
+`2^chunk-bits` bases and advises 65 kb blocks (`sa-build --chunk-bits 16`).
+That suits dense input, where every block serves many variants. The variants
+vcfcache sends to the annotator are few but spread over the whole genome. With
+65 kb blocks they still open nearly every block of every dense source (GERP,
+1000 Genomes, conservation scores, genome-wide prediction tracks), so the cached
+run pays almost the full source cost for a small share of the variants, and
+adding a dense source can even lower the speed-up.
+
+The remedy is a second copy of the same sources in 1 kb blocks
+(`--chunk-bits 10`) for the cache misses. The output is identical, because block
+width changes how fastVEP reads a source, not what it returns. Whole genomes,
+fastVEP 0.5.0, 3 samples:
+
+| Cache | Sources | Misses at 65 kb | at 4 kb | at 1 kb |
+|---|---|---|---|---|
+| gnomAD AF >= 0.1% | 11 | 2.03x | 2.52x | 3.26x |
+| gnomAD AF >= 0.1% | 15 | 1.80x | 2.38x | 3.37x |
+| cohort | 11 | 1.73x | 3.40x | 4.23x |
+| cohort | 15 | 1.64x | 3.48x | 4.30x |
+
+At 1 kb every added source raises the speed-up. Narrower blocks are slower
+again (512 bp 20-35% slower than 1 kb, 256 bp about twice as slow).
+
+The 1 kb copy is for the misses only. Dense input reads it more slowly (a whole
+genome annotated directly: 676 s at 65 kb vs 922 s at 1 kb with 11 sources;
+992 vs 1,428 s with 15), and so does a cache build. Its larger indexes also add
+about 10-15 s to every run, which pays off when the misses are spread over the
+genome. Use it for genomes and exomes (exomes, cohort cache: 4.1-5.0x with the
+misses at 1 kb vs 3.4-3.5x at 65 kb), not for panels or single chromosomes (an
+ACMG panel of about 250 variants: 1.1-1.2x at 65 kb, 0.3-0.4x at 1 kb).
+
+The recipe `vcfcache/recipes/grch38_fastvep0.5` puts the source folder in
+`params.yaml` (`${params.sa_dir}`), so the cache is built from the 65 kb sources
+and genomes and exomes are annotated with `params.annotate.yaml`, which points to
+the 1 kb sources.
+
+vep-rs, which looks sources up per variant, needs no such setting: with four
+more sources its direct time doubles (about 2,900 to 6,300 s) and the speed-up
+rises slightly (gnomAD AF >= 0.1% cache 6.3-6.6x to 6.5-6.7x, cohort cache
+11.5-12.3x to 12.8-14.0x).
+
 ### Scalability: cache size independence
 
 Cache lookup performance is **independent of cache size**. A cache with ten million variants can be queried just as quickly as a cache with ten thousand variants. Each lookup is a direct index access (like a dictionary lookup by position) with negligible cost.
