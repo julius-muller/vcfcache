@@ -45,12 +45,20 @@ So build the cache from the 65 kb sources and annotate the misses from the 1 kb
 sources. The two folders take about 2.5 times the disk of one (18 + 28 GB for
 15 sources).
 
-**Use the 1 kb folder for whole genomes only.** Loading the larger 1 kb indexes
-adds about 10 s to every run. It pays off from a few thousand misses spread over
-the genome (10 k random variants: 47 s at 1 kb vs 88 s at 65 kb), but not for
-small or local inputs: chr22 of one genome (7,400 misses in one chromosome) took
-18.0 s at 1 kb and 12.4 s at 65 kb. For panels, single chromosomes and other
-small inputs, annotate with `params.yaml`.
+**Use the 1 kb folder for genomes and exomes, not for panels.** Loading the
+larger 1 kb indexes adds about 10-15 s to every run. That pays off when the
+misses are spread over the genome, and costs time when they are few or local:
+
+| Input (3 samples, median) | Direct | 0.1% cache, misses at 65 kb / 1 kb | cohort cache, 65 kb / 1 kb |
+|---|---|---|---|
+| Exome (Twist core, 74-81 k variants), 11 sources | 224-252 s | 3.60x / 3.79x | 3.53x / 4.96x |
+| Exome, 15 sources | 330-358 s | 3.76x / 3.68x | 3.43x / 4.08x |
+| Panel (ACMG SF v3.3, 207-289 variants), 11 sources | 6.2-6.6 s | 1.05x / 0.43x | 1.11x / 0.43x |
+| Panel, 15 sources | 6.7-7.8 s | 1.12x / 0.34x | 1.23x / 0.36x |
+
+A single chromosome behaves like a panel: chr22 of one genome (7,400 misses in
+one chromosome) took 18.0 s at 1 kb and 12.4 s at 65 kb. For panels, single
+chromosomes and other small or local inputs, annotate with `params.yaml`.
 
 ## Build the sources
 
@@ -76,7 +84,7 @@ done
 ## Use
 
 Edit the paths in `params.yaml` (cache build, 65 kb sources) and
-`params.annotate.yaml` (whole-genome samples, 1 kb sources), then:
+`params.annotate.yaml` (genomes and exomes, 1 kb sources), then:
 
 ```bash
 vcfcache cache-build --db <blueprint_dir> --name fastvep0.5_grch38 \

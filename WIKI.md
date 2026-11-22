@@ -600,13 +600,15 @@ again (512 bp 20-35% slower than 1 kb, 256 bp about twice as slow).
 The 1 kb copy is for the misses only. Dense input reads it more slowly (a whole
 genome annotated directly: 676 s at 65 kb vs 922 s at 1 kb with 11 sources;
 992 vs 1,428 s with 15), and so does a cache build. Its larger indexes also add
-about 10 s to every run, which pays off from a few thousand misses spread over a
-genome but not for a panel or a single chromosome. Use it for whole genomes.
+about 10-15 s to every run, which pays off when the misses are spread over the
+genome. Use it for genomes and exomes (exomes, cohort cache: 4.1-5.0x with the
+misses at 1 kb vs 3.4-3.5x at 65 kb), not for panels or single chromosomes (an
+ACMG panel of about 250 variants: 1.1-1.2x at 65 kb, 0.3-0.4x at 1 kb).
 
 The recipe `vcfcache/recipes/grch38_fastvep0.5` puts the source folder in
 `params.yaml` (`${params.sa_dir}`), so the cache is built from the 65 kb sources
-and whole genomes are annotated with `params.annotate.yaml`, which points to the
-1 kb sources.
+and genomes and exomes are annotated with `params.annotate.yaml`, which points to
+the 1 kb sources.
 
 vep-rs, which looks sources up per variant, needs no such setting: with four
 more sources its direct time doubles (about 2,900 to 6,300 s) and the speed-up

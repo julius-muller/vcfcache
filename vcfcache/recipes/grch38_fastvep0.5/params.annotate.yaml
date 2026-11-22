@@ -12,7 +12,7 @@ transcript_cache: "/data/fastvep/GRCh38/Homo_sapiens.GRCh38.fastvep.cache"
 fasta: "/data/fastvep/GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa"
 # The SAME sources in 1 kb blocks, used for the variants missing from the cache
 # (sa-build --chunk-bits 10). Output is identical; see README.md.
-# Whole genomes only: for panels and other small inputs use params.yaml.
+# Genomes and exomes: for panels, single chromosomes and other small inputs use params.yaml.
 sa_dir: "/data/fastvep/sa/GRCh38_1kb"
 
 optional_checks: {}
