@@ -1,8 +1,10 @@
 """Compare two Ensembl VEP outputs record by record, in file order.
 
 Each record is identical, differs only in HGNC_ID (the known VEP bug, Ensembl/ensembl-vep#1959),
-differs only in the order of an &-list, or differs otherwise. Prints the counts, the genes behind
-the HGNC_ID differences and examples of any other difference.
+differs only in the order of a list, or differs otherwise. VEP lists are '&'-separated, and CLIN_SIG
+joins several ClinVar submissions with ';' (written %3B) in Perl hash order, which changes from run
+to run even for one variant run alone. Prints the counts, the genes behind the HGNC_ID differences
+and examples of any other difference.
 Usage: vep116_compare.py direct.bcf cached.bcf
 """
 
@@ -35,18 +37,24 @@ def info(rec):
     return dict(x.split("=", 1) if "=" in x else (x, "") for x in rec[7].split(";"))
 
 
+def unordered(value):
+    """Return a CSQ value with the order of its %3B groups and &-lists removed."""
+    return sorted(tuple(sorted(g.split("&"))) for g in value.split("%3B"))
+
+
 def csq_diff(a, b, fmt):
-    """Return the CSQ fields that differ, and whether all differences are &-list order only."""
+    """Return the CSQ fields that differ, and those of them that differ in more than list order."""
     ea, eb = a.split(","), b.split(",")
     if len(ea) != len(eb):
-        return {"<CSQ entry count>"}, False
-    fields, order_only = set(), True
+        return {"<CSQ entry count>"}, {"<CSQ entry count>"}
+    fields, real = set(), set()
     for x, y in zip(ea, eb, strict=True):
         for k, u, v in zip(fmt, x.split("|"), y.split("|"), strict=True):
             if u != v:
                 fields.add(k)
-                order_only &= sorted(u.split("&")) == sorted(v.split("&"))
-    return fields, order_only
+                if unordered(u) != unordered(v):
+                    real.add(k)
+    return fields, real
 
 
 def main():
@@ -72,15 +80,15 @@ def main():
             counts["identical (INFO tag order only)"] += 1
             continue
         other = {k for k in ia.keys() | ib.keys() if k != "CSQ" and ia.get(k) != ib.get(k)}
-        fields, order_only = csq_diff(ia.get("CSQ", ""), ib.get("CSQ", ""), fmt)
+        fields, real = csq_diff(ia.get("CSQ", ""), ib.get("CSQ", ""), fmt)
         if a[:7] != b[:7]:
             other.add("<columns 1-7>")
-        if not other and fields == {"HGNC_ID"}:
-            counts["HGNC_ID only"] += 1
+        if not other and real <= {"HGNC_ID"} and "HGNC_ID" in fields:
+            counts["HGNC_ID only" if fields == {"HGNC_ID"} else "HGNC_ID and list order only"] += 1
             for x in ia["CSQ"].split(","):
                 genes[x.split("|")[sym]] += 1
-        elif not other and order_only:
-            counts["&-list order only: " + ",".join(sorted(fields))] += 1
+        elif not other and not real:
+            counts["list order only: " + ",".join(sorted(fields))] += 1
         else:
             counts["other"] += 1
             if len(examples) < 10:
