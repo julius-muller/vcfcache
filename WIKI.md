@@ -699,6 +699,8 @@ This means that while VCFcache guarantees functional equivalence (same variants 
 
 **Measured extent (VEP 116.3)**: on three whole genomes with eleven sources, 164-277 of 4.6-4.8 M records per genome (at most 0.006%) differed between cached and direct output, all in `HGNC_ID` only (for genes such as GYPA, GYPB, FGF7P3, GUSBP5, PRAMENP); every other field was identical. The script `benchmarks/gather_engine/cost_model/vep116_compare.py` performs this record-by-record check.
 
+**`CLIN_SIG` order (VEP 116.3 with `--everything`)**: when ClinVar holds several significance sets for one variant, VEP joins them with `;` (written `%3B`) in Perl hash order, which is random per process. Annotating `chr22:26666332 G>A` alone five times gave five different orders across its 47 transcripts (`risk_factor%3Brisk_factor&benign` or `risk_factor&benign%3Brisk_factor`). Cached and direct output can therefore differ in this order; the values are the same. `vep116_compare.py` reports such records as "list order only".
+
 **Recommendation**: For validation purposes, compare annotation content semantically (e.g., verify that the same variants have the same CSQ tags) rather than relying solely on MD5 checksums when using affected VEP versions.
 
 **SnpEff 5.4c processing-order-dependent transcript warning**
