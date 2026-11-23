@@ -29,7 +29,12 @@ SETS = [
     ("fastVEP 0.5.0", 15, "mission2fn10", None),
     ("vep-rs 0.5.0", 11, "veprs_mission", None),
     ("vep-rs 0.5.0", 15, "veprs_mission2", None),
+    ("Ensembl VEP 116.3", 11, "vep116_mission", "vep116_compare"),
 ]
+# Ensembl VEP fills HGNC_ID for a few genes depending on the other variants in the run
+# (Ensembl/ensembl-vep#1959), so its digests differ between arms; vep116_compare_wgs_<sample>.tsv
+# compares one run per arm with the direct run record by record and must show nothing else.
+ALLOWED = {"records", "identical", "HGNC_ID only", "HGNC_ID genes"}
 ARMS = {
     "af001": ("gnomAD AF>=0.1%", "65 kb"),
     "af001_narrow": ("gnomAD AF>=0.1%", "4 kb"),
@@ -41,33 +46,48 @@ ARMS = {
 }
 
 
-def read(path: Path) -> tuple[dict[str, list[float]], dict[str, int], int, set[str]]:
-    """Times per arm, misses per arm, input size and output digests of one runs table."""
+def read(path: Path) -> tuple[dict[str, list[float]], dict[str, int], int, dict[str, set[str]]]:
+    """Times per arm, misses per arm, input size and output digests per arm of one runs table."""
     times: dict[str, list[float]] = {}
     misses: dict[str, int] = {}
     n = 0
-    digests = set()
+    digests: dict[str, set[str]] = {}
     for line in path.read_text().splitlines():
         f = line.split("\t")
-        if len(f) != 5:
+        if len(f) not in (5, 6):
             continue  # e.g. "fastvep_alone <s>" rows
-        arm, nvar, miss, sec, dig = f
+        arm, nvar, miss, sec, dig = f[:5]  # a sixth column names the node
         times.setdefault(arm, []).append(float(sec))
         n = int(nvar)
         if miss != "NA":
             misses[arm] = int(miss)
-        digests.add(dig)
+        digests.setdefault(arm, set()).add(dig)
     return times, misses, n, digests
+
+
+def check(path: Path, arms: set[str]) -> None:
+    """Assert that every cached arm differs from the direct run in HGNC_ID at most."""
+    seen = set()
+    for line in path.read_text().splitlines():
+        f = line.split("\t")
+        if len(f) == 3 and f[0] in arms:
+            assert f[1] in ALLOWED, f"{path.name}: {f[0]} {f[1]}"
+            seen.add(f[0])
+    assert seen == arms, f"{path.name}: compared {seen}, ran {arms}"
 
 
 def rows() -> list[dict]:
     """One row per annotator x stack x cache x miss-step width (medians over samples)."""
     out = []
-    for annot, nsrc, prefix, _ in SETS:
+    for annot, nsrc, prefix, compare in SETS:
         per = {}  # arm -> list of per-sample dicts
         for s in SAMPLES:
             times, misses, n, digests = read(RES / f"{prefix}_wgs_{s}.tsv")
-            assert len(digests) == 1, f"{prefix} {s}: outputs differ"
+            assert all(len(x) == 1 for x in digests.values()), f"{prefix} {s}: repeats differ"
+            if compare:
+                check(RES / f"{compare}_wgs_{s}.tsv", set(times) - {"uncached"})
+            else:
+                assert len(set.union(*digests.values())) == 1, f"{prefix} {s}: outputs differ"
             d = st.median(times["uncached"])
             r = st.median(times["rerun"])
             for arm in ARMS:
@@ -81,8 +101,8 @@ def rows() -> list[dict]:
                 )
         for arm, lst in per.items():
             cache, width = ARMS[arm]
-            if annot.startswith("vep-rs"):
-                width = "-"  # vep-rs looks sources up per variant (tabix)
+            if not annot.startswith("fastVEP"):
+                width = "-"  # vep-rs and VEP look sources up per variant (tabix)
             row = dict(annotator=annot, sources=nsrc, cache=cache, miss_width=width, samples=len(lst))
             for k in ["D", "R", "C", "m", "obs", "ideal", "ratio"]:
                 row[k] = st.median(x[k] for x in lst)
@@ -115,14 +135,14 @@ def write_tables(rs: list[dict]) -> None:
     (RES / "cost_model_table.tsv").write_text("\n".join(lines) + "\n")
     note = (
         "\nWhole genomes (KPGP-00006, -00086, -00128; 4.6-4.8 M variants), 3 repeats each, median over "
-        "repeats then over samples; outputs identical to direct annotation in every run. Direct = the "
+        "repeats then over samples; outputs identical to direct annotation in every run, except that Ensembl VEP fills HGNC_ID differently in 164-277 records per genome (at most 0.006%; known VEP bug Ensembl/ensembl-vep#1959, no other field differs). Direct = the "
         "annotator alone as advised (fastVEP sources at 65 kb blocks). Ideal = D / (R + m D): the speed-up "
         "if every miss cost what one variant costs in direct annotation, with R the rerun time (vcfcache's "
         "own cost). Cost per miss = (C - R) / (m D), relative to that.\n")
     (RES / "cost_model_table.md").write_text("\n".join(md) + "\n" + note)
 
 
-BLUE, ORANGE, AQUA, GREY = "#2a78d6", "#eb6834", "#1baf7a", "#8a8984"
+BLUE, ORANGE, AQUA, GREY, VIOLET = "#2a78d6", "#eb6834", "#1baf7a", "#8a8984", "#7a4fc4"
 INK, INK2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
 
 
@@ -144,6 +164,8 @@ def figure(rs: list[dict]) -> None:
     def colour(r):
         if r["annotator"].startswith("vep-rs"):
             return AQUA
+        if r["annotator"].startswith("Ensembl"):
+            return VIOLET
         # fastVEP rerun: no misses, the cache is built from 65 kb sources
         return {"65 kb": BLUE, "1 kb": ORANGE, "-": BLUE}.get(r["miss_width"], GREY)
 
@@ -155,13 +177,13 @@ def figure(rs: list[dict]) -> None:
         c = colour(r)
         a.scatter(r["ideal"], r["obs"], s=46, marker=marker[r["cache"]], zorder=3,
                   facecolor=c if filled else SURFACE, edgecolor=c, linewidth=1.6)
-    lim = (1, 200)
+    lim = (1, 400)
     a.plot(lim, lim, color=INK2, lw=1, ls=(0, (4, 3)), zorder=1)
-    a.text(60, 75, "every miss costs\none direct variant", color=INK2, fontsize=7.5, rotation=0,
+    a.text(380, 1.08, "dashed: every miss costs one direct variant", color=INK2, fontsize=7.5,
            ha="right", va="bottom")
     a.set_xscale("log"), a.set_yscale("log")
-    a.set_xlim(*lim), a.set_ylim(1, 200)
-    ticks = [1, 2, 3, 5, 10, 20, 50, 100, 200]
+    a.set_xlim(*lim), a.set_ylim(*lim)
+    ticks = [1, 2, 3, 5, 10, 20, 50, 100, 200, 400]
     a.set_xticks(ticks, [f"{t}x" for t in ticks]), a.set_yticks(ticks, [f"{t}x" for t in ticks])
     a.minorticks_off()
     a.axhline(3, color=GRID, lw=1, zorder=0)
@@ -174,15 +196,18 @@ def figure(rs: list[dict]) -> None:
     a.set_ylabel("Observed speed-up  D / C")
     a.set_title("A  Observed vs ideal speed-up, whole genomes", loc="left", fontsize=9.5,
                 color=INK, fontweight="bold")
-    # selective direct labels: the fastVEP 15-source points and vep-rs 15-source points
+    # selective direct labels: the 15-source points and Ensembl VEP
     for r in rs:
-        if r["sources"] != 15 or r["miss_width"] == "4 kb" or r["cache"].startswith("rerun"):
+        vep = r["annotator"].startswith("Ensembl")
+        if (r["sources"] != 15 and not vep) or r["miss_width"] == "4 kb" or r["cache"].startswith("rerun"):
             continue
         gn = r["cache"].startswith("gnomAD")
         lab = f"{'0.1%' if gn else 'cohort'}, {r['obs']:.1f}x"
         # cohort labels right of the point; 0.1% labels below-right (clear of the diagonal),
         # or left where a cohort point sits below-right
-        if not gn:
+        if vep:
+            off, ha, va = (-9, 0), "right", "center"
+        elif not gn:
             off, ha, va = (9, 0), "left", "center"
         elif r["obs"] < 2.5:
             off, ha, va = (-9, 0), "right", "center"
@@ -193,6 +218,7 @@ def figure(rs: list[dict]) -> None:
     h = [Line2D([], [], ls="", marker="o", ms=7, mfc=BLUE, mec=BLUE, label="fastVEP, sources at 65 kb"),
          Line2D([], [], ls="", marker="o", ms=7, mfc=ORANGE, mec=ORANGE, label="fastVEP, misses at 1 kb"),
          Line2D([], [], ls="", marker="o", ms=7, mfc=AQUA, mec=AQUA, label="vep-rs"),
+         Line2D([], [], ls="", marker="o", ms=7, mfc=VIOLET, mec=VIOLET, label="Ensembl VEP"),
          Line2D([], [], ls="", marker="o", ms=7, mfc=INK2, mec=INK2, label="15 sources"),
          Line2D([], [], ls="", marker="o", ms=7, mfc=SURFACE, mec=INK2, mew=1.6, label="11 sources"),
          Line2D([], [], ls="", marker="o", ms=7, mfc=SURFACE, mec=INK2, label="gnomAD AF≥0.1% cache"),

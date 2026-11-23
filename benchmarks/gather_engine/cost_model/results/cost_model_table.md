@@ -20,5 +20,8 @@
 | vep-rs 0.5.0 | 15 | gnomAD AF>=0.1% | - | 6391 | 957 | 8.2% | 6.56x (6.47-6.68) | 11.0x | 60% | 1.72x |
 | vep-rs 0.5.0 | 15 | cohort | - | 6391 | 463 | 2.9% | 13.09x (12.83-13.98) | 26.0x | 50% | 2.20x |
 | vep-rs 0.5.0 | 15 | rerun (all hits) | - | 6391 | 56 | 0.0% | 108.76x (106.48-114.76) | 108.8x | 100% | - |
+| Ensembl VEP 116.3 | 11 | gnomAD AF>=0.1% | - | 13211 | 1261 | 8.2% | 10.54x (10.41-10.71) | 11.6x | 91% | 1.10x |
+| Ensembl VEP 116.3 | 11 | cohort | - | 13211 | 536 | 2.9% | 24.52x (23.58-24.71) | 30.1x | 81% | 1.25x |
+| Ensembl VEP 116.3 | 11 | rerun (all hits) | - | 13211 | 56 | 0.0% | 238.45x (235.59-240.87) | 238.5x | 100% | - |
 
-Whole genomes (KPGP-00006, -00086, -00128; 4.6-4.8 M variants), 3 repeats each, median over repeats then over samples; outputs identical to direct annotation in every run. Direct = the annotator alone as advised (fastVEP sources at 65 kb blocks). Ideal = D / (R + m D): the speed-up if every miss cost what one variant costs in direct annotation, with R the rerun time (vcfcache's own cost). Cost per miss = (C - R) / (m D), relative to that.
+Whole genomes (KPGP-00006, -00086, -00128; 4.6-4.8 M variants), 3 repeats each, median over repeats then over samples; outputs identical to direct annotation in every run, except that Ensembl VEP fills HGNC_ID differently in 164-277 records per genome (at most 0.006%; known VEP bug Ensembl/ensembl-vep#1959, no other field differs). Direct = the annotator alone as advised (fastVEP sources at 65 kb blocks). Ideal = D / (R + m D): the speed-up if every miss cost what one variant costs in direct annotation, with R the rerun time (vcfcache's own cost). Cost per miss = (C - R) / (m D), relative to that.
