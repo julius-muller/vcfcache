@@ -7,10 +7,11 @@
 #                        it (one set for all samples), each split into parts of equal record count
 #   part <set> <k>       annotate one part (16 forks); <set> is bp or new
 #   measure <sample>     join the parts into the sample's caches on this node (once per node and sample),
-#                        then ARM=uncached: one direct run; otherwise 3 repeats of the cached arms
+#                        then ARM=uncached: one direct run; ARM=compare: one run of each arm, outputs
+#                        compared record by record (vep116_compare.py); otherwise 3 repeats of the cached arms
 # VEP annotates each record on its own, so the cohort and rerun caches are cut from the annotated
 # set beyond the blueprint; the cached-versus-direct digests check this.
-# Usage: wgs_mission_vep116.sh <deployment> prep | part <set> <k> | [ARM=uncached] measure <sample>
+# Usage: wgs_mission_vep116.sh <deployment> prep | part <set> <k> | [ARM=uncached|compare] measure <sample>
 set -uo pipefail
 DEP=$1; MODE=$2
 export PATH=/results/input-preserving-20261105-tools/bin:$PATH
@@ -132,9 +133,15 @@ vc() {  # arm cache [--uncached]
     -y $C/params.snapshot.yaml --statistics light --stats-dir st.$$ -v ${3:-} > log.$1.txt 2>&1 || { echo "FAILED $1"; tail -5 log.$1.txt; return; }
   local e=$(echo "$(date +%s.%N) - $s" | bc)
   local miss=$(grep -ho "missing_variants: [0-9]*" -r st.$$ | head -1 | cut -d' ' -f2)
-  printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$1" "$N" "${miss:-NA}" "$e" "$(digest $o)" "$(hostname)" | tee -a $OUT/runs.tsv
+  printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$1" "$N" "${miss:-NA}" "$e" "$(digest $o)" "$(hostname)" | tee -a ${RUNS:-$OUT/runs.tsv}
+  [ -n "${KEEP:-}" ] && mv $o keep.$1.bcf
   rm -rf st.$$ $o*
 }
-if [ "${ARM:-}" = uncached ]; then vc uncached af001 --uncached
+if [ "${ARM:-}" = compare ]; then   # keep the outputs and compare each cache with the direct run
+  KEEP=1; RUNS=$OUT/compare_runs.tsv; vc uncached af001 --uncached
+  for k in af001 cohort rerun; do vc $k $k
+    $PY -I /results/fastvep05/cost_model/vep116_compare.py keep.uncached.bcf keep.$k.bcf | sed "s/^/$k\t/" | tee -a $OUT/compare.tsv; done
+  rm -f keep.*.bcf
+elif [ "${ARM:-}" = uncached ]; then vc uncached af001 --uncached
 else for rep in 1 2 3; do for k in af001 cohort rerun; do vc $k $k; done; done; fi
 echo DONE
