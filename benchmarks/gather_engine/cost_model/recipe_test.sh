@@ -1,6 +1,6 @@
 #!/bin/bash
 # Functional test of vcfcache/recipes/grch38_fastvep0.5 on chr22: build a cache from chr22 of the
-# gnomAD AF >= 0.1% blueprint with params.yaml (65 kb sources), annotate chr22 of one sample with
+# gnomAD AF >= 1% blueprint with params.yaml (65 kb sources), annotate chr22 of one sample with
 # params.annotate.yaml (1 kb sources), and compare with direct annotation (--uncached, 65 kb).
 # Uses the node-local sources of wgs_mission.sh N10=1 (sa16, sa10).
 # Usage: [STACK2=1] recipe_test.sh <deployment> <recipe dir> [sample]

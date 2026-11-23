@@ -36,9 +36,9 @@ SETS = [
 # compares one run per arm with the direct run record by record and must show nothing else.
 ALLOWED = {"records", "identical", "HGNC_ID only", "HGNC_ID genes"}
 ARMS = {
-    "af001": ("gnomAD AF>=0.1%", "65 kb"),
-    "af001_narrow": ("gnomAD AF>=0.1%", "4 kb"),
-    "af001_n10": ("gnomAD AF>=0.1%", "1 kb"),
+    "af001": ("gnomAD AF>=1%", "65 kb"),
+    "af001_narrow": ("gnomAD AF>=1%", "4 kb"),
+    "af001_n10": ("gnomAD AF>=1%", "1 kb"),
     "cohort": ("cohort", "65 kb"),
     "cohort_narrow": ("cohort", "4 kb"),
     "cohort_n10": ("cohort", "1 kb"),
@@ -169,7 +169,7 @@ def figure(rs: list[dict]) -> None:
         # fastVEP rerun: no misses, the cache is built from 65 kb sources
         return {"65 kb": BLUE, "1 kb": ORANGE, "-": BLUE}.get(r["miss_width"], GREY)
 
-    marker = {"gnomAD AF>=0.1%": "o", "cohort": "s", "rerun (all hits)": "^"}
+    marker = {"gnomAD AF>=1%": "o", "cohort": "s", "rerun (all hits)": "^"}
     for r in rs:
         if r["miss_width"] == "4 kb":
             continue
@@ -202,8 +202,8 @@ def figure(rs: list[dict]) -> None:
         if (r["sources"] != 15 and not vep) or r["miss_width"] == "4 kb" or r["cache"].startswith("rerun"):
             continue
         gn = r["cache"].startswith("gnomAD")
-        lab = f"{'0.1%' if gn else 'cohort'}, {r['obs']:.1f}x"
-        # cohort labels right of the point; 0.1% labels below-right (clear of the diagonal),
+        lab = f"{'1%' if gn else 'cohort'}, {r['obs']:.1f}x"
+        # cohort labels right of the point; 1% labels below-right (clear of the diagonal),
         # or left where a cohort point sits below-right
         if vep:
             off, ha, va = (-9, 0), "right", "center"
@@ -221,7 +221,7 @@ def figure(rs: list[dict]) -> None:
          Line2D([], [], ls="", marker="o", ms=7, mfc=VIOLET, mec=VIOLET, label="Ensembl VEP"),
          Line2D([], [], ls="", marker="o", ms=7, mfc=INK2, mec=INK2, label="15 sources"),
          Line2D([], [], ls="", marker="o", ms=7, mfc=SURFACE, mec=INK2, mew=1.6, label="11 sources"),
-         Line2D([], [], ls="", marker="o", ms=7, mfc=SURFACE, mec=INK2, label="gnomAD AF≥0.1% cache"),
+         Line2D([], [], ls="", marker="o", ms=7, mfc=SURFACE, mec=INK2, label="gnomAD AF≥1% cache"),
          Line2D([], [], ls="", marker="s", ms=7, mfc=SURFACE, mec=INK2, label="cohort cache"),
          Line2D([], [], ls="", marker="^", ms=7, mfc=SURFACE, mec=INK2, label="rerun (all hits)")]
     a.legend(handles=h, loc="upper left", frameon=False, fontsize=7.2, handletextpad=0.3,
@@ -231,7 +231,7 @@ def figure(rs: list[dict]) -> None:
     sel = [r for r in rs if r["annotator"].startswith("fastVEP") and r["sources"] == 15]
     d = sel[0]["D"]
     bars = [("Direct (fastVEP alone)", None, d, BLUE, None)]
-    for cache, cname in [("gnomAD AF>=0.1%", "gnomAD AF≥0.1% cache"), ("cohort", "cohort cache")]:
+    for cache, cname in [("gnomAD AF>=1%", "gnomAD AF≥1% cache"), ("cohort", "cohort cache")]:
         for w in ["65 kb", "4 kb", "1 kb"]:
             r = next(x for x in sel if x["cache"] == cache and x["miss_width"] == w)
             bars.append((f"{cname}, misses at {w}", r["R"], r["C"] - r["R"],

@@ -1,7 +1,7 @@
 #!/bin/bash
 # The mission pipeline on one whole genome with vep-rs 0.5.0: the fastVEP
 # mission stack's sources as vep-rs plugins (veprs_mission_stack.sh / _join.sh),
-# uncached against vcfcache with the gnomAD AF >= 0.1% blueprint, a cohort cache
+# uncached against vcfcache with the gnomAD AF >= 1% blueprint, a cohort cache
 # (blueprint plus the other KPGP samples) and a rerun cache (sample included).
 # vep-rs reads tabix tables per variant, so there is no narrow-block variant.
 # STACK2=1 adds 1000 Genomes (veprs_onekg_table.sh) and dbNSFP 5.4a read directly, twice: SIFT/PolyPhen,

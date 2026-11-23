@@ -589,8 +589,8 @@ fastVEP 0.5.0, 3 samples:
 
 | Cache | Sources | Misses at 65 kb | at 4 kb | at 1 kb |
 |---|---|---|---|---|
-| gnomAD AF >= 0.1% | 11 | 2.03x | 2.52x | 3.26x |
-| gnomAD AF >= 0.1% | 15 | 1.80x | 2.38x | 3.37x |
+| gnomAD AF >= 1% | 11 | 2.03x | 2.52x | 3.26x |
+| gnomAD AF >= 1% | 15 | 1.80x | 2.38x | 3.37x |
 | cohort | 11 | 1.73x | 3.40x | 4.23x |
 | cohort | 15 | 1.64x | 3.48x | 4.30x |
 
@@ -612,7 +612,7 @@ the 1 kb sources.
 
 vep-rs, which looks sources up per variant, needs no such setting: with four
 more sources its direct time doubles (about 2,900 to 6,300 s) and the speed-up
-rises slightly (gnomAD AF >= 0.1% cache 6.3-6.6x to 6.5-6.7x, cohort cache
+rises slightly (gnomAD AF >= 1% cache 6.3-6.6x to 6.5-6.7x, cohort cache
 11.5-12.3x to 12.8-14.0x).
 
 ### Scalability: cache size independence

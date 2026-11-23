@@ -1,7 +1,7 @@
 #!/bin/bash
 # How narrow should the miss-step sources be? chr1 of one sample, fastVEP alone (16 threads):
 # all variants at fastVEP's advised 65 kb blocks (the uncached reference), and the misses of the
-# 0.1% and the cohort cache at 65 kb, 4 kb, 1 kb and 256 bp blocks; for the 11- and 15-source stack.
+# 1% and the cohort cache at 65 kb, 4 kb, 1 kb and 256 bp blocks; for the 11- and 15-source stack.
 # Needs the node-local caches of wgs_mission.sh STACK2=1 (mission-wgs2f, here KPGP-00128 on sl-w1)
 # and the chr1 builds with NB=10 and NB=8 (wgs_mission_stack.sh, wgs_mission_stack2.sh, build_tracks1.sh).
 # Usage: [BS="16 10 9 8"] [TAG=9] diag_nb.sh [sample] [chromosome]; widths other than 16 and 12 come from the NB=<bits> builds.

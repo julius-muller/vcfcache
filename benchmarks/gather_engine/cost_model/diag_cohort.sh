@@ -1,5 +1,5 @@
 #!/bin/bash
-# Why is the cohort cache (fewer misses) slower than the 0.1% blueprint cache
+# Why is the cohort cache (fewer misses) slower than the 1% blueprint cache
 # when the misses are annotated from the 65 kb sources? Reuses the KPGP-00128
 # caches left on sl-w1 by wgs_mission.sh; keeps vcfcache's work directory and
 # times each step, then times fastVEP alone on each arm's misses.

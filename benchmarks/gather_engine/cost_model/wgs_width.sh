@@ -3,7 +3,7 @@
 # If not, a user needs one source set (1 kb) for building the cache, for the misses and
 # for direct annotation; if so, two (65 kb to build, 1 kb for the misses).
 # On one whole genome, alternating, 3 repeats: the uncached pipeline (vcfcache --uncached)
-# at 65 kb and at 1 kb; then once each the cache build (the 0.1% blueprint, 18.9 M records,
+# at 65 kb and at 1 kb; then once each the cache build (the 1% blueprint, 18.9 M records,
 # 16 threads) at 65 kb and at 1 kb, with digests.
 # Needs the node-local state of wgs_mission.sh N10=1 (same STACK2 and sample on this node).
 # Usage: [STACK2=1] wgs_width.sh <deployment> [sample]
@@ -33,7 +33,7 @@ vc() {  # arm cache [--uncached]
 }
 : > $OUT/runs.tsv
 for rep in 1 2 3; do vc uncached_65kb af001 --uncached; vc uncached_1kb af001_n10 --uncached; done
-# the cache build: annotate the 0.1% blueprint at each width (as wgs_mission.sh's blueprint())
+# the cache build: annotate the 1% blueprint at each width (as wgs_mission.sh's blueprint())
 for b in 16 10; do
   s=$(date +%s.%N)
   bcftools view bp_af001.bcf -Ov | env RAYON_NUM_THREADS=16 $FV annotate --input - --output - --output-format vcf \

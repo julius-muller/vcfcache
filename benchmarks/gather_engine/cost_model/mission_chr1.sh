@@ -1,7 +1,7 @@
 #!/bin/bash
 # The mission pipeline on chr1 of one genome: fastVEP 0.5.0 with eleven known
 # sources and two mock custom tracks, uncached against vcfcache with
-#   - the gnomAD AF >= 0.1% and AF >= 0.01% blueprints,
+#   - the gnomAD AF >= 1% and AF >= 0.1% blueprints,
 #   - the misses annotated from the same sources stored in narrow blocks
 #     (the uncached baseline always uses the sources as fastVEP advises),
 #   - a cohort cache (blueprint plus the other KPGP samples), and
@@ -98,7 +98,7 @@ if [ ! -e $R/CACHES ]; then
     bcftools view -r chr1 $BPD/gnomad_v4.1_GRCh38_joint_$t/blueprint/vcfcache.bcf -Ob -W -o bp_$t.bcf --threads 8
     s=$(date +%s); anno bp_$t.bcf c_$t.bcf $M16 16; log "cache $t: $(bcftools index -n c_$t.bcf) records, $(( $(date +%s) - s ))s, $(du -h c_$t.bcf | cut -f1)"
   done
-  # cohort: biallelic sites of the other samples, and of this sample, not in the 0.1% blueprint
+  # cohort: biallelic sites of the other samples, and of this sample, not in the 1% blueprint
   sites() { bcftools view -r chr1 -G $1 -Ou | bcftools norm -m- -Ou 2>/dev/null | bcftools annotate -x INFO,ID,QUAL,FILTER -Ob -W -o $2; }
   n=0; for f in $KP/*.small_variants.vcf.gz; do
     case $f in *$SAMPLE*) sites $f self.bcf;; *) n=$((n+1)); sites $f o$n.bcf;; esac
