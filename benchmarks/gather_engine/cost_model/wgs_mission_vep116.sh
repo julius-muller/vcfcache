@@ -1,6 +1,6 @@
 #!/bin/bash
 # The mission pipeline on whole genomes with Ensembl VEP 116.3: the eleven sources of the vep-rs
-# mission stack (vep116_stack.sh), uncached against vcfcache with the gnomAD AF >= 0.1% blueprint, a
+# mission stack (vep116_stack.sh), uncached against vcfcache with the gnomAD AF >= 1% blueprint, a
 # cohort cache (blueprint plus the other KPGP samples) and a rerun cache (all 23 samples), as
 # wgs_mission_veprs.sh. Ensembl VEP needs hours per genome, so the work is split into jobs:
 #   prep                 sites to annotate: the blueprint, and every site of the 23 KPGP samples beyond

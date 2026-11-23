@@ -285,7 +285,7 @@ print(json.dumps(out))
                 "BatchMode=yes",
                 "-o",
                 "ConnectTimeout=10",
-                "ubuntu@10.133.241.128",
+                "ubuntu@slurm-controller",
                 "python3",
                 "-",
             ],

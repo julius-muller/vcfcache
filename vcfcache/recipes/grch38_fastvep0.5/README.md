@@ -10,7 +10,7 @@ fastVEP reads each source (`.osa2`) in blocks. `fastvep sa-build --chunk-bits 16
 touches nearly every block, so each block is read once and used for many variants.
 
 vcfcache sends fastVEP only the variants that are **not** in the cache. These are
-few (for a whole genome, about 8% against the gnomAD AF >= 0.1% blueprint and 3%
+few (for a whole genome, about 8% against the gnomAD AF >= 1% blueprint and 3%
 against a cohort cache), and they are spread over the whole genome. With 65 kb
 blocks they still open nearly every block of every source, so a cached run pays
 almost the full source cost for a small fraction of the variants. The same
@@ -24,8 +24,8 @@ annotation at 65 kb:
 
 | Cache | Misses at 65 kb | Misses at 4 kb | Misses at 1 kb |
 |---|---|---|---|
-| gnomAD AF >= 0.1%, 11 sources | 2.03x | 2.52x | 3.26x |
-| gnomAD AF >= 0.1%, 15 sources | 1.80x | 2.38x | 3.37x |
+| gnomAD AF >= 1%, 11 sources | 2.03x | 2.52x | 3.26x |
+| gnomAD AF >= 1%, 15 sources | 1.80x | 2.38x | 3.37x |
 | cohort, 11 sources | 1.73x | 3.40x | 4.23x |
 | cohort, 15 sources | 1.64x | 3.48x | 4.30x |
 
@@ -49,7 +49,7 @@ sources. The two folders take about 2.5 times the disk of one (18 + 28 GB for
 larger 1 kb indexes adds about 10-15 s to every run. That pays off when the
 misses are spread over the genome, and costs time when they are few or local:
 
-| Input (3 samples, median) | Direct | 0.1% cache, misses at 65 kb / 1 kb | cohort cache, 65 kb / 1 kb |
+| Input (3 samples, median) | Direct | 1% cache, misses at 65 kb / 1 kb | cohort cache, 65 kb / 1 kb |
 |---|---|---|---|
 | Exome (Twist core, 74-81 k variants), 11 sources | 224-252 s | 3.60x / 3.79x | 3.53x / 4.96x |
 | Exome, 15 sources | 330-358 s | 3.76x / 3.68x | 3.43x / 4.08x |

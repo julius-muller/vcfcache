@@ -27,7 +27,7 @@ REPO = ROOT.parents[1]
 PY = "367100833"
 RUST = "e4d278ce1"
 FUSION = "9ab232208"
-HOST = "ubuntu@10.133.241.128"
+HOST = "ubuntu@slurm-controller"
 CONFIGS, SOURCES, DATA = {}, {}, []
 ASSAYS = ["Panel", "WES", "WGS"]
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # The mission pipeline on one whole genome: fastVEP 0.5.0 with eleven known
 # sources (fifteen with STACK2=1) and two mock custom tracks, uncached against vcfcache with
-#   - the gnomAD AF >= 0.1% and AF >= 0.01% blueprints,
+#   - the gnomAD AF >= 1% and AF >= 0.1% blueprints,
 #   - the misses annotated from the same sources stored in narrow blocks
 #     (the uncached baseline always uses the sources as fastVEP advises),
 #   - a cohort cache (blueprint plus the other KPGP samples), and
@@ -93,7 +93,7 @@ cd $W
 if [ ! -e $W/CACHES ]; then
   bcftools view $KP/$SAMPLE.GRCh38.small_variants.vcf.gz -Ob1 -W --threads 8 -o in.bcf
   blueprint af001
-  # cohort: biallelic sites of the other samples, and of this sample, not in the 0.1% blueprint
+  # cohort: biallelic sites of the other samples, and of this sample, not in the 1% blueprint
   sites() { bcftools view -G $1 -Ou | bcftools norm -m- -Ou 2>/dev/null | bcftools annotate -x INFO,ID,QUAL,FILTER -Ob -W -o $2; }
   n=0; for f in $KP/*.small_variants.vcf.gz; do
     case $f in *$SAMPLE*) sites $f self.bcf;; *) n=$((n+1)); sites $f o$n.bcf;; esac
@@ -138,7 +138,7 @@ done
 # fastVEP alone, for reference
 for i in 1 2; do s=$(date +%s.%N); anno in.bcf d.bcf $M16 8; echo "fastvep_alone $(echo "$(date +%s.%N) - $s" | bc)" | tee -a $OUT/runs.tsv; done
 echo MAIN DONE
-# the 0.01% blueprint only on request (AF0001=1): least important, and its cache takes longest to build
+# the 0.1% blueprint only on request (AF0001=1): least important, and its cache takes longest to build
 if [ "${AF0001:-0}" = 1 ]; then
   blueprint af0001
   mkcache af0001 $W/c_af0001.bcf $M16; mkcache af0001_narrow $W/c_af0001.bcf $M12

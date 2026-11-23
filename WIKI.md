@@ -553,7 +553,7 @@ Speed-up ≈ T_baseline / T_cached ≈ 1 / (1-f)
 - **f = 0.90** (90% cache hits) → **~10× faster**
 - **f = 0.95** (95% cache hits) → **~20× faster**
 
-In practice, using a large population cache (like one built from gnomAD) often yields **60–80% cache hit rates** for typical sample VCFs, resulting in **2.5–5× speed-ups**.
+In practice, a whole genome finds about 92% of its variants in the gnomAD AF ≥ 1% blueprint (18.9 M sites) and about 97% in a cohort cache (that blueprint plus the sites of other samples from the same population). How close the speed-up comes to 1/(1-f) depends on the annotator; see [Measured whole-genome speed-ups](#measured-whole-genome-speed-ups).
 
 To maximize speed‑ups for your own cohort, build a **custom cache**:
 - Take the intersection of a handful of representative samples (e.g., 5).
@@ -568,6 +568,30 @@ The benefit of caching **grows with pipeline complexity**. As the annotation pip
 However, **cache lookup time (t_lookup) and overhead (t_overhead) remain flat** regardless of pipeline complexity. No matter how many annotations are in the pipeline, fetching a cached result is still just a quick indexed lookup.
 
 Therefore: **the more complex (and slow) the annotation pipeline, the more advantageous caching becomes**.
+
+### Measured whole-genome speed-ups
+
+Three KPGP genomes (4.6-4.8 M variants), 3 repeats each, 8 cores, the same
+eleven annotation sources (ClinVar, gnomAD exomes with ten populations, dbSNP,
+SpliceAI, REVEL, AlphaMissense, PhyloP, pLI, LoFtool, GWAS catalog and two custom
+tracks of about 100 M rows). Medians over samples, with the range across the
+three genomes; misses 8.2% (gnomAD AF ≥ 1%), 2.9% (cohort), 0% (rerun):
+
+| Annotator | Direct | gnomAD AF ≥ 1% cache | Cohort cache | Rerun |
+|---|---|---|---|---|
+| Ensembl VEP 116.3 | 13,211 s | 10.5x (10.4-10.7) | 24.5x (23.6-24.7) | 238x (236-241) |
+| vep-rs 0.5.0 | 2,937 s | 6.4x (6.3-6.6) | 11.8x (11.5-12.3) | 56x (52-58) |
+| fastVEP 0.5.0, misses at 1 kb | 681 s | 3.26x (3.26-3.29) | 4.23x (4.06-4.26) | 11.2x |
+| fastVEP 0.5.0, misses at 65 kb | 681 s | 2.03x (2.02-2.06) | 1.73x (1.72-1.74) | 11.2x |
+
+Outputs equal direct annotation record for record, except for the Ensembl VEP
+`HGNC_ID` issue described under [Known issues](#known-issues-with-annotation-tools).
+The slower the annotator per variant, the closer the speed-up comes to the ideal
+D / (R + m·D), where D is the direct time, R the rerun time and m the miss fraction:
+Ensembl VEP reaches 81-91% of it, vep-rs 50-64% and fastVEP 43-56% (with 1 kb
+sources for the misses). Scripts, per-run tables and the figure are in
+`benchmarks/gather_engine/cost_model/` (`results/cost_model_table.md`,
+`results/cost_model_figure.png`).
 
 ### Annotators that read sources in blocks (fastVEP)
 
@@ -589,8 +613,8 @@ fastVEP 0.5.0, 3 samples:
 
 | Cache | Sources | Misses at 65 kb | at 4 kb | at 1 kb |
 |---|---|---|---|---|
-| gnomAD AF >= 0.1% | 11 | 2.03x | 2.52x | 3.26x |
-| gnomAD AF >= 0.1% | 15 | 1.80x | 2.38x | 3.37x |
+| gnomAD AF >= 1% | 11 | 2.03x | 2.52x | 3.26x |
+| gnomAD AF >= 1% | 15 | 1.80x | 2.38x | 3.37x |
 | cohort | 11 | 1.73x | 3.40x | 4.23x |
 | cohort | 15 | 1.64x | 3.48x | 4.30x |
 
@@ -612,7 +636,7 @@ the 1 kb sources.
 
 vep-rs, which looks sources up per variant, needs no such setting: with four
 more sources its direct time doubles (about 2,900 to 6,300 s) and the speed-up
-rises slightly (gnomAD AF >= 0.1% cache 6.3-6.6x to 6.5-6.7x, cohort cache
+rises slightly (gnomAD AF >= 1% cache 6.3-6.6x to 6.5-6.7x, cohort cache
 11.5-12.3x to 12.8-14.0x).
 
 ### Scalability: cache size independence
@@ -672,6 +696,8 @@ This means that while VCFcache guarantees functional equivalence (same variants 
 **Impact**: This does not affect the correctness or usability of VCFcache - annotations are still accurate and consistent for each variant. It only affects byte-for-byte reproducibility testing via MD5 checksums.
 
 **Reference**: This is a known VEP issue tracked at [ensembl-vep#1959](https://github.com/Ensembl/ensembl-vep/issues/1959).
+
+**Measured extent (VEP 116.3)**: on three whole genomes with eleven sources, 164-277 of 4.6-4.8 M records per genome (at most 0.006%) differed between cached and direct output, all in `HGNC_ID` only (for genes such as GYPA, GYPB, FGF7P3, GUSBP5, PRAMENP); every other field was identical. The script `benchmarks/gather_engine/cost_model/vep116_compare.py` performs this record-by-record check.
 
 **Recommendation**: For validation purposes, compare annotation content semantically (e.g., verify that the same variants have the same CSQ tags) rather than relying solely on MD5 checksums when using affected VEP versions.
 

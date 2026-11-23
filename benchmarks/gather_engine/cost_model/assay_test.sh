@@ -2,7 +2,7 @@
 # Exome and panel inputs: which fastVEP source folder should a cached run use for the misses?
 # The sample's whole genome restricted to the Twist core exome targets (pad 125) and to the
 # ACMG SF v3.3 CDS regions (pad 20); arms as in wgs_mission.sh N10=1: uncached (65 kb sources),
-# the 0.1% and cohort caches with misses at 65 kb and at 1 kb, and the rerun cache; 3 repeats.
+# the 1% and cohort caches with misses at 65 kb and at 1 kb, and the rerun cache; 3 repeats.
 # Needs the node-local state of wgs_mission.sh N10=1 (same STACK2 and sample on this node).
 # Usage: [STACK2=1] assay_test.sh <deployment> [sample]
 set -uo pipefail

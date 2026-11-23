@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.6.0 (2026-11-23)
+
+### Changed
+- `vcfcache annotate` preserves its input: records are no longer split,
+  left-aligned or removed; samples, genotypes and file order are kept. Exact
+  biallelic cache matches are reused and every other record goes intact to the
+  annotation recipe, so the output equals direct annotation record for record.
+  Inputs must be sorted and indexed, and recipes must retain every record.
+- Large inputs are split into one shard per core by record count, looked up
+  and merged by position in parallel; the recipe for the misses starts
+  streaming before the lookup finishes, and the shards' indexes are joined
+  instead of indexing the output again.
+- Annotation commands run under `set -euo pipefail`, so a failing step in a
+  recipe pipe fails the run.
+- Progress messages of `annotate` go to stderr.
+
+### Added
+- `--output-compression-level 0-9` for cached output (default 1, fastest).
+- Recipe `grch38_fastvep0.5` for fastVEP 0.5 with its supplementary sources:
+  the cache is built from fastVEP's advised 65 kb source blocks and the misses
+  of genomes and exomes are annotated from a 1 kb copy (`params.annotate.yaml`),
+  which raises the whole-genome speed-up from 2.0x to 3.3x (gnomAD AF >= 1%
+  cache) and from 1.7x to 4.2x (cohort cache) with eleven sources.
+- Diagnosis of `chr`-prefix contig mismatches between input and cache.
+- Whole-genome cost-model benchmark for Ensembl VEP 116.3, vep-rs 0.5.0 and
+  fastVEP 0.5.0 with eleven to fifteen sources
+  (`benchmarks/gather_engine/cost_model/`, WIKI section "Measured whole-genome
+  speed-ups"): 10.5x / 24.5x for Ensembl VEP with the gnomAD AF >= 1% / cohort
+  cache.
+
+### Removed
+- `--skip-split-multiallelic` (inputs are no longer split).
+- `--preserve-unannotated` is kept as a deprecated no-op: all records are
+  always retained.
+
 ## 0.5.5 (2026-08-20)
 
 ### Fixed
