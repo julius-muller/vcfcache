@@ -204,7 +204,7 @@ def main():
         base.SOURCES["cpu-placement-audit"] = dict(
             source_id="cpu-placement-audit",
             sha256=digest(audit.read_bytes()),
-            location="ubuntu@10.133.242.60:/home/ubuntu/portal-services/" + audit.name,
+            location="ubuntu@portal-host:/home/ubuntu/portal-services/" + audit.name,
         )
     summary = base.summarize()
     base.export(ROOT / "measurements.tsv", base.DATA)

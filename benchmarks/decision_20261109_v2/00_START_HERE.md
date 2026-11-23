@@ -77,7 +77,7 @@ not establish equal performance among the remaining Intel workers.
 ## Relation to the 9 November Slurm audit
 
 The [audit snapshot](SLURM_CPU_PLACEMENT_AUDIT_20261109.md) was read from
-`ubuntu@10.133.242.60:/home/ubuntu/portal-services/SLURM_CPU_PLACEMENT_AUDIT_20261109.md`.
+`ubuntu@portal-host:/home/ubuntu/portal-services/SLURM_CPU_PLACEMENT_AUDIT_20261109.md`.
 Its final updates supersede its initial inspection/recovery recommendations:
 
 - Historical sl-w5 exposed AMD EPYC-Rome; the other workers exposed Intel

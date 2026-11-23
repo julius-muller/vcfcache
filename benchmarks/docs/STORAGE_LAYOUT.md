@@ -6,7 +6,7 @@ not an OpenStack quota report.
 
 ## ITCCcloud_dev: preparation and raw-data authority
 
-`gvbrowse-preproc` (`appuser@10.133.255.21`) is the preparation VM. Its 2-TiB
+`gvbrowse-preproc` (`appuser@prep-host`) is the preparation VM. Its 2-TiB
 data volume is mounted at `/mnt/data`: 1.6 TiB used, 250 GiB available (87%).
 The 19-GiB root filesystem has 3.3 GiB available.
 
@@ -38,7 +38,7 @@ staged to the Slurm cluster.
 ### Head node
 
 `sl-head` has internal address `10.0.0.212` and temporary floating address
-`10.133.241.128`. Its preserved 2-TiB data volume is mounted at `/mnt/data`:
+`slurm-controller`. Its preserved 2-TiB data volume is mounted at `/mnt/data`:
 484 GiB used and 1.5 TiB available (25% used). Its 19-GiB root filesystem has
 15 GiB available.
 

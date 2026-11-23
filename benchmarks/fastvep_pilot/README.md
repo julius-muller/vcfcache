@@ -40,7 +40,7 @@ Rscript --vanilla benchmarks/fastvep_pilot/plot_followup.R \
 
 ## Frozen exploratory configuration
 
-- host: `appuser@10.133.255.21` (`gvbrowse-preproc`, ITCCcloud_dev);
+- host: `appuser@prep-host` (`gvbrowse-preproc`, ITCCcloud_dev);
 - runtime root: `/mnt/data/vcfcache_benchmarks/fastvep_pilot`;
 - input: normalized, biallelic HG02079 GRCh38 WGS;
 - fastVEP: 0.3.0, commit `e47216cebe3abcd8dff722b7fb0ab1b19d4fcc80`;
