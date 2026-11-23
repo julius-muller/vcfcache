@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- CI publishes the sdist and wheel to PyPI on `v*` tags (trusted publishing with `uv publish`, after lint and both test jobs pass; the tag must match the package version).
+
 ## 0.6.0 (2026-11-23)
 
 ### Changed
