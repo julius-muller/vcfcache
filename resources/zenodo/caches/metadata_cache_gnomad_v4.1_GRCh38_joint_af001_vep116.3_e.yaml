@@ -10,11 +10,16 @@ description: '<p><strong>Abstract</strong> VCFcache cache of the gnomAD v4.1 joi
   &ge; 0.01 (1%) in any population. Genotypes and INFO fields are removed; multiallelic sites are split. Coverage: chr1-22,
   chrX, chrY.</p>
 
+  <p><strong>Performance</strong> On one whole genome (KPGP-00128, 4.6 M variants, 8 cores, 8.2% of them not in the cache):
+  1,064 s cached vs 11,757 s for VEP directly (11.0x). Of 4,598,973 records, 4,598,731 were identical to the direct run,
+  241 differed in HGNC_ID only and 1 in CLIN_SIG order only (see Note); no other differences.</p>
+
   <p><strong>Recipe</strong> The cache''s <code>annotation.yaml</code> holds the exact VEP command; it was built with vcfcache
   0.6.0 <code>cache-build</code>, run on 12 slices of the blueprint in parallel and concatenated in order (see <code>build_provenance.json</code>).</p>
 
   <p><strong>Note</strong> Ensembl VEP fills HGNC_ID for a few genes depending on the other variants in the same run (<a href="https://github.com/Ensembl/ensembl-vep/issues/1959">ensembl-vep#1959</a>),
-  so a small number of records can differ from a direct run in that field only.</p>
+  so a small number of records can differ from a direct run in that field only. When ClinVar holds several significance
+  sets for a variant, VEP joins them in CLIN_SIG in an order that changes from run to run, also between two direct runs.</p>
 
   <p><strong>Setup</strong>: <code>vcfcache cache-build --doi &lt;DOI&gt;</code></p>
 
