@@ -1,0 +1,66 @@
+title: VCFcache cache gnomAD v4.1 joint GRCh38 (AF ≥ 0.01) annotated with fastVEP 0.5.0 core
+genome_build: GRCh38
+version: 0.6.0
+description: '<p><strong>Abstract</strong> VCFcache cache of the gnomAD v4.1 joint GRCh38 AF &ge; 1% blueprint, annotated
+  with fastVEP 0.5.0 (consequences and HGVS, <code>--hgvs</code>; no supplementary annotation sources). Annotating a sample
+  with this cache gives the same CSQ as running fastVEP directly.</p>
+
+  <p><strong>Contents</strong> The underlying blueprint (same sites as <a href="https://doi.org/10.5281/zenodo.18190436">10.5281/zenodo.18190436</a>)
+  contains 18.9 M variant sites from gnomAD v4.1 joint frequency data (GRCh38, 807,162 samples) with allele frequency (AF)
+  &ge; 0.01 (1%) in any population. Genotypes and INFO fields are removed; multiallelic sites are split. Coverage: chr1-22,
+  chrX, chrY.</p>
+
+  <p><strong>Performance</strong> fastVEP alone is fast, so the gain is modest: on one whole genome (KPGP-00128, 4.6 M variants,
+  8 cores) 56 s cached vs 96 s direct (1.7x), output identical record for record. The gain grows with fastVEP supplementary
+  sources, for which users build their own cache with the <code>grch38_fastvep0.5</code> recipe shipped with vcfcache.</p>
+
+  <p><strong>Recipe</strong> The cache''s <code>annotation.yaml</code> holds the exact fastVEP command; built with vcfcache
+  0.6.0 <code>cache-build</code>.</p>
+
+  <p><strong>Setup</strong>: <code>vcfcache cache-build --doi &lt;DOI&gt;</code></p>
+
+  <p><strong>Usage</strong>: <code>vcfcache annotate -a &lt;cache_dir&gt; -i sample.bcf -o sample_vc.bcf -y params.yaml</code>
+  (params.yaml points to your local installation; see <code>vcfcache annotate --requirements -a &lt;cache_dir&gt;</code>).
+  Requires vcfcache &ge; 0.6.0.</p>
+
+  <p><strong>Documentation</strong>: <a href="https://github.com/julius-muller/vcfcache">github.com/julius-muller/vcfcache</a>
+  and its <a href="https://github.com/julius-muller/vcfcache/wiki">wiki</a>.</p>
+
+  '
+upload_type: dataset
+creators:
+- name: Julius Müller
+  affiliation: DKFZ Heidelberg, Germany
+  orcid: 0000-0002-1046-2968
+keywords:
+- GRCh38
+- fastVEP
+- allele frequency
+- bcftools
+- cache
+- cache-gnomad-v4.1-GRCh38-joint-af001-fastvep0.5.0-core
+- gnomAD
+- gnomad_v4.1_GRCh38_joint_af001
+- performance
+- pipeline
+- variant annotation
+- vcfcache
+license: cc-by-4.0
+access_right: open
+related_identifiers:
+- identifier: 10.5281/zenodo.17943997
+  relation: isCompiledBy
+  resource_type: software
+  scheme: doi
+- identifier: 10.5281/zenodo.18190436
+  relation: isDerivedFrom
+  resource_type: dataset
+  scheme: doi
+- identifier: 10.1038/s41586-020-2308-7
+  relation: isDerivedFrom
+  resource_type: publication
+  scheme: doi
+- identifier: https://github.com/Huang-lab/fastVEP
+  relation: isDocumentedBy
+  resource_type: software
+  scheme: url

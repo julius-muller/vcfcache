@@ -1,0 +1,71 @@
+title: VCFcache cache gnomAD v4.1 joint GRCh38 (AF ≥ 0.01) annotated with vep 116.3 -e
+genome_build: GRCh38
+version: 0.6.0
+description: '<p><strong>Abstract</strong> VCFcache cache of the gnomAD v4.1 joint GRCh38 AF &ge; 1% blueprint, annotated
+  with Ensembl VEP 116.3 (Ensembl 116 cache, offline) with <code>--everything --hgvsg</code>. Annotating a sample with this
+  cache gives the same CSQ as running VEP directly, while VEP only annotates the sample''s variants that are not in the cache.</p>
+
+  <p><strong>Contents</strong> The underlying blueprint (same sites as <a href="https://doi.org/10.5281/zenodo.18190436">10.5281/zenodo.18190436</a>)
+  contains 18.9 M variant sites from gnomAD v4.1 joint frequency data (GRCh38, 807,162 samples) with allele frequency (AF)
+  &ge; 0.01 (1%) in any population. Genotypes and INFO fields are removed; multiallelic sites are split. Coverage: chr1-22,
+  chrX, chrY.</p>
+
+  <p><strong>Performance</strong> On one whole genome (KPGP-00128, 4.6 M variants, 8 cores, 8.2% of them not in the cache):
+  1,064 s cached vs 11,757 s for VEP directly (11.0x). Of 4,598,973 records, 4,598,731 were identical to the direct run,
+  241 differed in HGNC_ID only and 1 in CLIN_SIG order only (see Note); no other differences.</p>
+
+  <p><strong>Recipe</strong> The cache''s <code>annotation.yaml</code> holds the exact VEP command; it was built with vcfcache
+  0.6.0 <code>cache-build</code>, run on 12 slices of the blueprint in parallel and concatenated in order (see <code>build_provenance.json</code>).</p>
+
+  <p><strong>Note</strong> Ensembl VEP fills HGNC_ID for a few genes depending on the other variants in the same run (<a href="https://github.com/Ensembl/ensembl-vep/issues/1959">ensembl-vep#1959</a>),
+  so a small number of records can differ from a direct run in that field only. When ClinVar holds several significance
+  sets for a variant, VEP joins them in CLIN_SIG in an order that changes from run to run, also between two direct runs.</p>
+
+  <p><strong>Setup</strong>: <code>vcfcache cache-build --doi &lt;DOI&gt;</code></p>
+
+  <p><strong>Usage</strong>: <code>vcfcache annotate -a &lt;cache_dir&gt; -i sample.bcf -o sample_vc.bcf -y params.yaml</code>
+  (params.yaml points to your local installation; see <code>vcfcache annotate --requirements -a &lt;cache_dir&gt;</code>).
+  Requires vcfcache &ge; 0.6.0.</p>
+
+  <p><strong>Documentation</strong>: <a href="https://github.com/julius-muller/vcfcache">github.com/julius-muller/vcfcache</a>
+  and its <a href="https://github.com/julius-muller/vcfcache/wiki">wiki</a>.</p>
+
+  '
+upload_type: dataset
+creators:
+- name: Julius Müller
+  affiliation: DKFZ Heidelberg, Germany
+  orcid: 0000-0002-1046-2968
+keywords:
+- Ensembl
+- GRCh38
+- VEP
+- allele frequency
+- bcftools
+- cache
+- cache-gnomad-v4.1-GRCh38-joint-af001-vep116.3-e
+- gnomAD
+- gnomad_v4.1_GRCh38_joint_af001
+- performance
+- pipeline
+- variant annotation
+- vcfcache
+license: cc-by-4.0
+access_right: open
+related_identifiers:
+- identifier: 10.5281/zenodo.17943997
+  relation: isCompiledBy
+  resource_type: software
+  scheme: doi
+- identifier: 10.5281/zenodo.18190436
+  relation: isDerivedFrom
+  resource_type: dataset
+  scheme: doi
+- identifier: 10.1038/s41586-020-2308-7
+  relation: isDerivedFrom
+  resource_type: publication
+  scheme: doi
+- identifier: https://www.ensembl.org/info/docs/tools/vep/index.html
+  relation: isDocumentedBy
+  resource_type: other
+  scheme: url

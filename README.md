@@ -65,6 +65,17 @@ This minimal example shows the complete workflow using a public cache.
 vcfcache list caches
 ```
 
+Published caches (each includes its blueprint):
+
+| Genome | gnomAD v4.1 joint blueprint | Annotation | DOI |
+|---|---|---|---|
+| GRCh38 | AF ≥ 1% (18.9 M sites) | Ensembl VEP 116.3 `--everything --hgvsg` | [10.5281/zenodo.24494416](https://doi.org/10.5281/zenodo.24494416) |
+| GRCh38 | AF ≥ 1% (18.9 M sites) | fastVEP 0.5.0 core (`--hgvs`, no supplementary sources) | [10.5281/zenodo.24494082](https://doi.org/10.5281/zenodo.24494082) |
+| GRCh38 | AF ≥ 1% | Ensembl VEP 115.2 `--everything` | [10.5281/zenodo.18190046](https://doi.org/10.5281/zenodo.18190046) |
+| GRCh38 | AF ≥ 10% | Ensembl VEP 115.2 `--everything` | [10.5281/zenodo.18189447](https://doi.org/10.5281/zenodo.18189447) |
+| GRCh37 (lifted from GRCh38) | AF ≥ 1% | Ensembl VEP 115.2 `--everything` | [10.5281/zenodo.18189348](https://doi.org/10.5281/zenodo.18189348) |
+| GRCh37 (lifted from GRCh38) | AF ≥ 10% | Ensembl VEP 115.2 `--everything` | [10.5281/zenodo.18189051](https://doi.org/10.5281/zenodo.18189051) |
+
 ### 2. Pull a specific cache
 
 ```bash
