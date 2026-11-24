@@ -5,7 +5,7 @@ description: '<p><strong>Abstract</strong> VCFcache cache of the gnomAD v4.1 joi
   with fastVEP 0.5.0 (consequences and HGVS, <code>--hgvs</code>; no supplementary annotation sources). Annotating a sample
   with this cache gives the same CSQ as running fastVEP directly.</p>
 
-  <p><strong>Contents</strong> The underlying blueprint (identical to <a href="https://doi.org/10.5281/zenodo.18190436">10.5281/zenodo.18190436</a>)
+  <p><strong>Contents</strong> The underlying blueprint (same sites as <a href="https://doi.org/10.5281/zenodo.18190436">10.5281/zenodo.18190436</a>)
   contains 18.9 M variant sites from gnomAD v4.1 joint frequency data (GRCh38, 807,162 samples) with allele frequency (AF)
   &ge; 0.01 (1%) in any population. Genotypes and INFO fields are removed; multiallelic sites are split. Coverage: chr1-22,
   chrX, chrY.</p>
