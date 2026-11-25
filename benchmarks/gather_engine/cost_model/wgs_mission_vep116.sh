@@ -8,10 +8,13 @@
 #   part <set> <k>       annotate one part (16 forks); <set> is bp or new
 #   measure <sample>     join the parts into the sample's caches on this node (once per node and sample),
 #                        then ARM=uncached: one direct run; ARM=compare: one run of each arm, outputs
-#                        compared record by record (vep116_compare.py); otherwise 3 repeats of the cached arms
+#                        compared record by record (vep116_compare.py); ARM=assay: the sample's genome restricted
+#                        to the Twist core exome (pad 125) and the ACMG SF v3.3 CDS (pad 20) as in assay_test.sh,
+#                        each arm and the direct run 3 times, the first repeat compared as ARM=compare;
+#                        otherwise 3 repeats of the cached arms
 # VEP annotates each record on its own, so the cohort and rerun caches are cut from the annotated
 # set beyond the blueprint; the cached-versus-direct digests check this.
-# Usage: wgs_mission_vep116.sh <deployment> prep | part <set> <k> | [ARM=uncached|compare] measure <sample>
+# Usage: wgs_mission_vep116.sh <deployment> prep | part <set> <k> | [ARM=uncached|compare|assay] measure <sample>
 set -uo pipefail
 DEP=$1; MODE=$2
 export PATH=/results/input-preserving-20261105-tools/bin:$PATH
@@ -123,17 +126,16 @@ if [ ! -e $W/CACHES ]; then
   for k in af001 cohort rerun; do mkcache $k $W/c_$k.bcf; done
   rm -f o*.bcf o*.bcf.csi; touch $W/CACHES
 fi
-N=$(bcftools index -n in.bcf)
 digest() { bcftools view -H $1 | awk -F'\t' 'BEGIN{OFS="\t"} {n=split($8,a,";"); asort(a); s=a[1]; for(i=2;i<=n;i++) s=s";"a[i]; $8=s; print}' | md5sum | cut -c1-12; }
-vc() {  # arm cache [--uncached]
-  local C=$W/caches/$2/cache/$2 o=out.$1.$$.bcf
+vc() {  # arm cache [--uncached]; input $INP (default in.bcf)
+  local C=$W/caches/$2/cache/$2 o=out.$1.$$.bcf I=${INP:-in.bcf}
   rm -rf st.$$ $o*
   local s=$(date +%s.%N)
-  env PYTHONPATH=$DEP $PY -c "from vcfcache.cli import main; main()" annotate -a $C -i in.bcf -o $o \
+  env PYTHONPATH=$DEP $PY -c "from vcfcache.cli import main; main()" annotate -a $C -i $I -o $o \
     -y $C/params.snapshot.yaml --statistics light --stats-dir st.$$ -v ${3:-} > log.$1.txt 2>&1 || { echo "FAILED $1"; tail -5 log.$1.txt; return; }
   local e=$(echo "$(date +%s.%N) - $s" | bc)
   local miss=$(grep -ho "missing_variants: [0-9]*" -r st.$$ | head -1 | cut -d' ' -f2)
-  printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$1" "$N" "${miss:-NA}" "$e" "$(digest $o)" "$(hostname)" | tee -a ${RUNS:-$OUT/runs.tsv}
+  printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$1" "$(bcftools index -n $I)" "${miss:-NA}" "$e" "$(digest $o)" "$(hostname)" | tee -a ${RUNS:-$OUT/runs.tsv}
   [ -n "${KEEP:-}" ] && mv $o keep.$1.bcf
   rm -rf st.$$ $o*
 }
@@ -143,5 +145,21 @@ if [ "${ARM:-}" = compare ]; then   # keep the outputs and compare each cache wi
     $PY -I /results/fastvep05/cost_model/vep116_compare.py keep.uncached.bcf keep.$k.bcf | sed "s/^/$k\t/" | tee -a $OUT/compare.tsv; done
   rm -f keep.*.bcf
 elif [ "${ARM:-}" = uncached ]; then vc uncached af001 --uncached
+elif [ "${ARM:-}" = assay ]; then
+  RG=/results/fastvep05/cost_model/regions; RUNS=$OUT/assay_runs.tsv
+  bcftools view -R $RG/twist_human_core_exome_hg38.chr1-22-X.pad125.merged.bed in.bcf -Ob -W -o wes.bcf
+  bcftools view -R $RG/acmg_sf_v3.3.ensembl115.mane_select_cds_pad20.bed in.bcf -Ob -W -o panel.bcf
+  log "exome $(bcftools index -n wes.bcf) variants, panel $(bcftools index -n panel.bcf)"
+  for a in wes panel; do
+    INP=$a.bcf; vc $a.warmup af001 --uncached > /dev/null
+    for rep in 1 2 3; do
+      [ $rep = 1 ] && KEEP=1 || KEEP=
+      vc $a.uncached af001 --uncached
+      for k in af001 cohort rerun; do vc $a.$k $k
+        [ $rep = 1 ] && $PY -I /results/fastvep05/cost_model/vep116_compare.py keep.$a.uncached.bcf keep.$a.$k.bcf | sed "s/^/$a\t$k\t/" | tee -a $OUT/assay_compare.tsv; done
+      rm -f keep.*.bcf
+    done
+  done
+  rm -f wes.bcf* panel.bcf*
 else for rep in 1 2 3; do for k in af001 cohort rerun; do vc $k $k; done; done; fi
 echo DONE
