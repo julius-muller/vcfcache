@@ -7,7 +7,9 @@
 # STACK2=1 adds 1000 Genomes (veprs_onekg_table.sh) and dbNSFP 5.4a read directly, twice: SIFT/PolyPhen,
 # and GERP/phyloP (vep-rs has no bigwig or region sources, so GERP is only where dbNSFP scores it and
 # ENCODE cCREs cannot be added). PREP=1 stops once the caches are built; a second run measures.
-# Usage: [STACK2=1] [PREP=1] wgs_mission_veprs.sh <deployment> [sample]
+# ASSAY=1 measures instead the sample's genome restricted to the Twist core exome (pad 125) and the
+# ACMG SF v3.3 CDS (pad 20), as assay_test.sh: a warm-up, then 3 repeats of every arm.
+# Usage: [STACK2=1] [PREP=1|ASSAY=1] wgs_mission_veprs.sh <deployment> [sample]
 set -uo pipefail
 DEP=$1; SAMPLE=${2:-KPGP-00128}
 export PATH=/results/input-preserving-20261105-tools/bin:$PATH
@@ -95,17 +97,29 @@ fi
 # ---- runs ------------------------------------------------------------------
 N=$(bcftools index -n in.bcf)
 digest() { bcftools view -H $1 | awk -F'\t' 'BEGIN{OFS="\t"} {n=split($8,a,";"); asort(a); s=a[1]; for(i=2;i<=n;i++) s=s";"a[i]; $8=s; print}' | md5sum | cut -c1-12; }
-vc() {  # arm cache [--uncached]
-  local C=$W/caches/$2/cache/$2
+vc() {  # arm cache [--uncached]; input $INP (default in.bcf), table $RUNS (default runs.tsv)
+  local C=$W/caches/$2/cache/$2 I=${INP:-in.bcf}
   rm -rf st out.bcf*
   local s=$(date +%s.%N)
-  env PYTHONPATH=$DEP $PY -c "from vcfcache.cli import main; main()" annotate -a $C -i in.bcf -o out.bcf \
+  env PYTHONPATH=$DEP $PY -c "from vcfcache.cli import main; main()" annotate -a $C -i $I -o out.bcf \
     -y $C/params.snapshot.yaml --statistics light --stats-dir st -v ${3:-} > log.txt 2>&1 || { echo "FAILED $1"; tail -5 log.txt; return; }
   local e=$(echo "$(date +%s.%N) - $s" | bc)
   local miss=$(grep -ho "missing_variants: [0-9]*" -r st | head -1 | cut -d' ' -f2)
   [ -e dig.$1 ] || digest out.bcf > dig.$1
-  printf "%s\t%s\t%s\t%s\t%s\n" "$1" "$N" "${miss:-NA}" "$e" "$(cat dig.$1)" | tee -a $OUT/runs.tsv
+  printf "%s\t%s\t%s\t%s\t%s\n" "$1" "$(bcftools index -n $I)" "${miss:-NA}" "$e" "$(cat dig.$1)" | tee -a ${RUNS:-$OUT/runs.tsv}
 }
+if [ "${ASSAY:-0}" = 1 ]; then
+  RG=/results/fastvep05/cost_model/regions; RUNS=$OUT/assay_runs.tsv; : > $RUNS
+  bcftools view -R $RG/twist_human_core_exome_hg38.chr1-22-X.pad125.merged.bed in.bcf -Ob -W -o wes.bcf
+  bcftools view -R $RG/acmg_sf_v3.3.ensembl115.mane_select_cds_pad20.bed in.bcf -Ob -W -o panel.bcf
+  log "node $(hostname): exome $(bcftools index -n wes.bcf) variants, panel $(bcftools index -n panel.bcf)" | tee $OUT/assay_info.txt
+  rm -f dig.wes.* dig.panel.*
+  for a in wes panel; do
+    INP=$a.bcf; vc $a.warmup af001 --uncached > /dev/null
+    for rep in 1 2 3; do vc $a.uncached af001 --uncached; for k in af001 cohort rerun; do vc $a.$k $k; done; done
+  done
+  rm -f wes.bcf* panel.bcf*; echo DONE; exit 0
+fi
 : > $OUT/runs.tsv
 for rep in 1 2 3; do
   vc uncached af001 --uncached
