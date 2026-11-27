@@ -5,13 +5,14 @@ to the Twist core exome pad 125, panel = ACMG SF v3.3 CDS pad 20) and writes
   results/assay_table.tsv / .md         annotator x assay x cache: direct, cached, speed-up
   results/build_cost_table.tsv / .md    annotator: cache build time and break-even sample count
   results/assay_figure.png / .pdf       speed-up per assay (needs matplotlib)
-  results/build_cost_figure.png / .pdf  time per sample including the cache build (needs matplotlib)
+  results/build_cost_figure.png / .pdf  time per sample including the cache build, and the turnaround
+                                        of one sample with a published cache (needs matplotlib)
 Speed-up = direct / cached, median over repeats per sample, then over samples (range = samples).
 Every annotator runs its mission stack of 11 sources (SnpEff: the 8 VCF sources of the Ensembl VEP
 stack). fastVEP's miss step uses 1 kb sources for genomes and exomes and its 65 kb sources for panels
 (the rule from assay_test.sh). Outputs are checked: one digest per assay over all arms (fastVEP,
 vep-rs), or record-by-record comparisons that show only the known annotator quirks (Ensembl VEP:
-HGNC_ID, CLIN_SIG order; SnpEff: order-dependent ANN warnings).
+HGNC_ID, CLIN_SIG order; SnpEff: INFO tags in header order, snpeff_info_order.sh).
 
 The build cost B is the time to annotate the 18.9 M-record gnomAD AF>=1% blueprint (one node, 16
 threads; results/cache_build_times.tsv, SnpEff from results/snpeff_mission_parts.tsv). A user who
@@ -182,7 +183,8 @@ def write_tables(rs: list[dict], b: dict[str, float]) -> list[dict]:
     (RES / "build_cost_table.tsv").write_text("\n".join(tsv) + "\n")
     (RES / "build_cost_table.md").write_text(
         "\n".join(md) + "\n\nCache build = annotating the 18.9 M-record gnomAD AF>=1% blueprint with the "
-        "11-source stack on one node (16 threads; Ensembl VEP: the sum of 12 parts, one node each). "
+        "mission stack on one node (16 threads; Ensembl VEP and SnpEff: the sum of 12 parts, one node "
+        "each). "
         "Break-even = build / (direct - cached): the number of samples after which building the cache "
         "for one's own stack has paid for itself. With a published cache there is no build. fastVEP's "
         "1 kb miss-step sources are a one-time build of their own, not included.\n")
@@ -246,7 +248,7 @@ def assay_figure(rs: list[dict]) -> None:
         labels = []
         for name in names:
             d = next((x["D"] for x in rs if x["annotator"] == name and x["assay"] == assay), None)
-            labels.append(SHORT[name] + ("" if d is None else f"\ndirect {d:,.0f} s"))
+            labels.append(SHORT[name] + ("" if d is None else f"\ndirect {minutes(d)}"))
         ax.set_xticks(range(len(names)), labels, fontsize=7.8, color=INK)
         ax.tick_params(axis="x", length=0)
         ax.set_xlim(-0.6, len(names) - 0.4)
@@ -266,8 +268,11 @@ def assay_figure(rs: list[dict]) -> None:
         fig.savefig(RES / f"assay_figure.{ext}", dpi=300, facecolor=SURFACE)
 
 
-def build_figure(brows: list[dict]) -> None:
-    """Time per sample including the cache build, relative to direct annotation, over samples."""
+def build_figure(brows: list[dict], rs: list[dict]) -> None:
+    """Time per sample with the cache build over the number of samples (A, B); turnaround (C).
+
+    C: one sample with a published cache (no build), direct against the two cached arms.
+    """
     import matplotlib
 
     matplotlib.use("Agg")
@@ -275,7 +280,12 @@ def build_figure(brows: list[dict]) -> None:
 
     style(plt)
     colours = dict(zip([a[0] for a in ANNOTATORS], [BLUE, ORANGE, AQUA, VIOLET], strict=True))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.0), sharey=True, facecolor=SURFACE)
+    fig = plt.figure(figsize=(15, 4.3), facecolor=SURFACE, layout="constrained")
+    fig.get_layout_engine().set(rect=(0, 0.04, 1, 0.96), wspace=0.04)
+    grid = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.1])
+    a0 = fig.add_subplot(grid[0])
+    axes = [a0, fig.add_subplot(grid[1], sharey=a0)]
+    axes[1].tick_params(labelleft=False)
     ns = [1.2 ** k for k in range(0, 41)]  # 1 .. ~1500 samples
     for ax, (assay, title, nmax) in zip(axes, [("wgs", "Genomes", 50), ("wes", "Exomes", 1000)], strict=True):
         xs = [n for n in ns if n <= nmax]
@@ -309,11 +319,65 @@ def build_figure(brows: list[dict]) -> None:
         tidy(ax)
         ax.set_title(f"{'AB'[assay == 'wes']}  {title}", loc="left", fontsize=9.5, color=INK, fontweight="bold")
     axes[0].set_ylabel("Time per sample incl. cache build / direct (log)")
-    fig.text(0.01, 0.01, "Dot: break-even sample count, build / (direct - cached). "
-             "With a published cache the build costs nothing.", fontsize=7, color=INK2)
-    fig.tight_layout(rect=(0, 0.03, 1, 1), w_pad=2)
+    lead_panel(fig.add_subplot(grid[2]), rs)
+    fig.text(0.01, 0.01, "A, B: dot = break-even sample count, build / (direct - cached); with a published "
+             "cache the build costs nothing.  C: median of 3 samples, published cache (no build).",
+             fontsize=7, color=INK2)
     for ext in ("png", "pdf"):
         fig.savefig(RES / f"build_cost_figure.{ext}", dpi=300, facecolor=SURFACE)
+
+
+def minutes(sec: float) -> str:
+    """Compact duration label."""
+    m = sec / 60
+    if sec < 60:
+        return f"{sec:.0f} s"
+    if m >= 60:
+        return f"{m / 60:.1f} h"
+    return f"{m:.0f} min" if m >= 10 else f"{m:.1f} min"
+
+
+def lead_panel(ax, rs: list[dict]) -> None:
+    """Turnaround of one sample: direct against the two cached arms, per annotator and assay."""
+    from matplotlib.lines import Line2D
+
+    names = [a[0] for a in ANNOTATORS]
+    rows_ = []
+    for assay, title in (("wgs", "genome"), ("wes", "exome")):
+        for name in names:
+            got = {r["cache"]: r for r in rs if r["annotator"] == name and r["assay"] == assay}
+            if got:
+                rows_.append((f"{SHORT[name]}, {title}", got))
+    caches = [("gnomAD AF≥1%", BLUE), ("Cohort", ORANGE)]
+    for i, (_, got) in enumerate(rows_):
+        y = len(rows_) - 1 - i
+        d = next(iter(got.values()))["D"] / 60
+        lo = min(got[c]["C"] for c, _ in caches if c in got) / 60
+        ax.plot([lo, d], [y, y], color=GRID, lw=2.5, zorder=1, solid_capstyle="round")
+        ax.scatter(d, y, s=48, color=SURFACE, edgecolor=INK2, linewidth=1.5, zorder=3)
+        ax.annotate(minutes(d * 60), (d, y), xytext=(7, 0), textcoords="offset points", fontsize=7,
+                    color=INK2, va="center")
+        for c, col in caches:
+            if c in got:
+                ax.scatter(got[c]["C"] / 60, y, s=48, color=col, edgecolor=SURFACE, linewidth=1.5, zorder=4)
+        ax.annotate(minutes(lo * 60), (lo, y), xytext=(-7, 0), textcoords="offset points", fontsize=7,
+                    color=INK2, va="center", ha="right")
+    ax.set_yticks(range(len(rows_)), [r[0] for r in reversed(rows_)], fontsize=7.8, color=INK)
+    ax.tick_params(axis="y", length=0)
+    ax.set_xscale("log")
+    ax.set_xlim(0.12, 1000)
+    xt = [0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500]
+    ax.set_xticks(xt, [f"{t:g}" for t in xt])
+    ax.minorticks_off()
+    ax.set_xlabel("Minutes from called variants to annotated VCF (log)")
+    tidy(ax)
+    ax.grid(False, axis="y")
+    ax.grid(True, axis="x", color=GRID, lw=0.6, zorder=0)
+    ax.set_title("C  Turnaround per sample", loc="left", fontsize=9.5, color=INK, fontweight="bold")
+    h = [Line2D([], [], ls="", marker="o", ms=7, mfc=SURFACE, mec=INK2, label="direct")] + [
+        Line2D([], [], ls="", marker="o", ms=7, color=col, label=lab) for col, lab in
+        [(BLUE, "gnomAD AF≥1% cache"), (ORANGE, "cohort cache")]]
+    ax.legend(handles=h, loc="lower right", frameon=False, fontsize=7.2, labelcolor=INK)
 
 
 if __name__ == "__main__":
@@ -323,4 +387,4 @@ if __name__ == "__main__":
     print((RES / "build_cost_table.md").read_text())
     if "--no-figure" not in sys.argv:
         assay_figure(rs)
-        build_figure(brows)
+        build_figure(brows, rs)

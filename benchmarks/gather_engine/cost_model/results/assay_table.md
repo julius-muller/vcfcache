@@ -27,5 +27,14 @@
 | Ensembl VEP 116.3 | Panel | gnomAD AF≥1% | 284 | 46 | 20.5 | 9.2% | 2.22x (1.98-2.23) |
 | Ensembl VEP 116.3 | Panel | Cohort | 284 | 46 | 15.4 | 3.8% | 2.97x (2.61-3.38) |
 | Ensembl VEP 116.3 | Panel | Rerun | 284 | 46 | 5.1 | 0.0% | 8.83x (8.76-9.46) |
+| SnpEff 5.4c | Genome | gnomAD AF≥1% | 4,605,365 | 5818 | 830.4 | 8.2% | 6.92x (5.86-7.23) |
+| SnpEff 5.4c | Genome | Cohort | 4,605,365 | 5818 | 573.7 | 2.9% | 10.02x (9.88-10.83) |
+| SnpEff 5.4c | Genome | Rerun | 4,605,365 | 5818 | 107.8 | 0.0% | 54.95x (51.29-56.73) |
+| SnpEff 5.4c | Exome | gnomAD AF≥1% | 75,051 | 396 | 195.9 | 7.6% | 1.92x (1.85-2.13) |
+| SnpEff 5.4c | Exome | Cohort | 75,051 | 396 | 170.3 | 3.3% | 2.23x (2.21-2.45) |
+| SnpEff 5.4c | Exome | Rerun | 75,051 | 396 | 87.3 | 0.0% | 4.31x (4.18-4.89) |
+| SnpEff 5.4c | Panel | gnomAD AF≥1% | 284 | 109 | 88.4 | 9.2% | 1.23x (1.09-1.24) |
+| SnpEff 5.4c | Panel | Cohort | 284 | 109 | 89.0 | 3.8% | 1.20x (1.19-1.23) |
+| SnpEff 5.4c | Panel | Rerun | 284 | 109 | 87.8 | 0.0% | 1.22x (1.20-1.26) |
 
 Median over 3 repeats per sample, then over 3 KPGP samples (range over samples). Direct = the annotator alone.
